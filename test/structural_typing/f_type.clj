@@ -13,6 +13,7 @@
 
 (namespace-state-changes (before :facts (reset! accumulator [])))
 
+(type/start-over!)
 
 (fact "basic stateless type checking"
   (let [type-repo (-> accumulating-type-repo

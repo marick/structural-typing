@@ -174,7 +174,7 @@
   (swap! global-type-repo assoc :failure-handler f))
 
 ;; This will be relevant once more of bouncer is exposed.
-(defn ^:no-doc set-formatter!
+(defn set-formatter!
   "If a map or record doesn't match the type, the formatter is called with 
    two arguments. The first is a map from key to list of error messages
    (as created by [Bouncer](https://github.com/leonardoborges/bouncer)).
