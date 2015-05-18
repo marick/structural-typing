@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.4+  
-For lein: [marick/structural-typing "0.9.0"]     
+For lein: [marick/structural-typing "0.1.0"]     
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)
 
@@ -17,7 +17,9 @@ least these specific keys". For example, here's a global definition of the struc
 (type/named! :point [:x :y])
 ```
 
-(There are also variants of these functions that don't mutate global state. See the [API docs](http://marick.github.io/structural-typing/).)
+(There are also variants of these functions that don't mutate a global "type repo". Instead, you pass a type repo to various functions.
+Or, since the type repo is always the first argument, you use `partial` to handle the bookkeeping.
+See the [API docs](http://marick.github.io/structural-typing/).)
 
 
 We can now ask if a given map or record is of that type:
@@ -50,15 +52,14 @@ For example, you might want any type failure to throw an exception. That's done 
 (type/set-failure-handler! type/throwing-failure-handler)
 ```
 
-More generally, `set-failure-handler` can be set to any function that
+More generally, `set-failure-handler!` should be set to any function that
 takes a list of error messages. For example, I use
-[Timbre](https://github.com/ptaoussanis/timbre) to control my logging, so my
-type failures go to its `error` function.
+[Timbre](https://github.com/ptaoussanis/timbre) to handle logging, so my failure handler
+maps `taoensso.timbre/error` over the failure handler's argument.
 
-Another alternative, if you have a monadic bent, is to use something
+Another alternative, if you swing categorically, is to use something
 like the Either monad. Here's an example that uses 
 Armando Blancas's [Morph](https://github.com/blancas/morph) library.
-
 As is common, we'll interpret the result of a computation to have
 either a "left" value (with data about an error) or a "right" value
 (with the computation's result). Those are plugged into our type repo as follows:
@@ -75,7 +76,7 @@ Let's register a type checker for maps that must contain `:a` and `:b`:
 (type/named! :ab [:a :b])
 ```
 
-Here are some result:
+Here are some results:
 ```clojure
 user=> (str (type/checked :ab {:a 1}))
 "Left (b must be present)"
@@ -83,7 +84,7 @@ user=> (str (type/checked :ab {:a 1, :b 1}))
 "Right {:b 1, :a 1}"
 ```
 
-The purpose of an error-handling monad is to easily filter out error values as they pass through a computation. Here's a simple example:
+One purpose of an error-handling monad is to easily filter out error values as they pass through a computation. Here's a simple example:
 
 ```clojure
 ;; Get both types of results
@@ -128,11 +129,13 @@ user=> (m/lefts result)
 
 ## Coercions
 
-I use structural type checking on the boundaries of (bounded
-contexts)[http://martinfowler.com/bliki/BoundedContext.html]. However,
+I use structural type checking on the boundaries of [bounded contexts](http://martinfowler.com/bliki/BoundedContext.html).
+However,
 pure type checking is often not enough. We'd like different bounded
-contexts to have different representations - even of the same
-concept - that evolve at different rates. That means that type
+contexts to have different representations 
+that evolve at different rates. For example, the "bookkeeping" bounded context might have a different structure for "user" than the "warehouse" context does.
+
+That means that type
 conversion may need to take place on values flowing into a
 context. That's done with the `coerce` function.
 
@@ -141,7 +144,7 @@ Here's an example of renaming a key. It uses the `rename-keys` function which, f
 ```clojure
 (type/start-over!) ; this empties the type repo and resets the success, failure, and formatter functions.
 (type/named! :ab [:a :b])
-(type/coercion! :ab (fn [from] (clojure.set/rename-keys from {:aa :a}))) ; old format
+(type/coercion! :ab (fn [from] (clojure.set/rename-keys from {:aa :a})))
 ```
 
 We can now handle either old-format or new-format maps:
@@ -150,7 +153,7 @@ We can now handle either old-format or new-format maps:
 user=> (type/coerce :ab {:aa 1, :b 2, :c 3}) ; old format
 {:a 1, :c 3, :b 2}
 
-user=> (type/coerce :ab {:a 1, :b 2, :c 3}) ; newformat
+user=> (type/coerce :ab {:a 1, :b 2, :c 3}) ; new format
 {:c 3, :b 2, :a 1}
 ```
 
@@ -163,10 +166,15 @@ nil
 ```
 
 So the ordering of events is:
+
 1. Possibly malformatted map arrives.
 2. It is corrected.
 3. It is checked.
 
+Note: if the coercion function has to handle more than one incoming
+type, all the logic to choose between them has to be within it. I
+can imagine a version of `coercion` that takes a map of type names
+to conversion functions, but that hasn't been written.
 
 ## Using more than key names for types
 
