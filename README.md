@@ -55,18 +55,22 @@ type failures go to its `error` function.
 
 Another alternative, if you have a monadic bent, is to use something like the Either monad. Here's an example with...
 
-== Coercions
+## Coercions
 
 ...
 
-== Typing on more than keys
+## Typing on more than keys
 
 This library uses [bouncer](https://github.com/leonardoborges/bouncer)
 under the hood. At some point, I'll expose more of that so that you
 can, for example, declare that `:x` and `:y` must both be floats.
 
-== Credits
+## Credits
 
 I was inspired by Elm's typing for its [records](http://elm-lang.org/learn/Records.elm).
 
 [Structural typing](http://en.wikipedia.org/wiki/Structural_type_system) is a respectable variant of typing, standing between name-based typing (which only is only indirectly about structure) and duck typing (which only cares about a particular field at a particular time). 
+
+I first used type checking of this sort at
+[GetSet](http://getset.com), though this API is better. (Sorry,
+GetSet!)
