@@ -11,7 +11,7 @@
 (fact "using an Either monad"
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
     (m/rights result) => [{:a 1 :b 2} {:a 1 :b 2 :c 3}]
-    (flatten (m/lefts result)) => ["b must be present" "a must be present"]))
+    (flatten (m/lefts result)) => (just #"b must be present" #"a must be present")))
 
 
 (type/set-formatter! (fn [errors-by-key original]
@@ -19,5 +19,5 @@
 
 (fact "using an Either monad"
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
-    (m/lefts result) => [[{:a 1} "b must be present"]
-                         [{:b 2} "a must be present"]]))
+    (m/lefts result) => [[{:a 1} ":b must be present and non-nil"]
+                         [{:b 2} ":a must be present and non-nil"]]))

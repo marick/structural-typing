@@ -1,10 +1,10 @@
 (ns structural-typing.type
-  "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm)."
+  "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
+   Builds on top of [Bouncer](https://github.com/leonardoborges/bouncer)."
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
             [bouncer.core :as b]
-            [bouncer.validators :as v]
-            [such.immigration :as immigrate]))
+            [structural-typing.validators :as v]))
 
 ;;; About our type
 
@@ -57,14 +57,34 @@
 
 (declare checked global-type-repo)
 
-(defn- named-internal [type-repo name keys]
-  (let [validator-map (reduce (fn [so-far k] (assoc so-far k v/required))
+(defn- update-each-value [kvs f & args]
+  (reduce (fn [so-far k] 
+            (assoc so-far k (apply f (get kvs k) args)))
+          kvs
+          (keys kvs)))
+
+(defn- named-internal
+  [type-repo name keys bouncer-map]
+  (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
-                              keys)]
-    (assoc-in type-repo [:validators name] validator-map)))
+                              keys)
+        bouncer-map (update-each-value bouncer-map #(if (vector? %) % (vector %)))]
+    (assoc-in type-repo [:validators name]
+              (merge-with into validator-map bouncer-map))))
+
+(defn better-messages [{path :path, value :value optional-message-arg :message
+                        {default-message-format :default-message-format} :metadata
+                        :as kvs}]
+  (let [handler (or optional-message-arg default-message-format
+                    "configuration error: no message format")]
+    (if (fn? handler)
+      (handler kvs)
+      (format handler
+              (pr-str (if (= 1 (count path)) (first path) path))
+              (pr-str value)))))
 
 (defn- checked-internal [type-repo name kvs]
-  (let [[errors actual] (b/validate kvs (get-in type-repo [:validators name]))]
+  (let [[errors actual] (b/validate better-messages kvs (get-in type-repo [:validators name]))]
     (if (empty? errors)
       ((:success-handler type-repo) kvs)
       (-> ( (:formatter type-repo) errors (dissoc actual :bouncer.core/errors))
@@ -74,10 +94,31 @@
   "Define the type `name` as being a map or record containing all of the given `keys`.
    Returns the augmented `type-repo`. See also [[named!]].
 "
-  [type-repo name keys]
-  (checked-internal own-types :type-repo type-repo)
-  (named-internal type-repo name keys))
+  ([type-repo name keys bouncer-map]
+     (checked-internal own-types :type-repo type-repo)
+     (named-internal type-repo name keys bouncer-map))
+  ([type-repo name keys]
+     (named type-repo name keys {})))
 
+(defn optional
+  "Construct a function that takes a single value.
+
+   * If that value is `nil`, the result is `true`.
+   * Otherwise, if the value causes all of the `fns` to return a truthy value, the result is `true`.
+   * Otherwise, the result is `false`.
+
+       ( (type/optional number? even?) nil) => true
+       ( (type/optional number? even?) 'a) => false  ; note evaluation short-circuits.
+       ( (type/optional number? even?) 1) => false
+       ( (type/optional number? even?) 2) => true"
+  [& fns]
+  (fn [value]
+    (if (nil? value)
+      true
+      (try 
+        ( (apply every-pred fns) value)
+        (catch Exception ex false)))))
+  
 (defn checked
   "Check the map `kvs` against the previously-defined type `name` in the given
    `type-repo`. If the `type-repo` is omitted, the global one is used.
@@ -144,7 +185,7 @@
 (def ^:private own-types
   (-> empty-type-repo
       (assoc :failure-handler throwing-failure-handler)
-      (named-internal :type-repo [:success-handler :failure-handler :formatter])))
+      (named-internal :type-repo [:success-handler :failure-handler :formatter] {})))
 
 ;;; Side-effecting API
 
