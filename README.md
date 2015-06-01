@@ -3,7 +3,7 @@ For lein: [marick/structural-typing "0.1.0"]
 Development version: [marick/structural-typing "0.2.0-SNAPSHOT"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)
-
+ 
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
 
