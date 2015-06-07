@@ -6,8 +6,6 @@
 
 (namespace-state-changes (before :facts (accumulator/reset!)))
 
-(type/start-over!)
-
 (fact "basic stateless type checking"
   (let [type-repo (-> accumulator/type-repo
                       (type/named :hork [:a :b]))]
@@ -109,31 +107,6 @@
 (future-fact "bouncer validators work")
 
 (future-fact "own validators")    
-
-;;; Global type repo
-
-(fact "normally, a global variable stores all the types"
-  (type/start-over!)
-  (type/set-failure-handler! accumulator/failure-handler)
-
-  (fact "ordinary checking"
-    (type/named! :stringish ["not a keyword"])
-    (type/checked :stringish {"not a keyword" 1}) => {"not a keyword" 1}
-
-    (fact "instance?"
-      (type/instance? :stringish {"not a keyword" 1}) => true
-      (type/instance? :stringish {:a 1}) => false)
-
-    (fact "checking"
-      (type/checked :stringish {:a 1}) => :failure-handler-called
-      (accumulator/messages) => (just #"\"not a keyword\" must be present"))
-
-    (fact "coercion"
-      (type/coercion! :stringish (fn [from]
-                                 (set/rename-keys from {:not-a-keyword "not a keyword"})))
-      (type/coerce :stringish {:a 1}) => :failure-handler-called
-      (type/coerce :stringish {"not a keyword" 1}) => {"not a keyword" 1}
-      (type/coerce :stringish {:not-a-keyword 1}) => {"not a keyword" 1})))
 
 
 ;;; Util
