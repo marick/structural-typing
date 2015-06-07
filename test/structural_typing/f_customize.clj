@@ -48,3 +48,6 @@
     => "[\"a\"]/4")
   
   )
+
+
+(future-fact "throwing failure handler")

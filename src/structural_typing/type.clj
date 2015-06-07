@@ -9,33 +9,6 @@
 
 ;;; About our type
 
-(defn default-failure-handler
-  "This failure handler prints each error message on a separate line. It returns
-   `nil`, allowing constructs like this:
-   
-        (some-> (type/checked :frobnoz x)
-                (assoc :goodness true)
-                ...)
-"
-  [messages]
-  (doseq [s messages]
-    (println s))
-  nil)
-
-(defn throwing-failure-handler 
-  "In contrast to the default failure handler, this one throws a
-   `java.lang.Exception` whose message is the concatenation of the
-   type-mismatch messages.
-   
-   To make all type mismatches throw failures, do this:
-   
-          (type/set-failure-handler! type/throwing-failure-handler)
-"
-  [messages]
-  (throw (new Exception (str/join "\n" messages))))
-
-(def ^:private default-success-handler identity)
-
 (def empty-type-repo
   "A repository that contains no type descriptions. It contains
    default behavior for both success and failure cases. Here's
@@ -45,9 +18,11 @@
              (assoc :failure-handler type/throwing-failure-handler)
              (type/named :frobable [:left :right :arrow]))
 "
-  {:failure-handler default-failure-handler
-   :success-handler default-success-handler
-   :bouncer-map-adapter custom/default-bouncer-map-adapter})
+  {:failure-handler custom/default-failure-handler
+   :success-handler custom/default-success-handler
+   :bouncer-map-adapter custom/default-bouncer-map-adapter
+   :error-string-producer custom/default-error-string-producer
+   })
 
 (declare ^:private own-types)
 
@@ -71,7 +46,8 @@
               (merge-with into validator-map bouncer-map))))
 
 (defn- checked-internal [type-repo name kvs]
-  (let [[errors actual] (b/validate custom/default-error-string-producer kvs (get-in type-repo [:validators name]))]
+  (let [[errors actual]
+        (b/validate (:error-string-producer type-repo) kvs (get-in type-repo [:validators name]))]
     (if (empty? errors)
       ((:success-handler type-repo) kvs)
       (-> ( (:bouncer-map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
@@ -171,7 +147,7 @@
 
 (def ^:private own-types
   (-> empty-type-repo
-      (assoc :failure-handler throwing-failure-handler)
+      (assoc :failure-handler custom/throwing-failure-handler)
       (named-internal :type-repo [:success-handler :failure-handler :bouncer-map-adapter] {})))
 
 ;;; Side-effecting API

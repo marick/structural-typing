@@ -4,6 +4,35 @@
             [bouncer.core :as b]
             [structural-typing.validators :as v]))
 
+(def default-success-handler identity)
+
+(defn default-failure-handler
+  "This failure handler prints each error message on a separate line. It returns
+   `nil`, allowing constructs like this:
+   
+        (some-> (type/checked :frobnoz x)
+                (assoc :goodness true)
+                ...)
+"
+  [messages]
+  (doseq [s messages]
+    (println s))
+  nil)
+
+(defn throwing-failure-handler 
+  "In contrast to the default failure handler, this one throws a
+   `java.lang.Exception` whose message is the concatenation of the
+   type-mismatch messages.
+   
+   To make all type mismatches throw failures, do this:
+   
+          (type/set-failure-handler! type/throwing-failure-handler)
+"
+  [messages]
+  (throw (new Exception (str/join "\n" messages))))
+
+
+
 (defn default-bouncer-map-adapter [error-map checked-map]
   (flatten (vals error-map)))
 
