@@ -4,7 +4,7 @@
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
             [bouncer.core :as b])
-  (:require [structural-typing.customize :as custom]
+  (:require [structural-typing.pipeline-stages :as stages]
             [structural-typing.validators :as v]))
 
 ;;; About our type
@@ -18,10 +18,10 @@
              (assoc :failure-handler type/throwing-failure-handler)
              (type/named :frobable [:left :right :arrow]))
 "
-  {:failure-handler custom/default-failure-handler
-   :success-handler custom/default-success-handler
-   :bouncer-map-adapter custom/default-bouncer-map-adapter
-   :error-string-producer custom/default-error-string-producer
+  {:failure-handler stages/default-failure-handler
+   :success-handler stages/default-success-handler
+   :bouncer-map-adapter stages/default-bouncer-map-adapter
+   :error-string-producer stages/default-error-string-producer
    })
 
 (declare ^:private own-types)
@@ -147,7 +147,7 @@
 
 (def ^:private own-types
   (-> empty-type-repo
-      (assoc :failure-handler custom/throwing-failure-handler)
+      (assoc :failure-handler stages/throwing-failure-handler)
       (named-internal :type-repo [:success-handler :failure-handler :bouncer-map-adapter] {})))
 
 ;;; Side-effecting API

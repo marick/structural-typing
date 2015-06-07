@@ -1,4 +1,4 @@
-(ns structural-typing.customize
+(ns structural-typing.pipeline-stages
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
             [bouncer.core :as b]

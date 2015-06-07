@@ -1,5 +1,5 @@
-(ns structural-typing.f-customize
-  (:require [structural-typing.customize :as subject]
+(ns structural-typing.f-pipeline-stages
+  (:require [structural-typing.pipeline-stages :as subject]
             [structural-typing.testutil.accumulator :as accumulator])
   (:use midje.sweet))
 
