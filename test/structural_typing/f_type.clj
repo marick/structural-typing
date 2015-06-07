@@ -110,54 +110,14 @@
 
 
 ;;; Util
-  
-(fact "the default formatter is given two arguments"
+
+(future-fact "the bouncer map adapter can be customized"
   (let [type-repo (-> accumulator/type-repo
                       (assoc ;; this will cause the maps to be emitted separately.
-                             :formatter (fn [e kvs] (vector e kvs)))
+                             :bouncer-map-adapter (fn [e kvs] (vector e kvs)))
                       (type/named :hork [:a :b]))]
       (type/checked type-repo :hork {:c 3}) => :failure-handler-called
       (accumulator/messages) => (just {:a [":a must be present and non-nil"]
-                             :b [":b must be present and non-nil"]}
-                            {:c 3})))
-(facts "about `better-messages`"
-  (fact "a typical call formats keys and values, uses default-message-format"
-    (type/better-messages {:path [:a]
-                           :value "wrong"
-                           :metadata {:default-message-format "%s - %s"}})
-    => ":a - \"wrong\"")
+                                       :b [":b must be present and non-nil"]}
+                                      {:c 3})))
 
-  (fact "a non-singular path is printed as an array"
-    (type/better-messages {:path [:a, :b]
-                           :value "wrong"
-                           :metadata {:default-message-format "%s - %s"}})
-    => "[:a :b] - \"wrong\"")
-
-  (fact "a message-format overrides the default"
-    (type/better-messages {:path [:a, :b]
-                           :value "wrong"
-                           :metadata {:default-message-format "%s - %s"}
-                           :message "%s derp %s"})
-    => "[:a :b] derp \"wrong\"")
-
-  (fact "a single format argument is allowed in a message"
-    (type/better-messages {:path [:a]
-                           :value "wrong"
-                           :metadata {:default-message-format "%s must be present"}})
-    => ":a must be present")
-
-  (fact "the default message format can be a function that takes the bouncer map"
-    (type/better-messages {:path ["a"]
-                           :value 3
-                           :metadata {:default-message-format
-                                      #(format "%s/%s" (:path %) (inc (:value %)))}})
-    => "[\"a\"]/4")
-    
-  (fact "... as can be the given message format (which is given raw path and value)"
-    (type/better-messages {:path ["a"]
-                           :value 3
-                           :metadata {:default-message-format
-                                      #(format "%s/%s" (:path %) (inc (:value %)))}})
-    => "[\"a\"]/4")
-    
-  )

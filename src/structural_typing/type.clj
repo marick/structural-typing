@@ -3,13 +3,11 @@
    Builds on top of [Bouncer](https://github.com/leonardoborges/bouncer)."
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
-            [bouncer.core :as b]
+            [bouncer.core :as b])
+  (:require [structural-typing.customize :as custom]
             [structural-typing.validators :as v]))
 
 ;;; About our type
-
-(defn- default-formatter [error-map checked-map]
-  (flatten (vals error-map)))
 
 (defn default-failure-handler
   "This failure handler prints each error message on a separate line. It returns
@@ -49,7 +47,7 @@
 "
   {:failure-handler default-failure-handler
    :success-handler default-success-handler
-   :formatter default-formatter})
+   :bouncer-map-adapter custom/default-bouncer-map-adapter})
 
 (declare ^:private own-types)
 
@@ -72,22 +70,11 @@
     (assoc-in type-repo [:validators name]
               (merge-with into validator-map bouncer-map))))
 
-(defn better-messages [{path :path, value :value optional-message-arg :message
-                        {default-message-format :default-message-format} :metadata
-                        :as kvs}]
-  (let [handler (or optional-message-arg default-message-format
-                    "configuration error: no message format")]
-    (if (fn? handler)
-      (handler kvs)
-      (format handler
-              (pr-str (if (= 1 (count path)) (first path) path))
-              (pr-str value)))))
-
 (defn- checked-internal [type-repo name kvs]
-  (let [[errors actual] (b/validate better-messages kvs (get-in type-repo [:validators name]))]
+  (let [[errors actual] (b/validate custom/default-error-string-producer kvs (get-in type-repo [:validators name]))]
     (if (empty? errors)
       ((:success-handler type-repo) kvs)
-      (-> ( (:formatter type-repo) errors (dissoc actual :bouncer.core/errors))
+      (-> ( (:bouncer-map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
           ((:failure-handler type-repo))))))
 
 (defn named 
@@ -185,7 +172,7 @@
 (def ^:private own-types
   (-> empty-type-repo
       (assoc :failure-handler throwing-failure-handler)
-      (named-internal :type-repo [:success-handler :failure-handler :formatter] {})))
+      (named-internal :type-repo [:success-handler :failure-handler :bouncer-map-adapter] {})))
 
 ;;; Side-effecting API
 
@@ -221,7 +208,7 @@
    (as created by [Bouncer](https://github.com/leonardoborges/bouncer)).
    The second is the original map or record passed to `checked`."
   [f]
-  (swap! global-type-repo assoc :formatter f))
+  (swap! global-type-repo assoc :bouncer-map-adapter f))
   
 (defn named! 
   "Modifies the global type repo to define the type `name` as being
