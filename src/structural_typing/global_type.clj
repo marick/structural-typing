@@ -6,7 +6,7 @@
   "Reset the global type repo to its starting state: no types defined, and default
    handling of failure and success."
   []
-  (alter-var-root #'stages/global-type-repo (fn [_] (atom stages/empty-type-repo))))
+  (alter-var-root #'stages/global-type-repo (fn [_] (atom type/empty-type-repo))))
 (start-over!)
 
 (defn set-success-handler!

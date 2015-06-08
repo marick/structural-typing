@@ -7,9 +7,6 @@
   (:require [structural-typing.pipeline-stages :as stages]
             [structural-typing.validators :as v]))
 
-;; This is included in this namespace so that its users don't have to
-;; require `pipeline-stages` just for it. It has to be there to avoid
-;; a circular dependency on the global type repo.
 (def empty-type-repo
   "A repository that contains no type descriptions. It contains
    default behavior for both success and failure cases. Here's
@@ -19,7 +16,12 @@
              (assoc :failure-handler type/throwing-failure-handler)
              (type/named :frobable [:left :right :arrow]))
 "
-  stages/empty-type-repo)
+  {:failure-handler stages/default-failure-handler
+   :success-handler stages/default-success-handler
+   :bouncer-map-adapter stages/default-bouncer-map-adapter
+   :error-string-producer stages/default-error-string-producer
+   })
+
 
 (declare ^:private own-types)
 
