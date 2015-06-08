@@ -10,7 +10,8 @@
                  [bouncer "0.3.2" :exclusions [org.clojure/clojure]]]
 
   :profiles {:dev {:dependencies [[midje "1.7.0-beta1" :exclusions [org.clojure/clojure]]
-                                  [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]]}
+                                  [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
+                                  [com.taoensso/timbre "3.4.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
              :1.5.1 {:dependencies [[org.clojure/clojure "1.5.1"]]}

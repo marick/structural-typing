@@ -7,56 +7,112 @@ License: [Unlicense](http://unlicense.org/) (public domain)
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
 
-# structural-typing
+## Typing driven by the existence of keys
 
 This library provides an easy way to say "a given map must contain at
-least these specific keys". For example, here's a global definition of the structural type `:point`:
+least these specific keys". It's intended mainly for use at the
+boundaries of libraries or services, where errors are logged to be
+viewed by programmers. It can also be used to generate validation
+errors to be shown to the user, though libraries like
+[Bouncer](https://github.com/leonardoborges/bouncer) or
+[Validateur](http://clojurevalidations.info/) may fit better.
+
+### Case 1: a service
+
+Suppose you have a service of some sort that runs as an independent
+Clojure process. You'll most likely have a namespace that describes
+the types of structures that flow into and out of the service. Let's
+suppose that there's only one such type, a `:point`:
 
 ```clojure
-(require '[structural-typing.type :as type])
+(ns munger.types 
+  (:require [structural-typing.global-type :as global-type]))
 
-(type/named! :point [:x :y])
+(defn setup! []
+  (global-type/named! :point [:x :y]))
+
+(defn teardown! []
+  (global-type/start-over!))
 ```
 
-(There are also variants of these functions that don't mutate a global "type repo". Instead, you pass a type repo to various functions.
-Or, since the type repo is always the first argument, you use `partial` to handle the bookkeeping.
-See the [API docs](http://marick.github.io/structural-typing/).)
-
-
-We can now ask if a given map or record is of that type:
+Suppose that some handler function is supposed to consume a point that comes across AMQP. The handler can be written like this:
 
 ```clojure
-(type/instance? :point {:x 1, :y 1}) => true
-(type/instance? :point {:x 1, :y 1, :color :green}) => true ; green points are points 
-(type/instance? :point {:x 1, :y 1, :z 1}) => true ; extra dimensions don't destroy "pointhood"
-(type/instance? :point {:x 1} => false
+(ns munger.point-service
+  (:require [structural-typing.type :as type]))
+  
+(defn handler [payload]
+  (some-> (type/checked :point payload)
+          frob
+          twiddle
+          tweak))
 ```
 
-More common than `instance?` is `checked`, which normally just returns what it was given:
+If the `payload` contains `:x` and `:y`, it will be
+frobbed, twiddled, and tweaked, and the result will be returned. 
+
+If, however, either `:x` or `:y` are missing, this error message will be printed to standard output:
+
+```
+:y must be present and non-nil
+```
+
+Also, the rest of the pipeline will be skipped and `nil` will be the final result (because of `some->`).
+
+It's quite likely a simple `println` of output won't suffice. Suppose
+you (like me) use Peter Taoussanis's
+[Timbre](https://github.com/ptaoussanis/timbre) logging library. In that case, you can do the following:
 
 ```clojure
-(type/checked :point {:x 1, :y 1}) => {:x 1, :y 1}
-```
+(ns munger.types 
+  (:require [structural-typing.global-type :as global-type]
+            [taoensso.timbre :refer [error]]))
 
-In the case of error, it returns `nil`, which is useful in constructs like this:
+(defn setup! []
+  (global-type/named! :point [:x :y])
+  (global-type/set-failure-handler! #(doseq [msg %] (error msg))))
+    
+```
 
 ```clojure
-(some-> (type/checked :frobnoz x)
-        (assoc :goodness true)
-        ...)
+user=> (type/checked :point {:x nil :y 1})
+2015-Jun-08 15:28:11 -0500 busted ERROR [user] - :x must be present and non-nil
+nil
 ```
 
-It also prints an error, via `println`. Most likely, that's not the error notification you want.
-For example, you might want any type failure to throw an exception. That's done like this:
+### Important notes
 
-```clojure 
-(type/set-failure-handler! type/throwing-failure-handler)
+1. The type checker allows extra keys. That is, both `{:x 1, :y 1}` and `{:x 1, :y 1, and :z 3}` are considered
+   points.
+
+2. `nil` values are always an error. It doesn't matter if the `nil` was an explicit value of a key or the default default value.
+   That is, the following map is also an incorrect point: `{:x nil, :y 1}`.
+
+
+### Case 2: a namespace
+
+Suppose the `:point` type is only relevant to a particular namespace. You can scope point-checking to that namespace
+like this:
+
+```clojure
+(ns munger.lib
+  (:require [structural-typing.type :as type]))
+
+(def type-repo (-> type/empty-type-repo
+                   (type/named :point [:x :y])
+                   (assoc :failure-handler #(doseq [msg %] (error msg)))))
+
+(def type-checked (partial type/checked type-repo))
+
+(defn handler [payload]
+  (some-> (type-checked :point payload)
+          frob
+          twiddle
+          tweak))
 ```
 
-More generally, `set-failure-handler!` should be set to any function that
-takes a list of error messages. For example, I use
-[Timbre](https://github.com/ptaoussanis/timbre) to handle logging, so my failure handler
-maps `taoensso.timbre/error` over the failure handler's argument.
+
+### Case 3: For the monadically inclined
 
 Another alternative, if you swing categorically, is to use something
 like the Either monad. Here's an example that uses 
@@ -66,22 +122,23 @@ either a "left" value (with data about an error) or a "right" value
 (with the computation's result). Those are plugged into our type repo as follows:
 
 ```clojure
-(require '[structural-typing.type :as type])
-(type/set-failure-handler! m/left)
-(type/set-success-handler! m/right)
+(require '[blancas.morph.monads :as m])
+(global-type/start-over!)
+(global-type/set-failure-handler! m/left)
+(global-type/set-success-handler! m/right)
 ```
 
 Let's register a type checker for maps that must contain `:a` and `:b`:
 
 ```clojure
-(type/named! :ab [:a :b])
+(global-type/named! :ab [:a :b])
 ```
 
 Here are some results:
 ```clojure
-user=> (str (type/checked :ab {:a 1}))
-"Left (b must be present)"
-user=> (str (type/checked :ab {:a 1, :b 1}))
+user=> (type/checked :ab {:a 1})
+Left (:b must be present and non-nil)
+user=> (type/checked :ab {:a 1, :b 1})
 "Right {:b 1, :a 1}"
 ```
 
@@ -97,26 +154,26 @@ user=> (m/rights result)
 
 ;; Extract the failures, which note are in a list of lists
 user=> (map println (m/lefts result))
-(b must be present)
-(a must be present)
+(:b must be present and non-nil)
+(:a must be present and non-nil)
 (nil nil)
 ```
 
 That output is not so satisfying because the error messages don't
-identify which map they apply to. That can be fixed by setting the
-type repo's *formatter*. It takes two arguments. The first is a map
-from key to error messages:
+identify which of the four input maps they apply to. That can be fixed by setting the
+type repo's *map-adapter*. It takes two arguments. The first is a map
+from key to a sequence of error messages:
 
 ```clojure
-{:a ["b must be present"]}
+{:b [":b must be present and non-nil"]}
 ```
 
 The second is the map being checked. We can use that to produce, for
 each map, a list containing all the error messages with the original at its head:
 
 ```clojure
-(type/set-formatter! (fn [errors-by-key original]
-                       (cons original (flatten (vals errors-by-key)))))
+(global-type/set-map-adapter! (fn [errors-by-key original]
+                                (cons original (flatten (vals errors-by-key)))))
 ```
 
 The result looks like this:
@@ -125,8 +182,22 @@ The result looks like this:
 ;; need to get a new set of lefts.
 user=> (def result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}]))
 user=> (m/lefts result)
-(({:a 1} "b must be present") ({:b 2} "a must be present"))
+(({:a 1} ":b must be present and non-nil") ({:b 2} ":a must be present and non-nil"))
 ```
+
+### Instance checks
+
+If you want boolean results rather than out-of-band error messages, use `instance?`:
+
+```clojure
+(type/instance? :point {:x 1, :y 1}) => true
+(type/instance? :point {:x 1, :y 1, :color :green}) => true ; green points are points 
+(type/instance? :point {:x 1, :y 1, :z 1}) => true ; extra dimensions don't destroy "pointhood"
+(type/instance? :point {:x 1} => false
+
+
+
+
 
 ## Coercions
 
@@ -143,9 +214,8 @@ context. That's done with the `coerce` function.
 Here's an example of renaming a key. It uses the `rename-keys` function which, for some unknown reason, is in `clojure.set`.
 
 ```clojure
-(type/start-over!) ; this empties the type repo and resets the success, failure, and formatter functions.
-(type/named! :ab [:a :b])
-(type/coercion! :ab (fn [from] (clojure.set/rename-keys from {:aa :a})))
+(global-type/named! :ab [:a :b])
+(global-type/coercion! :ab (fn [from] (clojure.set/rename-keys from {:aa :a})))
 ```
 
 We can now handle either old-format or new-format maps:
@@ -162,28 +232,31 @@ Note that the result of the `coercion` function is also checked:
 
 ```clojure
 user=> (type/coerce :ab {:aa 1})
-b must be present
+:b must be present and non-nil
 nil
 ```
 
-So the ordering of events is:
+Because of this, you can use `coerce` in the sort of pipelines that `checked` was used for above:
 
-1. Possibly malformatted map arrives.
-2. It is corrected.
-3. It is checked.
+```clojure
+(some-> (type/coerced :point payload)
+          frob
+          twiddle
+          tweak))
+```
 
 Note: if the coercion function has to handle more than one incoming
 type, all the logic to choose between them has to be within it. I
 can imagine a version of `coercion` that takes a map of type names
 to conversion functions, but that hasn't been written.
 
-## Using more than key names for types
+## Checking the types of values
 
-This library uses [Bouncer](https://github.com/leonardoborges/bouncer)
-under the hood. At some point, I'll expose more of that so that you
-can, for example, declare that `:x` and `:y` must both be floats.
 
-## Credits
+
+## End Matter
+
+### Credits
 
 I was inspired by Elm's typing for its [records](http://elm-lang.org/learn/Records.elm).
 
@@ -195,7 +268,7 @@ GetSet!)
 
 [Bouncer](https://github.com/leonardoborges/bouncer) does the actual checking.
 
-## Contributing
+### Contributing
 
 Pull requests accepted, provided you have the right to put your contribution into the public domain.
 To allow me to be a teensy bit scrupulous, please include the following text in
