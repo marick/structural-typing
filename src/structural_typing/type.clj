@@ -7,8 +7,9 @@
   (:require [structural-typing.pipeline-stages :as stages]
             [structural-typing.validators :as v]))
 
-;;; About our type
-
+;; This is included in this namespace so that its users don't have to
+;; require `pipeline-stages` just for it. It has to be there to avoid
+;; a circular dependency on the global type repo.
 (def empty-type-repo
   "A repository that contains no type descriptions. It contains
    default behavior for both success and failure cases. Here's
@@ -18,17 +19,13 @@
              (assoc :failure-handler type/throwing-failure-handler)
              (type/named :frobable [:left :right :arrow]))
 "
-  {:failure-handler stages/default-failure-handler
-   :success-handler stages/default-success-handler
-   :bouncer-map-adapter stages/default-bouncer-map-adapter
-   :error-string-producer stages/default-error-string-producer
-   })
+  stages/empty-type-repo)
 
 (declare ^:private own-types)
 
 ;;; Non-side-effecting API
 
-(declare checked global-type-repo)
+(declare checked)
 
 (defn- update-each-value [kvs f & args]
   (reduce (fn [so-far k] 
@@ -96,7 +93,7 @@
      (checked-internal own-types :type-repo type-repo)
      (checked-internal type-repo name kvs))
   ([name kvs]
-     (checked @global-type-repo name kvs)))
+     (checked @stages/global-type-repo name kvs)))
 
 (defn instance? 
   "Return `true` iff the map or record `kvs` typechecks against the type named `name` in
@@ -111,7 +108,7 @@
               name 
               kvs))
   ([name kvs]
-     (instance? @global-type-repo name kvs)))
+     (instance? @stages/global-type-repo name kvs)))
 
 (defn coercion 
   "Register function `f` as one that can coerce a map or record into 
@@ -140,7 +137,7 @@
        (->> (coercer kvs)
             (checked-internal type-repo name))))
   ([name kvs]
-     (coerce @global-type-repo name kvs)))
+     (coerce @stages/global-type-repo name kvs)))
 
 
 ;;; Own types
@@ -150,54 +147,4 @@
       (assoc :failure-handler stages/throwing-failure-handler)
       (named-internal :type-repo [:success-handler :failure-handler :bouncer-map-adapter] {})))
 
-;;; Side-effecting API
-
-(def ^:private global-type-repo)
-
-(defn start-over!
-  "Reset the global type repo to its starting state: no types defined, and default
-   handling of failure and success."
-  []
-  (alter-var-root #'global-type-repo (fn [_] (atom empty-type-repo))))
-(start-over!)
-
-(defn set-success-handler!
-  "Change the global type repo so that `f` is called when [[checked]]
-   succeeds. `f` is given the original map or record. `f`'s return value becomes
-   the return value of `checked`.
-"
-  [f]
-  (swap! global-type-repo assoc :success-handler f))
-
-(defn set-failure-handler!
-  "Change the global type repo so that `f` is called when [[checked]]
-   fails. `f` is given a list of error messages. `f`'s return value becomes
-   the return value of `checked`.
-"
-  [f]
-  (swap! global-type-repo assoc :failure-handler f))
-
-;; This will be relevant once more of bouncer is exposed.
-(defn set-formatter!
-  "If a map or record doesn't match the type, the formatter is called with 
-   two arguments. The first is a map from key to list of error messages
-   (as created by [Bouncer](https://github.com/leonardoborges/bouncer)).
-   The second is the original map or record passed to `checked`."
-  [f]
-  (swap! global-type-repo assoc :bouncer-map-adapter f))
-  
-(defn named! 
-  "Modifies the global type repo to define the type `name` as being
-   a map or record containing all of the given `keys`.
-   See also [[named]].
-"
-  [name keys]
-  (swap! global-type-repo named name keys))
-
-(defn coercion! 
-  "Modify the global type repo to register function `f` as one that
-   can coerce a map or record into one matching type `name`.
-   See also [[coercion]]."
-  [name f]
-  (swap! global-type-repo coercion name f))
 

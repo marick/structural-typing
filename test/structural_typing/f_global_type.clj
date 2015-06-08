@@ -1,4 +1,5 @@
-(ns structural-typing.f-global-type-repo
+(ns structural-typing.f-global-type
+  (:require [structural-typing.global-type :as global-type])
   (:require [structural-typing.type :as type]
             [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator])
@@ -9,11 +10,11 @@
 ;;; Global type repo
 
 (fact "in most uses, a global variable stores all the types"
-  (type/start-over!)
-  (type/set-failure-handler! accumulator/failure-handler)
+  (global-type/start-over!)
+  (global-type/set-failure-handler! accumulator/failure-handler)
 
   (fact "ordinary checking"
-    (type/named! :stringish ["not a keyword"])
+    (global-type/named! :stringish ["not a keyword"])
     (type/checked :stringish {"not a keyword" 1}) => {"not a keyword" 1}
 
     (fact "instance?"
@@ -25,7 +26,7 @@
       (accumulator/messages) => (just #"\"not a keyword\" must be present"))
 
     (fact "coercion"
-      (type/coercion! :stringish (fn [from]
+      (global-type/coercion! :stringish (fn [from]
                                  (set/rename-keys from {:not-a-keyword "not a keyword"})))
       (type/coerce :stringish {:a 1}) => :failure-handler-called
       (type/coerce :stringish {"not a keyword" 1}) => {"not a keyword" 1}

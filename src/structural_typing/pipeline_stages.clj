@@ -47,3 +47,21 @@
               (pr-str (if (= 1 (count path)) (first path) path))
               (pr-str value)))))
 
+(def empty-type-repo
+  "A repository that contains no type descriptions. It contains
+   default behavior for both success and failure cases. Here's
+   an example of changing the behavior and adding a type:
+   
+         (-> type/empty-type-repo
+             (assoc :failure-handler type/throwing-failure-handler)
+             (type/named :frobable [:left :right :arrow]))
+"
+  {:failure-handler default-failure-handler
+   :success-handler default-success-handler
+   :bouncer-map-adapter default-bouncer-map-adapter
+   :error-string-producer default-error-string-producer
+   })
+
+
+(def global-type-repo)
+

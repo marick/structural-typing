@@ -1,12 +1,13 @@
 (ns structural-typing.f-monad
   (:require [structural-typing.type :as type]
+            [structural-typing.global-type :as global-type]
             [blancas.morph.monads :as m])
   (:use midje.sweet))
 
-(type/start-over!)
-(type/set-failure-handler! m/left)
-(type/set-success-handler! m/right)
-(type/named! :ab [:a :b])
+(global-type/start-over!)
+(global-type/set-failure-handler! m/left)
+(global-type/set-success-handler! m/right)
+(global-type/named! :ab [:a :b])
 
 (fact "using an Either monad"
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
@@ -14,8 +15,8 @@
     (flatten (m/lefts result)) => (just #"b must be present" #"a must be present")))
 
 
-(type/set-formatter! (fn [errors-by-key original]
-                       (cons original (flatten (vals errors-by-key)))))
+(global-type/set-formatter! (fn [errors-by-key original]
+                              (cons original (flatten (vals errors-by-key)))))
 
 (fact "using an Either monad"
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
