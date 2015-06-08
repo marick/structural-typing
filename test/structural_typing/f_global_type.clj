@@ -9,26 +9,32 @@
 
 ;;; Global type repo
 
-(fact "in most uses, a global variable stores all the types"
-  (global-type/start-over!)
-  (global-type/set-failure-handler! accumulator/failure-handler)
+(global-type/start-over!)
+(global-type/set-failure-handler! accumulator/failure-handler)
 
-  (fact "ordinary checking"
-    (global-type/named! :stringish ["not a keyword"])
-    (type/checked :stringish {"not a keyword" 1}) => {"not a keyword" 1}
+(global-type/named! :stringish ["not a keyword"])
+(global-type/named! :even [:a] {:a even?})
 
-    (fact "instance?"
-      (type/instance? :stringish {"not a keyword" 1}) => true
-      (type/instance? :stringish {:a 1}) => false)
+(fact "simple checking"
+  (type/checked :stringish {"not a keyword" 1}) => {"not a keyword" 1})
 
-    (fact "checking"
-      (type/checked :stringish {:a 1}) => :failure-handler-called
-      (accumulator/messages) => (just #"\"not a keyword\" must be present"))
+(fact "value checking"
+  (type/checked :even {:a 2}) => {:a 2})
+  
+(fact "instance?"
+  (type/instance? :stringish {"not a keyword" 1}) => true
+  (type/instance? :stringish {:a 1}) => false)
+  
+(fact "checking"
+  (type/checked :stringish {:a 1}) => :failure-handler-called
+  (accumulator/messages) => (just #"\"not a keyword\" must be present"))
 
-    (fact "coercion"
-      (global-type/coercion! :stringish (fn [from]
-                                 (set/rename-keys from {:not-a-keyword "not a keyword"})))
-      (type/coerce :stringish {:a 1}) => :failure-handler-called
-      (type/coerce :stringish {"not a keyword" 1}) => {"not a keyword" 1}
-      (type/coerce :stringish {:not-a-keyword 1}) => {"not a keyword" 1})))
+(fact "coercion"
+  (global-type/coercion! :stringish (fn [from]
+                                      (set/rename-keys from {:not-a-keyword "not a keyword"})))
+  (type/coerce :stringish {:a 1}) => :failure-handler-called
+  (type/coerce :stringish {"not a keyword" 1}) => {"not a keyword" 1}
+  (type/coerce :stringish {:not-a-keyword 1}) => {"not a keyword" 1})
+
+
 

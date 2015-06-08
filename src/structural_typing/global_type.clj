@@ -45,6 +45,8 @@
    a map or record containing all of the given `keys`.
    See also [[named]].
 "
-  [name keys]
-  (swap! stages/global-type-repo type/named name keys))
+  ([name keys]
+     (named! name keys {}))
+  ([name keys bouncer-map]
+     (swap! stages/global-type-repo type/named name keys bouncer-map)))
 
