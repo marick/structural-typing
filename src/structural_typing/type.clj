@@ -35,12 +35,23 @@
           kvs
           (keys kvs)))
 
+
+(defn- custom-bouncer-descriptor [v]
+  (if-not (vector? v)
+    (custom-bouncer-descriptor (vector v))
+    (into [] (map #(cond (var? %)
+                (vector % :message (format "%%s is not `%s`" (:name (meta %))))
+
+                :else 
+                %)
+         v))))
+
 (defn- named-internal
   [type-repo name keys bouncer-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
                               keys)
-        bouncer-map (update-each-value bouncer-map #(if (vector? %) % (vector %)))]
+        bouncer-map (update-each-value bouncer-map custom-bouncer-descriptor)]
     (assoc-in type-repo [:validators name]
               (merge-with into validator-map bouncer-map))))
 

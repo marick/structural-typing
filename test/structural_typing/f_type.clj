@@ -67,6 +67,13 @@
     (fact "it is possible to succeed"
       (type/checked type-repo :hork {:a [] :b 2}) => {:a [] :b 2})))
 
+(fact "You can use variables instead of functions for better error-reporting"
+  (let [type-repo (-> accumulator/type-repo
+                      (type/named :hork [:a :b] {:a #'sequential?}))]
+    (type/checked type-repo :hork {:a 1 :b 2}) => :failure-handler-called
+    (accumulator/messages) => (just [":a is not `sequential?`"])))
+  
+
 (facts "about how you do optional values: omit them from sequential"
   (let [type-repo (-> accumulator/type-repo
                       (type/named :hork [] {:a even?}))]
@@ -121,3 +128,16 @@
                                        :b [":b must be present and non-nil"]}
                                       {:c 3})))
 
+
+(fact 
+  (#'type/custom-bouncer-descriptor even?) => [even?]
+  (#'type/custom-bouncer-descriptor []) => []
+  (#'type/custom-bouncer-descriptor [even?]) => [even?]
+
+  (#'type/custom-bouncer-descriptor [[even? "msg"] odd?]) => [[even? "msg"] odd?]
+
+  (#'type/custom-bouncer-descriptor [#'odd?]) => [[#'odd? :message "%s is not `odd?`"]]
+  (#'type/custom-bouncer-descriptor #'odd?) => [[#'odd? :message "%s is not `odd?`"]]
+  (#'type/custom-bouncer-descriptor [[#'odd? :message "foo"]]) => [[#'odd? :message "foo"]]
+
+  )
