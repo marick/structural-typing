@@ -114,7 +114,7 @@
 (future-fact "the bouncer map adapter can be customized"
   (let [type-repo (-> accumulator/type-repo
                       (assoc ;; this will cause the maps to be emitted separately.
-                             :bouncer-map-adapter (fn [e kvs] (vector e kvs)))
+                             :map-adapter (fn [e kvs] (vector e kvs)))
                       (type/named :hork [:a :b]))]
       (type/checked type-repo :hork {:c 3}) => :failure-handler-called
       (accumulator/messages) => (just {:a [":a must be present and non-nil"]

@@ -33,7 +33,7 @@
 
 
 
-(defn default-bouncer-map-adapter [error-map checked-map]
+(defn default-map-adapter [error-map checked-map]
   (flatten (vals error-map)))
 
 (defn default-error-string-producer [{path :path, value :value optional-message-arg :message

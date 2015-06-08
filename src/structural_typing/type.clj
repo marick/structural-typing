@@ -18,7 +18,7 @@
 "
   {:failure-handler stages/default-failure-handler
    :success-handler stages/default-success-handler
-   :bouncer-map-adapter stages/default-bouncer-map-adapter
+   :map-adapter stages/default-map-adapter
    :error-string-producer stages/default-error-string-producer
    })
 
@@ -49,7 +49,7 @@
         (b/validate (:error-string-producer type-repo) kvs (get-in type-repo [:validators name]))]
     (if (empty? errors)
       ((:success-handler type-repo) kvs)
-      (-> ( (:bouncer-map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
+      (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
           ((:failure-handler type-repo))))))
 
 (defn named 
@@ -147,6 +147,6 @@
 (def ^:private own-types
   (-> empty-type-repo
       (assoc :failure-handler stages/throwing-failure-handler)
-      (named-internal :type-repo [:success-handler :failure-handler :bouncer-map-adapter] {})))
+      (named-internal :type-repo [:success-handler :failure-handler :map-adapter] {})))
 
 

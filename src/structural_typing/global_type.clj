@@ -25,14 +25,13 @@
   [f]
   (swap! stages/global-type-repo assoc :failure-handler f))
 
-;; This will be relevant once more of bouncer is exposed.
-(defn set-formatter!
+(defn set-map-adapter!
   "If a map or record doesn't match the type, the formatter is called with 
    two arguments. The first is a map from key to list of error messages
    (as created by [Bouncer](https://github.com/leonardoborges/bouncer)).
    The second is the original map or record passed to `checked`."
   [f]
-  (swap! stages/global-type-repo assoc :bouncer-map-adapter f))
+  (swap! stages/global-type-repo assoc :map-adapter f))
   
 (defn coercion! 
   "Modify the global type repo to register function `f` as one that

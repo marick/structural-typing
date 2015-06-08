@@ -4,7 +4,7 @@
   (:use midje.sweet))
 
 (fact "the default bouncer map adapter flattens the error maps and ignores the source map"
-  (subject/default-bouncer-map-adapter {:a ["msg1" "msg2"] :b ["msg3"]} ..ignored..)
+  (subject/default-map-adapter {:a ["msg1" "msg2"] :b ["msg3"]} ..ignored..)
   => (just "msg1" "msg2" "msg3" :in-any-order))
 
 (facts "about default message formatting"

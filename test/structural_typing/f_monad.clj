@@ -15,8 +15,8 @@
     (flatten (m/lefts result)) => (just #"b must be present" #"a must be present")))
 
 
-(global-type/set-formatter! (fn [errors-by-key original]
-                              (cons original (flatten (vals errors-by-key)))))
+(global-type/set-map-adapter! (fn [errors-by-key original]
+                                (cons original (flatten (vals errors-by-key)))))
 
 (fact "using an Either monad"
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
