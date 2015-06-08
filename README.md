@@ -194,10 +194,7 @@ If you want boolean results rather than out-of-band error messages, use `instanc
 (type/instance? :point {:x 1, :y 1, :color :green}) => true ; green points are points 
 (type/instance? :point {:x 1, :y 1, :z 1}) => true ; extra dimensions don't destroy "pointhood"
 (type/instance? :point {:x 1} => false
-
-
-
-
+```
 
 ## Coercions
 
@@ -252,7 +249,35 @@ to conversion functions, but that hasn't been written.
 
 ## Checking the types of values
 
+Although checking the existence of keys is sufficient for many cases,
+it's sometimes useful to require that certain predicates be true of
+values. For example, here's how you declare that only even numbers are accepted:
 
+```clojure
+(global-type/named! :even-point [:x :y] {:x even? :y even?})
+```
+
+The vector argument denotes the required keys. The following map argument, if any, gives predicates to be run over those keys.
+Here's an example of a failure:
+
+```
+user=> (type/checked :even-point {:y 1})
+:x must be present and non-nil
+Custom validation failed for :y
+nil
+```
+
+The second message is not exactly ideal. In such cases, use vars instead of functions. If the map were `{:x #'even? :y #'even?}`, the
+output would look like this:
+
+```
+user=> (type/checked :even-point {:y 1})
+:x must be present and non-nil
+:y is not `even?`
+nil
+```
+
+.................... to be continued ...................
 
 ## End Matter
 
