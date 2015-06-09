@@ -337,7 +337,7 @@ user=> (type/checked :ok {:x 9})
 nil
 ```
 
-### Nested maps
+### Nested maps - TBD
 
 As the previous section suggests, you can validate nested maps. Here
 is how you require that a map have a `:point` field that contains an
@@ -347,24 +347,13 @@ is how you require that a map have a `:point` field that contains an
 (global-type/named! :point-container [[:point :x] [:point :y]])
 ```
 
-...tbd...
+### Optional keys - TBD
 
+### Bouncer - TBD
 
-### Optional keys
+### Predefined validations - TBD
 
-...tbd...
-
-### Bouncer
-
-...tbd...
-
-### Predefined validations
-
-...tbd...
-
-### Defining validations
-
-...tbd...
+### Defining validations - TBD
 
 
 ---------------------------------------------------
