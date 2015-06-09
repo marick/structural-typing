@@ -6,6 +6,26 @@ License: [Unlicense](http://unlicense.org/) (public domain)
  
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Typing driven by the existence of keys](#)
+	- [Case 1: a service](#)
+	- [Important notes](#)
+	- [Case 2: a namespace](#)
+	- [Case 3: For the monadically inclined](#)
+	- [Instance checks](#)
+- [Coercions](#)
+- [Checking the types of values](#)
+	- [Custom error messages](#)
+	- [Nested maps - TBD](#)
+	- [Optional keys - TBD](#)
+	- [Bouncer - TBD](#)
+	- [Predefined validations - TBD](#)
+	- [Defining validations - TBD](#)
+- [Back Matter](#)
+	- [Credits](#)
+	- [Contributing](#)
+
 
 ## Typing driven by the existence of keys
 
@@ -357,6 +377,8 @@ is how you require that a map have a `:point` field that contains an
 
 
 ---------------------------------------------------
+
+## Back Matter
 
 ### Credits
 
