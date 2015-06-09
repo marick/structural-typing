@@ -3,11 +3,21 @@
    (2) the messages include the failing value."
   (:require [bouncer.validators :as v]))
 
-(defmacro defoptional [name doc message-format & body]
+(defmacro defoptional 
+  "Define a validator for an optional argument.
+   
+       (defoptional number
+         \"Validates against optional `number?`\" ; doc string
+         \"%s is `%s`, which is not a number\"
+         [maybe-a-number]
+         (number? maybe-a-number))
+"
+  [name doc message-format arglist & body]
   `(do
      (v/defvalidator ~name {:optional true
-                            :default-message-format ~message-format} ~@body)
-     (alter-meta! (var ~name) assoc :doc ~doc)))
+                            :default-message-format ~message-format} ~arglist ~@body)
+     (alter-meta! (var ~name) assoc :doc ~doc
+                                    :arglists (list '~arglist))))
 
 (v/defvalidator ^{:doc "Fails if key is missing or its value is `nil`."} required
   {:default-message-format "%s must be present and non-nil"}
