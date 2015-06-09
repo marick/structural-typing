@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "0.3.0"
+(defproject marick/structural-typing "0.4.0-SNAPSHOT"
   :description "Extended structural typing for Clojure"
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
