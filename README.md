@@ -26,6 +26,25 @@ License: [Unlicense](http://unlicense.org/) (public domain)
 	- [Credits](#)
 	- [Contributing](#)
 
+# Doco
+
+As far as looseness and flexibility goes, structural typing lives
+between [duck typing](http://en.wikipedia.org/wiki/Duck_typing) and
+[nominal typing](http://en.wikipedia.org/wiki/Nominal_type_system).
+
+Unlike duck typing, structural typing is concerned more than whether a
+particular object has a method (or a map has a key) at exactly one
+point in the text/execution of a program. Instead, it's concerned with
+the type of an object that, after flowing through some interface, may
+be used in many places.
+
+Unlike nominal typing, structural typing doesn't require explicit
+declarations about the relationships between types. In pure structural
+typing, compatibility is all about whether a given composite value has
+*at least* a set of keys or methods. As implemented here, it can also
+be about whether the values of keys pass arbitrary predicates. That's more
+flexible than a typical nomimal type system, but it takes away type
+inference.
 
 ## Typing driven by the existence of keys
 
@@ -383,6 +402,8 @@ user=> (type/checked :ok {:x 9})
 nil
 ```
 
+### Optional keys - TBD
+
 ### Nested maps - TBD
 
 As the previous section suggests, you can validate nested maps. Here
@@ -392,8 +413,6 @@ is how you require that a map have a `:point` field that contains an
 ```
 (global-type/named! :point-container [[:point :x] [:point :y]])
 ```
-
-### Optional keys - TBD
 
 ### Bouncer - TBD
 
