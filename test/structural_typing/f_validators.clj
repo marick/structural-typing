@@ -18,3 +18,6 @@
     (type/checked type-repo :hork {:a 2, :b 1}) => {:a 2, :b 1}))
       
 
+
+(future-fact "own validators")    
+

@@ -260,7 +260,7 @@ values. For example, here's how you declare that only even numbers are accepted:
 The vector argument denotes the required keys. The following map argument, if any, gives predicates to be run over those keys.
 Here's an example of a failure:
 
-```
+```clojure
 user=> (type/checked :even-point {:y 1})
 :x must be present and non-nil
 Custom validation failed for :y
@@ -270,16 +270,103 @@ nil
 The second message is not exactly ideal. In such cases, use vars instead of functions. If the map were `{:x #'even? :y #'even?}`, the
 output would look like this:
 
-```
+```clojure
 user=> (type/checked :even-point {:y 1})
 :x must be present and non-nil
 :y is not `even?`
 nil
 ```
 
-.................... to be continued ...................
+You can add more than one check per key:
 
-## End Matter
+```clojure
+(global-type/named! :even-point [:x :y] {:x [#'even? #'pos?] :y [#'even? #'pos?]})
+
+user=> (type/checked :even-point {:x -1, :y -2})
+:x is not `even?`
+:y is not `pos?`
+nil
+```
+
+Note that because the `even?` check failed for `:x`, the `pos?` check was never performed.
+
+### Custom error messages
+
+Within a vector, you can replace a predicate with a vector of the form `[<pred> :message <fmt>]` to
+provide a custom error message:
+
+```clojure
+(let [allowable [even? :message "%s is not an allowable number."]]
+  (global-type/named! :allowable [:x :y] {:x [allowable] :y [allowable]}))
+
+user=> (type/checked :allowable {:x 1, :y 2})
+:x is not an allowable number.
+nil
+```
+
+The message is formatted as with `format`. There can be two format
+specifiers, which are both handed strings created with `pr-str`. The
+first is the erroneous key. The second is the value of that key. So:
+
+```clojure
+(let [allowable [even? :message "%s should be even; %s isn't."]]
+  (global-type/named! :ok [:x] {:x [allowable]}))
+
+user=> (type/checked :ok {:x 1})
+:x should be even; 1 isn't.
+nil
+```
+
+For even more flexibility, the `:message` can be a function. It takes a map with two keys relevant here:
+
+* `:path`: For non-nested maps like the ones we've seen above, this is a vector containing the
+  key. Example: `[:x]`.
+
+* `:value`: The erroneous value of that key. Example: `-1`.
+
+Note that neither of these have been stringified by `pr-str`. Here's a silly example of printing the key with the square of the value:
+
+```clojure
+(letfn [(fmt [{:keys [path value]}]
+         (format "%s should be a square root of %s." path (* value value)))]
+  (global-type/named! :ok [:x] {:x [[even? :message fmt]]}))
+
+
+user=> (type/checked :ok {:x 9})
+[:x] should be a square root of 81.
+nil
+```
+
+### Nested maps
+
+As the previous section suggests, you can validate nested maps. Here
+is how you require that a map have a `:point` field that contains an
+`:x` and a `:y`:
+
+```
+(global-type/named! :point-container [[:point :x] [:point :y]])
+
+...tbd...
+
+
+### Optional keys
+
+...tbd...
+
+### Bouncer
+
+...tbd...
+
+### Predefined validations
+
+...tbd...
+
+### Defining validations
+
+...tbd...
+
+
+---------------------------------------------------
 
 ### Credits
 
@@ -291,7 +378,8 @@ I first used type checking of this sort at
 [GetSet](http://getset.com), though this API is better. (Sorry,
 GetSet!)
 
-[Bouncer](https://github.com/leonardoborges/bouncer) does the actual checking.
+[Bouncer](https://github.com/leonardoborges/bouncer) does the actual
+validation.
 
 ### Contributing
 

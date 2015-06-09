@@ -113,8 +113,7 @@
 
 (future-fact "bouncer validators work")
 
-(future-fact "own validators")    
-
+(future-fact "nested structures work - currently you get trees of messages published")
 
 ;;; Util
 
