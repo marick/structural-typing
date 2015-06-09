@@ -49,71 +49,6 @@
                         (type/coercion :hork (fn [from] (set/rename-keys from {:a :bbb}))))]
       (type/coerce type-repo :hork {:a 1, :b 2}) => {:bbb 1, :b 2})))
 
-(fact "bouncer-style checks are allowed"
-  (let [type-repo (-> accumulator/type-repo
-                      (type/named :hork [:a :b] {:a sequential?}))]
-    (fact ":b is still required"
-      (type/checked type-repo :hork {:a []}) => :failure-handler-called
-      (accumulator/messages) => (just #":b must be present"))
-  
-    (fact ":a is still required"
-      (type/checked type-repo :hork {:b 2}) => :failure-handler-called
-      (accumulator/messages) => (just #"a must be present"))
-
-    (fact "in addition, :a must be a sequential"
-      (type/checked type-repo :hork {:a 1 :b 2}) => :failure-handler-called
-      (accumulator/messages) => (just ["Custom validation failed for :a"]))
-
-    (fact "it is possible to succeed"
-      (type/checked type-repo :hork {:a [] :b 2}) => {:a [] :b 2})))
-
-(fact "You can use variables instead of functions for better error-reporting"
-  (let [type-repo (-> accumulator/type-repo
-                      (type/named :hork [:a :b] {:a #'sequential?}))]
-    (type/checked type-repo :hork {:a 1 :b 2}) => :failure-handler-called
-    (accumulator/messages) => (just [":a is not `sequential?`"])))
-  
-
-(facts "about how you do optional values: omit them from sequential"
-  (let [type-repo (-> accumulator/type-repo
-                      (type/named :hork [] {:a even?}))]
-    (fact "observe that a missing element causes a check of nil"
-      (type/checked type-repo :hork {:b "head"}) => (throws #"Argument must be an integer"))
-    
-    (fact "but otherwise, checks work"
-      (type/checked type-repo :hork {:a 2}) => {:a 2}
-      (type/checked type-repo :hork {:a 2, :b 1}) => {:a 2, :b 1}
-      
-      (type/checked type-repo :hork {:a 1}) => :failure-handler-called
-      (accumulator/messages) => (just "Custom validation failed for :a")))
-  
-  (fact "a better way of handling an optional type is type/optional"
-    ( (type/optional number? even?) nil) => true
-    ( (type/optional number? even?) 'a) => false  ; note evaluation short-circuits.
-    ( (type/optional number? even?) 1) => false
-    ( (type/optional number? even?) 2) => true
-
-    ( (type/optional even?) "string") => false ; exceptions count as false.
-    
-    (let [type-repo (-> accumulator/type-repo
-                        (type/named :hork [] {:a (type/optional number? even?)}))]
-      (type/checked type-repo :hork {:b "head"}) => {:b "head"}
-
-      (type/checked type-repo :hork {:a 2}) => {:a 2}
-      (type/checked type-repo :hork {:a 2, :b 1}) => {:a 2, :b 1}
-      
-      (type/checked type-repo :hork {:a 1}) => :failure-handler-called
-      (accumulator/messages) => (just "Custom validation failed for :a"))))
-
-(fact "Message arguments are useful"
-  (let [type-repo (-> accumulator/type-repo
-                      (type/named :hork [] {:a [[number? :message "%s must be a number"] even?]}))]
-    (type/checked type-repo :hork {:a "head"}) => :failure-handler-called
-    (accumulator/messages) => (just ":a must be a number")))
-
-(future-fact "bouncer validators work")
-
-(future-fact "nested structures work - currently you get trees of messages published")
 
 ;;; Util
 
@@ -128,15 +63,45 @@
                                       {:c 3})))
 
 
-(fact 
-  (#'type/custom-bouncer-descriptor even?) => [even?]
-  (#'type/custom-bouncer-descriptor []) => []
-  (#'type/custom-bouncer-descriptor [even?]) => [even?]
+(facts "about validators that appear in optional maps"
+  ; 1. Perhaps custom messages
+  ; 2. Definitely marked as optional.
+  ; 3. Exceptions are treated as `false`.
+  (let [subject #'type/forgiving-optional-validator]
 
-  (#'type/custom-bouncer-descriptor [[even? "msg"] odd?]) => [[even? "msg"] odd?]
+    (fact "plain predicates"
+      (let [new-even? (subject even?)]
+        (new-even? 1) => false
+        (new-even? 2) => true
+        (even? "foo") => (throws)
+        (new-even? "foo") => false
+        
+        (meta new-even?) => (contains {:optional true})))
 
-  (#'type/custom-bouncer-descriptor [#'odd?]) => [[#'odd? :message "%s is not `odd?`"]]
-  (#'type/custom-bouncer-descriptor #'odd?) => [[#'odd? :message "%s is not `odd?`"]]
-  (#'type/custom-bouncer-descriptor [[#'odd? :message "foo"]]) => [[#'odd? :message "foo"]]
+          
+    (fact "plain predicates retain existing metadata"
+      (let [new-even? (subject (with-meta even? {:default-message-format "derp"}))]
+        (meta new-even?) => (contains {:optional true
+                                       :default-message-format "derp"})))
 
-  )
+          
+    (fact "vars"
+      (let [new-even? (subject #'even?)]
+        (new-even? 1) => false
+        (new-even? 2) => true
+        (even? "foo") => (throws)
+        (new-even? "foo") => false
+        
+        (meta new-even?) => (contains {:optional true
+                                       :default-message-format "%s should be `even?`; it is `%s`"})))
+
+    (fact "vectors with messages"
+      (let [new-even? (subject [even? :message "derp!"])]
+        (new-even? 1) => false
+        (new-even? 2) => true
+        (even? "foo") => (throws)
+        (new-even? "foo") => false
+        
+        (meta new-even?) => (contains {:optional true
+                                       :default-message-format "derp!"})))))
+      

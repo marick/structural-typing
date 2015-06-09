@@ -297,20 +297,34 @@ user=> (type/checked :even-point {:y 1})
 nil
 ```
 
-You can add more than one check per key:
+You can add more than one check per key by enclosing them in a vector:
+
+```clojure
+(global-type/named! :even-point [:x :y] {:x [even? pos?] :y [even? pos?]})
+
+user=> (type/checked :even-point {:x -1, :y -2})
+Custom validation failed for :x
+Custom validation failed for :y
+nil
+```
+
+That's not a hugely informative error message. Read on.
+
+### Custom error messages
+
+The previous example can produce more useful error messages if vars are used instead of functions:
 
 ```clojure
 (global-type/named! :even-point [:x :y] {:x [#'even? #'pos?] :y [#'even? #'pos?]})
 
 user=> (type/checked :even-point {:x -1, :y -2})
-:x is not `even?`
-:y is not `pos?`
+:x should be `even?`; it is `-1`
+:y should be `pos?`; it is `-2`
 nil
 ```
 
-Note that because the `even?` check failed for `:x`, the `pos?` check was never performed.
-
-### Custom error messages
+Notice that there's no ":x should be `pos?` message": the first failing predicate short-circuits evaluation of any
+that follow.
 
 Within a vector, you can replace a predicate with a vector of the form `[<pred> :message <fmt>]` to
 provide a custom error message:
@@ -318,7 +332,19 @@ provide a custom error message:
 ```clojure
 (let [allowable [even? :message "%s is not an allowable number."]]
   (global-type/named! :allowable [:x :y] {:x [allowable] :y [allowable]}))
+```
 
+Note well the vector `[allowable]`. The following looks like
+three predicates:
+
+```clojure
+(let [allowable [even? :message "%s is not an allowable number."]]
+  (global-type/named! :allowable [:x :y] {:x allowable}))
+```
+
+Given the correct version, the message appears:
+
+```clojure
 user=> (type/checked :allowable {:x 1, :y 2})
 :x is not an allowable number.
 nil

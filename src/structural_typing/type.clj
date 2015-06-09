@@ -36,22 +36,40 @@
           (keys kvs)))
 
 
-(defn- custom-bouncer-descriptor [v]
-  (if-not (vector? v)
-    (custom-bouncer-descriptor (vector v))
-    (into [] (map #(cond (var? %)
-                (vector % :message (format "%%s is not `%s`" (:name (meta %))))
+(defn- mkfn:catcher [f]
+  (fn [& xs]
+    (try (apply f xs)
+    (catch Exception ex false))))
 
-                :else 
-                %)
-         v))))
+(defn- forgiving-optional-validator [descriptor]
+  (let [almost
+        (cond (var? descriptor)
+              (with-meta (mkfn:catcher descriptor)
+                {:default-message-format (format "%%s should be `%s`; it is `%%s`"
+                                                 (:name (meta descriptor)))})
+
+              (vector? descriptor)
+              (let [[pred _key_ message] descriptor]
+                (with-meta (mkfn:catcher pred)
+                  {:default-message-format message}))
+
+              :else 
+              (with-meta (mkfn:catcher descriptor) (meta descriptor)))]
+
+    (with-meta almost (assoc (meta almost) :optional true))))
+  
+
+(defn- tweaked-bouncer-descriptors [vec]
+  (if-not (vector? vec)
+    (tweaked-bouncer-descriptors (vector vec))
+    (mapv forgiving-optional-validator vec)))
 
 (defn- named-internal
   [type-repo name keys bouncer-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
                               keys)
-        bouncer-map (update-each-value bouncer-map custom-bouncer-descriptor)]
+        bouncer-map (update-each-value bouncer-map tweaked-bouncer-descriptors)]
     (assoc-in type-repo [:validators name]
               (merge-with into validator-map bouncer-map))))
 
@@ -73,24 +91,6 @@
   ([type-repo name keys]
      (named type-repo name keys {})))
 
-(defn optional
-  "Construct a function that takes a single value.
-
-   * If that value is `nil`, the result is `true`.
-   * Otherwise, if the value causes all of the `fns` to return a truthy value, the result is `true`.
-   * Otherwise, the result is `false`.
-
-       ( (type/optional number? even?) nil) => true
-       ( (type/optional number? even?) 'a) => false  ; note evaluation short-circuits.
-       ( (type/optional number? even?) 1) => false
-       ( (type/optional number? even?) 2) => true"
-  [& fns]
-  (fn [value]
-    (if (nil? value)
-      true
-      (try 
-        ( (apply every-pred fns) value)
-        (catch Exception ex false)))))
   
 (defn checked
   "Check the map `kvs` against the previously-defined type `name` in the given
