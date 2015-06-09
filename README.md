@@ -345,6 +345,7 @@ is how you require that a map have a `:point` field that contains an
 
 ```
 (global-type/named! :point-container [[:point :x] [:point :y]])
+```
 
 ...tbd...
 
