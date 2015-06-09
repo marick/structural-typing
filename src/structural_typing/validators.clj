@@ -5,12 +5,12 @@
 
 (defmacro defoptional 
   "Define a validator for an optional argument.
-   
-       (defoptional number
-         \"Validates against optional `number?`\" ; doc string
-         \"%s is `%s`, which is not a number\"
-         [maybe-a-number]
-         (number? maybe-a-number))
+    
+         (defoptional number
+           \"Validates against optional `number?`\" ; doc string
+           \"%s is `%s`, which is not a number\"
+           [maybe-a-number]
+           (number? maybe-a-number))
 "
   [name doc message-format arglist & body]
   `(do
