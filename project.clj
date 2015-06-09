@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "0.2.0-SNAPSHOT"
+(defproject marick/structural-typing "0.2.0"
   :description "Extended structural typing for Clojure"
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
@@ -11,7 +11,7 @@
 
   :profiles {:dev {:dependencies [[midje "1.7.0-beta1" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
-                                  [com.taoensso/timbre "3.4.0"]]}
+                                  [com.taoensso/timbre "3.4.0" :exclusions [org.clojure/clojure]]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
              :1.5.1 {:dependencies [[org.clojure/clojure "1.5.1"]]}
