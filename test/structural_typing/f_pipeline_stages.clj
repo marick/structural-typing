@@ -50,4 +50,15 @@
   )
 
 
+(fact "flatten-error-map makes nesting easier to deal with"
+  (subject/flatten-error-map nil) => empty?
+  (subject/flatten-error-map {}) => empty?
+  (subject/flatten-error-map {:a ["a message" "a message 2"]}) => ["a message" "a message 2"]
+  (subject/flatten-error-map {:a ["a message"]
+                              :point {:x ["x wrong"]
+                                      :y ["y wrong"]}
+                              :deep {:er {:still ["still wrong"]}}})
+  => (just "a message" "x wrong" "y wrong" "still wrong" :in-any-order))
+
+
 (future-fact "throwing failure handler")

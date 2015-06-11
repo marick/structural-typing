@@ -32,9 +32,14 @@
   (throw (new Exception (str/join "\n" messages))))
 
 
+(defn flatten-error-map
+  "`error-map` is a map from keys to either a sequence of error messages or
+   a nested error map. This function reduces it to a sequence of error messages."
+  [error-map]
+  (mapcat #(if (map? %) (flatten-error-map %) %) (vals error-map)))
 
 (defn default-map-adapter [error-map checked-map]
-  (flatten (vals error-map)))
+  (flatten-error-map error-map))
 
 (defn default-error-string-producer [{path :path, value :value optional-message-arg :message
                                       {default-message-format :default-message-format} :metadata
