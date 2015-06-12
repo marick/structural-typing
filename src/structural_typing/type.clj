@@ -5,7 +5,8 @@
   (:require [clojure.string :as str]
             [bouncer.core :as b])
   (:require [structural-typing.pipeline-stages :as stages]
-            [structural-typing.validators :as v]))
+            [structural-typing.validators :as v]
+            [structural-typing.util :as util]))
 
 (def empty-type-repo
   "A repository that contains no type descriptions. It contains
@@ -25,51 +26,32 @@
 
 (declare ^:private own-types)
 
-;;; Non-side-effecting API
-
-(declare checked)
-
-(defn- update-each-value [kvs f & args]
-  (reduce (fn [so-far k] 
-            (assoc so-far k (apply f (get kvs k) args)))
-          kvs
-          (keys kvs)))
-
-
-(defn- mkfn:catcher [f]
-  (fn [& xs]
-    (try (apply f xs)
-    (catch Exception ex false))))
-
 (defn- forgiving-optional-validator [descriptor]
   (let [almost
         (cond (var? descriptor)
-              (with-meta (mkfn:catcher descriptor)
+              (with-meta (util/mkfn:catcher descriptor)
                 {:default-message-format (format "%%s should be `%s`; it is `%%s`"
                                                  (:name (meta descriptor)))})
 
-              (vector? descriptor)
+              (and (vector? descriptor) (> (count descriptor) 2) (= :message (second descriptor)))
               (let [[pred _key_ message] descriptor]
-                (with-meta (mkfn:catcher pred)
+                (with-meta (util/mkfn:catcher pred)
                   {:default-message-format message}))
 
               :else 
-              (with-meta (mkfn:catcher descriptor) (meta descriptor)))]
-
+              (with-meta (util/mkfn:catcher descriptor) (meta descriptor)))]
     (with-meta almost (assoc (meta almost) :optional true))))
   
 
-(defn- tweaked-bouncer-descriptors [vec]
-  (if-not (vector? vec)
-    (tweaked-bouncer-descriptors (vector vec))
-    (mapv forgiving-optional-validator vec)))
+(defn- tweaked-bouncer-descriptors [v]
+  (mapv forgiving-optional-validator (util/vector-or-wrap v)))
 
 (defn- named-internal
   [type-repo name keys bouncer-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
                               keys)
-        bouncer-map (update-each-value bouncer-map tweaked-bouncer-descriptors)]
+        bouncer-map (util/update-each-value bouncer-map tweaked-bouncer-descriptors)]
     (assoc-in type-repo [:validators name]
               (merge-with into validator-map bouncer-map))))
 
@@ -81,17 +63,6 @@
       (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
           ((:failure-handler type-repo))))))
 
-(defn named 
-  "Define the type `name` as being a map or record containing all of the given `keys`.
-   Returns the augmented `type-repo`. See also [[named!]].
-"
-  ([type-repo name keys bouncer-map]
-     (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo name keys bouncer-map))
-  ([type-repo name keys]
-     (named type-repo name keys {})))
-
-  
 (defn checked
   "Check the map `kvs` against the previously-defined type `name` in the given
    `type-repo`. If the `type-repo` is omitted, the global one is used.
@@ -108,6 +79,18 @@
   ([name kvs]
      (checked @stages/global-type-repo name kvs)))
 
+
+(defn named 
+  "Define the type `name` as being a map or record containing all of the given `keys`.
+   Returns the augmented `type-repo`. See also [[named!]].
+"
+  ([type-repo name keys bouncer-map]
+     (checked-internal own-types :type-repo type-repo)
+     (named-internal type-repo name keys bouncer-map))
+  ([type-repo name keys]
+     (named type-repo name keys {})))
+
+  
 (defn instance? 
   "Return `true` iff the map or record `kvs` typechecks against the type named `name` in
    `type-repo`. If `type-repo` is omitted, the global repo is used.
