@@ -26,7 +26,7 @@ License: [Unlicense](http://unlicense.org/) (public domain)
 	- [Credits](#)
 	- [Contributing](#)
 
-# Doco
+# structural-typing
 
 As far as looseness and flexibility goes, structural typing lives
 between [duck typing](http://en.wikipedia.org/wiki/Duck_typing) and
@@ -316,7 +316,7 @@ user=> (type/checked :even-point {:y 1})
 nil
 ```
 
-You can add more than one check per key by enclosing them in a vector:
+You can add more than one check per key by enclosing them in a vector.
 
 ```clojure
 (global-type/named! :even-point [:x :y] {:x [even? pos?] :y [even? pos?]})
@@ -404,6 +404,23 @@ nil
 
 ### Optional keys - TBD
 
+If you want to constrain the value of an optional key, simply omit it
+from the vector of required keys and mention it in the map. In the following, `:here` is
+required but otherwise unconstrained. `:optional` need not be present. If present, it must
+be an integer.
+
+```clojure
+user=> (global-type/named! :example [:here] {:optional #'integer?})
+user=> (type/checked :example {:here "hi"})
+{:here "hi"}
+user=> (type/checked :example {:optional "hi"})
+:here must be present and non-nil
+:optional should be `integer?`; it is `"hi"`
+nil
+user=> (type/checked :example {:here "hi" :optional 3})
+{:here "hi", :optional 3}
+```
+
 ### Nested maps - TBD
 
 As the previous section suggests, you can validate nested maps. Here
@@ -423,7 +440,7 @@ is how you require that a map have a `:point` field that contains an
 
 ---------------------------------------------------
 
-## Back Matter
+## Back matter
 
 ### Credits
 
