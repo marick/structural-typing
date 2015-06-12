@@ -19,6 +19,8 @@
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0-beta3"]]}
              }
 
+  :test-paths ["test" "examples"]
+
   :plugins [[lein-midje "3.1.3"]
             [codox "0.8.11"]]
 

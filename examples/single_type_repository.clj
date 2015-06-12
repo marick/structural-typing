@@ -1,16 +1,14 @@
-(ns structural-typing.f-global-type
+(ns single-type-repository
+  "An example of using the global type repository that's available in all namespaces"
   (:require [structural-typing.global-type :as global-type])
   (:require [structural-typing.type :as type]
             [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator])
   (:use midje.sweet))
 
-(namespace-state-changes (before :facts (accumulator/reset!)))
-
-;;; Global type repo
-
 (global-type/start-over!)
-(global-type/set-failure-handler! accumulator/failure-handler)
+(global-type/set-failure-handler! accumulator/failure-handler) ; stash failures in an atom
+(namespace-state-changes (before :facts (accumulator/reset!)))
 
 (global-type/named! :stringish ["not a keyword"])
 (global-type/named! :even [:a] {:a even?})
@@ -32,9 +30,10 @@
 (fact "coercion"
   (global-type/coercion! :stringish (fn [from]
                                       (set/rename-keys from {:not-a-keyword "not a keyword"})))
-  (type/coerce :stringish {:a 1}) => :failure-handler-called
-  (type/coerce :stringish {"not a keyword" 1}) => {"not a keyword" 1}
-  (type/coerce :stringish {:not-a-keyword 1}) => {"not a keyword" 1})
+  (type/coerced :stringish {:a 1}) => :failure-handler-called
+  (type/coerced :stringish {"not a keyword" 1}) => {"not a keyword" 1}
+  (type/coerced :stringish {:not-a-keyword 1}) => {"not a keyword" 1})
 
 
+(global-type/start-over!)
 

@@ -1,4 +1,4 @@
-(ns structural-typing.f-monad
+(ns monadic
   (:require [structural-typing.type :as type]
             [structural-typing.global-type :as global-type]
             [blancas.morph.monads :as m])
@@ -22,3 +22,5 @@
   (let [result (map #(type/checked :ab %) [{:a 1} {:b 2} {:a 1 :b 2} {:a 1 :b 2 :c 3}])]
     (m/lefts result) => [[{:a 1} ":b must be present and non-nil"]
                          [{:b 2} ":a must be present and non-nil"]]))
+
+(global-type/start-over!) 

@@ -23,20 +23,22 @@
    :error-string-producer stages/default-error-string-producer
    })
 
-
 (declare ^:private own-types)
+
+(defn message [o message]
+  (with-meta o {:default-message-format message}))
 
 (defn- forgiving-optional-validator [descriptor]
   (let [almost
         (cond (var? descriptor)
-              (with-meta (util/mkfn:catcher descriptor)
-                {:default-message-format (format "%%s should be `%s`; it is `%%s`"
-                                                 (:name (meta descriptor)))})
+              (let [msg (format "%%s should be `%s`; it is `%%s`" (:name (meta descriptor)))]
+                (-> descriptor util/mkfn:catcher (message msg)))
 
-              (and (vector? descriptor) (> (count descriptor) 2) (= :message (second descriptor)))
-              (let [[pred _key_ message] descriptor]
-                (with-meta (util/mkfn:catcher pred)
-                  {:default-message-format message}))
+              ;; TODO: Bouncer backwards compatibility - delete?
+              (and (vector? descriptor) (= :message (second descriptor)))
+              (let [[pred _key_ msg] descriptor]
+                (println "Use `(-> pred (type/message ...))` in preference to `[pred :message msg]`")
+                (-> pred util/mkfn:catcher (message msg)))
 
               :else 
               (with-meta (util/mkfn:catcher descriptor) (meta descriptor)))]
@@ -114,7 +116,7 @@
   (checked-internal own-types :type-repo type-repo)
   (assoc-in type-repo [:coercions name] f))
 
-(defn coerce
+(defn coerced
   "Coerce the map or record `kvs` into the type named `name` in the `type-repo`
    and check the result with [[checked]]. The coerced version of `kvs` is returned.
    
@@ -133,7 +135,7 @@
        (->> (coercer kvs)
             (checked-internal type-repo name))))
   ([name kvs]
-     (coerce @stages/global-type-repo name kvs)))
+     (coerced @stages/global-type-repo name kvs)))
 
 
 ;;; Own types
