@@ -32,36 +32,17 @@
                                       :in-any-order)
 
 
-  (fact "optional args"
-    (let [type-repo (-> accumulator/type-repo
-                        (type/named :hork [:string [:point :x] [:point :y]]
-                                    {:string #'string?
-                                     [:point :x] #'integer?
-                                     :distance #'pos?}))]
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance 3})
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1}})
-
-      (type/checked type-repo :hork {:string 3 :point {:x 1, :y 1}}) => :failure-handler-called
-      (accumulator/messages) => [":string should be `string?`; it is `3`"]
-      
-      (type/checked type-repo :hork {:string "hi" :point {:x 1.0, :y 1.0}}) => :failure-handler-called
-      (accumulator/messages) => ["[:point :x] should be `integer?`; it is `1.0`"]
-
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance -3}) => :failure-handler-called
-      (accumulator/messages) => [":distance should be `pos?`; it is `-3`"]
-
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance "foo"}) => :failure-handler-called
-      (accumulator/messages) => [":distance should be `pos?`; it is `\"foo\"`"]))
-
-
-  (future-fact "validator sets would be nice"
+  (fact "nested maps"
     (let [type-repo (-> accumulator/type-repo
                         (type/named :hork [:string [:point :x] [:point :y]]
                                     {:string #'string?
                                      :point {:x #'integer?}
                                      :distance #'pos?}))]
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance 3})
-      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1}})
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance 3}) => {:string "hi" :point {:x 1, :y 1} :distance 3}
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1}}) => {:string "hi" :point {:x 1, :y 1}}
+
+      (type/checked type-repo :hork {:string "hi" :point {:x 1}}) => :failure-handler-called
+      (accumulator/messages) => ["[:point :y] must be present and non-nil"]
 
       (type/checked type-repo :hork {:string 3 :point {:x 1, :y 1}}) => :failure-handler-called
       (accumulator/messages) => [":string should be `string?`; it is `3`"]
@@ -75,8 +56,30 @@
       (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance "foo"}) => :failure-handler-called
       (accumulator/messages) => [":distance should be `pos?`; it is `\"foo\"`"]
 
-      )
-))
+      ))
+  (fact "optional args"
+    (let [type-repo (-> accumulator/type-repo
+                        (type/named :hork [:string [:point :x] [:point :y]]
+                                    {:string #'string?
+                                     [:point :x] #'integer?
+                                     :distance #'pos?}))]
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance 3}) => {:string "hi" :point {:x 1, :y 1} :distance 3}
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1}}) => {:string "hi" :point {:x 1, :y 1}}
+
+      (type/checked type-repo :hork {:string "hi" :point {:x 1}}) => :failure-handler-called
+      (accumulator/messages) => ["[:point :y] must be present and non-nil"]
+
+      (type/checked type-repo :hork {:string 3 :point {:x 1, :y 1}}) => :failure-handler-called
+      (accumulator/messages) => [":string should be `string?`; it is `3`"]
+      
+      (type/checked type-repo :hork {:string "hi" :point {:x 1.0, :y 1.0}}) => :failure-handler-called
+      (accumulator/messages) => ["[:point :x] should be `integer?`; it is `1.0`"]
+
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance -3}) => :failure-handler-called
+      (accumulator/messages) => [":distance should be `pos?`; it is `-3`"]
+
+      (type/checked type-repo :hork {:string "hi" :point {:x 1, :y 1} :distance "foo"}) => :failure-handler-called
+      (accumulator/messages) => [":distance should be `pos?`; it is `\"foo\"`"])))
      
 
 (future-fact "validating embedded collections"
