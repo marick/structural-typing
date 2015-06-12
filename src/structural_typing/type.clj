@@ -86,7 +86,7 @@
 "
   ([type-repo name keys bouncer-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo name keys bouncer-map))
+     (named-internal type-repo name keys (util/nested-map->path-map bouncer-map)))
   ([type-repo name keys]
      (named type-repo name keys {})))
 

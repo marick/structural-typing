@@ -22,3 +22,18 @@
     vec-or-not
     (vector vec-or-not)))
 
+(defn nested-map->path-map
+  ([kvs]
+     (nested-map->path-map [] kvs))
+  ([parent-path kvs]
+     (reduce (fn [so-far [k v]]
+                 (cond (vector? k)
+                       (assoc so-far (into parent-path k) v)
+
+                       (map? v)
+                       (merge so-far (nested-map->path-map (conj parent-path k) v))
+
+                       :else
+                       (assoc so-far (conj parent-path k) v)))
+          {}
+          kvs)))
