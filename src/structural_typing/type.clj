@@ -25,13 +25,32 @@
 
 (declare ^:private own-types)
 
-(defn message [o message]
-  (with-meta o {:default-message-format message}))
+(defn message
+  "Modify `pred` so that the given `message` is used to construct an error
+   message. `message` may be a string, in which case it takes up to two 
+   format descriptors, stringified versions of the key and the offending
+   value:
+   
+        (-> even? (type/message \"Bad key %s with value %s\"))
+   
+   The `message` may also be a function. In that case, it takes a map with a
+   `:path` (a vector of keys leading to a value in a possibly nested map)
+   and a `:value`.
+"
+  [pred message]
+  (with-meta pred (assoc (meta pred) :default-message-format message)))
+
+(defn only-when [pred precondition]
+  (let [guarded (with-meta #(if (precondition %) (pred %) true) (meta pred))]
+    ;; TODO: Icky that varness is checked in two places.
+    (if (var? pred)
+      (-> guarded (message (util/var-message pred)))
+      guarded)))
 
 (defn- forgiving-optional-validator [descriptor]
   (let [almost
         (cond (var? descriptor)
-              (let [msg (format "%%s should be `%s`; it is `%%s`" (:name (meta descriptor)))]
+              (let [msg (util/var-message descriptor)]
                 (-> descriptor util/mkfn:catcher (message msg)))
 
               ;; TODO: Bouncer backwards compatibility - delete?

@@ -76,3 +76,28 @@
     (accumulator/messages) => (just ":a must be a number")))
 
 (future-fact "nested structures work - currently you get trees of messages published")
+
+
+(fact "modifying the behavior of predicates"
+  (fact "`message` adds a message to the predicate's metadata"
+    (let [pred (with-meta (fn [x] false) {:gorp true})
+          result (-> pred (type/message "msg"))]
+      (result 1) => false
+      (meta result) => (contains {:gorp true, :default-message-format "msg"})))
+  
+
+  (fact "`only-when` adds a guard"
+    (let [result (-> even? (type/only-when pos?))]
+      (result -1) => true
+      (result -2) => true
+      (result 1) => false
+      (result 2) => true))
+
+  (fact "`only-when` preserves metadata"
+    (let [result (-> even? (type/message "foo") (type/only-when pos?))]
+      (result -1) => true
+      (result -2) => true
+      (result 1) => false
+      (result 2) => true
+      (meta result) => (contains {:default-message-format "foo"}))))
+    

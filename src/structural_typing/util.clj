@@ -37,3 +37,6 @@
                        (assoc so-far (conj parent-path k) v)))
           {}
           kvs)))
+
+(defn var-message [v]
+  (format "%%s should be `%s`; it is `%%s`" (:name (meta v))))
