@@ -105,3 +105,4 @@
         (meta new-even?) => (contains {:optional true
                                        :default-message-format "derp!"})))))
       
+(future-fact "confirm defrecord works")
