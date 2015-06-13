@@ -101,3 +101,7 @@
       (result 2) => true
       (meta result) => (contains {:default-message-format "foo"}))))
     
+
+
+(future-fact "type/all-of and type/some-of")
+(future-fact "double-check validators and extra args")

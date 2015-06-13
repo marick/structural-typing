@@ -1,4 +1,6 @@
-(ns structural-typing.f-bouncer
+(ns structural-typing.f-duplicate-tests
+  "Tests that are no longer needed, because there are better tests elsewhere.
+   No harm in retaining them until they break."
   (:require [structural-typing.type :as type]
             [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator]
@@ -59,26 +61,3 @@
 
       (type/checked type-repo :sample-type {:string "hi" :point {:x 1, :y 1} :distance "foo"}) => :failure-handler-called
       (accumulator/messages) => [":distance should be `pos?`; it is `\"foo\"`"])))
-     
-
-(future-fact "validating embedded collections"
-  (b/validate {:pets [{:name "p" :age 1} {:name "s"}]}
-              {:pets [bv/required [bv/every #(do (prn %) (:name %))]]})
-  => (just nil {:pets [{:name "p" :age 1} {:name "s"}]})
-               
-
-  (let [type-repo (-> accumulator/type-repo
-                      (type/named :named-pets [:pets] {:pets [[(fn [pets]
-                                                               (every? :name pets))
-                                                              :message "%s gorp foo! %s"]]
-}))]
-    (type/checked type-repo :named-pets {:pets [{:name "p" :age 1} {:name "s"}]})
-    => {:pets [{:name "p" :age 1} {:name "s"}]}
-    (type/checked type-repo :named-pets {:pets [{:age 1} {:name "s"}]}) => :failure-handler-called
-    (accumulator/messages) => 3
-
-))
-
-(future-fact "preconditions")
-(future-fact "type/all-of and type/some-of")
-(future-fact "double-check validators and extra args")
