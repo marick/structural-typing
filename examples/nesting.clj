@@ -7,18 +7,22 @@
 (namespace-state-changes (before :facts (accumulator/reset!)))
 
 ;; Use of [:key1 :key2 ...] paths
+;; Each path to a key is explicitly described.
 (def path-style-type-structural
   (-> accumulator/type-repo
       (type/named :sample-type [:color [:point :x] [:point :y]])))
 
-;; Adding value descriptions
+;; Adding value descriptions by adding a map with paths to keys.
 (def path-style-type-values
   (-> accumulator/type-repo
       (type/named :sample-type [:color [:point :x] [:point :y]]
          {[:point :x] #'integer?
           [:point :y] #'integer?})))
 
-;; Use of paths that embrace nesting: [:key1 [:key2-1 :key2-2]]
+
+;; The above is inconvenient when multiple nested maps should be of the same type.
+;; Use of paths that embrace nesting: [:key1 [:key2-1 :key2-2]], where the nested
+;; sequence will come from an independent map.
 
 (def point-type {:x #'integer? :y #'integer?})
 
@@ -32,7 +36,11 @@
       (type/named :sample-type [:color :point] ; contents of point are optional
                   {:point point-type})))
 
-;;;;;;; Tests
+
+
+
+
+;;;;;;; Tests of the above
 
 
 (fact path-style-type-structural
