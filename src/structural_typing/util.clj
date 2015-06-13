@@ -38,5 +38,28 @@
           {}
           kvs)))
 
+
+(defn nested->paths
+  ([v]
+     (if (sequential? v)
+       (nested->paths [[]] v)
+       (vector v)))
+       
+  ([parent-paths v]
+     (cond (empty? v)
+           parent-paths
+
+           (sequential? (first v))
+           (let [extended (for [pp parent-paths, elt (first v)]
+                            (conj pp elt))]
+             (nested->paths (vec extended) (rest v)))
+
+           :else
+           (let [extended (for [pp parent-paths] (conj pp (first v)))]
+             (nested->paths (vec extended) (rest v))))))
+
+(defn expand-all-paths [v]
+  (vec (mapcat nested->paths v)))
+
 (defn var-message [v]
   (format "%%s should be `%s`; it is `%%s`" (:name (meta v))))

@@ -64,17 +64,17 @@
     (with-meta almost (assoc (meta almost) :optional true))))
   
 
-(defn- tweaked-bouncer-descriptors [v]
+(defn- expanded-optional-value-descriptor [v]
   (mapv forgiving-optional-validator (util/vector-or-wrap v)))
 
 (defn- named-internal
-  [type-repo name keys bouncer-map]
+  [type-repo name paths optional-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
-                              keys)
-        bouncer-map (util/update-each-value bouncer-map tweaked-bouncer-descriptors)]
+                              (util/expand-all-paths paths))
+        optional-map (util/update-each-value optional-map expanded-optional-value-descriptor)]
     (assoc-in type-repo [:validators name]
-              (merge-with into validator-map bouncer-map))))
+              (merge-with into validator-map optional-map))))
 
 (defn- checked-internal [type-repo name kvs]
   (let [[errors actual]
@@ -102,14 +102,15 @@
 
 
 (defn named 
-  "Define the type `name` as being a map or record containing all of the given `keys`.
-   Returns the augmented `type-repo`. See also [[named!]].
+  "Define the type `name` as being a map or record containing all of the given `paths`.
+  (A path is a key or a vector of paths.)
+  Returns the augmented `type-repo`. See also [[named!]].
 "
-  ([type-repo name keys bouncer-map]
+  ([type-repo name paths optional-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo name keys (util/nested-map->path-map bouncer-map)))
-  ([type-repo name keys]
-     (named type-repo name keys {})))
+     (named-internal type-repo name paths (util/nested-map->path-map optional-map)))
+  ([type-repo name paths]
+     (named type-repo name paths {})))
 
   
 (defn instance? 

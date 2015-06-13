@@ -23,3 +23,29 @@
                                    :l1 {[:l2 :l3] 3}})
     => {[:a :b] {:ignored :value}
         [:l1 :l2 :l3] 3}))
+
+(facts nested->paths
+  (subject/nested->paths :x) => [:x]
+  (subject/nested->paths [:x]) => [[:x]]
+  (subject/nested->paths [:x :y]) => [[:x :y]]
+  (subject/nested->paths [:x :y]) => [[:x :y]]
+
+  (subject/nested->paths [:x [:y :z]]) => [[:x :y] [:x :z]]
+  (subject/nested->paths [:a :b [:c :d]]) =future=> [[:a :b :c] [:a :b :d]]
+
+  (subject/nested->paths [:a :b [:c :d] :e]) =future=> [[:a :b :c :e] [:a :b :d :e]]
+
+  (subject/nested->paths [:a :b [:c :d] :e [:f :g]])
+  =future=> [[:a :b :c :e :f] 
+             [:a :b :c :e :g] 
+             [:a :b :d :e :f] 
+             [:a :b :d :e :g] ]
+
+  (fact "the embedded paths don't have to be vectors"
+    (subject/nested->paths [:x (list :y :z)]) => [[:x :y] [:x :z]]))
+    
+
+(facts expand-all-paths
+  (subject/expand-all-paths [:x :y]) => [:x :y]
+  (subject/expand-all-paths [:x [:x :y]]) => [:x [:x :y]]
+  (subject/expand-all-paths [:x [:a [:b1 :b2] :c]]) => [:x [:a :b1 :c] [:a :b2 :c]])
