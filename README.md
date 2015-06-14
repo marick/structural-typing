@@ -58,6 +58,8 @@ errors to be shown to the user, though libraries like
 
 ### Case 1: a service
 
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/single_type_repository.clj)
+
 Suppose you have a service of some sort that runs as an independent
 Clojure process. You'll most likely have a namespace that describes
 the types of structures that flow into and out of the service. Let's
@@ -130,6 +132,9 @@ nil
 
 ### Case 2: a namespace
 
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/required_keys.clj)
+
+
 Suppose the `:point` type is only relevant to a particular namespace. You can scope point-checking to that namespace
 like this:
 
@@ -152,6 +157,8 @@ like this:
 
 
 ### Case 3: For the monadically inclined
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/required_keys.clj)
 
 Another alternative, if you swing categorically, is to use something
 like the Either monad. Here's an example that uses 
@@ -224,7 +231,7 @@ user=> (m/lefts result)
 (({:a 1} ":b must be present and non-nil") ({:b 2} ":a must be present and non-nil"))
 ```
 
-### Instance checks
+### Boolean checks (`instance?`)
 
 If you want boolean results rather than out-of-band error messages, use `instance?`:
 
@@ -235,7 +242,241 @@ If you want boolean results rather than out-of-band error messages, use `instanc
 (type/instance? :point {:x 1} => false
 ```
 
-## Coercions
+
+## Checking the types of values
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/value_checks.clj)
+
+Although checking the existence of keys is sufficient for many cases,
+it's sometimes useful to require that certain predicates be true of
+values. For example, here's how you declare that only even numbers are accepted:
+
+```clojure
+(global-type/named! :even-point [:x :y] {:x even? :y even?})
+```
+
+The vector argument denotes the required keys. The following map argument, if any, gives predicates to be run over those keys.
+Here's an example of a failure:
+
+```clojure
+user=> (type/checked :even-point {:y 1})
+:x must be present and non-nil
+Custom validation failed for :y
+nil
+```
+
+The second message is not exactly ideal. In such cases, use vars instead of functions. If the map were `{:x #'even? :y #'even?}`, the
+output would look like this:
+
+```clojure
+user=> (type/checked :even-point {:y 1})
+:x must be present and non-nil
+:y is not `even?`
+nil
+```
+
+You can add more than one check per key by enclosing them in a vector.
+
+```clojure
+(global-type/named! :even-point [:x :y] {:x [even? pos?] :y [even? pos?]})
+
+user=> (type/checked :even-point {:x -1, :y -2})
+Custom validation failed for :x
+Custom validation failed for :y
+nil
+```
+
+That's not a hugely informative error message. Read on.
+
+### Custom error messages
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/custom_messages.clj)
+
+The previous example can produce more useful error messages if vars are used instead of functions:
+
+```clojure
+(global-type/named! :even-point [:x :y] {:x [#'even? #'pos?] :y [#'even? #'pos?]})
+
+user=> (type/checked :even-point {:x -1, :y -2})
+:x should be `even?`; it is `-1`
+:y should be `pos?`; it is `-2`
+nil
+```
+
+Notice that there's no ":x should be `pos?` message": the first
+failing predicate short-circuits evaluation of any that follow.
+
+You can also generate custom messages by passing the predicate to `type/message`:
+
+```clojure
+(global-type/named! :allowable [:x]
+                    {:x [(-> even? (type/message "There was a mystery failure"))
+                         (-> pos? (type/message "Woah there! %s is not positive!"))]})
+
+
+user=> (type/checked :allowable {:x 1, :y 2})
+There was a mystery failure
+nil
+```
+
+The message is formatted as with `format`. There can be two format
+specifiers, which are both handed strings created with `pr-str`. The
+first is the erroneous key. The second is the value of that key. So:
+
+```clojure
+(let [allowable (-> even? (type/message "%s should be even; %s isn't"))]
+  (global-type/named! :ok [:x] {:x allowable}))
+
+user=> (type/checked :ok {:x 1})
+:x should be even; 1 isn't.
+nil
+```
+
+For even more flexibility, `message` can take a function. That function takes a
+map with many keys. Two are relevant here:
+
+* `:path`: For non-nested maps like the ones we've seen above, this is a vector containing the
+  key. Example: `[:x]`.
+
+* `:value`: The erroneous value of that key. Example: `-1`.
+
+Note that neither of these have been stringified by `pr-str`. Here's a
+silly example of printing the key with the square of the value:
+
+```clojure
+(letfn [(fmt [{:keys [path value]}]
+         (format "%s should be a square root of %s." path (* value value)))]
+  (global-type/named! :ok [:x] {:x [(-> even? (type/message fmt))]}))
+
+
+user=> (type/checked :ok {:x 9})
+[:x] should be a square root of 81.
+nil
+```
+
+### Optional keys
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/optional_keys_with_values.clj)
+
+Suppose you don't require the key `:optional`, but want it to be an
+integer if it's present (and non-nil, because `nil` always counts as
+"absent").  To express that, omit `:optional` from the vector of
+required keys but mention it in the map.
+
+
+```clojure
+user=> (global-type/named! :example [:required] {:optional #'integer?})
+user=> (type/checked :example {:required "hi"})
+{:required "hi"}
+user=> (type/checked :example {:optional "hi"})
+:required must be present and non-nil
+:optional should be `integer?`; it is `"hi"`
+nil
+user=> (type/checked :example {:required "hi" :optional 3})
+{:required "hi", :optional 3}
+```
+
+### Guarded value predicates
+
+As a sort of generalization, you can say that predicates are to be
+checked only if a guard condition is true. In the following, `:a` is
+an optional argument. If present, it must be an integer. If negative, it
+can be any integer. But if it's positive, it's restricted to being an even integer.
+
+```clojure
+(global-type/named! :example [] 
+   {:a [#'integer?
+       (-> #'even? (type/only-when pos?))]})
+
+;; :a is optional
+user=> (type/checked :example {:b 1})
+{:b 1}
+
+;; :a better be an integer
+user=> (type/checked :example {:a "fooled ya!"})
+:a should be `integer?`; it is `"fooled ya!"`
+nil
+
+;; A positive number better be even.
+user=> (type/checked :example {:a 1})
+:a should be `even?`; it is `1`
+nil
+
+;; But a negative number can be odd.
+user=> (type/checked :example {:a -1})
+{:a -1}
+```
+
+## Types within types
+
+### Nested maps
+
+To require the existence of a key deep within a nested map structure,
+you can describe the path to that key:
+
+```clojure
+(global-type/named! :sample-type [:color [:point :x] [:point :y]])
+
+user=> (type/checked :sample-type {:color "red" :point {:x 1}})
+[:point :y] must be present and non-nil
+nil
+```
+
+You can also use the path notation to constrain values:
+
+```clojure
+(global-type/named! :sample-type [:color [:point :x] [:point :y]]
+   {[:point :x] #'integer?
+    [:point :y] #'integer?})
+
+user=> (type/checked :sample-type {:color "red" :point {:x 1, :y "one"}})
+[:point :y] should be `integer?`; it is `"one"`
+nil
+```
+
+That format is somewhat inconvenient, though, because it forces you to
+write a separate description for a `:point` type no matter where it's
+used. That isn't what you want if points are part of many types. You'd
+rather have a separate description for points:
+
+```clojure
+(def point-type {:x #'integer :y #'integer})
+```
+
+Now, if we want to require the `:point` key, all `point-type` keys,
+and also constrain the `:x` and `:y` values, we can write this:
+
+```clojure
+(global-type/named! :sample-type [:color [:point (keys point-type)]]
+    {:point point-type})
+```
+
+If we wanted the `:x` and `:y` keys to be optional (but integers if
+given), those keys should be omitted from the array of required keys:
+
+```clojure
+(global-type/named! :sample-type [:color :point]
+    {:point point-type})
+```
+
+### Maps containing sequences of nested maps
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/embedded_vectors.clj)
+
+### Inputs with multiple types (chaining validations) - TBD
+
+## Custom type predicates - TBD
+
+### Defining type predicates - TBD
+
+### Predefined type predicates - TBD
+
+
+## Changing incoming data
+
+### Coercions
+
+[Examples](https://github.com/marick/structural-typing/blob/master/examples/coerce.clj)
 
 I use structural type checking on the boundaries of [bounded contexts](http://martinfowler.com/bliki/BoundedContext.html).
 However,
@@ -286,157 +527,10 @@ type, all the logic to choose between them has to be within it. I
 can imagine a version of `coercion` that takes a map of type names
 to conversion functions, but that hasn't been written.
 
-## Checking the types of values
-
-Although checking the existence of keys is sufficient for many cases,
-it's sometimes useful to require that certain predicates be true of
-values. For example, here's how you declare that only even numbers are accepted:
-
-```clojure
-(global-type/named! :even-point [:x :y] {:x even? :y even?})
-```
-
-The vector argument denotes the required keys. The following map argument, if any, gives predicates to be run over those keys.
-Here's an example of a failure:
-
-```clojure
-user=> (type/checked :even-point {:y 1})
-:x must be present and non-nil
-Custom validation failed for :y
-nil
-```
-
-The second message is not exactly ideal. In such cases, use vars instead of functions. If the map were `{:x #'even? :y #'even?}`, the
-output would look like this:
-
-```clojure
-user=> (type/checked :even-point {:y 1})
-:x must be present and non-nil
-:y is not `even?`
-nil
-```
-
-You can add more than one check per key by enclosing them in a vector.
-
-```clojure
-(global-type/named! :even-point [:x :y] {:x [even? pos?] :y [even? pos?]})
-
-user=> (type/checked :even-point {:x -1, :y -2})
-Custom validation failed for :x
-Custom validation failed for :y
-nil
-```
-
-That's not a hugely informative error message. Read on.
-
-### Custom error messages
-
-The previous example can produce more useful error messages if vars are used instead of functions:
-
-```clojure
-(global-type/named! :even-point [:x :y] {:x [#'even? #'pos?] :y [#'even? #'pos?]})
-
-user=> (type/checked :even-point {:x -1, :y -2})
-:x should be `even?`; it is `-1`
-:y should be `pos?`; it is `-2`
-nil
-```
-
-Notice that there's no ":x should be `pos?` message": the first failing predicate short-circuits evaluation of any
-that follow.
-
-Within a vector, you can replace a predicate with a vector of the form `[<pred> :message <fmt>]` to
-provide a custom error message:
-
-```clojure
-(let [allowable [even? :message "%s is not an allowable number."]]
-  (global-type/named! :allowable [:x :y] {:x [allowable] :y [allowable]}))
-```
-
-Note well the vector `[allowable]`. The following looks like
-three predicates:
-
-```clojure
-(let [allowable [even? :message "%s is not an allowable number."]]
-  (global-type/named! :allowable [:x :y] {:x allowable}))
-```
-
-Given the correct version, the message appears:
-
-```clojure
-user=> (type/checked :allowable {:x 1, :y 2})
-:x is not an allowable number.
-nil
-```
-
-The message is formatted as with `format`. There can be two format
-specifiers, which are both handed strings created with `pr-str`. The
-first is the erroneous key. The second is the value of that key. So:
-
-```clojure
-(let [allowable [even? :message "%s should be even; %s isn't."]]
-  (global-type/named! :ok [:x] {:x [allowable]}))
-
-user=> (type/checked :ok {:x 1})
-:x should be even; 1 isn't.
-nil
-```
-
-For even more flexibility, the `:message` can be a function. It takes a map with two keys relevant here:
-
-* `:path`: For non-nested maps like the ones we've seen above, this is a vector containing the
-  key. Example: `[:x]`.
-
-* `:value`: The erroneous value of that key. Example: `-1`.
-
-Note that neither of these have been stringified by `pr-str`. Here's a silly example of printing the key with the square of the value:
-
-```clojure
-(letfn [(fmt [{:keys [path value]}]
-         (format "%s should be a square root of %s." path (* value value)))]
-  (global-type/named! :ok [:x] {:x [[even? :message fmt]]}))
+### Migrations - TBD
 
 
-user=> (type/checked :ok {:x 9})
-[:x] should be a square root of 81.
-nil
-```
-
-### Optional keys - TBD
-
-If you want to constrain the value of an optional key, simply omit it
-from the vector of required keys and mention it in the map. In the following, `:here` is
-required but otherwise unconstrained. `:optional` need not be present. If present, it must
-be an integer.
-
-```clojure
-user=> (global-type/named! :example [:here] {:optional #'integer?})
-user=> (type/checked :example {:here "hi"})
-{:here "hi"}
-user=> (type/checked :example {:optional "hi"})
-:here must be present and non-nil
-:optional should be `integer?`; it is `"hi"`
-nil
-user=> (type/checked :example {:here "hi" :optional 3})
-{:here "hi", :optional 3}
-```
-
-### Nested maps - TBD
-
-As the previous section suggests, you can validate nested maps. Here
-is how you require that a map have a `:point` field that contains an
-`:x` and a `:y`:
-
-```
-(global-type/named! :point-container [[:point :x] [:point :y]])
-```
-
-### Bouncer - TBD
-
-### Predefined validations - TBD
-
-### Defining validations - TBD
-
+## Notes for Bouncer users - TBD
 
 ---------------------------------------------------
 
