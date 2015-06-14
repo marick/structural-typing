@@ -35,18 +35,18 @@
   
 (defn coercion! 
   "Modify the global type repo to register function `f` as one that
-   can coerce a map or record into one matching type `name`.
+   can coerce a map or record into one matching type `type-signifier`.
    See also [[coercion]]."
-  [name f]
-  (swap! stages/global-type-repo type/coercion name f))
+  [type-signifier f]
+  (swap! stages/global-type-repo type/coercion type-signifier f))
 
 (defn named! 
-  "Modifies the global type repo to define the type `name` as being
+  "Modifies the global type repo to define the type `type-signifier` as being
    a map or record containing all of the given `keys`.
    See also [[named]].
 "
-  ([name keys]
-     (named! name keys {}))
-  ([name keys bouncer-map]
-     (swap! stages/global-type-repo type/named name keys bouncer-map)))
+  ([type-signifier keys]
+     (named! type-signifier keys {}))
+  ([type-signifier keys bouncer-map]
+     (swap! stages/global-type-repo type/named type-signifier keys bouncer-map)))
 

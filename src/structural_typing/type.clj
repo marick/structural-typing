@@ -68,79 +68,79 @@
   (mapv forgiving-optional-validator (util/vector-or-wrap v)))
 
 (defn- named-internal
-  [type-repo name paths optional-map]
+  [type-repo type-signifier paths optional-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
                               (util/expand-all-paths paths))
         optional-map (util/update-each-value optional-map expanded-optional-value-descriptor)]
-    (assoc-in type-repo [:validators name]
+    (assoc-in type-repo [:validators type-signifier]
               (merge-with into validator-map optional-map))))
 
-(defn- validate-one [type-repo type-name kvs]
-  (b/validate (:error-string-producer type-repo) kvs (get-in type-repo [:validators type-name])))
+(defn- validate-one [type-repo type-signifier candidate]
+  (b/validate (:error-string-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
 
-(defn- checked-internal [type-repo name kvs]
-  (let [[errors actual] (validate-one type-repo name kvs)]
+(defn- checked-internal [type-repo type-signifier candidate]
+  (let [[errors actual] (validate-one type-repo type-signifier candidate)]
     (if (empty? errors)
-      ((:success-handler type-repo) kvs)
+      ((:success-handler type-repo) candidate)
       (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
           ((:failure-handler type-repo))))))
 
 (defn checked
-  "Check the map `kvs` against the previously-defined type `name` in the given
+  "Check the map `candidate` against the previously-defined type `type-signifier` in the given
    `type-repo`. If the `type-repo` is omitted, the global one is used.
    
        (type/checked :frobbish {:twerk true, :tweek false})
    
    Types are defined with [[named]] or [[named!]]. By default, `checked` returns
-   the `kvs` argument if it checks out, `nil` otherwise. Those defaults can be
+   the `candidate` argument if it checks out, `nil` otherwise. Those defaults can be
    changed.
 "
-  ([type-repo name kvs]
+  ([type-repo type-signifier candidate]
      (checked-internal own-types :type-repo type-repo)
-     (checked-internal type-repo name kvs))
-  ([name kvs]
-     (checked @stages/global-type-repo name kvs)))
+     (checked-internal type-repo type-signifier candidate))
+  ([type-signifier candidate]
+     (checked @stages/global-type-repo type-signifier candidate)))
 
 
 (defn named 
-  "Define the type `name` as being a map or record containing all of the given `paths`.
+  "Define the type `type-signifier` as being a map or record containing all of the given `paths`.
   (A path is a key or a vector of paths.)
   Returns the augmented `type-repo`. See also [[named!]].
 "
-  ([type-repo name paths optional-map]
+  ([type-repo type-signifier paths optional-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo name paths (util/nested-map->path-map optional-map)))
-  ([type-repo name paths]
-     (named type-repo name paths {})))
+     (named-internal type-repo type-signifier paths (util/nested-map->path-map optional-map)))
+  ([type-repo type-signifier paths]
+     (named type-repo type-signifier paths {})))
 
   
 (defn instance? 
-  "Return `true` iff the map or record `kvs` typechecks against the type named `name` in
+  "Return `true` iff the map or record `candidate` typechecks against the type named `type-signifier` in
    `type-repo`. If `type-repo` is omitted, the global repo is used.
    
-       (type/instance? :frobbable kvs)
+       (type/instance? :frobbable candidate)
 "
-  ([type-repo name kvs]
+  ([type-repo type-signifier candidate]
      (checked (assoc type-repo
                      :failure-handler (constantly false) 
                      :success-handler (constantly true))
-              name 
-              kvs))
-  ([name kvs]
-     (instance? @stages/global-type-repo name kvs)))
+              type-signifier 
+              candidate))
+  ([type-signifier candidate]
+     (instance? @stages/global-type-repo type-signifier candidate)))
 
 (defn coercion 
   "Register function `f` as one that can coerce a map or record into 
-   one that matches type `name`. The updated `type-repo` is returned.
+   one that matches type `type-signifier`. The updated `type-repo` is returned.
    See also [[coercion!]], which updates the global type repo."
-  [type-repo name f]
+  [type-repo type-signifier f]
   (checked-internal own-types :type-repo type-repo)
-  (assoc-in type-repo [:coercions name] f))
+  (assoc-in type-repo [:coercions type-signifier] f))
 
 (defn coerced
-  "Coerce the map or record `kvs` into the type named `name` in the `type-repo`
-   and check the result with [[checked]]. The coerced version of `kvs` is returned.
+  "Coerce the map or record `candidate` into the type named `type-signifier` in the `type-repo`
+   and check the result with [[checked]]. The coerced version of `candidate` is returned.
    
    If the type repo is omitted, the global type repo is used.
    Coercions are defined with [[coercion]] or [[coercion!]].
@@ -148,17 +148,19 @@
         (some-> (coerce :user-v2 legacy-json)
                 (update-in [:stats :logins] inc))
 
-   If `name` hasn't been defined (via [[name]] or [[named!]]), the final
+   If `type-signifier` hasn't been defined (via [[name]] or [[named!]]), the final
    call to `checked` is omitted.
 "
-  ([type-repo name kvs]
+  ([type-repo type-signifier candidate]
      (checked-internal own-types :type-repo type-repo)
-     (let [coercer (get-in type-repo [:coercions name] identity)]
-       (->> (coercer kvs)
-            (checked-internal type-repo name))))
-  ([name kvs]
-     (coerced @stages/global-type-repo name kvs)))
+     (let [coercer (get-in type-repo [:coercions type-signifier] identity)]
+       (->> (coercer candidate)
+            (checked-internal type-repo type-signifier))))
+  ([type-signifier candidate]
+     (coerced @stages/global-type-repo type-signifier candidate)))
 
+(defn each-is [& type-signifier])
+  
 
 ;;; Own types
 
