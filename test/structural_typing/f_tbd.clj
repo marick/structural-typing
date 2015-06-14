@@ -75,8 +75,6 @@
     (type/checked type-repo :some-type {:a "foo"}) => :failure-handler-called
     (accumulator/messages) => (just ":a must be a number")))
 
-(future-fact "nested structures work - currently you get trees of messages published")
-
 
 (fact "modifying the behavior of predicates"
   (fact "`message` adds a message to the predicate's metadata"

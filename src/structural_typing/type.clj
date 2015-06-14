@@ -76,9 +76,11 @@
     (assoc-in type-repo [:validators name]
               (merge-with into validator-map optional-map))))
 
+(defn- validate-one [type-repo type-name kvs]
+  (b/validate (:error-string-producer type-repo) kvs (get-in type-repo [:validators type-name])))
+
 (defn- checked-internal [type-repo name kvs]
-  (let [[errors actual]
-        (b/validate (:error-string-producer type-repo) kvs (get-in type-repo [:validators name]))]
+  (let [[errors actual] (validate-one type-repo name kvs)]
     (if (empty? errors)
       ((:success-handler type-repo) kvs)
       (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
