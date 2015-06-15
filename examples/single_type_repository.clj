@@ -10,30 +10,31 @@
 (global-type/set-failure-handler! accumulator/failure-handler) ; stash failures in an atom
 (namespace-state-changes (before :facts (accumulator/reset!)))
 
-(global-type/named! :stringish ["not a keyword"])
+(global-type/named! :exists [:a :b])
 (global-type/named! :even [:a] {:a even?})
 
-(fact "simple checking"
-  (type/checked :stringish {"not a keyword" 1}) => {"not a keyword" 1})
+(fact "key existence"
+  (type/checked :exists {:a 1, :b 1}) => {:a 1, :b 1})
 
 (fact "value checking"
   (type/checked :even {:a 2}) => {:a 2})
   
 (fact "instance?"
-  (type/instance? :stringish {"not a keyword" 1}) => true
-  (type/instance? :stringish {:a 1}) => false)
+  (type/instance? :exists {:a 1 :b 1}) => true
+  (type/instance? :exists {:a 1}) => false)
   
-(fact "checking"
-  (type/checked :stringish {:a 1}) => :failure-handler-called
-  (accumulator/messages) => (just #"\"not a keyword\" must be present"))
+(fact "failures"
+  (type/checked :exists {:a 1}) => :failure-handler-called
+  (accumulator/messages) => [":b must be present and non-nil"])
 
 (fact "coercion"
-  (global-type/coercion! :stringish (fn [from]
-                                      (set/rename-keys from {:not-a-keyword "not a keyword"})))
-  (type/coerced :stringish {:a 1}) => :failure-handler-called
-  (type/coerced :stringish {"not a keyword" 1}) => {"not a keyword" 1}
-  (type/coerced :stringish {:not-a-keyword 1}) => {"not a keyword" 1})
+  (global-type/coercion! :exists (fn [from]
+                                 (set/rename-keys from {:null-a :a})))
+  (type/coerced :exists {:null-a 1}) => :failure-handler-called
+  (accumulator/messages) => [":b must be present and non-nil"]
 
+  (type/coerced :exists {:a 1, :b 2}) => {:a 1, :b 2}
+  (type/coerced :exists {:null-a 1, :b 2}) => {:a 1, :b 2})
 
 (global-type/start-over!)
 

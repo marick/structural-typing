@@ -1,4 +1,5 @@
 (ns coerce
+  "You can coerce a map into a particular type"
   (:require [structural-typing.type :as type]
             [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator])
@@ -6,12 +7,13 @@
 
 (namespace-state-changes (before :facts (accumulator/reset!)))
 
+;; We start with a test support repo. You'd normally use `type/empty-type-repo`.
 (def type-repo (-> accumulator/type-repo
-                   (type/named :broken [:a :b])
-                   (type/coercion :broken (fn [from] (set/rename-keys from {:aaaa :a})))))
-(fact "basic use"
-  (type/coerced type-repo :broken {:aaaa 1, :b 2}) => {:a 1, :b 2})
+                   (type/named :some-type [:a :b])
+                   (type/coercion :some-type (fn [from] (set/rename-keys from {:aaaa :a})))))
 
+(fact "basic use"
+  (type/coerced type-repo :some-type {:aaaa 1, :b 2}) => {:a 1, :b 2})
 
 
 (def repo-with-bad-coercion (-> accumulator/type-repo

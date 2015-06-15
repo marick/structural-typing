@@ -1,6 +1,6 @@
-(ns value-checks
+(ns structural-typing.example-details.det-type-checking-values
+  "You can type-check the values of maps, not just the keys"
   (:require [structural-typing.type :as type]
-            [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator])
   (:use midje.sweet))
 

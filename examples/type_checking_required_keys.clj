@@ -1,10 +1,12 @@
-(ns required-keys
+(ns type-checking-required-keys
+  "The most basic behavior is to check that particular keys exist."
   (:require [structural-typing.type :as type]
             [clojure.set :as set]
             [structural-typing.testutil.accumulator :as accumulator])
   (:use midje.sweet))
   
-(def type-repo (-> accumulator/type-repo  ; stashes failures in an atom; returns special key on failure
+;; We start with a test support repo. You'd normally use `type/empty-type-repo`.
+(def type-repo (-> accumulator/type-repo 
                    (type/named :requires-a-and-b [:a :b])
                    (type/named :requires-a-b-c [:a :b :c])))
 

@@ -1,11 +1,10 @@
-(ns embedded-vectors
+(ns type-checking-embedded-sequences
   (:use midje.sweet)
   (:require [structural-typing.type :as type]
             [structural-typing.global-type :as global-type]
             [structural-typing.testutil.accumulator :as accumulator]))
 
 (global-type/start-over!)
-;(global-type/set-failure-handler! accumulator/failure-handler) ; stash failures in an atom
 (namespace-state-changes (before :facts (accumulator/reset!)))
 
 (def contains-points {:points [{:x 1, :y 1}, {:x 2, :y 2}]})
@@ -20,9 +19,5 @@
   (type/checked :has-points contains-points) => contains-points
   (type/checked :has-points bad-contains-points) => :failure-handler-called
   (accumulator/messages) => ["foo"])
-
-(future-fact "each-is takes a type-repo")
-
-(future-fact "works with sequentials")
 
 (global-type/start-over!)

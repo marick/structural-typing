@@ -1,6 +1,7 @@
-(ns value-checks
+(ns custom-messages
+  "How to make your own custom messages"
   (:require [structural-typing.type :as type]
-            [clojure.set :as set]
+            [structural-typing.global-type :as global-type]
             [structural-typing.testutil.accumulator :as accumulator])
   (:use midje.sweet))
 
@@ -24,7 +25,7 @@
   (let [message-gen (fn [{:keys [path value]}]
                       (format "%s should be a square root of %s." path (* value value)))
         type-repo (-> accumulator/type-repo
-                     (global-type/named! :ok [:x] {:x [(-> even? (type/message message-gen))]}))]
+                     (type/named :ok [:x] {:x [(-> even? (type/message message-gen))]}))]
     
     (type/checked type-repo :ok {:x 9}) => :failure-handler-called
     (accumulator/messages) => ["[:x] should be a square root of 81."]))
