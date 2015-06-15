@@ -49,3 +49,18 @@
   (subject/expand-all-paths [:x :y]) => [:x :y]
   (subject/expand-all-paths [:x [:x :y]]) => [:x [:x :y]]
   (subject/expand-all-paths [:x [:a [:b1 :b2] :c]]) => [:x [:a :b1 :c] [:a :b2 :c]])
+
+(fact prepend-bouncer-result-path
+  (let [bouncer-diagnostics {:x [{:path [:x] :message "1"}
+                                 {:path [:x] :message "2"}]
+                             :y [{:path [:y] :message "3"}]}
+        updated-path {:x [{:path [888 :x] :message "1"}
+                                 {:path [888 :x] :message "2"}]
+                             :y [{:path [888 :y] :message "3"}]}]
+    (subject/prepend-bouncer-result-path
+     [888]
+     [bouncer-diagnostics {:bouncer.core/errors bouncer-diagnostics :x 1 :y 2}])
+    => [updated-path {:bouncer.core/errors updated-path :x 1 :y 2}]))
+    
+                             
+                             

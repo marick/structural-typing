@@ -63,3 +63,18 @@
 
 (defn var-message [v]
   (format "%%s should be `%s`; it is `%%s`" (:name (meta v))))
+
+
+
+(defn prepend-bouncer-result-path [vals bouncer-result]
+  (letfn [(update-path [kvs]
+            (update-in kvs [:path] (fn [path] (into [] (concat vals path)))))
+          (update-path-containers [v]
+            (mapv update-path v))
+          (update-result-map [kvs]
+            (update-each-value kvs update-path-containers))]
+
+    (vector (update-result-map (first bouncer-result))
+            (update-in (second bouncer-result) [:bouncer.core/errors] update-result-map))))
+
+

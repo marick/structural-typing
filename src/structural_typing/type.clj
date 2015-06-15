@@ -8,6 +8,9 @@
             [structural-typing.validators :as v]
             [structural-typing.util :as util]))
 
+
+(def ^:private error-stream-kludge (atom []))
+
 (def empty-type-repo
   "A repository that contains no type descriptions. It contains
    default behavior for both success and failure cases. Here's
@@ -76,15 +79,29 @@
     (assoc-in type-repo [:validators type-signifier]
               (merge-with into validator-map optional-map))))
 
-(defn- validate-one [type-repo type-signifier candidate]
-  (b/validate (:error-string-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
-
 (defn- checked-internal [type-repo type-signifier candidate]
-  (let [[errors actual] (validate-one type-repo type-signifier candidate)]
-    (if (empty? errors)
-      ((:success-handler type-repo) candidate)
-      (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
-          ((:failure-handler type-repo))))))
+  (letfn [(run-validation []
+            (b/validate (:error-string-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
+
+          (run-error-handling [[errors actual]]
+            (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
+                ((:failure-handler type-repo))))]
+
+    (reset! error-stream-kludge [])
+    (let [bouncer-result (run-validation)]
+      (cond (empty? (first bouncer-result))
+            ((:success-handler type-repo) candidate)
+            
+            (empty? @error-stream-kludge)
+            (run-error-handling bouncer-result)
+            
+            :else 
+            (do
+              (let [error-stream @error-stream-kludge
+                    prefix (-> bouncer-result first first first util/vector-or-wrap)]
+                (reset! error-stream-kludge [])
+                (doseq [old-bouncer-result error-stream]
+                  (run-error-handling (util/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
 
 (defn checked
   "Check the map `candidate` against the previously-defined type `type-signifier` in the given
@@ -159,7 +176,24 @@
   ([type-signifier candidate]
      (coerced @stages/global-type-repo type-signifier candidate)))
 
-(defn each-is [& type-signifier])
+(defn each-is
+  ([type-repo type-signifier]
+     (let [validator (get-in type-repo [:validators type-signifier])]
+       (fn [xs]
+         (let [erroneous 
+               (loop [xs xs, i 0, erroneous []]
+                 (if (empty? xs) 
+                   erroneous
+                   (let [result (b/validate identity (first xs) validator)]
+                     (recur (next xs)
+                            (inc i)
+                            (if (nil? (first result))
+                              erroneous
+                              (conj erroneous (util/prepend-bouncer-result-path [i] result)))))))]
+           (swap! error-stream-kludge into erroneous)
+           (empty? erroneous)))))
+  ([type-signifier]
+     (each-is @stages/global-type-repo type-signifier)))
   
 
 ;;; Own types
