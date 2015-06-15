@@ -2,11 +2,11 @@
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
    Builds on top of [Bouncer](https://github.com/leonardoborges/bouncer)."
   (:refer-clojure :exclude [instance?])
-  (:require [clojure.string :as str]
-            [bouncer.core :as b])
+  (:require [bouncer.core :as b])
   (:require [structural-typing.pipeline-stages :as stages]
             [structural-typing.validators :as v]
-            [structural-typing.util :as util]))
+            [structural-typing.frob :as frob]
+            [structural-typing.bouncer :as bouncer]))
 
 
 (def ^:private error-stream-kludge (atom []))
@@ -47,35 +47,35 @@
   (let [guarded (with-meta #(if (precondition %) (pred %) true) (meta pred))]
     ;; TODO: Icky that varness is checked in two places.
     (if (var? pred)
-      (-> guarded (message (util/var-message pred)))
+      (-> guarded (message (stages/var-message pred)))
       guarded)))
 
 (defn- forgiving-optional-validator [descriptor]
   (let [almost
         (cond (var? descriptor)
-              (let [msg (util/var-message descriptor)]
-                (-> descriptor util/mkfn:catcher (message msg)))
+              (let [msg (stages/var-message descriptor)]
+                (-> descriptor frob/wrap-pred-with-catcher (message msg)))
 
               ;; TODO: Bouncer backwards compatibility - delete?
               (and (vector? descriptor) (= :message (second descriptor)))
               (let [[pred _key_ msg] descriptor]
                 (println "Use `(-> pred (type/message ...))` in preference to `[pred :message msg]`")
-                (-> pred util/mkfn:catcher (message msg)))
+                (-> pred frob/wrap-pred-with-catcher (message msg)))
 
               :else 
-              (with-meta (util/mkfn:catcher descriptor) (meta descriptor)))]
+              (with-meta (frob/wrap-pred-with-catcher descriptor) (meta descriptor)))]
     (with-meta almost (assoc (meta almost) :optional true))))
   
 
 (defn- expanded-optional-value-descriptor [v]
-  (mapv forgiving-optional-validator (util/vector-or-wrap v)))
+  (mapv forgiving-optional-validator (frob/force-vector v)))
 
 (defn- named-internal
   [type-repo type-signifier paths optional-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
-                              (util/expand-all-paths paths))
-        optional-map (util/update-each-value optional-map expanded-optional-value-descriptor)]
+                              (bouncer/flatten-N-path-representations paths))
+        optional-map (frob/update-each-value optional-map expanded-optional-value-descriptor)]
     (assoc-in type-repo [:validators type-signifier]
               (merge-with into validator-map optional-map))))
 
@@ -98,10 +98,10 @@
             :else 
             (do
               (let [error-stream @error-stream-kludge
-                    prefix (-> bouncer-result first first first util/vector-or-wrap)]
+                    prefix (-> bouncer-result first first first frob/force-vector)]
                 (reset! error-stream-kludge [])
                 (doseq [old-bouncer-result error-stream]
-                  (run-error-handling (util/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
+                  (run-error-handling (bouncer/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
 
 (defn checked
   "Check the map `candidate` against the previously-defined type `type-signifier` in the given
@@ -127,7 +127,7 @@
 "
   ([type-repo type-signifier paths optional-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo type-signifier paths (util/nested-map->path-map optional-map)))
+     (named-internal type-repo type-signifier paths (bouncer/nested-map->path-map optional-map)))
   ([type-repo type-signifier paths]
      (named type-repo type-signifier paths {})))
 
@@ -189,7 +189,7 @@
                             (inc i)
                             (if (nil? (first result))
                               erroneous
-                              (conj erroneous (util/prepend-bouncer-result-path [i] result)))))))]
+                              (conj erroneous (bouncer/prepend-bouncer-result-path [i] result)))))))]
            (swap! error-stream-kludge into erroneous)
            (empty? erroneous)))))
   ([type-signifier]

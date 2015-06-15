@@ -1,5 +1,5 @@
-(ns structural-typing.f-util
-  (:require [structural-typing.util :as subject])
+(ns structural-typing.f-bouncer
+  (:require [structural-typing.bouncer :as subject])
   (:use midje.sweet))
 
 (facts nested-map->path-map
@@ -24,31 +24,44 @@
     => {[:a :b] {:ignored :value}
         [:l1 :l2 :l3] 3}))
 
-(facts nested->paths
-  (subject/nested->paths :x) => [:x]
-  (subject/nested->paths [:x]) => [[:x]]
-  (subject/nested->paths [:x :y]) => [[:x :y]]
-  (subject/nested->paths [:x :y]) => [[:x :y]]
 
-  (subject/nested->paths [:x [:y :z]]) => [[:x :y] [:x :z]]
-  (subject/nested->paths [:a :b [:c :d]]) =future=> [[:a :b :c] [:a :b :d]]
+(facts flatten-path-representation
+  (subject/flatten-path-representation :x) => [:x]
+  (subject/flatten-path-representation [:x]) => [[:x]]
+  (subject/flatten-path-representation [:x :y]) => [[:x :y]]
+  (subject/flatten-path-representation [:x :y]) => [[:x :y]]
 
-  (subject/nested->paths [:a :b [:c :d] :e]) =future=> [[:a :b :c :e] [:a :b :d :e]]
+  (subject/flatten-path-representation [:x [:y :z]]) => [[:x :y] [:x :z]]
+  (subject/flatten-path-representation [:a :b [:c :d]]) =future=> [[:a :b :c] [:a :b :d]]
 
-  (subject/nested->paths [:a :b [:c :d] :e [:f :g]])
+  (subject/flatten-path-representation [:a :b [:c :d] :e]) =future=> [[:a :b :c :e] [:a :b :d :e]]
+
+  (subject/flatten-path-representation [:a :b [:c :d] :e [:f :g]])
   =future=> [[:a :b :c :e :f] 
              [:a :b :c :e :g] 
              [:a :b :d :e :f] 
              [:a :b :d :e :g] ]
 
   (fact "the embedded paths don't have to be vectors"
-    (subject/nested->paths [:x (list :y :z)]) => [[:x :y] [:x :z]]))
+    (subject/flatten-path-representation [:x (list :y :z)]) => [[:x :y] [:x :z]]))
     
 
-(facts expand-all-paths
-  (subject/expand-all-paths [:x :y]) => [:x :y]
-  (subject/expand-all-paths [:x [:x :y]]) => [:x [:x :y]]
-  (subject/expand-all-paths [:x [:a [:b1 :b2] :c]]) => [:x [:a :b1 :c] [:a :b2 :c]])
+(facts flatten-N-path-representations
+  (subject/flatten-N-path-representations [:x :y]) => [:x :y]
+  (subject/flatten-N-path-representations [:x [:x :y]]) => [:x [:x :y]]
+  (subject/flatten-N-path-representations [:x [:a [:b1 :b2] :c]]) => [:x [:a :b1 :c] [:a :b2 :c]])
+
+
+(fact "flatten-error-map makes nesting easier to deal with"
+  (subject/flatten-error-map nil) => empty?
+  (subject/flatten-error-map {}) => empty?
+  (subject/flatten-error-map {:a ["a message" "a message 2"]}) => ["a message" "a message 2"]
+  (subject/flatten-error-map {:a ["a message"]
+                              :point {:x ["x wrong"]
+                                      :y ["y wrong"]}
+                              :deep {:er {:still ["still wrong"]}}})
+  => (just "a message" "x wrong" "y wrong" "still wrong" :in-any-order))
+
 
 (fact prepend-bouncer-result-path
   (let [bouncer-diagnostics {:x [{:path [:x] :message "1"}
