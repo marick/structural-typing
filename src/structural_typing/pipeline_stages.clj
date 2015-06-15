@@ -1,7 +1,7 @@
 (ns structural-typing.pipeline-stages
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
-            [structural-typing.bouncer :as bouncer]))
+            [structural-typing.bouncer-errors :as b-err]))
 
 ;;; Utilities
 
@@ -39,7 +39,7 @@
 
 
 (defn default-map-adapter [error-map checked-map]
-  (bouncer/flatten-error-map error-map))
+  (b-err/flatten-error-map error-map))
 
 (defn default-error-string-producer [{path :path, value :value optional-message-arg :message
                                       {default-message-format :default-message-format} :metadata

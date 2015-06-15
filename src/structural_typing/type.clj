@@ -6,7 +6,8 @@
   (:require [structural-typing.pipeline-stages :as stages]
             [structural-typing.validators :as v]
             [structural-typing.frob :as frob]
-            [structural-typing.bouncer :as bouncer]))
+            [structural-typing.bouncer-validators :as b-in]
+            [structural-typing.bouncer-errors :as b-err]))
 
 
 (def ^:private error-stream-kludge (atom []))
@@ -74,7 +75,7 @@
   [type-repo type-signifier paths optional-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
-                              (bouncer/flatten-N-path-representations paths))
+                              (b-in/flatten-N-path-representations paths))
         optional-map (frob/update-each-value optional-map expanded-optional-value-descriptor)]
     (assoc-in type-repo [:validators type-signifier]
               (merge-with into validator-map optional-map))))
@@ -101,7 +102,7 @@
                     prefix (-> bouncer-result first first first frob/force-vector)]
                 (reset! error-stream-kludge [])
                 (doseq [old-bouncer-result error-stream]
-                  (run-error-handling (bouncer/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
+                  (run-error-handling (b-err/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
 
 (defn checked
   "Check the map `candidate` against the previously-defined type `type-signifier` in the given
@@ -127,7 +128,7 @@
 "
   ([type-repo type-signifier paths optional-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo type-signifier paths (bouncer/nested-map->path-map optional-map)))
+     (named-internal type-repo type-signifier paths (b-in/nested-map->path-map optional-map)))
   ([type-repo type-signifier paths]
      (named type-repo type-signifier paths {})))
 
@@ -189,7 +190,7 @@
                             (inc i)
                             (if (nil? (first result))
                               erroneous
-                              (conj erroneous (bouncer/prepend-bouncer-result-path [i] result)))))))]
+                              (conj erroneous (b-err/prepend-bouncer-result-path [i] result)))))))]
            (swap! error-stream-kludge into erroneous)
            (empty? erroneous)))))
   ([type-signifier]
