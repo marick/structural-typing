@@ -3,6 +3,35 @@
    a form more convenient to our purposes."
   (:require [structural-typing.frob :as frob]))
 
+(defmulti simplify (fn [bouncer-value] (if (:metadata bouncer-value)
+                                         :bouncer-data-for-message
+                                         :bouncer-error-data)))
+
+
+(defmethod simplify :bouncer-data-for-message [{path :path,
+                                                value :value
+                                                predicate-args :args
+                                                optional-message-arg :message
+                                                {default-message-format :default-message-format
+                                                 predicate :validator} :metadata}]
+  (let [handler (or optional-message-arg default-message-format
+                    "configuration error: no message format. key %s val %s")]
+    {:path path
+     :value value
+     :predicate-args predicate-args
+     :message handler}))
+
+  
+
+
+
+
+
+
+
+
+
+
 
 (defn flatten-error-map
   "`error-map` is a map from keys to either a sequence of error messages or

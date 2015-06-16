@@ -1,7 +1,79 @@
 (ns structural-typing.f-bouncer-errors
-  (:require [structural-typing.bouncer-errors :as subject])
+  (:require [structural-typing.bouncer-errors :as subject]
+            [bouncer.core :as b]
+            [bouncer.validators :as v])
   (:use midje.sweet))
 
+
+(fact "simplifying message formats"
+  (let [holder (atom [])
+        add #(do (swap! holder conj %) nil)
+        only #(first @holder)]
+    (against-background [(before :facts (reset! holder []))]
+      
+      (fact "simple bouncer form"
+        (b/validate add {} {:a v/required})
+        (only) => (contains {:path [:a]
+                             :value nil
+                             :args nil
+                             :metadata (contains {:validator v/required
+                                                  :optional false
+                                                  :default-message-format "%s must be present"})
+                             :message nil})
+
+        (subject/simplify (only)) => {:path [:a]
+                                      :value nil
+                                      :predicate-args nil
+                                      :message "%s must be present"})
+                                      
+                                      
+      
+      (fact "Form with predicate"
+        (b/validate add {:a 3} {:a even?})
+        (only) => (contains {:path [:a]
+                             :value 3
+                             :args nil
+                             :metadata (contains {;; :validator even? ; dunno why this doesn't work
+                                                  :default-message-format "Custom validation failed for %s"
+                                                  })
+                             :message nil}))
+      
+        (subject/simplify (only)) => {:path [:a]
+                                      :value 3
+                                      :predicate-args nil
+                                      :message "Custom validation failed for %s"}
+                                      
+                                      
+      
+      (fact "Form with args"
+        (b/validate add {:a 3} {:a [[v/member [1 2]]]})
+        (only) => (contains {:path [:a]
+                             :value 3
+                             :args [[1 2]]
+                             :metadata (contains {:validator :bouncer.validators/member
+                                                  :optional false
+                                                  :default-message-format "%s must be one of the values in the list"
+                                                  })
+                             :message nil}))
+        (subject/simplify (only)) => {:path [:a]
+                                      :value 3
+                                      :predicate-args [[1 2]]
+                                      :message "%s must be one of the values in the list"}
+      
+      (fact "Form with message"
+        (b/validate add {:a 3} {:a [[even? :message "%s even"]]})
+        (only) => (contains {:path [:a]
+                             :value 3
+                             :args nil
+                             :metadata (contains {
+                                                  :default-message-format "Custom validation failed for %s"
+                                                  })
+                             :message "%s even"}))
+        (subject/simplify (only)) => {:path [:a]
+                                      :value 3
+                                      :predicate-args nil
+                                      :message "%s even"}
+      )))
 
 (fact "flatten-error-map makes nesting easier to deal with"
   (subject/flatten-error-map nil) => empty?
