@@ -24,7 +24,7 @@
   {:failure-handler stages/default-failure-handler
    :success-handler stages/default-success-handler
    :map-adapter stages/default-map-adapter
-   :error-string-producer stages/default-error-string-producer
+   :error-explanation-producer stages/default-error-explanation-producer
    })
 
 (declare ^:private own-types)
@@ -82,7 +82,7 @@
 
 (defn- checked-internal [type-repo type-signifier candidate]
   (letfn [(run-validation []
-            (b/validate (:error-string-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
+            (b/validate (:error-explanation-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
 
           (run-error-handling [[errors actual]]
             (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))

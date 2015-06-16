@@ -5,7 +5,7 @@
   (:use midje.sweet))
 
 
-(fact "simplifying message formats"
+(fact "simplifying data used to construct messages"
   (let [holder (atom [])
         add #(do (swap! holder conj %) nil)
         only #(first @holder)]
@@ -21,11 +21,11 @@
                                                   :default-message-format "%s must be present"})
                              :message nil})
 
-        (subject/simplify (only)) => {:path [:a]
-                                      :value nil
-                                      :predicate-args nil
-                                      :message "%s must be present"})
-                                      
+        (subject/within-bouncer:simplify-raw-error-state (only)) => {:path [:a]
+                                                      :value nil
+                                                      :predicate-args nil
+                                                      :message "%s must be present"})
+      
                                       
       
       (fact "Form with predicate"
@@ -38,11 +38,11 @@
                                                   })
                              :message nil}))
       
-        (subject/simplify (only)) => {:path [:a]
-                                      :value 3
-                                      :predicate-args nil
-                                      :message "Custom validation failed for %s"}
-                                      
+        (subject/within-bouncer:simplify-raw-error-state (only)) => {:path [:a]
+                                                      :value 3
+                                                      :predicate-args nil
+                                                      :message "Custom validation failed for %s"}
+        
                                       
       
       (fact "Form with args"
@@ -55,10 +55,10 @@
                                                   :default-message-format "%s must be one of the values in the list"
                                                   })
                              :message nil}))
-        (subject/simplify (only)) => {:path [:a]
-                                      :value 3
-                                      :predicate-args [[1 2]]
-                                      :message "%s must be one of the values in the list"}
+        (subject/within-bouncer:simplify-raw-error-state (only)) => {:path [:a]
+                                                      :value 3
+                                                      :predicate-args [[1 2]]
+                                                      :message "%s must be one of the values in the list"}
       
       (fact "Form with message"
         (b/validate add {:a 3} {:a [[even? :message "%s even"]]})
@@ -69,10 +69,10 @@
                                                   :default-message-format "Custom validation failed for %s"
                                                   })
                              :message "%s even"}))
-        (subject/simplify (only)) => {:path [:a]
-                                      :value 3
-                                      :predicate-args nil
-                                      :message "%s even"}
+        (subject/within-bouncer:simplify-raw-error-state (only)) => {:path [:a]
+                                                      :value 3
+                                                      :predicate-args nil
+                                                      :message "%s even"}
       )))
 
 (fact "flatten-error-map makes nesting easier to deal with"

@@ -12,8 +12,8 @@
 
 ;; Step 1 is the creation of error messages
 
-(defn default-error-string-producer [kvs]
-  (let [{:keys [path value message]} (b-err/simplify kvs)]
+(defn default-error-explanation-producer [kvs]
+  (let [{:keys [path value message]} (b-err/within-bouncer:simplify-raw-error-state kvs)]
     (if (fn? message)
       (message kvs)
       (format message
@@ -35,10 +35,11 @@
                 (assoc :goodness true)
                 ...)
 "
-  [messages]
-  (doseq [s messages]
+  [error-explanations value-being-checked]
+  (doseq [s error-explanations]
     (println s))
   nil)
+
 
 (defn throwing-failure-handler 
   "In contrast to the default failure handler, this one throws a

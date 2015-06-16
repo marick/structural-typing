@@ -3,29 +3,36 @@
    a form more convenient to our purposes."
   (:require [structural-typing.frob :as frob]))
 
-(defmulti simplify (fn [bouncer-value] (if (:metadata bouncer-value)
-                                         :bouncer-data-for-message
-                                         :bouncer-error-data)))
+(defn within-bouncer:simplify-raw-error-state
+  "Bouncer provides a complicated data structure when it discovers an
+   error. This function reduces that down to the most commonly-useful
+   parts:
+   
+   * path: A list of keys to follow to the location of the error.
+   * value: The value of the key in error. `nil` if the problem
+     is that the key is missing.
+   * predicate-args: Special predicate-makers take args when making a 
+     predicate. Those args are included here. 
+   * message: is either a format string or a function that is passed
+     the original (pre-simplified) data. `message` is either (1)
+     constructed from the predicate (when it's a var), (2) assigned
+     with `validators/defvalidator`, or (3) overridden for a particular
+     use of a predicate (with `type/message`). 
 
-
-(defmethod simplify :bouncer-data-for-message [{path :path,
-                                                value :value
-                                                predicate-args :args
-                                                optional-message-arg :message
-                                                {default-message-format :default-message-format
-                                                 predicate :validator} :metadata}]
+   Note that this function is called *before* `b/validate` returns.
+"
+  [{path :path,
+    value :value
+    predicate-args :args
+    optional-message-arg :message
+    {default-message-format :default-message-format
+     predicate :validator} :metadata}]
   (let [handler (or optional-message-arg default-message-format
                     "configuration error: no message format. key %s val %s")]
     {:path path
      :value value
      :predicate-args predicate-args
      :message handler}))
-
-  
-
-
-
-
 
 
 
