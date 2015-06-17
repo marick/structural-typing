@@ -53,7 +53,7 @@
 	<array>
 		<dict>
 			<key>Bounds</key>
-			<string>{{240.75, 445.5}, {272, 80}}</string>
+			<string>{{240.75, 460.5}, {272, 52}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -122,7 +122,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
-\f0\fs24 \cf0 The map adapter takes a nested map of error explanations and converts it into a sequence of error explanations (the default), a map from paths to sequences of error explanations, or some custom shape.}</string>
+\f0\fs24 \cf0 The map adapter takes a nested map of error explanations and converts it into a sequence of error explanations or some custom shape.}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -236,9 +236,9 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
-\f0\fs24 \cf0 After an entire structure is checked, if there were no errors, the original value is passed to the 
+\f0\fs24 \cf0 After an entire structure is checked, if there were no errors, the candidate is passed to the 
 \b success handler
-\b0 . It, by default, does nothing.\
+\b0 . It, by default, just passes it on.\
 \
 If there were errors, Bouncer's result is, in the simple case, a map of keys to sequences of error explanations. (There may be more than one error per key.) However, if the value being checked is nested, the map is correspondingly nested. Therefore, the 
 \b map adapter
@@ -403,7 +403,7 @@ If there were errors, Bouncer's result is, in the simple case, a map of keys to 
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
-\f0\fs24 \cf0 The failure handler takes two arguments. The first is the result of the map adapter. The second is the original map being checked.\
+\f0\fs24 \cf0 The failure handler takes two arguments. The first is the result of the map adapter. The second is the candidate.\
 \
 The default failure handler assumes error explanations are strings and just prints them. It returns `nil`.}</string>
 			</dict>
@@ -510,7 +510,7 @@ The default failure handler assumes error explanations are strings and just prin
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{34.25, 112}, {341, 24}}</string>
+			<string>{{25.25, 112}, {359, 24}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -578,7 +578,9 @@ The default failure handler assumes error explanations are strings and just prin
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
 \f0\i\fs24 \cf0 type/checked
-\i0  passes an object and type descriptor to Bouncer}</string>
+\i0  passes a 
+\b candidate
+\b0  and type descriptor to Bouncer}</string>
 			</dict>
 			<key>Wrap</key>
 			<string>NO</string>
@@ -734,7 +736,7 @@ other information that determines how the library handles error and success case
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2015-06-16 16:24:12 +0000</string>
+	<string>2015-06-16 17:07:14 +0000</string>
 	<key>Modifier</key>
 	<string>Brian Marick</string>
 	<key>NotesVisible</key>
