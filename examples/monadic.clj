@@ -20,10 +20,14 @@
 
 ;; The above is rather annoying, since the messages don't say *which* map is
 ;; missing a particular key. We can update the "map adapter" to prepend the
-;; original map to the error message: 
+;; original candidate: 
 
-(global-type/set-map-adapter! (fn [errors-by-key original]
-                                (cons original (flatten (vals errors-by-key)))))
+(require '[structural-typing.pipeline-stages :as pipeline])
+(global-type/set-map-adapter!
+ (fn [explanation-map candidate]
+   ;; Convert bouncer map into explanations sequence
+   (let [default (pipeline/default-map-adapter explanation-map candidate)]
+     (cons candidate default))))
 
 (fact "using an Either monad"
   (let [result (map #(type/checked :at-least-a-and-b %)

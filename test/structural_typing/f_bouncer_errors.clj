@@ -4,7 +4,6 @@
             [bouncer.validators :as v])
   (:use midje.sweet))
 
-
 (fact "simplifying data used to construct messages"
   (let [holder (atom [])
         add #(do (swap! holder conj %) nil)
@@ -75,15 +74,30 @@
                                                       :message "%s even"}
       )))
 
-(fact "flatten-error-map makes nesting easier to deal with"
-  (subject/flatten-error-map nil) => empty?
-  (subject/flatten-error-map {}) => empty?
-  (subject/flatten-error-map {:a ["a message" "a message 2"]}) => ["a message" "a message 2"]
-  (subject/flatten-error-map {:a ["a message"]
-                              :point {:x ["x wrong"]
-                                      :y ["y wrong"]}
-                              :deep {:er {:still ["still wrong"]}}})
-  => (just "a message" "x wrong" "y wrong" "still wrong" :in-any-order))
+(fact "simplifying explanation maps"
+  (facts "about how bouncer works"
+    (let [run (fn [actual expected]
+                (-> (b/validate actual expected) first))]
+      (run {} {:a v/required}) => {:a ["a must be present"]}
+      (run {:a 3} {:a even?}) => {:a ["Custom validation failed for a"]}
+      (run {:a 3} {:a [[v/member [1 2]]]}) => {:a ["a must be one of the values in the list"]}
+      
+      (run {:a {:b 3, :c 4}} {[:a :b] even?}) => {:a {:b ["Custom validation failed for b"]}}
+      
+      (run {:a {:b [1 2 3]}} {[:a :b] [[v/every even?]]}) => {:a {:b ["All items in b must satisfy the predicate"]}}))
+
+  (facts "about simplified explanation maps"
+    (subject/nested-explanation-map->explanations nil) => empty?
+    (subject/nested-explanation-map->explanations {}) => empty?
+    (subject/nested-explanation-map->explanations {:a ["a message" "a message 2"]}) => ["a message" "a message 2"]
+    (subject/nested-explanation-map->explanations {:a ["a message"]
+                                                   :point {:x ["x wrong"]
+                                                           :y ["y wrong"]}
+                                                   :deep {:er {:still ["still wrong"]}}})
+    => (just "a message" "x wrong" "y wrong" "still wrong" :in-any-order))
+  )
+
+
 
 
                              

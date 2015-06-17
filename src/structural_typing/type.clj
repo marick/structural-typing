@@ -81,15 +81,12 @@
               (merge-with into validator-map optional-map))))
 
 (defn- checked-internal [type-repo type-signifier candidate]
-  (letfn [(run-validation []
-            (b/validate (:error-explanation-producer type-repo) candidate (get-in type-repo [:validators type-signifier])))
-
-          (run-error-handling [[errors actual]]
+  (letfn [(run-error-handling [[errors actual]]
             (-> ( (:map-adapter type-repo) errors (dissoc actual :bouncer.core/errors))
                 ((:failure-handler type-repo))))]
 
     (reset! error-stream-kludge [])
-    (let [bouncer-result (run-validation)]
+    (let [bouncer-result (b-in/check type-repo type-signifier candidate)]
       (cond (empty? (first bouncer-result))
             ((:success-handler type-repo) candidate)
             
@@ -103,6 +100,7 @@
                 (reset! error-stream-kludge [])
                 (doseq [old-bouncer-result error-stream]
                   (run-error-handling (b-err/prepend-bouncer-result-path prefix old-bouncer-result)))))))))
+
 
 (defn checked
   "Check the map `candidate` against the previously-defined type `type-signifier` in the given
@@ -128,7 +126,7 @@
 "
   ([type-repo type-signifier paths optional-map]
      (checked-internal own-types :type-repo type-repo)
-     (named-internal type-repo type-signifier paths (b-in/nested-map->path-map optional-map)))
+     (named-internal type-repo type-signifier paths (frob/nested-map->path-map optional-map)))
   ([type-repo type-signifier paths]
      (named type-repo type-signifier paths {})))
 
@@ -177,7 +175,7 @@
   ([type-signifier candidate]
      (coerced @stages/global-type-repo type-signifier candidate)))
 
-(defn each-is
+(defn old-each-is
   ([type-repo type-signifier]
      (let [validator (get-in type-repo [:validators type-signifier])]
        (fn [xs]
@@ -194,8 +192,22 @@
            (swap! error-stream-kludge into erroneous)
            (empty? erroneous)))))
   ([type-signifier]
-     (each-is @stages/global-type-repo type-signifier)))
-  
+     (old-each-is @stages/global-type-repo type-signifier)))
+
+(defn each-is [type-repo type-signifier]
+  (fn [xs]
+    (prn xs)
+    (loop [[head & tail :as xs] xs
+           i 0
+           result nil]
+      (if (empty? xs)
+        result
+        (let [bouncer-result (b-in/check type-repo type-signifier head)]
+          (prn (b-err/nested-explanation-map bouncer-result))
+          (if (b-err/pass? bouncer-result)
+            (recur tail (inc i) result)
+            (recur tail (inc i) 
+                   (assoc result i (b-err/nested-explanation-map bouncer-result)))))))))
 
 ;;; Own types
 

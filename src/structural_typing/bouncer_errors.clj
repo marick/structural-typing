@@ -3,6 +3,13 @@
    a form more convenient to our purposes."
   (:require [structural-typing.frob :as frob]))
 
+(defn fail? [bouncer-result]
+  (boolean (first bouncer-result)))
+
+(def pass? (complement fail?))
+
+(def nested-explanation-map first)
+
 (defn within-bouncer:simplify-raw-error-state
   "Bouncer provides a complicated data structure when it discovers an
    error. This function reduces that down to the most commonly-useful
@@ -36,15 +43,11 @@
 
 
 
-
-
-
-
-(defn flatten-error-map
+(defn nested-explanation-map->explanations
   "`error-map` is a map from keys to either a sequence of error messages or
    a nested error map. This function reduces it to a sequence of error messages."
   [error-map]
-  (mapcat #(if (map? %) (flatten-error-map %) %) (vals error-map)))
+  (mapcat #(if (map? %) (nested-explanation-map->explanations %) %) (vals error-map)))
 
 
 

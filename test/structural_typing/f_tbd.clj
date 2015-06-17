@@ -146,5 +146,12 @@
     ;; The guard prevents a failure
     (type/checked type-repo :positive-even {:a -1}) => {:a -1}))
 
+(future-fact "should be able to use a point to name a type")
+; (type/named! :line [:start :end] {:start :point, :end :point})
+  
 
 (future-fact "throw an exception if there is no matching key in the repo")
+
+(future-fact "(type/checked type-repo :point 1)) produces an error, not an exception")
+
+(future-fact "missing requireds cause error: (type/named :point {:x #'integer? :y #'integer?})")

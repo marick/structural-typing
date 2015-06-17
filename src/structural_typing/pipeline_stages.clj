@@ -1,7 +1,10 @@
 (ns structural-typing.pipeline-stages
   (:refer-clojure :exclude [instance?])
   (:require [clojure.string :as str]
+            [structural-typing.bouncer-validators :as b-in]
             [structural-typing.bouncer-errors :as b-err]))
+
+
 
 ;;; Utilities
 
@@ -20,8 +23,8 @@
               (pr-str (if (= 1 (count path)) (first path) path))
               (pr-str value)))))
 
-(defn default-map-adapter [error-map checked-map]
-  (b-err/flatten-error-map error-map))
+(defn default-map-adapter [explanation-map candidate]
+  (b-err/nested-explanation-map->explanations explanation-map))
 
 
 
