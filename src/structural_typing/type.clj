@@ -75,7 +75,7 @@
   [type-repo type-signifier paths optional-map]
   (let [validator-map (reduce (fn [so-far k] (assoc so-far k [v/required]))
                               {}
-                              (b-in/flatten-N-path-representations paths))
+                              (frob/flatten-N-path-representations paths))
         optional-map (frob/update-each-value optional-map expanded-optional-value-descriptor)]
     (assoc-in type-repo [:validators type-signifier]
               (merge-with into validator-map optional-map))))
