@@ -36,9 +36,9 @@
       [:h] [7]}
 
   (fact "for consistency with bouncer, keys that are vectors are assumed to be paths"
-    (subject/nested-map->path-map {[:a :b] {:ignored :value}
+    (subject/nested-map->path-map {[:a :b] {:some :thing}
                                    :l1 {[:l2 :l3] [3 4]}})
-    => {[:a :b] [{:ignored :value}]
+    => {[:a :b] [{:some :thing}]
         [:l1 :l2 :l3] [3 4]}))
 
 
@@ -49,15 +49,34 @@
   (subject/flatten-path-representation [:x :y]) => [[:x :y]]
 
   (subject/flatten-path-representation [:x [:y :z]]) => [[:x :y] [:x :z]]
-  (subject/flatten-path-representation [:a :b [:c :d]]) =future=> [[:a :b :c] [:a :b :d]]
+  (subject/flatten-path-representation [:a :b [:c :d]]) => [[:a :b :c] [:a :b :d]]
 
-  (subject/flatten-path-representation [:a :b [:c :d] :e]) =future=> [[:a :b :c :e] [:a :b :d :e]]
+  (subject/flatten-path-representation [:a :b [:c :d] :e]) => [[:a :b :c :e] [:a :b :d :e]]
 
   (subject/flatten-path-representation [:a :b [:c :d] :e [:f :g]])
   => [[:a :b :c :e :f] 
              [:a :b :c :e :g] 
              [:a :b :d :e :f] 
              [:a :b :d :e :g] ]
+
+  
+  (fact "using maps for their keys"
+    (subject/flatten-path-representation {:a #'even? :b #'even?})
+    => (just [:a] [:b] :in-any-order)
+    (subject/flatten-path-representation {:a {:b #'even?} :c #'even?})
+    => (just [:a :b] [:c] :in-any-order)
+    (subject/flatten-path-representation [{:a #'even? :b #'even?}])
+    => (just [:a] [:b] :in-any-order)
+
+    (subject/flatten-path-representation [:x :y {[:a :c] #'even? :b #'even?}])
+    => (just [:x :y :a :c] [:x :y :b] :in-any-order)
+
+    (subject/flatten-path-representation [:x :y {:a {:c #'even?} :b #'even?}])
+    => (just [:x :y :a :c] [:x :y :b] :in-any-order)
+
+    (fact "such a map must be the last element in the vector"
+      (subject/flatten-path-representation [:x :y {[:a :c] #'even? :b #'even?} :z])
+      => (throws #"The map must be the last element")))
 
   (fact "the embedded paths don't have to be vectors"
     (subject/flatten-path-representation [:x (list :y :z)]) => [[:x :y] [:x :z]]))
