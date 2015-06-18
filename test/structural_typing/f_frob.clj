@@ -35,11 +35,11 @@
       [:a :g] [6]
       [:h] [7]}
 
-  (fact "for consistency with bouncer, keys that are vectors are assumed to be paths"
-    (subject/nested-map->path-map {[:a :b] {:some :thing}
-                                   :l1 {[:l2 :l3] [3 4]}})
-    => {[:a :b] [{:some :thing}]
-        [:l1 :l2 :l3] [3 4]}))
+  (fact "vector keys are spliced into the path"
+    (subject/nested-map->path-map {[:a :b] {:k "value"}
+                                   :l1 {[:l2 :l3] [:pred1 :pred2]}})
+    => {[:a :b :k] ["value"]
+        [:l1 :l2 :l3] [:pred1 :pred2]}))
 
 
 (facts flatten-path-representation

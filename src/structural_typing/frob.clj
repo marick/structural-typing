@@ -21,24 +21,22 @@
 (defn nested-map->path-map
   "In single-argument form, converts a nested map into a flat one where the keys
    a vectors with a path representing the existing nested structure. 
-   In the two-arg form, the resulting
-   paths have the `parent-path` prepended.
+   In the two-arg form, the resulting paths have the `parent-path` prepended.
+   Note that vector keys are considered to come from an already-flattened
+   map. That is, they are spliced into the resulting path.
 
    Non-vector leaf values are converted into vectors."
   ([kvs]
      (nested-map->path-map [] kvs))
   ([parent-path kvs]
-     (reduce (fn [so-far [k v]]
-                 (cond (vector? k)
-                       (assoc so-far (into parent-path k) (force-vector v))
-
-                       (map? v)
-                       (merge so-far (nested-map->path-map (conj parent-path k) v))
-
-                       :else
-                       (assoc so-far (conj parent-path k) (force-vector v))))
-          {}
-          kvs)))
+     (letfn [(splice [maybe-vector]
+               (into parent-path (force-vector maybe-vector)))]
+       (reduce (fn [so-far [k v]]
+                 (if (map? v)
+                 (merge so-far (nested-map->path-map (splice k) v))
+                 (assoc so-far (splice k) (force-vector v))))
+               {}
+               kvs))))
 
 
 
@@ -78,7 +76,3 @@
 
 (defn flatten-N-path-representations [v]
   (vec (mapcat flatten-path-representation v)))
-
-
-
-

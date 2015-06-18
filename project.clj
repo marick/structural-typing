@@ -7,7 +7,8 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [bouncer "0.3.2" :exclusions [org.clojure/clojure]]]
+                 [bouncer "0.3.2" :exclusions [org.clojure/clojure]]
+                 [com.rpl/specter "0.5.2"]]
 
   :profiles {:dev {:dependencies [[midje "1.7.0-beta1" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
