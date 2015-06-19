@@ -27,6 +27,7 @@
         (sequential? v) (vec v)
         :else (vector v)))
 
+;; TODO: Soon defunct - see type-repo
 (defn nested-map->path-map
   "In single-argument form, converts a nested map into a flat one where the keys
    a vectors with a path representing the existing nested structure. 
@@ -49,6 +50,7 @@
 
 
 
+;; TODO: Soon defunct - see type-repo
 (defn flatten-path-representation
   "Convert an atom into a vector of that sequential.
    Convert a sequential into a flattened vector.
@@ -83,5 +85,7 @@
            (let [extended (for [pp parent-paths] (conj pp (first v)))]
              (flatten-path-representation (vec extended) (rest v))))))
 
+;; TODO: Soon defunct - see type-repo
 (defn flatten-N-path-representations [v]
   (vec (mapcat flatten-path-representation v)))
+
