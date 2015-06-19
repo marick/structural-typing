@@ -19,6 +19,15 @@
   (subject/force-vector [1]) => (vector 1)
   (subject/force-vector '(1)) => (vector 1))
 
+(fact "making a map with uniform keys"
+  (subject/mkmap:all-keys-with-value [] 3) => {}
+  (subject/mkmap:all-keys-with-value [:a] 3) => {:a 3}
+  (subject/mkmap:all-keys-with-value [:a [:b]] 3) => {:a 3, [:b] 3})
+
+
+
+
+
 (facts nested-map->path-map
   (subject/nested-map->path-map {}) => {}
   (subject/nested-map->path-map {:a 1}) => {[:a] [1]}

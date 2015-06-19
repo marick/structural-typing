@@ -1,11 +1,20 @@
 (ns structural-typing.frob
   "General-purpose functions for frobbing data in various ways.")
 
+(defn boom [fmt & args]
+  (throw (new RuntimeException (apply format fmt args))))
+
 (defn update-each-value [kvs f & args]
   (reduce (fn [so-far k] 
             (assoc so-far k (apply f (get kvs k) args)))
           kvs
           (keys kvs)))
+
+(defn mkmap:all-keys-with-value [keys v]
+  (reduce (fn [so-far k]
+            (assoc so-far k v))
+          {}
+          keys))
 
 
 (defn wrap-pred-with-catcher [f]
