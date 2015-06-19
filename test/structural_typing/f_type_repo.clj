@@ -111,14 +111,6 @@
 
 )
 
-(fact "at the top level ONLY, you can describe a single-element path with a 
-       non-vector, non-map"
-
-  (subject/deconvenience-description [:x :y]) => [[:x] [:y]]
-  (subject/deconvenience-description [:x [:y]]) => [[:x] [:y]]
-  (subject/deconvenience-description [:x {:y 1}]) => [[:x] {:y 1}]
-)
-  
 ;;; Types can be expanded by signifier
 
 
@@ -177,13 +169,10 @@
       (subject/canonicalize ..t.. {:a {:b p/must-exist}}) => {[:a :b] [p/must-exist]}))
 
   (fact "signifiers that are vectors"
-    (prn 1)
     (fact "vectors are shorthand for maps with `p/must-exist`"
-      (subject/canonicalize ..t.. [ :a :b ]) =future=> {[:a] [p/must-exist] [:b] [p/must-exist]})
-    (prn 1)
+      (subject/canonicalize ..t.. [ :a :b ]) => {[:a] [p/must-exist] [:b] [p/must-exist]})
     (fact "alternate for above - for clarity"
-      (subject/canonicalize ..t.. (type-has :a :b)) =future=> {[:a] [p/must-exist] [:b] [p/must-exist]})
-    (prn 1)
+      (subject/canonicalize ..t.. (type-has :a :b)) => {[:a] [p/must-exist] [:b] [p/must-exist]})
     (fact "single-element vectors are the same as atoms"
       (subject/canonicalize ..t.. (type-has [:a] [:b] ))
       => {[:a] [p/must-exist] [:b] [p/must-exist]})

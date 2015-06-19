@@ -3,6 +3,52 @@
             [structural-typing.predicates :as p]
             [com.rpl.specter :as specter]))
 
+(defn type-finder? [x]
+  (= ::type-finder (type x)))
+
+(defn force-literal [v type-map]
+  (if (type-finder? v) (v type-map) v))
+
+(defn a [type-key]
+  (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
+  (-> (fn type-finder [type-map]
+        (if-let [result (get type-map type-key)]
+          result
+          (frob/boom "%s does not name a type" type-key)))
+      (with-meta {:type ::type-finder})))
+(def an a)
+
+(defn expand-type-finders [type-map form]
+  (specter/update (specter/walker type-finder?)
+                  #(force-literal % type-map)
+                  form))
+
+(defn undo-singleton-path-convenience [x]
+  (if (sequential? x) x (vector x)))
+
+(declare expand-path-shorthand)
+
+(defn expand-type-references [type-repo descriptions]
+  descriptions)
+
+(defn validate-description [description]
+  (when-not (or (map? description)
+                (sequential? description))
+    (frob/boom "Types are described with maps or vectors: %s" description))
+  description)
+
+(defn any-required-seq->maps [description]
+  (cond (map? description)
+        description
+        
+        (sequential? description)
+        (frob/mkmap:all-keys-with-value
+         (mapcat expand-path-shorthand (map undo-singleton-path-convenience description))
+         (vector p/must-exist))
+        
+        :else
+        (frob/boom "Unexpected type description: %s" description)))
+
 
 (defn nested-map->path-map
   ([kvs parent-path]
@@ -45,109 +91,11 @@
              (let [extended (for [pp parent-paths] (conj pp x))]
                (expand-path-shorthand xs (frob/force-vector extended)))))))
 
-;;;;
-
-(defn type-finder? [x]
-  (= ::type-finder (type x)))
-
-(defn force-literal [v type-map]
-  (if (type-finder? v) (v type-map) v))
-
-(defn a [type-key]
-  (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
-  (-> (fn type-finder [type-map]
-        (if-let [result (get type-map type-key)]
-          result
-          (frob/boom "%s does not name a type" type-key)))
-      (with-meta {:type ::type-finder})))
-(def an a)
-
-(defn expand-type-finders [type-map form]
-  (specter/update (specter/walker type-finder?)
-                  #(force-literal % type-map)
-                  form))
-
-
-
-(defn each-path-must-exist [paths]
-  (reduce (fn [so-far path]
-            (assoc so-far path p/must-exist))
-          {}
-          paths))
-
-(defn canonicalize-core [signifiers]
-  (letfn [(expand-top-level-shorthand [signifier]
-            (if (coll? signifier) signifier (vec signifier)))
-
-          (handle-one [signifier]
-            (cond (map? signifier)
-                  (nested-map->path-map signifier)
-
-                  (vector? signifier)
-                  (->> signifier
-                       (mapcat expand-path-shorthand)
-                       each-path-must-exist)
-
-                  :else
-                  (throw (ex-info "A type signifier must be a map or vector" {:actual signifier}))))]
-
-    ;; (->> signifiers
-    ;;      (map frob/force-vector)
-    ;;      (map handle-one)
-    ;;      (apply merge-with into))))
-
-
-           (->> signifiers
-;                (map expand-top-level-shorthand)
-                (map handle-one)
-                (apply merge-with into))))
-;    (apply merge-with into (map handle-one signifiers))))
-  
-
-
-(defn expand-type-references [type-repo descriptions]
-  descriptions)
-
-(defn undo-singleton-path-convenience [x]
-  (if (sequential? x) x (vector x)))
-
-(defn any-required-seq->maps [description]
-  (cond (map? description)
-        description
-        
-        (sequential? description)
-        (frob/mkmap:all-keys-with-value (mapcat expand-path-shorthand (map undo-singleton-path-convenience description))
-                                        (vector p/must-exist))
-        
-        :else
-        1))
-  ;; (if (sequential? description)
-    ;; (specter/update [sequential?]
-    ;;                 #(-> %
-    ;;                      expand-path-shorthand
-    ;;                      (map paths->map)))
-
-(defn deconvenience-description [signifier]
-  (cond (vector signifier)
-        (mapv #(if (or (vector? %) (map? %))
-                 %
-                 (vector %))
-              signifier)
-        :else
-        signifier))
-
-(defn validate [description]
-  (when-not (or (map? description)
-                (sequential? description))
-    (frob/boom "Types are described with maps or vectors: %s" description))
-  description)
-
-
   
 (defn canonicalize [type-repo & condensed-type-descriptions]
   (->> condensed-type-descriptions
        (expand-type-references type-repo)
-       (map validate)
+       (map validate-description)
        (map any-required-seq->maps)
        (map nested-map->path-map)
        (apply merge-with into)))
