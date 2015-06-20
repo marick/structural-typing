@@ -28,27 +28,26 @@
   (format "%s should be `%s`; it is `%s`"
           (friendly-path path)
           predicate-string
-          leaf-value))
+          (pr-str leaf-value)))
 
-(defn lift [pred path]
-  (fn [leaf-value whole-value]
-    (make-either {:predicate pred
-                  :predicate-string (friendly-name pred)
-                  :path path
-                  :leaf-value leaf-value
-                  :whole-value whole-value
-                  :error-explainer default-error-explainer}
-                 (fn [x] (try (pred x) (catch Exception ex false)))
-                 leaf-value)))
-
-  
-
+(defn lift
+  ([pred base-diagnostics]
+     (let [diagnostics (assoc (merge {:error-explainer default-error-explainer
+                                      :predicate-string (friendly-name pred)}
+                                     base-diagnostics)
+                              :predicate pred)]
+       (fn [leaf-value-context]
+         (make-either (merge diagnostics leaf-value-context)
+                      (fn [x] (try (pred x) (catch Exception ex false)))
+                      (:leaf-value leaf-value-context)))))
+  ([pred]
+     (lift pred {})))
 
 
 (defn one-path [structure [path predicates]]
   
   )
-  
+   
 
 
 (defn one-type [structure type-map]
