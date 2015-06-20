@@ -6,6 +6,9 @@ License: [Unlicense](http://unlicense.org/) (public domain)
  
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
+
+NOTE: Undergoing heavy rewrite. Will be mostly compatible.
+
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 - [Typing driven by the existence of keys](#)
