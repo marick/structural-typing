@@ -1,4 +1,4 @@
-(ns structural-typing.predicates
-  (:require [bouncer.validators :as v]))
+(ns structural-typing.predicates)
 
-(def must-exist :must-exist-temp)
+(defn must-exist [val]
+  (not (nil? val)))
