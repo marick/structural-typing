@@ -1,5 +1,5 @@
-(ns structural-typing.f-type-repo
-  (:require [structural-typing.type-repo :as subject]
+(ns structural-typing.f-canonicalize
+  (:require [structural-typing.canonicalize :as subject]
             [structural-typing.predicates :as p])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))

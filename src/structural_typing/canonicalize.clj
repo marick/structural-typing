@@ -1,4 +1,4 @@
-(ns structural-typing.type-repo
+(ns structural-typing.canonicalize
   (:require [structural-typing.frob :as frob]
             [structural-typing.predicates :as p]
             [com.rpl.specter :as specter]))
