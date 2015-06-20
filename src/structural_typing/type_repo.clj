@@ -28,9 +28,6 @@
 
 (declare expand-path-shorthand)
 
-(defn expand-type-references [type-repo descriptions]
-  descriptions)
-
 (defn validate-description [description]
   (when-not (or (map? description)
                 (sequential? description))
@@ -94,7 +91,7 @@
   
 (defn canonicalize [type-repo & condensed-type-descriptions]
   (->> condensed-type-descriptions
-       (expand-type-references type-repo)
+       (expand-type-finders type-repo)
        (map validate-description)
        (map any-required-seq->maps)
        (map nested-map->path-map)

@@ -24,7 +24,15 @@
     (subject/canonicalize ..t.. {[:a :b] p/must-exist}) => {[:a :b] [p/must-exist]})
 
   (fact "nested maps have keys flattened into paths"
-    (subject/canonicalize ..t.. {:a {:b p/must-exist}}) => {[:a :b] [p/must-exist]}))
+    (subject/canonicalize ..t.. {:a {:b p/must-exist}}) => {[:a :b] [p/must-exist]})
+
+  (fact "this is a pretty unlikely map to use, but it will work"
+    (subject/canonicalize ..t..
+                          {:points {ALL {:x #'integer?
+                                         :y #'integer?}}}) => {[:points ALL :x] [#'integer?]
+                                                               [:points ALL :y] [#'integer?]}))
+  
+
 
 (fact "type descriptions that are vectors"
   (fact "vectors are shorthand for maps with `p/must-exist`"
@@ -82,60 +90,147 @@
     (subject/canonicalize ..t.. [ :a :b ] {:a #'even?}) => {[:a] [p/must-exist #'even?]
                                                             [:b] [p/must-exist]}))
 
-(fact "And here's an example of various ways to talk about a nested structure"
-  ;; A figure has a color and many points
-  (subject/canonicalize ..t.. [ :color
-                               [:points ALL :x]
-                               [:points ALL :y] ]) => {[:color] [p/must-exist]
-                                                       [:points ALL :x] [p/must-exist]
-                                                       [:points ALL :y] [p/must-exist]}
-                               
-  (subject/canonicalize ..t.. [:color
-                               [:points ALL [:x :y]]]) => {[:color] [p/must-exist]
+
+(fact "type descriptions that refer into a type map"
+  (let [type-map {:type (subject/canonicalize ..t.. [:a] {:a #'odd? :b #'even?})}]
+    (subject/canonicalize type-map (subject/a :type)) => {[:a] [p/must-exist #'odd?]
+                                                          [:b] [#'even?]}
+
+    (subject/canonicalize type-map [ [:a (subject/a :type) ]])  => {[:a :a] [p/must-exist]
+                                                                    [:a :b] [p/must-exist]}
+
+    (subject/canonicalize type-map
+                          {:a (subject/a :type) }
+                          {:a {:c #'pos?}}
+                          [:c])
+    => {[:a :a] [p/must-exist #'odd?]
+        [:a :b] [#'even?]
+        [:a :c] [#'pos?]
+        [:c] [p/must-exist]}))
+
+(fact "some typical uses of a type-map"
+  (let [type-map (-> {}
+                     (assoc :Point (subject/canonicalize ..t.. [:x :y]
+                                                         {:x #'integer? :y #'integer?})
+                            :Colored (subject/canonicalize ..t.. [:color]
+                                                         {:color #'string?})
+                            :OptionalColored (subject/canonicalize ..t.. 
+                                                                 {:color #'string?})))]
+    (fact "merging types"
+      (fact "making a colored point by addition"
+        (subject/canonicalize type-map (subject/a :Point) [:color] {:color #'string?})
+        => {[:color] [p/must-exist #'string?]
+            [:x] [p/must-exist #'integer?]
+            [:y] [p/must-exist #'integer?]})
+      
+      (fact "or you can just merge types"
+        (subject/canonicalize type-map (subject/a :Point) (subject/a :Colored))
+        => {[:color] [p/must-exist #'string?]
+            [:x] [p/must-exist #'integer?]
+            [:y] [p/must-exist #'integer?]})
+      
+      (fact "note that merging an optional type doesn't make it required"
+        (subject/canonicalize type-map (subject/a :Point) (subject/a :OptionalColored))
+        => {[:color] [#'string?]
+            [:x] [p/must-exist #'integer?]
+            [:y] [p/must-exist #'integer?]}))
+
+    (fact "subtypes"
+      (fact "making a colored point by addition"
+        (subject/canonicalize type-map (subject/a :Point) [:color] {:color #'string?})
+        => {[:color] [p/must-exist #'string?]
+            [:x] [p/must-exist #'integer?]
+            [:y] [p/must-exist #'integer?]}
+      
+        (fact "or you can just merge types"
+          (subject/canonicalize type-map (subject/a :Point) (subject/a :Colored))
+          => {[:color] [p/must-exist #'string?]
+              [:x] [p/must-exist #'integer?]
+              [:y] [p/must-exist #'integer?]})
+        
+        (fact "note that merging an optional type doesn't make it required"
+          (subject/canonicalize type-map (subject/a :Point) (subject/a :OptionalColored))
+          => {[:color] [#'string?]
+              [:x] [p/must-exist #'integer?]
+              [:y] [p/must-exist #'integer?]}))
+
+      (fact "a line has a start and an end, which are points"
+        (subject/canonicalize type-map [:start :end]
+                                       {:start (subject/a :Point)
+                                        :end (subject/a :Point)})
+        => {[:start] [p/must-exist]
+            [:end] [p/must-exist]
+            [:start :x] [p/must-exist #'integer?]
+            [:start :y] [p/must-exist #'integer?]
+            [:end :x] [p/must-exist #'integer?]
+            [:end :y] [p/must-exist #'integer?]})
+
+      (fact "a figure has a color and a set of points"
+        (subject/canonicalize type-map [:points]
+                                       {[:points ALL] (subject/a :Point)}
+                                       (subject/a :Colored))
+        => {[:color] [p/must-exist #'string?]
+            [:points] [p/must-exist]
+            [:points ALL :x] [p/must-exist #'integer?]
+            [:points ALL :y] [p/must-exist #'integer?]})
+
+      (fact "noting that a figure has colored points"
+        (subject/canonicalize type-map [:points]
+                                       {[:points ALL] (subject/a :Point)}
+                                       {[:points ALL] (subject/a :Colored)})
+        => {[:points] [p/must-exist]
+            [:points ALL :color] [p/must-exist #'string?]
+            [:points ALL :x] [p/must-exist #'integer?]
+            [:points ALL :y] [p/must-exist #'integer?]}))))
+
+(fact "And here, for posterity, of various non-'a' ways to talk about a nested structure"
+  (let [point (subject/canonicalize ..t.. {[:x] [#'integer?]
+                                           [:y] [#'integer?]})]
+
+    (fact "a little warm up without using any explicit notion of point"
+      (subject/canonicalize ..t.. [ :color
+                                   [:points ALL :x]
+                                   [:points ALL :y] ]) => {[:color] [p/must-exist]
                                                            [:points ALL :x] [p/must-exist]
                                                            [:points ALL :y] [p/must-exist]}
+                                   
+      (subject/canonicalize ..t.. [:color
+                                   [:points ALL [:x :y]]]) => {[:color] [p/must-exist]
+                                                               [:points ALL :x] [p/must-exist]
+                                                               [:points ALL :y] [p/must-exist]}
 
-  (fact "maps can contribute to the `required` list"
-    (let [point {[:x] [#'integer?]
-                 [:y] [#'integer?]}]
-      ;; Here we require x and y to exist, but lose the requirement they be integers.
-      (subject/canonicalize ..t.. [:color [:points ALL point]])
+
+    (fact "Here we require x and y to exist, but without a requirement they be integers."
+      (subject/canonicalize ..t.. (type-has :color [:points ALL point]))
       => {[:color] [p/must-exist]
           [:points ALL :x] [p/must-exist]
-          [:points ALL :y] [p/must-exist]}
-        
-      ;; To get those options back, we use a map.
-      (subject/canonicalize ..t.. [:color [:points ALL point]]
+          [:points ALL :y] [p/must-exist]})
+
+    (fact "Point predicates are gotten back using a map"
+      (subject/canonicalize ..t..
+                            [:color [:points ALL point]]
                             {:color #'string?
                              [:points ALL] point})
       => {[:color] [p/must-exist #'string?]
           [:points ALL :x] [p/must-exist #'integer?]
           [:points ALL :y] [p/must-exist #'integer?]})
 
-
-    ;; If a nested type has required keys, those are preserved.
-    (let [required-xy-point {[:x] [p/must-exist #'integer?]
-                             [:y] [p/must-exist #'integer?]}]
-      ;; As above, a mention in the required list transfers required-ness
-      (subject/canonicalize ..t.. [:color [:points ALL required-xy-point]])
-      => {[:color] [p/must-exist]
-          [:points ALL :x] [p/must-exist]
-          [:points ALL :y] [p/must-exist]}
-      
-      ;; To get those options back, we use a map.
-      (subject/canonicalize ..t.. [:color]
-                            {:color #'string?
-                             [:points ALL] required-xy-point})
-      => {[:color] [p/must-exist #'string?]
-          [:points ALL :x] [p/must-exist #'integer?]
-          [:points ALL :y] [p/must-exist #'integer?]})))
-
-(fact "this is a pretty unlikely map to use, but it will work"
-  (subject/canonicalize ..t..
-                        {:points {ALL {:x #'integer?
-                                       :y #'integer?}}}) => {[:points ALL :x] [#'integer?]
-                                                             [:points ALL :y] [#'integer?]})
-
+    (fact "if a nested type has required keys, those are preserved."
+      (let [required-xy-point {[:x] [p/must-exist #'integer?]
+                               [:y] [p/must-exist #'integer?]}]
+        ;; As above, a mention in the required list transfers required-ness
+        (subject/canonicalize ..t.. [:color [:points ALL required-xy-point]])
+        => {[:color] [p/must-exist]
+            [:points ALL :x] [p/must-exist]
+            [:points ALL :y] [p/must-exist]}
+        
+        ;; To get those options back, we use a map.
+        (subject/canonicalize ..t.. [:color]
+                              {:color #'string?
+                               [:points ALL] required-xy-point})
+        => {[:color] [p/must-exist #'string?]
+            [:points ALL :x] [p/must-exist #'integer?]
+            [:points ALL :y] [p/must-exist #'integer?]})))))
 
 
 
