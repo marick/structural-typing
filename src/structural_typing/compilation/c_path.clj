@@ -1,26 +1,15 @@
 (ns structural-typing.compilation.c-path
   (:refer-clojure :exclude [compile])
   (:require [structural-typing.frob :as frob]
-            [structural-typing.api.predicates :as p]
+            [structural-typing.api.path :as path]
+            [structural-typing.api.predicates :as pred]
             [com.rpl.specter :as specter]))
 
-(defn type-finder? [x]
-  (= ::type-finder (type x)))
-
 (defn force-literal [v type-map]
-  (if (type-finder? v) (v type-map) v))
-
-(defn a [type-key]
-  (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
-  (-> (fn type-finder [type-map]
-        (if-let [result (get type-map type-key)]
-          result
-          (frob/boom "%s does not name a type" type-key)))
-      (with-meta {:type ::type-finder})))
-(def an a)
+  (if (path/type-finder? v) (v type-map) v))
 
 (defn expand-type-finders [type-map form]
-  (specter/update (specter/walker type-finder?)
+  (specter/update (specter/walker path/type-finder?)
                   #(force-literal % type-map)
                   form))
 
@@ -42,7 +31,7 @@
         (sequential? description)
         (frob/mkmap:all-keys-with-value
          (mapcat expand-path-shorthand (map undo-singleton-path-convenience description))
-         (vector p/must-exist))
+         (vector pred/must-exist))
         
         :else
         (frob/boom "Unexpected type description: %s" description)))
