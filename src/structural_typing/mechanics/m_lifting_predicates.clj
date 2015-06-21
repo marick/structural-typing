@@ -25,35 +25,47 @@
 
 
 
-(defn precache [f k v]
+(defn ensure-meta [f k v]
   (if (contains? (meta f) k)
     f
     (vary-meta f assoc k v)))
 
-(defn best-predicate-choice [f]
-  (get (meta f) ::original-predicate f))
+(defn ensure-availability-of-predicate-string [f name]
+  (ensure-meta f ::predicate-string name))
+(defn- ensure-availability-of-original-predicate [f]
+  (ensure-meta f ::original-predicate f))
+
+(defn- choose-best [f k default] 
+  (get (meta f) k default))
+(defn choose-best-predicate [f]
+  (choose-best f ::original-predicate f))
+(defn choose-best-predicate-string [f]
+  (choose-best f ::predicate-string (friendly-name f)))
+(defn choose-best-explainer [f]
+  (get (meta f) ::error-explainer defaults/default-error-explainer))
+
+
+(defn replace-predicate-string [f name]
+  (vary-meta f assoc ::predicate-string name))
+  
+
+
 
 (defn show-as [name f]
   (-> f
-      (precache ::original-predicate f)
-      (vary-meta assoc ::predicate-string name)))
-
-(defn best-predicate-string-choice [f]
-  (get (meta f) ::predicate-string (friendly-name f)))
+      ensure-availability-of-original-predicate
+      (replace-predicate-string name)))
 
 (defn explain-with [explainer f]
   (-> f
-      (precache ::original-predicate f)
-      (precache ::predicate-string (friendly-name f))
+      ensure-availability-of-original-predicate
+      (ensure-availability-of-predicate-string (friendly-name f))
       (vary-meta assoc ::error-explainer explainer)))
 
-(defn best-explainer-choice [f]
-  (get (meta f) ::error-explainer defaults/default-error-explainer))
-
 (defn lift [pred]
-  (let [diagnostics {:error-explainer (best-explainer-choice pred)
-                     :predicate-string (best-predicate-string-choice pred)
-                     :predicate (best-predicate-choice pred)}]
+  (let [diagnostics {:error-explainer (choose-best-explainer pred)
+                     :predicate-string (choose-best-predicate-string pred)
+                     :predicate (choose-best-predicate pred)}]
     (fn [leaf-value-context]
       (e/make-either (merge diagnostics leaf-value-context)
                      (fn [x] (try (pred x) (catch Exception ex false)))
