@@ -1,4 +1,4 @@
-(ns structural-typing.predicates)
+(ns structural-typing.api.predicates)
 
 (defn must-exist [val]
   (not (nil? val)))

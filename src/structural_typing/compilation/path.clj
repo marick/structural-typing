@@ -1,6 +1,7 @@
-(ns structural-typing.canonicalize
+(ns structural-typing.compilation.path
+  (:refer-clojure :exclude [compile])
   (:require [structural-typing.frob :as frob]
-            [structural-typing.predicates :as p]
+            [structural-typing.api.predicates :as p]
             [com.rpl.specter :as specter]))
 
 (defn type-finder? [x]
@@ -89,7 +90,7 @@
                (expand-path-shorthand xs (frob/force-vector extended)))))))
 
   
-(defn canonicalize [type-repo & condensed-type-descriptions]
+(defn compile [type-repo & condensed-type-descriptions]
   (->> condensed-type-descriptions
        (expand-type-finders type-repo)
        (map validate-description)

@@ -1,6 +1,6 @@
-(ns structural-typing.f-canonicalize
-  (:require [structural-typing.canonicalize :as subject]
-            [structural-typing.predicates :as p])
+(ns structural-typing.compilation.f-path
+  (:require [structural-typing.compilation.path :as subject]
+            [structural-typing.api.predicates :as p])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
@@ -13,21 +13,21 @@
 ;; ..t.. is an irrelevant type-rep
 (fact "type descriptions that are maps"
   (fact "simple maps just have their keys and values vectorized"
-    (subject/canonicalize ..t.. {:a p/must-exist}) => {[:a] [p/must-exist]}
-    (subject/canonicalize ..t.. {:a p/must-exist, :b p/must-exist})
+    (subject/compile ..t.. {:a p/must-exist}) => {[:a] [p/must-exist]}
+    (subject/compile ..t.. {:a p/must-exist, :b p/must-exist})
     => {[:a] [p/must-exist]
         [:b] [p/must-exist]})
   
   (fact "already vectorized keys and values are left alone"
-    (subject/canonicalize ..t.. {[:a] p/must-exist}) => {[:a] [p/must-exist]}
-    (subject/canonicalize ..t.. {[:a] [p/must-exist]}) => {[:a] [p/must-exist]}
-    (subject/canonicalize ..t.. {[:a :b] p/must-exist}) => {[:a :b] [p/must-exist]})
+    (subject/compile ..t.. {[:a] p/must-exist}) => {[:a] [p/must-exist]}
+    (subject/compile ..t.. {[:a] [p/must-exist]}) => {[:a] [p/must-exist]}
+    (subject/compile ..t.. {[:a :b] p/must-exist}) => {[:a :b] [p/must-exist]})
 
   (fact "nested maps have keys flattened into paths"
-    (subject/canonicalize ..t.. {:a {:b p/must-exist}}) => {[:a :b] [p/must-exist]})
+    (subject/compile ..t.. {:a {:b p/must-exist}}) => {[:a :b] [p/must-exist]})
 
   (fact "this is a pretty unlikely map to use, but it will work"
-    (subject/canonicalize ..t..
+    (subject/compile ..t..
                           {:points {ALL {:x #'integer?
                                          :y #'integer?}}}) => {[:points ALL :x] [#'integer?]
                                                                [:points ALL :y] [#'integer?]}))
@@ -36,70 +36,70 @@
 
 (fact "type descriptions that are vectors"
   (fact "vectors are shorthand for maps with `p/must-exist`"
-    (subject/canonicalize ..t.. [ :a :b ]) => {[:a] [p/must-exist] [:b] [p/must-exist]})
+    (subject/compile ..t.. [ :a :b ]) => {[:a] [p/must-exist] [:b] [p/must-exist]})
   (fact "alternate for above - for clarity"
-    (subject/canonicalize ..t.. (type-has :a :b)) => {[:a] [p/must-exist] [:b] [p/must-exist]})
+    (subject/compile ..t.. (type-has :a :b)) => {[:a] [p/must-exist] [:b] [p/must-exist]})
   (fact "single-element vectors are the same as atoms"
-    (subject/canonicalize ..t.. (type-has [:a] [:b] ))
+    (subject/compile ..t.. (type-has [:a] [:b] ))
     => {[:a] [p/must-exist] [:b] [p/must-exist]})
 
   (fact "multi-element vectors are paths"
-    (subject/canonicalize ..t.. (type-has [:a :c]
+    (subject/compile ..t.. (type-has [:a :c]
                                           [:b :d])) => {[:a :c] [p/must-exist]
                                                         [:b :d] [p/must-exist]})
   
   (fact "nested and unnested elements can be combined"
-    (subject/canonicalize ..t.. (type-has :a [:b :c] :d)) => {[:a] [p/must-exist]
+    (subject/compile ..t.. (type-has :a [:b :c] :d)) => {[:a] [p/must-exist]
                                                               [:b :c] [p/must-exist]
                                                               [:d] [p/must-exist]})
 
   (fact "double-nesting indicates alternatives"
-    (subject/canonicalize ..t.. (type-has :a [:b [1 2] :c] :d)) => {[:a] [p/must-exist]
+    (subject/compile ..t.. (type-has :a [:b [1 2] :c] :d)) => {[:a] [p/must-exist]
                                                                     [:b 1 :c] [p/must-exist]
                                                                     [:b 2 :c] [p/must-exist]
                                                                     [:d] [p/must-exist]}
 
-    (subject/canonicalize ..t.. (type-has [[:a :b]])) => {[:a] [p/must-exist]
+    (subject/compile ..t.. (type-has [[:a :b]])) => {[:a] [p/must-exist]
                                                           [:b] [p/must-exist]})
 
 
   (fact "maps within vectors contribute paths - only paths - that must exist"
-    (subject/canonicalize ..t.. [ {:a #'even?, :b #'even?} ]) => {[:a] [p/must-exist]
+    (subject/compile ..t.. [ {:a #'even?, :b #'even?} ]) => {[:a] [p/must-exist]
                                                                   [:b] [p/must-exist]}
-    (subject/canonicalize ..t.. [ [:a {:b {:c #'even?}
+    (subject/compile ..t.. [ [:a {:b {:c #'even?}
                                        :d #'even?}] ]) => {[:a :b :c] [p/must-exist]
                                                            [:a :d] [p/must-exist]}
 
-      (subject/canonicalize ..t.. [ [:a {:b #'even?} :e] ]) => (throws)))
+      (subject/compile ..t.. [ [:a {:b #'even?} :e] ]) => (throws)))
 
 (fact "signifiers can only be maps and vectors"
-  (subject/canonicalize ..t.. :a) => (throws #"maps or vectors"))
+  (subject/compile ..t.. :a) => (throws #"maps or vectors"))
 
 (fact "multiple arguments are allowed"
-  (subject/canonicalize ..t.. {:a p/must-exist} {:b p/must-exist}) => {[:a] [p/must-exist]
+  (subject/compile ..t.. {:a p/must-exist} {:b p/must-exist}) => {[:a] [p/must-exist]
                                                                        [:b] [p/must-exist]}
 
   (fact "arguments with the same keys have their values merged"
-    (subject/canonicalize ..t.. {:a p/must-exist} {:a #'even?}) => {[:a] [p/must-exist #'even?]}
-    (subject/canonicalize ..t.. {:a {:b p/must-exist}}
+    (subject/compile ..t.. {:a p/must-exist} {:a #'even?}) => {[:a] [p/must-exist #'even?]}
+    (subject/compile ..t.. {:a {:b p/must-exist}}
                           {:a #'map?}
                           {:a {:b #'even?}}) => {[:a] [#'map?]
                                                  [:a :b] [p/must-exist #'even?]})
 
   (fact "maps and vectors can be merged"
-    (subject/canonicalize ..t.. [ :a :b ] {:a #'even?}) => {[:a] [p/must-exist #'even?]
+    (subject/compile ..t.. [ :a :b ] {:a #'even?}) => {[:a] [p/must-exist #'even?]
                                                             [:b] [p/must-exist]}))
 
 
 (fact "type descriptions that refer into a type map"
-  (let [type-map {:type (subject/canonicalize ..t.. [:a] {:a #'odd? :b #'even?})}]
-    (subject/canonicalize type-map (subject/a :type)) => {[:a] [p/must-exist #'odd?]
+  (let [type-map {:type (subject/compile ..t.. [:a] {:a #'odd? :b #'even?})}]
+    (subject/compile type-map (subject/a :type)) => {[:a] [p/must-exist #'odd?]
                                                           [:b] [#'even?]}
 
-    (subject/canonicalize type-map [ [:a (subject/a :type) ]])  => {[:a :a] [p/must-exist]
+    (subject/compile type-map [ [:a (subject/a :type) ]])  => {[:a :a] [p/must-exist]
                                                                     [:a :b] [p/must-exist]}
 
-    (subject/canonicalize type-map
+    (subject/compile type-map
                           {:a (subject/a :type) }
                           {:a {:c #'pos?}}
                           [:c])
@@ -110,52 +110,52 @@
 
 (fact "some typical uses of a type-map"
   (let [type-map (-> {}
-                     (assoc :Point (subject/canonicalize ..t.. [:x :y]
+                     (assoc :Point (subject/compile ..t.. [:x :y]
                                                          {:x #'integer? :y #'integer?})
-                            :Colored (subject/canonicalize ..t.. [:color]
+                            :Colored (subject/compile ..t.. [:color]
                                                          {:color #'string?})
-                            :OptionalColored (subject/canonicalize ..t.. 
+                            :OptionalColored (subject/compile ..t.. 
                                                                  {:color #'string?})))]
     (fact "merging types"
       (fact "making a colored point by addition"
-        (subject/canonicalize type-map (subject/a :Point) [:color] {:color #'string?})
+        (subject/compile type-map (subject/a :Point) [:color] {:color #'string?})
         => {[:color] [p/must-exist #'string?]
             [:x] [p/must-exist #'integer?]
             [:y] [p/must-exist #'integer?]})
       
       (fact "or you can just merge types"
-        (subject/canonicalize type-map (subject/a :Point) (subject/a :Colored))
+        (subject/compile type-map (subject/a :Point) (subject/a :Colored))
         => {[:color] [p/must-exist #'string?]
             [:x] [p/must-exist #'integer?]
             [:y] [p/must-exist #'integer?]})
       
       (fact "note that merging an optional type doesn't make it required"
-        (subject/canonicalize type-map (subject/a :Point) (subject/a :OptionalColored))
+        (subject/compile type-map (subject/a :Point) (subject/a :OptionalColored))
         => {[:color] [#'string?]
             [:x] [p/must-exist #'integer?]
             [:y] [p/must-exist #'integer?]}))
 
     (fact "subtypes"
       (fact "making a colored point by addition"
-        (subject/canonicalize type-map (subject/a :Point) [:color] {:color #'string?})
+        (subject/compile type-map (subject/a :Point) [:color] {:color #'string?})
         => {[:color] [p/must-exist #'string?]
             [:x] [p/must-exist #'integer?]
             [:y] [p/must-exist #'integer?]}
       
         (fact "or you can just merge types"
-          (subject/canonicalize type-map (subject/a :Point) (subject/a :Colored))
+          (subject/compile type-map (subject/a :Point) (subject/a :Colored))
           => {[:color] [p/must-exist #'string?]
               [:x] [p/must-exist #'integer?]
               [:y] [p/must-exist #'integer?]})
         
         (fact "note that merging an optional type doesn't make it required"
-          (subject/canonicalize type-map (subject/a :Point) (subject/a :OptionalColored))
+          (subject/compile type-map (subject/a :Point) (subject/a :OptionalColored))
           => {[:color] [#'string?]
               [:x] [p/must-exist #'integer?]
               [:y] [p/must-exist #'integer?]}))
 
       (fact "a line has a start and an end, which are points"
-        (subject/canonicalize type-map [:start :end]
+        (subject/compile type-map [:start :end]
                                        {:start (subject/a :Point)
                                         :end (subject/a :Point)})
         => {[:start] [p/must-exist]
@@ -166,7 +166,7 @@
             [:end :y] [p/must-exist #'integer?]})
 
       (fact "a figure has a color and a set of points"
-        (subject/canonicalize type-map [:points]
+        (subject/compile type-map [:points]
                                        {[:points ALL] (subject/a :Point)}
                                        (subject/a :Colored))
         => {[:color] [p/must-exist #'string?]
@@ -175,7 +175,7 @@
             [:points ALL :y] [p/must-exist #'integer?]})
 
       (fact "noting that a figure has colored points"
-        (subject/canonicalize type-map [:points]
+        (subject/compile type-map [:points]
                                        {[:points ALL] (subject/a :Point)}
                                        {[:points ALL] (subject/a :Colored)})
         => {[:points] [p/must-exist]
@@ -184,30 +184,30 @@
             [:points ALL :y] [p/must-exist #'integer?]}))))
 
 (fact "And here, for posterity, of various non-'a' ways to talk about a nested structure"
-  (let [point (subject/canonicalize ..t.. {[:x] [#'integer?]
+  (let [point (subject/compile ..t.. {[:x] [#'integer?]
                                            [:y] [#'integer?]})]
 
     (fact "a little warm up without using any explicit notion of point"
-      (subject/canonicalize ..t.. [ :color
+      (subject/compile ..t.. [ :color
                                    [:points ALL :x]
                                    [:points ALL :y] ]) => {[:color] [p/must-exist]
                                                            [:points ALL :x] [p/must-exist]
                                                            [:points ALL :y] [p/must-exist]}
                                    
-      (subject/canonicalize ..t.. [:color
+      (subject/compile ..t.. [:color
                                    [:points ALL [:x :y]]]) => {[:color] [p/must-exist]
                                                                [:points ALL :x] [p/must-exist]
                                                                [:points ALL :y] [p/must-exist]}
 
 
     (fact "Here we require x and y to exist, but without a requirement they be integers."
-      (subject/canonicalize ..t.. (type-has :color [:points ALL point]))
+      (subject/compile ..t.. (type-has :color [:points ALL point]))
       => {[:color] [p/must-exist]
           [:points ALL :x] [p/must-exist]
           [:points ALL :y] [p/must-exist]})
 
     (fact "Point predicates are gotten back using a map"
-      (subject/canonicalize ..t..
+      (subject/compile ..t..
                             [:color [:points ALL point]]
                             {:color #'string?
                              [:points ALL] point})
@@ -219,13 +219,13 @@
       (let [required-xy-point {[:x] [p/must-exist #'integer?]
                                [:y] [p/must-exist #'integer?]}]
         ;; As above, a mention in the required list transfers required-ness
-        (subject/canonicalize ..t.. [:color [:points ALL required-xy-point]])
+        (subject/compile ..t.. [:color [:points ALL required-xy-point]])
         => {[:color] [p/must-exist]
             [:points ALL :x] [p/must-exist]
             [:points ALL :y] [p/must-exist]}
         
         ;; To get those options back, we use a map.
-        (subject/canonicalize ..t.. [:color]
+        (subject/compile ..t.. [:color]
                               {:color #'string?
                                [:points ALL] required-xy-point})
         => {[:color] [p/must-exist #'string?]
@@ -334,11 +334,11 @@
   (fact "returns a map"
     (subject/any-required-seq->maps {}) => {})
     
-  (fact "the already canonicalized form turns into a simple map"
+  (fact "the already compiled form turns into a simple map"
     (subject/any-required-seq->maps [[:a] [:b]]) => {[:a] [p/must-exist]
                                                       [:b] [p/must-exist]})
 
-  (fact "top level non-collections are canonicalized"
+  (fact "top level non-collections are compiled"
     (subject/any-required-seq->maps [:a :b]) => {[:a] [p/must-exist]
                                                  [:b] [p/must-exist]}))
 
