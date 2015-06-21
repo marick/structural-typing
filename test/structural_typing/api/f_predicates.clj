@@ -1,16 +1,13 @@
 (ns structural-typing.api.f-predicates
-  (:require [structural-typing.api.predicates :as subject])
+  (:require [structural-typing.api.predicates :as subject]
+            [structural-typing.mechanics.m-lifting-predicates :refer [lift]])
+  (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
 
-;; (fact "friendly-name"
-;;   (subject/friendly-name even?) => "core/even?"
-;;   (subject/friendly-name (fn [])) => "your custom predicate"
-;;   (subject/friendly-name :key) => :key
-;;   (subject/friendly-name #'even?) => "even?"
+(fact member
+  (let [lifted (lift (subject/member 1 2 3))
+        result (e/run-left (lifted {:leaf-value 8 :path [:x]}))]
+    result => (contains {:path [:x]
+                         :leaf-value 8})
 
-;;   (let [f ( ( (fn [a] (fn [b] (fn [c] (+ a b c)))) 1) 2)]
-;;     (subject/friendly-name f) => "your custom predicate")
-
-;;   (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
-;;     (subject/friendly-name f) => "my:tweedle-dum"))
-
+    ((:error-explainer result) result) => ":x should be a member of (1 2 3); it is `8`"))

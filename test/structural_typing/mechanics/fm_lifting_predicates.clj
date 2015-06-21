@@ -89,23 +89,5 @@
                              :predicate-string "even?"
                              :path [:x]
                              :leaf-value 3})
-        ( (:error-explainer result) result) => "[:x] - even? - 3"))
+        ( (:error-explainer result) result) => "[:x] - even? - 3"))))
 
-    (fact "you can add arbitrary arguments" 
-      (let [member (fn [& args]
-                     (->> #(some (set args) %)
-                          (pred/explain-with
-                           (fn [explanation]
-                             (format "%s (`%s`) should be a member of %s",
-                                     (path/friendly-path explanation)
-                                     (pr-str (:leaf-value explanation))
-                                     (pr-str args))))))
-            lifted (subject/lift (member 1 2 3))
-            result (e/run-left (lifted {:leaf-value 8 :path [:x]}))]
-        result => (contains {:predicate fn?
-                             :predicate-string "your custom predicate"
-                             :path [:x]
-                             :leaf-value 8
-                             :error-explainer fn?})
-
-        ((:error-explainer result) result) => ":x (`8`) should be a member of (1 2 3)"))))
