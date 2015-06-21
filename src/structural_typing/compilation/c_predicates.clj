@@ -9,7 +9,6 @@
                        repl/demunge
                        (re-matches #"^..([^ ]+).*")
                        second)
-        meta-name (::predicate-string (meta f))
         generated? (second (re-find #".*/(.*)--[0-9]+" base-name))]
     (cond (keyword? f)        f
           (= generated? "fn") "your custom predicate"
