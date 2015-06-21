@@ -1,7 +1,6 @@
 (ns structural-typing.evaluate
-  (:use blancas.morph.core
-        blancas.morph.monads)
-  (:require [clojure.repl :as repl]))
+  (:require [clojure.repl :as repl]
+            [blancas.morph.monads :as e]))
 
 (defn friendly-name [f]
   (let [base-name (->> (pr-str f)
@@ -60,16 +59,26 @@
                      :predicate-string (best-predicate-string-choice pred)
                      :predicate (best-predicate-choice pred)}]
     (fn [leaf-value-context]
-      (make-either (merge diagnostics leaf-value-context)
-                   (fn [x] (try (pred x) (catch Exception ex false)))
-                   (:leaf-value leaf-value-context)))))
+      (e/make-either (merge diagnostics leaf-value-context)
+                     (fn [x] (try (pred x) (catch Exception ex false)))
+                     (:leaf-value leaf-value-context)))))
+
+;; (defn lift-predicates [raw-preds]
+;;   (let [preds (map lift raw-preds)]
+;;     (fn [leaf-value-context]
+;;       (map preds (repeat leaf-value-context))))
+;;       (loop [preds preds]
+;;         (if (empty? preds)
+;;           []
+;;           (let [
+;;                 (cond (empty? preds)
+;;                       []
+
+            
+            
+          
+;;     []))
 
 
-(defn one-path [structure [path predicates]]
-  
-  )
-   
-
-
-(defn one-type [structure type-map]
-  (map #(one-path structure %) type-map))
+;; (defn one-type [structure type-map]
+;;   (map #(one-path structure %) type-map))

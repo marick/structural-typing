@@ -18,6 +18,23 @@
   (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
     (subject/friendly-name f) => "my:tweedle-dum"))
 
+(future-fact "default error explainer"
+  (subject/default-error-explainer {:predicate-string "core/even?"
+                                    :path [:x]
+                                    :leaf-value 3})
+  => ":x should be `core/even?`; it is `3`"
+
+
+  (subject/default-error-explainer {:predicate-string "core/even?"
+                                    :path [:x ALL :y]
+                                    :leaf-value 3
+                                    :index-string "[0]"})
+  => "[:x ALL :y] should be `core/even?`; it is `3`"
+
+)
+
+":x should be `greater-than-3`; it is `3`"
+
 (fact "evaluating a predicate"
   (facts "pure functions"
     (let [lifted (subject/lift even?)]
@@ -107,13 +124,16 @@
 
         ((:error-explainer result) result) => ":x (`8`) should be a member of (1 2 3)"))))
 
-;; (future-fact "evaluating multiple predicates short circuits"
-;;   (let [lifted (subject/life-predicates [pos? even?] [:x])
-;;         result (e/run-left (lifted -1 {:x 1}))]
-;;     result => {:predicate pos?
-;;                :predicate-string "core/pos?"
-;;                :path [:x]
-;;                :leaf-value 3
-;;                :whole-value {:x 3}
-;;                :error-explainer subject/default-error-explainer}
+
+
+
+;; (fact "evaluating multiple predicates checks each of them"
+;;   (let [lifted (subject/lift-predicates [pos? even?])
+;;         run (fn [x] (e/lefts (lifted {:leaf-value x})))]
+;;     (run 8) => empty?
+
+;;     (run -2) => (just (contains {:predicate-string "core/pos?"
+;;                                  :predicate pos?
+;;                                  :leaf-value -2}))
+;; ))
     
