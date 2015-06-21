@@ -23,53 +23,28 @@
         (str f)))
 
 
+(letfn [(gm [f k default] (get (meta f) k default))]
+  (defn get-predicate [f]        (gm f ::original-predicate f))
+  (defn get-predicate-string [f] (gm f ::predicate-string (friendly-name f)))
+  (defn get-explainer [f]        (gm f ::error-explainer defaults/default-error-explainer)))
 
+(letfn [(vm [f k v] (vary-meta f assoc k v))
+        (ensure-meta [f k v] (if (contains? (meta f) k) f (vm f k v)))]
 
-(defn ensure-meta [f k v]
-  (if (contains? (meta f) k)
-    f
-    (vary-meta f assoc k v)))
+  (defn stash-defaults [f]
+    (-> f
+        (ensure-meta ::original-predicate f)
+        (ensure-meta ::predicate-string (friendly-name f))))
 
-(defn ensure-availability-of-predicate-string [f name]
-  (ensure-meta f ::predicate-string name))
-(defn- ensure-availability-of-original-predicate [f]
-  (ensure-meta f ::original-predicate f))
-
-(defn- choose-best [f k default] 
-  (get (meta f) k default))
-(defn choose-best-predicate [f]
-  (choose-best f ::original-predicate f))
-(defn choose-best-predicate-string [f]
-  (choose-best f ::predicate-string (friendly-name f)))
-(defn choose-best-explainer [f]
-  (get (meta f) ::error-explainer defaults/default-error-explainer))
-
-
-(defn replace-predicate-string [f name]
-  (vary-meta f assoc ::predicate-string name))
+  (defn replace-predicate-string [f name] (vm f ::predicate-string name))
+  (defn replace-explainer [f explainer] (vm f ::error-explainer explainer)))
   
 
-
-
-(defn show-as [name f]
-  (-> f
-      ensure-availability-of-original-predicate
-      (replace-predicate-string name)))
-
-(defn explain-with [explainer f]
-  (-> f
-      ensure-availability-of-original-predicate
-      (ensure-availability-of-predicate-string (friendly-name f))
-      (vary-meta assoc ::error-explainer explainer)))
-
 (defn lift [pred]
-  (let [diagnostics {:error-explainer (choose-best-explainer pred)
-                     :predicate-string (choose-best-predicate-string pred)
-                     :predicate (choose-best-predicate pred)}]
+  (let [diagnostics {:error-explainer (get-explainer pred)
+                     :predicate-string (get-predicate-string pred)
+                     :predicate (get-predicate pred)}]
     (fn [leaf-value-context]
       (e/make-either (merge diagnostics leaf-value-context)
                      (fn [x] (try (pred x) (catch Exception ex false)))
                      (:leaf-value leaf-value-context)))))
-
-
-

@@ -1,5 +1,6 @@
 (ns structural-typing.mechanics.fm-lifting-predicates
   (:require [structural-typing.mechanics.m-lifting-predicates :as subject]
+            [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as defaults])
   (:require [com.rpl.specter :refer [ALL]])
@@ -41,7 +42,7 @@
           ( (:error-explainer result) result) => ":x should be `greater-than-3`; it is `3`"))
 
       (fact "functions tagged with names"
-        (let [lifted (subject/lift (->> (fn [n] (> n 3)) (subject/show-as "three")))
+        (let [lifted (subject/lift (->> (fn [n] (> n 3)) (pred/show-as "three")))
               result (e/run-left (lifted {:leaf-value 3 :path [:x :y]}))]
           ( (:error-explainer result) result) => "[:x :y] should be `three`; it is `3`"))))
 
@@ -66,7 +67,7 @@
   (fact "constructing a custom predicate"
     (fact "you can override the predicate-string argument"
       
-      (let [my-variant-predicate (->> even? (subject/show-as "evenish"))
+      (let [my-variant-predicate (->> even? (pred/show-as "evenish"))
             lifted (subject/lift my-variant-predicate)
             result (e/run-left (lifted {:leaf-value "string" :path [:x]}))]
         result => (contains {:predicate (exactly even?)
@@ -81,7 +82,7 @@
                                    path
                                    leaf-value]}]
                         (format "%s - %s - %s" path predicate-string leaf-value))
-            lifted (subject/lift (subject/explain-with explainer even?))
+            lifted (subject/lift (pred/explain-with explainer even?))
             result (e/run-left (lifted {:leaf-value 3 :path [:x]}))]
 
         result => (contains {:predicate (exactly even?)
@@ -93,7 +94,7 @@
     (fact "you can add arbitrary arguments" 
       (let [member (fn [& args]
                      (->> #(some (set args) %)
-                          (subject/explain-with
+                          (pred/explain-with
                            (fn [explanation]
                              (format "%s (`%s`) should be a member of %s",
                                      (path/friendly-path explanation)
