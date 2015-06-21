@@ -1,13 +1,25 @@
 (ns structural-typing.api.path
   (:require [com.rpl.specter :as specter]
+            [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
 
 (def ^:private friendly-path-components
   {specter/ALL "ALL"})
 
-(defn friendly-path [path]
-  (if (= 1 (count path)) (first path) path))
+(def ALL specter/ALL)
 
+(defn friendly-path-component [component]
+  (cond (contains? friendly-path-components component)
+        (friendly-path-components component)
+
+        :else
+        (str component)))
+
+(defn friendly-path [{:keys [path] :as explanation}]
+  (let [tokens (map friendly-path-component path)]
+    (if (= 1 (count tokens))
+      (first tokens)
+      (cl-format nil "[~{~A~^ ~}]" tokens))))
 
 
 (def ^:private type-finder-key ::type-finder)

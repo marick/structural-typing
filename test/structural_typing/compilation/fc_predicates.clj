@@ -8,9 +8,9 @@
 
 
 (fact "friendly-name"
-  (subject/friendly-name even?) => "core/even?"
+  (subject/friendly-name even?) => "even?"
   (subject/friendly-name (fn [])) => "your custom predicate"
-  (subject/friendly-name :key) => :key
+  (subject/friendly-name :key) => ":key"
   (subject/friendly-name #'even?) => "even?"
 
   (let [f ( ( (fn [a] (fn [b] (fn [c] (+ a b c)))) 1) 2)]
@@ -28,12 +28,12 @@
 
       (let [result (e/run-left (lifted {:leaf-value 3 :whole-value {:x 3} :path [:x]}))]
         result => {:predicate even?
-                   :predicate-string "core/even?"
+                   :predicate-string "even?"
                    :path [:x]
                    :leaf-value 3
                    :whole-value {:x 3}
                    :error-explainer defaults/default-error-explainer}
-        ( (:error-explainer result) result) => ":x should be `core/even?`; it is `3`")
+        ( (:error-explainer result) result) => ":x should be `even?`; it is `3`")
 
       (fact "what about a function with a given name?"
         (let [lifted (subject/lift (fn greater-than-3 [n] (> n 3)))
@@ -85,19 +85,19 @@
             result (e/run-left (lifted {:leaf-value 3 :path [:x]}))]
 
         result => (contains {:predicate (exactly even?)
-                             :predicate-string "core/even?"
+                             :predicate-string "even?"
                              :path [:x]
                              :leaf-value 3})
-        ( (:error-explainer result) result) => "[:x] - core/even? - 3"))
+        ( (:error-explainer result) result) => "[:x] - even? - 3"))
 
     (fact "you can add arbitrary arguments" 
       (let [member (fn [& args]
                      (->> #(some (set args) %)
                           (subject/explain-with
-                           (fn [{:keys [path leaf-value]}]
+                           (fn [explanation]
                              (format "%s (`%s`) should be a member of %s",
-                                     (path/friendly-path path)
-                                     (pr-str leaf-value)
+                                     (path/friendly-path explanation)
+                                     (pr-str (:leaf-value explanation))
                                      (pr-str args))))))
             lifted (subject/lift (member 1 2 3))
             result (e/run-left (lifted {:leaf-value 8 :path [:x]}))]
