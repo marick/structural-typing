@@ -1,21 +1,27 @@
 (ns structural-typing.compilation.c-predicates
   (:require [clojure.repl :as repl]
+            [clojure.string :as str]
             [blancas.morph.monads :as e]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as defaults]))
 
 (defn friendly-name [f]
-  (let [base-name (->> (pr-str f)
-                       repl/demunge
-                       (re-matches #"^..([^ ]+).*")
-                       second)
-        generated? (second (re-find #".*/(.*)--[0-9]+" base-name))]
-    (cond (keyword? f)        f
-          (= generated? "fn") "your custom predicate"
-          generated?          generated?
-          (var? f)            (str (:name (meta f)))
-          base-name           base-name
-          :else               "<could not find predicate name>")))
+  (cond (var? f)
+        (str (:name (meta f)))
+
+        (fn? f)
+        (let [basename (-> (str f)
+                             repl/demunge
+                             (str/split #"/")
+                             last
+                             (str/split #"@")
+                             first
+                             (str/split #"--[0-9]+$")
+                             first)]
+          (if (= basename "fn") "your custom predicate" basename))
+        :else
+        (str f)))
+
 
 
 
