@@ -1,4 +1,4 @@
-(ns structural-typing.compilation.path
+(ns structural-typing.compilation.c-path
   (:refer-clojure :exclude [compile])
   (:require [structural-typing.frob :as frob]
             [structural-typing.api.predicates :as p]

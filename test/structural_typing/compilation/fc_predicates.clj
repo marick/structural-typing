@@ -1,5 +1,5 @@
-(ns structural-typing.compilation.f-predicates
-  (:require [structural-typing.compilation.predicates :as subject]
+(ns structural-typing.compilation.fc-predicates
+  (:require [structural-typing.compilation.c-predicates :as subject]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as defaults])
   (:require [com.rpl.specter :refer [ALL]])

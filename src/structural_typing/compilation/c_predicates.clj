@@ -1,4 +1,4 @@
-(ns structural-typing.compilation.predicates
+(ns structural-typing.compilation.c-predicates
   (:require [clojure.repl :as repl]
             [blancas.morph.monads :as e]
             [structural-typing.api.path :as path]

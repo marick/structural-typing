@@ -1,5 +1,5 @@
-(ns structural-typing.compilation.f-path
-  (:require [structural-typing.compilation.path :as subject]
+(ns structural-typing.compilation.fc-path
+  (:require [structural-typing.compilation.c-path :as subject]
             [structural-typing.api.predicates :as p])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
