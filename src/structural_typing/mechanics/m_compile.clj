@@ -1,6 +1,5 @@
-(ns structural-typing.evaluate
-  (:require 
-            [blancas.morph.monads :as e]
+(ns structural-typing.mechanics.m-compile
+  (:require [blancas.morph.monads :as e]
             [structural-typing.api.predicates :as pred]))
 
 

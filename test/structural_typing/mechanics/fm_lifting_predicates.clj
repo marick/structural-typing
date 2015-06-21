@@ -1,5 +1,5 @@
-(ns structural-typing.compilation.fc-predicates
-  (:require [structural-typing.compilation.c-predicates :as subject]
+(ns structural-typing.mechanics.fm-lifting-predicates
+  (:require [structural-typing.mechanics.m-lifting-predicates :as subject]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as defaults])
   (:require [com.rpl.specter :refer [ALL]])
@@ -20,7 +20,7 @@
     (subject/friendly-name f) => "my:tweedle-dum"))
 
 
-(fact "evaluating a predicate"
+(fact "lifting a predicate"
   (facts "pure functions"
     (let [lifted (subject/lift even?)]
       (lifted {:leaf-value 3}) => e/left?
@@ -108,17 +108,3 @@
                              :error-explainer fn?})
 
         ((:error-explainer result) result) => ":x (`8`) should be a member of (1 2 3)"))))
-
-
-
-
-;; (fact "evaluating multiple predicates checks each of them"
-;;   (let [lifted (subject/lift-predicates [pos? even?])
-;;         run (fn [x] (e/lefts (lifted {:leaf-value x})))]
-;;     (run 8) => empty?
-
-;;     (run -2) => (just (contains {:predicate-string "core/pos?"
-;;                                  :predicate pos?
-;;                                  :leaf-value -2}))
-;; ))
-    

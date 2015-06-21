@@ -1,5 +1,4 @@
-(ns structural-typing.compilation.c-path
-  (:refer-clojure :exclude [compile])
+(ns structural-typing.mechanics.m-canonical
   (:require [structural-typing.frob :as frob]
             [structural-typing.api.path :as path]
             [structural-typing.api.predicates :as pred]
@@ -79,9 +78,9 @@
                (expand-path-shorthand xs (frob/force-vector extended)))))))
 
   
-(defn compile [type-repo & condensed-type-descriptions]
+(defn canonicalize [type-map & condensed-type-descriptions]
   (->> condensed-type-descriptions
-       (expand-type-finders type-repo)
+       (expand-type-finders type-map)
        (map validate-description)
        (map any-required-seq->maps)
        (map nested-map->path-map)

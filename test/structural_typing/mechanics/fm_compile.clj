@@ -1,5 +1,5 @@
-(ns structural-typing.f-evaluate
-  (:require [structural-typing.evaluate :as subject]
+(ns structural-typing.mechanics.fm-compile
+  (:require [structural-typing.mechanics.m-compile :as subject]
             [structural-typing.api.predicates :as p])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [blancas.morph.monads :as e])
@@ -17,3 +17,4 @@
 ;;                                  :leaf-value -2}))
 ;; ))
     
+

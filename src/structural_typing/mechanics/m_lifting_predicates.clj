@@ -1,4 +1,4 @@
-(ns structural-typing.compilation.c-predicates
+(ns structural-typing.mechanics.m-lifting-predicates
   (:require [clojure.repl :as repl]
             [clojure.string :as str]
             [blancas.morph.monads :as e]
