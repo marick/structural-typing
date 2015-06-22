@@ -56,13 +56,23 @@
       ( (:error-explainer result) result) => ":x should be `even?`; it is `3`"))
 
   (fact "a predicate that throws"
-    (let [lifted (subject/lift #'even?)
+    (let [lifted (subject/lift #(> 1 %))
           result (e/run-left (lifted {:leaf-value "string"}))]
-      result => {:predicate #'even?
-                 :predicate-string "even?"
-                 :leaf-value "string"
-                 :error-explainer defaults/default-error-explainer}))
-    
+      result => (contains {:predicate-string "your custom predicate"
+                           :leaf-value "string"
+                           :error-explainer defaults/default-error-explainer})))
+
+  (fact "predicates are true of `nil` values"
+    (let [lifted (subject/lift #'even?)
+          result (e/run-left (lifted {:leaf-value nil}))]
+      result => empty?))
+
+  (fact "lifting does nothing to an already-lifted predicate"
+    (let [lifted (subject/lift #'even?)
+          lifted-again (subject/lift lifted)]
+      (prn lifted)
+      (prn lifted-again)
+      (identical? lifted lifted-again) => true))
     
   (fact "constructing a custom predicate"
     (fact "you can override the predicate-string argument"

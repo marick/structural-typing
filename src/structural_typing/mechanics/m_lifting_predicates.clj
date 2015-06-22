@@ -40,11 +40,28 @@
   (defn replace-explainer [f explainer] (vm f ::error-explainer explainer)))
   
 
-(defn lift [pred]
+(def lifted-mark ::lifted)
+(defn mark-as-lifted [pred]
+  (vary-meta pred assoc lifted-mark true))
+(defn- already-lifted? [pred]
+  (lifted-mark (meta pred)))
+
+(defn lift* [pred count-nil-as-right]
   (let [diagnostics {:error-explainer (get-explainer pred)
                      :predicate-string (get-predicate-string pred)
                      :predicate (get-predicate pred)}]
-    (fn [leaf-value-context]
-      (e/make-either (merge diagnostics leaf-value-context)
-                     (fn [x] (try (pred x) (catch Exception ex false)))
-                     (:leaf-value leaf-value-context)))))
+    (mark-as-lifted 
+     (fn [{:keys [leaf-value] :as leaf-value-context}]
+       (let [left-content (merge diagnostics leaf-value-context)]
+         ;; Blancas make-either objects to an INPUT of nil, not a predicate result of falsey.
+         ;; This produces convolution.
+         (if (and (nil? leaf-value) count-nil-as-right)
+           (e/right "was nil") ; Note: cannot *be* nil - that will turn into a Left.
+           (e/make-either left-content
+                          (fn [x] (try (pred x) (catch Exception ex false)))
+                         leaf-value)))))))
+
+(defn lift [pred]
+  (if (already-lifted? pred)
+    pred
+    (lift* pred :count-nil-as-right)))
