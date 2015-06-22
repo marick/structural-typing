@@ -14,17 +14,30 @@
       lift/stash-defaults
       (lift/replace-explainer explainer)))
 
+(defn compose-predicate [pred fmt-fn]
+  (->> pred (explain-with fmt-fn)))
 
-;;; Useful predefined predicates
 
-(defn must-exist [val]
-  (not (nil? val)))
+;;; Predefined predicates
+  
+(def must-exist
+  "False iff a key/path does not exist or has value `nil`."
+  (compose-predicate
+   (comp not nil?)
+   #(format "%s must exist and be non-nil" (path/friendly-path %))))
 
-(defn member [& args]
-  (letfn [(explainer [raw]
-            (format "%s should be a member of %s; it is `%s`",
-                    (path/friendly-path raw)
-                    (pr-str args)
-                    (pr-str (:leaf-value raw))))]
-    (->> #(some (set args) %)
-         (explain-with explainer))))
+
+(defn member
+  "Produce a predicate that's false when applied to a value not a member of `args`.
+   
+        ( (member 2 3 5 7) 4) => false
+        (type/named! :small-primes {:n (member 2 3 5 7)})
+"
+  [& args]
+  (compose-predicate
+   #(some (set args) %)
+   #(format "%s should be a member of %s; it is `%s`",
+            (path/friendly-path %)
+            (pr-str args)
+            (pr-str (:leaf-value %)))))
+
