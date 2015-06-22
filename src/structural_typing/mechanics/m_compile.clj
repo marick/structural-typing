@@ -1,26 +1,41 @@
 (ns structural-typing.mechanics.m-compile
   (:require [blancas.morph.monads :as e]
-            [structural-typing.api.predicates :as pred]))
+            [structural-typing.api.predicates :as pred]
+            [com.rpl.specter :as specter]
+            [structural-typing.mechanics.m-lifting-predicates :refer [lift]]))
+
+(defn compile-predicates [preds]
+  (let [lifted (map lift preds)
+        combined (apply juxt lifted)]
+    (comp e/lefts combined)))
+
+(defn messages [result]
+  (map #((:error-explainer %) %) result))
+
+;; TODO: This code could be made tenser. It cries out for transients.
+
+(defn errors-for-one-path [whole-value leaf-values original-path errors-fn]
+  (reduce (fn [so-far leaf-value]
+            (into so-far (->> leaf-value
+                             (assoc {:whole-value whole-value :path original-path} :leaf-value)
+                             errors-fn
+                             messages)))
+          []
+          leaf-values))
 
 
+(defn compile-type [t]
+  (let [processed-triples (map (fn [[path preds]]
+                                 (vector path
+                                         (apply specter/comp-paths path)
+                                         (compile-predicates preds)))
+                               t)]
 
-
-;; (defn lift-predicates [raw-preds]
-;;   (let [preds (map lift raw-preds)]
-;;     (fn [leaf-value-context]
-;;       (map preds (repeat leaf-value-context))))
-;;       (loop [preds preds]
-;;         (if (empty? preds)
-;;           []
-;;           (let [
-;;                 (cond (empty? preds)
-;;                       []
-
-            
-            
-          
-;;     []))
-
-
-;; (defn one-type [structure type-map]
-;;   (map #(one-path structure %) type-map))
+    (fn [object-to-check]
+      (reduce (fn [all-errors [original-path compiled-path errors-fn]]
+                (into all-errors (errors-for-one-path object-to-check
+                                                      (specter/compiled-select compiled-path object-to-check)
+                                                      original-path
+                                                      errors-fn)))
+              []
+              processed-triples))))
