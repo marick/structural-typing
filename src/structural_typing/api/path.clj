@@ -15,11 +15,16 @@
         :else
         (str component)))
 
-(defn friendly-path [{:keys [path] :as explanation}]
-  (let [tokens (map friendly-path-component path)]
-    (if (= 1 (count tokens))
-      (first tokens)
-      (cl-format nil "[~{~A~^ ~}]" tokens))))
+(defn friendly-path [{:keys [path leaf-index leaf-count] :as explanation}]
+  (let [tokens (map friendly-path-component path)
+        full-path (if (= 1 (count tokens))
+                    (first tokens)
+                    (cl-format nil "[~{~A~^ ~}]" tokens))]
+    (if (and leaf-index leaf-count (> leaf-count 1)) ; existence checks simplify tests
+      (format "%s[%s]" full-path leaf-index)
+      full-path)))
+             
+
 
 
 (def ^:private type-finder-key ::type-finder)

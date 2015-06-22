@@ -11,13 +11,18 @@
 
 ;; TODO: This code could be made tenser. It cries out for transients.
 
-(defn results-for-one-path [whole-value leaf-values original-path errors-fn]
-  (reduce (fn [so-far leaf-value]
-            (into so-far (->> leaf-value
-                             (assoc {:whole-value whole-value :path original-path} :leaf-value)
-                             errors-fn)))
+(defn results-for-one-path [whole-value leaf-values original-path per-path-error-maps]
+  (reduce (fn [so-far [leaf-value index]]
+            (let [value-context {:whole-value whole-value
+                                 :path original-path
+                                 :leaf-index index
+                                 :leaf-count (count leaf-values)
+                                 :leaf-value leaf-value}]
+              (->> value-context
+                   per-path-error-maps
+                   (into so-far))))
           []
-          leaf-values))
+          (map vector leaf-values (range))))
 
 
 (defn compile-type [t]
@@ -28,10 +33,10 @@
                                t)]
 
     (fn [object-to-check]
-      (reduce (fn [all-errors [original-path compiled-path errors-fn]]
+      (reduce (fn [all-errors [original-path compiled-path per-path-error-maps]]
                 (into all-errors (results-for-one-path object-to-check
                                                       (specter/compiled-select compiled-path object-to-check)
                                                       original-path
-                                                      errors-fn)))
+                                                      per-path-error-maps)))
               []
               processed-triples))))

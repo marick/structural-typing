@@ -425,7 +425,6 @@
 ;;         (subject/expand-path-shorthand [:x (path/a :Point)] type-map)
 ;;         => (subject/expand-path-shorthand [:x point])
 
-;; ;        (prn  "      ===========")
 
 ;;         (subject/expand-path-shorthand [:x [:y (path/a :Point)]] type-map)
 ;;         =future=> (subject/expand-path-shorthand [:x [:y point]])

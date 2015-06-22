@@ -70,8 +70,6 @@
   (fact "lifting does nothing to an already-lifted predicate"
     (let [lifted (subject/lift #'even?)
           lifted-again (subject/lift lifted)]
-      (prn lifted)
-      (prn lifted-again)
       (identical? lifted lifted-again) => true))
     
   (fact "constructing a custom predicate"

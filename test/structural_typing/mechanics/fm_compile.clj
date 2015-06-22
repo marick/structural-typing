@@ -36,8 +36,8 @@
                                              ["1" 2 3]
                                              [:xs path/ALL :y]
                                              error-fn)]
-    result => (just (contains {:path [:xs path/ALL :y] :leaf-value "1"})
-                    (contains {:path [:xs path/ALL :y] :leaf-value 2})
+    result => (just (contains {:path [:xs path/ALL :y] :leaf-value "1" :leaf-index 0 :leaf-count 3})
+                    (contains {:path [:xs path/ALL :y] :leaf-value 2 :leaf-index 1 :leaf-count 3})
                     :in-any-order)))
 
 
@@ -76,9 +76,9 @@
     (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
                                                    {[:points path/ALL :x] even?}))]
       (run/messages (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
-      => (just "[:points ALL :x] should be `even?`; it is `1`"
-               "[:points ALL :x] should be `even?`; it is `3`"
-               "[:points ALL :x] must exist and be non-nil"
+      => (just "[:points ALL :x][0] should be `even?`; it is `1`"
+               "[:points ALL :x][2] should be `even?`; it is `3`"
+               "[:points ALL :x][3] must exist and be non-nil"
                :in-any-order)))
 
   
