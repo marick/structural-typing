@@ -48,17 +48,51 @@
 
   (fact "An optional value"
     (let [odd-if-exists (subject/compile-type (canonicalize {} {:a odd?}))]
-      (run/messages (odd-if-exists {})) =future=> empty?
+      (run/messages (odd-if-exists {})) => empty?
       (run/messages (odd-if-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
-      (run/messages (odd-if-exists {:a 3})) => empty?))
+      (run/messages (odd-if-exists {:a 3})) => empty?)
 
-  (future-fact "a path")
+    (fact "Note the difference from a required value"
+      (let [odd-and-exists (subject/compile-type (canonicalize {} [:a] {:a odd?}))]
+        (run/messages (odd-and-exists {})) => (just ":a must exist and be non-nil")
+        (run/messages (odd-and-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
+        (run/messages (odd-and-exists {:a 3})) => empty?)))
 
-  (future-fact "a path with multiple values (ALL)")
+  (fact "a path"
+    (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
+      (run/messages (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
+      (run/messages (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
+      (run/messages (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
+      (run/messages (odd-and-exists {:a {:b 3}})) => empty?))
+
+  (fact "a path"
+    (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
+      (run/messages (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
+      (run/messages (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
+      (run/messages (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
+      (run/messages (odd-and-exists {:a {:b 3}})) => empty?))
+
+  (fact "a path with multiple values (ALL)"
+    (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
+                                                   {[:points path/ALL :x] even?}))]
+      (run/messages (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
+      => (just "[:points ALL :x] should be `even?`; it is `1`"
+               "[:points ALL :x] should be `even?`; it is `3`"
+               "[:points ALL :x] must exist and be non-nil"
+               :in-any-order)))
+
   
-  (future-fact "multiple paths in the type")
-    
-      
-      
-    
-)
+  (fact "multiple paths in the type"
+    (let [type (subject/compile-type (canonicalize {} {:color string?
+                                                       :point {:x integer?
+                                                               :y integer?}}))]
+      (run/messages (type {})) => empty? ; all optional
+      (run/messages (type {:color "green"})) => empty?
+      (run/messages (type {:color 1})) => (just ":color should be `string?`; it is `1`")
+      (run/messages (type {:color "green"
+                           :point {:x "1"
+                                   :y "2"}}))
+      => (just "[:point :x] should be `integer?`; it is `\"1\"`"
+               "[:point :y] should be `integer?`; it is `\"2\"`"
+               :in-any-order))))
+
