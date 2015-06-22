@@ -79,6 +79,8 @@
 
   
 (defn canonicalize [type-map & condensed-type-descriptions]
+  (when (empty? condensed-type-descriptions)
+    (frob/boom "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
   (->> condensed-type-descriptions
        (expand-type-finders type-map)
        (map validate-description)
