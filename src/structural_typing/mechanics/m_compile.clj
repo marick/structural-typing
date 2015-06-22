@@ -9,17 +9,13 @@
         combined (apply juxt lifted)]
     (comp e/lefts combined)))
 
-(defn messages [result]
-  (map #((:error-explainer %) %) result))
-
 ;; TODO: This code could be made tenser. It cries out for transients.
 
-(defn errors-for-one-path [whole-value leaf-values original-path errors-fn]
+(defn results-for-one-path [whole-value leaf-values original-path errors-fn]
   (reduce (fn [so-far leaf-value]
             (into so-far (->> leaf-value
                              (assoc {:whole-value whole-value :path original-path} :leaf-value)
-                             errors-fn
-                             messages)))
+                             errors-fn)))
           []
           leaf-values))
 
@@ -33,7 +29,7 @@
 
     (fn [object-to-check]
       (reduce (fn [all-errors [original-path compiled-path errors-fn]]
-                (into all-errors (errors-for-one-path object-to-check
+                (into all-errors (results-for-one-path object-to-check
                                                       (specter/compiled-select compiled-path object-to-check)
                                                       original-path
                                                       errors-fn)))
