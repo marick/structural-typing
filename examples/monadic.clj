@@ -5,10 +5,10 @@
             [blancas.morph.monads :as m])
   (:use midje.sweet))
 
-(global-type/start-over!)
-(global-type/set-failure-handler! m/left)
-(global-type/set-success-handler! m/right)
-(global-type/named! :at-least-a-and-b [:a :b])
+;; (global-type/start-over!)
+;; (global-type/set-failure-handler! m/left)
+;; (global-type/set-success-handler! m/right)
+;; (global-type/named! :at-least-a-and-b [:a :b])
 
 
 ;; (fact "using an Either monad to separate out success from failure cases"

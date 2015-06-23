@@ -5,7 +5,7 @@
             [clojure.repl :as repl])
   (:require [structural-typing.api.path :as path]))
 
-(declare default-error-explainer)
+(declare default-error-explainer default-success-handler default-explanation-handler)
 
 (defn friendly-function-name [f]
   (cond (var? f)
@@ -42,15 +42,53 @@
     (first components)
     (cl-format nil "[~{~A~^ ~}]" components)))
 
-(defn friendly-path [{:keys [path] :as explanation}]
+(defn friendly-path [{:keys [path] :as check-result}]
   (->> path
        (map friendly-path-component)
        perhaps-simplified-path
-       (perhaps-indexed explanation)))
+       (perhaps-indexed check-result)))
 
-(defn default-error-explainer [{:keys [predicate-string leaf-value] :as explanation}]
+(defn explanations [raw-results]
+  (map #((:error-explainer %) %) raw-results))
+
+
+;;; 
+
+(defn default-error-explainer [{:keys [predicate-string leaf-value] :as raw-result}]
   (format "%s should be `%s`; it is `%s`"
-          (friendly-path explanation)
+          (friendly-path raw-result)
           predicate-string
           (pr-str leaf-value)))
+
+(def default-success-handler 
+  "The default success handler just returns the original value that was checked."
+  identity)
+
+(defn default-error-handler
+  "This error handler prints each error's explanation on a separate line. It returns
+   `nil`, allowing constructs like this:
+   
+        (some-> (type/checked :frobnoz x)
+                (assoc :goodness true)
+                ...)
+"
+  [raw-results]
+  (doseq [s (explanations raw-results)]
+    (println s))
+  nil)
+
+
+(defn throwing-failure-handler 
+  "In contrast to the default error handler, this one throws a
+   `java.lang.Exception` whose message is the concatenation of the
+   type-mismatch messages.
+   
+   To make all type mismatches throw failures, do this:
+   
+          (type/set-error-handler! type/throwing-failure-handler)
+"
+  [raw-results]
+  (throw (new Exception (str/join "\n" (explanations raw-results)))))
+
+
 
