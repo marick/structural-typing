@@ -5,7 +5,7 @@
             [clojure.repl :as repl])
   (:require [structural-typing.api.path :as path]))
 
-(declare default-error-explainer default-success-handler default-explanation-handler)
+(declare default-predicate-explainer default-success-handler default-explanation-handler)
 
 (defn friendly-function-name [f]
   (cond (var? f)
@@ -42,21 +42,24 @@
     (first components)
     (cl-format nil "[~{~A~^ ~}]" components)))
 
-(defn friendly-path [{:keys [path] :as check-result}]
+(defn friendly-path [{:keys [path] :as oopsie}]
   (->> path
        (map friendly-path-component)
        perhaps-simplified-path
-       (perhaps-indexed check-result)))
+       (perhaps-indexed oopsie)))
 
-(defn explanations [raw-results]
-  (map #((:error-explainer %) %) raw-results))
+(defn explanation [oopsie]
+  ((:predicate-explainer oopsie) oopsie))
+
+(defn explanations [oopsies]
+  (map explanation oopsies))
 
 
 ;;; 
 
-(defn default-error-explainer [{:keys [predicate-string leaf-value] :as raw-result}]
+(defn default-predicate-explainer [{:keys [predicate-string leaf-value] :as oopsie}]
   (format "%s should be `%s`; it is `%s`"
-          (friendly-path raw-result)
+          (friendly-path oopsie)
           predicate-string
           (pr-str leaf-value)))
 
@@ -72,8 +75,8 @@
                 (assoc :goodness true)
                 ...)
 "
-  [raw-results]
-  (doseq [s (explanations raw-results)]
+  [oopsies]
+  (doseq [s (explanations oopsies)]
     (println s))
   nil)
 
@@ -87,8 +90,8 @@
    
           (type/set-error-handler! type/throwing-failure-handler)
 "
-  [raw-results]
-  (throw (new Exception (str/join "\n" (explanations raw-results)))))
+  [oopsies]
+  (throw (new Exception (str/join "\n" (explanations oopsies)))))
 
 
 

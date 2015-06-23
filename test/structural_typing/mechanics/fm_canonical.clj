@@ -184,7 +184,7 @@
             [:points ALL :x] [pred/must-exist #'integer?]
             [:points ALL :y] [pred/must-exist #'integer?]}))))
 
-(fact "And here, for posterity, of various non-'a' ways to talk about a nested structure"
+(fact "And here, for posterity, various non-'a' ways to talk about a nested structure"
   (let [point (subject/canonicalize ..t.. {[:x] [#'integer?]
                                            [:y] [#'integer?]})]
 
@@ -372,75 +372,3 @@
 
 
 
-
-
-
-
-
-
-
-
-;; (future-fact "three-argument form allows lookup in a type-map"
-;;     (let [type-map {:Point {[:x] [pred/must-exist #'integer?]
-;;                             [:y] [pred/must-exist #'integer?]}}]
-
-;;       (subject/nested-map->path-map {:a (path/a :Point)} [:zz] type-map)
-;;       => {[:zz :a :x] [pred/must-exist #'integer?]
-;;           [:zz :a :y] [pred/must-exist #'integer?]}
-
-;;       (subject/nested-map->path-map {:a 1
-;;                                      [:b :c] (path/a :Point)
-;;                                      :d {:e (path/a :Point)}}
-;;                                     [] type-map)
-;;       => {[:a] [1]
-;;           [:b :c :x] [pred/must-exist #'integer?]
-;;           [:b :c :y] [pred/must-exist #'integer?]
-;;           [:d :e :x] [pred/must-exist #'integer?]
-;;           [:d :e :y] [pred/must-exist #'integer?]}))
-
-                  
-;;   (future-fact "the two-argument form allows a type-map"
-;;     (subject/expand-path-shorthand :x {}) => [:x]
-
-;;     (let [point {[:x] ["x-vec"] [:y] ["y-vec"]}
-;;           type-map {:Point point}]
-
-;;       (future-fact "degenerate cases - no top-level sequence"
-;;         (subject/expand-path-shorthand (path/a :Point) type-map)
-;;         => (subject/expand-path-shorthand point)
-
-;;         (subject/expand-path-shorthand {:a 1 :b (path/a :Point)} type-map)
-;;         => (subject/expand-path-shorthand {:a 1 :b point})
-
-;;         (subject/expand-path-shorthand {:a 1 [:figure ALL] (path/a :Point)} type-map)
-;;         => (subject/expand-path-shorthand {:a 1 [:figure ALL] point})
-
-;;         (subject/expand-path-shorthand :a type-map)
-;;         => (subject/expand-path-shorthand :a))
-
-;;       (future-fact "within sequence"
-;;         (subject/expand-path-shorthand [(path/a :Point)] type-map)
-;;         => (subject/expand-path-shorthand [point])
-
-;;         (subject/expand-path-shorthand [:x (path/a :Point)] type-map)
-;;         => (subject/expand-path-shorthand [:x point])
-
-
-;;         (subject/expand-path-shorthand [:x [:y (path/a :Point)]] type-map)
-;;         =future=> (subject/expand-path-shorthand [:x [:y point]])
-
-;;         )
-
-        
-
-;;       ;; (subject/expand-path-shorthand {:a {:b (path/a :Point)}}) type-map)
-;;       ;; => (just [:a :b :x] [:a :b :y] :in-any-order)
-
-;;       ;; (future-fact "type map used in sequence"
-;;       ;;   (subject/expand-path-shorthand [:a (path/a :Point)] type-map)
-;;       ;;   => (subject/expand-path-shorthand [:a point]))
-        
-;; ))
-
-                  
-                  

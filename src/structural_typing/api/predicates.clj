@@ -1,10 +1,13 @@
 (ns structural-typing.api.predicates
   (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
+            [structural-typing.frob :as frob]
             [structural-typing.api.defaults :as default]))
 
 ;; Utilities
 
 (defn show-as [name f]
+  (when (fn? name) (frob/boom "First arg is a function. You probably got your args reversed."))
+  (when-not (string? name) (frob/boom "First arg must be a string: %s %s" name f))
   (-> f
       lift/stash-defaults
       (lift/replace-predicate-string name)))

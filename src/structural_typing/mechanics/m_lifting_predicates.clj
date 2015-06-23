@@ -6,7 +6,7 @@
 (letfn [(gm [f k default] (get (meta f) k default))]
   (defn get-predicate [f]        (gm f ::original-predicate f))
   (defn get-predicate-string [f] (gm f ::predicate-string (defaults/friendly-function-name f)))
-  (defn get-explainer [f]        (gm f ::error-explainer defaults/default-error-explainer)))
+  (defn get-explainer [f]        (gm f ::predicate-explainer defaults/default-predicate-explainer)))
 
 (letfn [(vm [f k v] (vary-meta f assoc k v))
         (ensure-meta [f k v] (if (contains? (meta f) k) f (vm f k v)))]
@@ -17,7 +17,7 @@
         (ensure-meta ::predicate-string (defaults/friendly-function-name f))))
 
   (defn replace-predicate-string [f name] (vm f ::predicate-string name))
-  (defn replace-explainer [f explainer] (vm f ::error-explainer explainer)))
+  (defn replace-explainer [f explainer] (vm f ::predicate-explainer explainer)))
   
 
 (def lifted-mark ::lifted)
@@ -27,7 +27,7 @@
   (lifted-mark (meta pred)))
 
 (defn lift* [pred count-nil-as-right]
-  (let [diagnostics {:error-explainer (get-explainer pred)
+  (let [diagnostics {:predicate-explainer (get-explainer pred)
                      :predicate-string (get-predicate-string pred)
                      :predicate (get-predicate pred)}]
     (mark-as-lifted 

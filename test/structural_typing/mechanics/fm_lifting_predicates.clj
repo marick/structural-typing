@@ -1,88 +1,81 @@
 (ns structural-typing.mechanics.fm-lifting-predicates
   (:require [structural-typing.mechanics.m-lifting-predicates :as subject]
+            [structural-typing.mechanics.m-run :as run]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
-            [structural-typing.api.defaults :as defaults])
+            [structural-typing.api.defaults :as default])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
 
 
-(fact "lifting a predicate"
-  (facts "pure functions"
-    (let [lifted (subject/lift even?)]
-      (lifted {:leaf-value 3}) => e/left?
-      (lifted {:leaf-value 4}) => e/right?
 
-      (let [result (e/run-left (lifted {:leaf-value 3 :whole-value {:x 3} :path [:x]}))]
-        result => {:predicate even?
-                   :predicate-string "even?"
-                   :path [:x]
-                   :leaf-value 3
-                   :whole-value {:x 3}
-                   :error-explainer defaults/default-error-explainer}
-        ( (:error-explainer result) result) => ":x should be `even?`; it is `3`")
-
-      (fact "what about a function with a given name?"
-        (let [lifted (subject/lift (fn greater-than-3 [n] (> n 3)))
-              result (e/run-left (lifted {:leaf-value 3 :path [:x]}))]
-          ( (:error-explainer result) result) => ":x should be `greater-than-3`; it is `3`"))
-
-      (fact "functions tagged with names"
-        (let [lifted (subject/lift (->> (fn [n] (> n 3)) (pred/show-as "three")))
-              result (e/run-left (lifted {:leaf-value 3 :path [:x :y]}))]
-          ( (:error-explainer result) result) => "[:x :y] should be `three`; it is `3`"))))
-
-  (fact "lifting a var - same except for better names"
-    (let [lifted (subject/lift #'even?)
-          result (e/run-left (lifted {:leaf-value 3 :path [:x]}))]
-      result => (contains {:predicate #'even?
-                           :predicate-string "even?"
-                           :path [:x]
-                           :leaf-value 3})
-      ( (:error-explainer result) result) => ":x should be `even?`; it is `3`"))
-
-  (fact "a predicate that throws"
-    (let [lifted (subject/lift #(> 1 %))
-          result (e/run-left (lifted {:leaf-value "string"}))]
-      result => (contains {:predicate-string "your custom predicate"
-                           :leaf-value "string"
-                           :error-explainer defaults/default-error-explainer})))
-
-  (fact "predicates are true of `nil` values"
-    (let [lifted (subject/lift #'even?)
-          result (e/run-left (lifted {:leaf-value nil}))]
-      result => empty?))
-
-  (fact "lifting does nothing to an already-lifted predicate"
-    (let [lifted (subject/lift #'even?)
-          lifted-again (subject/lift lifted)]
-      (identical? lifted lifted-again) => true))
+(fact "lifted predicates are given the value to test in a map and return an Either"
+  (let [lifted (subject/lift even?)]
+    (lifted {:leaf-value 3}) => e/left?
+    (lifted {:leaf-value 4}) => e/right?
     
-  (fact "constructing a custom predicate"
-    (fact "you can override the predicate-string argument"
-      
-      (let [my-variant-predicate (->> even? (pred/show-as "evenish"))
-            lifted (subject/lift my-variant-predicate)
-            result (e/run-left (lifted {:leaf-value "string" :path [:x]}))]
-        result => (contains {:predicate (exactly even?)
-                             :predicate-string "evenish"
-                             :path [:x]
-                             :leaf-value "string"
-                             :error-explainer defaults/default-error-explainer})
-        ( (:error-explainer result) result) => ":x should be `evenish`; it is `\"string\"`"))
+    (let [oopsie (e/run-left (lifted {:leaf-value 3}))]
+      oopsie => (contains {:predicate (exactly even?)
+                           :leaf-value 3}))))
+    
+;; Some shorthand for remaining tests
+(defn lift-and-run [original-pred value]
+  (let [lifted (subject/lift original-pred)]
+    (e/run-left (lifted {:leaf-value value}))))
 
-    (fact "you can override the error-explainer argument"
-      (let [explainer (fn [{:keys [predicate-string
-                                   path
-                                   leaf-value]}]
-                        (format "%s - %s - %s" path predicate-string leaf-value))
-            lifted (subject/lift (pred/explain-with explainer even?))
-            result (e/run-left (lifted {:leaf-value 3 :path [:x]}))]
+(facts "The oopsie gives the information needed to produce an error string"
+  (fact "a named function is shown in a friendly way"
+    (lift-and-run even? 3) => (contains {:predicate-string "even?"
+                                         :leaf-value 3
+                                         :predicate-explainer default/default-predicate-explainer}))
+    
+  (fact "an anonymous lambda prints as something innocuous"
+    (lift-and-run #(> 1 %) 3)
+    => (contains {:predicate-string "your custom predicate"
+                  :leaf-value 3
+                  :predicate-explainer default/default-predicate-explainer}))
 
-        result => (contains {:predicate (exactly even?)
-                             :predicate-string "even?"
-                             :path [:x]
-                             :leaf-value 3})
-        ( (:error-explainer result) result) => "[:x] - even? - 3"))))
+  (fact "a named lambda has its name used as the predicate-string"
+    (lift-and-run (fn greater-than-3 [n] (> n 3)) 3)
+    => (contains {:predicate-string "greater-than-3"
+                  :predicate-explainer default/default-predicate-explainer}))
+    
+  (fact "functions can be tagged with names"
+    (lift-and-run (->> (fn [n] (> n 3))
+                       (pred/show-as "three"))
+                  3)
+    => (contains {:predicate-string "three"
+                  :predicate-explainer default/default-predicate-explainer}))
+
+  (fact "you can override the predicate-explainer"
+    (let [explainer (fn [{:keys [predicate-string
+                                 path
+                                 leaf-value]}]
+                      (format "%s - %s - %s" path predicate-string leaf-value))]
+      (lift-and-run (pred/explain-with explainer even?) 3)
+      => (contains {:predicate (exactly even?) ; original predicate
+                    :predicate-string "even?"  
+                    :leaf-value 3
+                    :predicate-explainer (exactly explainer)})))
+  
+  (fact "lifting a var is much like lifting a function"
+    (lift-and-run #'even? 3)
+    => (contains {:predicate #'even?
+                  :predicate-string "even?"
+                  :predicate-explainer default/default-predicate-explainer})))
+
+
+(fact "there are cases where predicate evaluation is overridden"
+  (fact "an exception produces an oopsie"
+    ( (subject/lift #(> 1 %)) {:leaf-value "string"}) => e/left?)
+
+  (fact "a nil value NEVER produces an oopsie"
+    ( (subject/lift even?) {:leaf-value nil}) => e/right?))
+
+(fact "lifting does nothing to an already-lifted predicate"
+  (let [lifted (subject/lift #'even?)
+        lifted-again (subject/lift lifted)]
+    (identical? lifted lifted-again) => true))
+    
 

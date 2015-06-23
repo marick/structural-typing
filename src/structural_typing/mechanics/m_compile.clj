@@ -11,7 +11,7 @@
 
 ;; TODO: This code could be made tenser. It cries out for transients.
 
-(defn results-for-one-path [whole-value leaf-values original-path per-path-error-maps]
+(defn oopsies-for-one-path [whole-value leaf-values original-path per-path-error-maps]
   (reduce (fn [so-far [leaf-value index]]
             (let [value-context {:whole-value whole-value
                                  :path original-path
@@ -34,7 +34,7 @@
 
     (fn [object-to-check]
       (reduce (fn [all-errors [original-path compiled-path per-path-error-maps]]
-                (into all-errors (results-for-one-path object-to-check
+                (into all-errors (oopsies-for-one-path object-to-check
                                                       (specter/compiled-select compiled-path object-to-check)
                                                       original-path
                                                       per-path-error-maps)))

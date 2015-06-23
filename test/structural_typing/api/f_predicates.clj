@@ -53,4 +53,4 @@
     result => (contains {:path [:x]
                          :leaf-value 8})
 
-    ((:error-explainer result) result) => ":x should be a member of (1 2 3); it is `8`"))
+    ((:predicate-explainer result) result) => ":x should be a member of (1 2 3); it is `8`"))
