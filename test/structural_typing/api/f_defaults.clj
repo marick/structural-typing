@@ -8,7 +8,7 @@
 (defn simple-path [path] (path-n-of path 0 1))
 
 
-(fact "friendly-function-name"
+(fact "friendly-predicate-name"
   (subject/friendly-function-name even?) => "even?"
   (subject/friendly-function-name (fn [])) => "your custom predicate"
   (subject/friendly-function-name :key) => ":key"
