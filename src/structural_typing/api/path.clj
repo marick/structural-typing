@@ -1,6 +1,7 @@
 (ns structural-typing.api.path
   (:require [com.rpl.specter :as specter]
             [clojure.pprint :refer [cl-format]]
+            [structural-typing.type-repo :as type-repo]
             [structural-typing.frob :as frob]))
 
 (def friendly-path-components
