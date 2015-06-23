@@ -1,6 +1,6 @@
 (ns structural-typing.api.predicates
   (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
-            [structural-typing.api.path :as path]))
+            [structural-typing.api.defaults :as default]))
 
 ;; Utilities
 
@@ -25,7 +25,7 @@
 (def must-exist
   "False iff a key/path does not exist or has value `nil`."
   (-> (compose-predicate (comp not nil?)
-                         #(format "%s must exist and be non-nil" (path/friendly-path %)))
+                         #(format "%s must exist and be non-nil" (default/friendly-path %)))
       (lift/lift* false)))
 
 
@@ -39,7 +39,7 @@
   (compose-predicate
    #(some (set args) %)
    #(format "%s should be a member of %s; it is `%s`",
-            (path/friendly-path %)
+            (default/friendly-path %)
             (pr-str args)
             (pr-str (:leaf-value %)))))
 

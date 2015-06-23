@@ -8,19 +8,6 @@
   (:use midje.sweet))
 
 
-(fact "friendly-name"
-  (subject/friendly-name even?) => "even?"
-  (subject/friendly-name (fn [])) => "your custom predicate"
-  (subject/friendly-name :key) => ":key"
-  (subject/friendly-name #'even?) => "even?"
-
-  (let [f ( ( (fn [a] (fn [b] (fn [c] (+ a b c)))) 1) 2)]
-    (subject/friendly-name f) => "your custom predicate")
-
-  (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
-    (subject/friendly-name f) => "my:tweedle-dum"))
-
-
 (fact "lifting a predicate"
   (facts "pure functions"
     (let [lifted (subject/lift even?)]

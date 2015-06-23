@@ -3,27 +3,10 @@
             [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
 
-(def ^:private friendly-path-components
+(def friendly-path-components
   {specter/ALL "ALL"})
 
 (def ALL specter/ALL)
-
-(defn friendly-path-component [component]
-  (cond (contains? friendly-path-components component)
-        (friendly-path-components component)
-
-        :else
-        (str component)))
-
-(defn friendly-path [{:keys [path leaf-index leaf-count] :as explanation}]
-  (let [tokens (map friendly-path-component path)
-        full-path (if (= 1 (count tokens))
-                    (first tokens)
-                    (cl-format nil "[~{~A~^ ~}]" tokens))]
-    (if (and leaf-index leaf-count (> leaf-count 1)) ; existence checks simplify tests
-      (format "%s[%s]" full-path leaf-index)
-      full-path)))
-             
 
 
 
