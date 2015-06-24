@@ -7,6 +7,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
+                 [marick/suchwow "2.2.0" :exclusions [org.clojure/clojure]]
                  [bouncer "0.3.2" :exclusions [org.clojure/clojure]]
                  [com.rpl/specter "0.5.2" :exclusions [org.clojure/clojure]]]
 
