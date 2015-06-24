@@ -30,7 +30,7 @@
         (sequential? description)
         (frob/mkmap:all-keys-with-value
          (mapcat expand-path-shorthand (map undo-singleton-path-convenience description))
-         (vector pred/must-exist))
+         (vector pred/required-key))
         
         :else
         (frob/boom "Unexpected type description: %s" description)))

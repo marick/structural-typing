@@ -23,9 +23,9 @@
 
 ;;; Predefined predicates
   
-;; `must-exist` is a special case. It is the only non-optional predicate. That is,
+;; `required-key` is a special case. It is the only non-optional predicate. That is,
 ;; it - and it alone - doesn't ignore a `nil` value and return true. 
-(def must-exist
+(def required-key
   "False iff a key/path does not exist or has value `nil`."
   (-> (compose-predicate (comp not nil?)
                          #(format "%s must exist and be non-nil" (default/friendly-path %)))
