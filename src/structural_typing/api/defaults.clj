@@ -81,7 +81,7 @@
   nil)
 
 
-(defn throwing-failure-handler 
+(defn throwing-error-handler 
   "In contrast to the default error handler, this one throws a
    `java.lang.Exception` whose message is the concatenation of the
    type-mismatch messages.

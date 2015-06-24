@@ -16,3 +16,6 @@
 
 (future-fact "(type/checked type-repo :point 1)) produces an error, not an exception")
 
+(future-fact "guarded predicates [(->> even? (only-when pos?))]")
+
+(future-fact "coercions")

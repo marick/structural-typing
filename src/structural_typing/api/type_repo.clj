@@ -4,13 +4,13 @@
             [structural-typing.api.defaults :as default]
             [structural-typing.frob :as frob]))
 
-(def ^:no-doc global-type-repo)
-
 (defprotocol TypeRepoLike
   (hold-type [self type-signifier type-descriptions])
-  (check-type [self type-signifier value])
+  (oopsies [self type-signifier candidate])
   (replace-success-handler [self handler])
-  (replace-error-handler [self handler]))
+  (replace-error-handler [self handler])
+  (success-handler [self])
+  (error-handler [self]))
 
 (defrecord TypeRepo [success-handler error-handler]
     TypeRepoLike
@@ -24,18 +24,19 @@
             (assoc-in [:canonicalized-type-descriptions type-signifier] canonicalized)
             (assoc-in [:compiled-types type-signifier] compiled))))
 
-    (check-type [self type-signifier value]
+    (oopsies [self type-signifier candidate]
       (if-let [checker (get-in self [:compiled-types type-signifier])]
-        (let [oopsies (checker value)]
-          (if (empty? oopsies)
-            (success-handler value)
-            (error-handler oopsies)))
+        (checker candidate)
         (frob/boom "There is no type `%s`" type-signifier)))
     
     (replace-error-handler [self f]
       (assoc self :error-handler f))
 
     (replace-success-handler [self f]
-      (assoc self :success-handler f)))
+      (assoc self :success-handler f))
+
+    (error-handler [self] (:error-handler self))
+    (success-handler [self] (:success-handler self)))
 
 (def empty-type-repo (->TypeRepo default/default-success-handler default/default-error-handler))
+
