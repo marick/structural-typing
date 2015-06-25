@@ -34,9 +34,11 @@
 
     (fn [object-to-check]
       (reduce (fn [all-errors [original-path compiled-path per-path-error-maps]]
-                (into all-errors (oopsies-for-one-path object-to-check
-                                                      (specter/compiled-select compiled-path object-to-check)
-                                                      original-path
-                                                      per-path-error-maps)))
+                (let [selected-values (specter/compiled-select compiled-path object-to-check)
+                      oopsies (oopsies-for-one-path object-to-check
+                                                    selected-values
+                                                    original-path
+                                                    per-path-error-maps)]
+                  (into all-errors oopsies)))
               []
               processed-triples))))
