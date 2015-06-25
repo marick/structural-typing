@@ -94,14 +94,14 @@
 
 (fact "type descriptions that refer into a type map"
   (let [type-map {:type (subject/canonicalize ..t.. [:a] {:a #'odd? :b #'even?})}]
-    (subject/canonicalize type-map (path/a :type)) => {[:a] [pred/required-key #'odd?]
-                                                          [:b] [#'even?]}
-
-    (subject/canonicalize type-map [ [:a (path/a :type) ]])  => {[:a :a] [pred/required-key]
-                                                                    [:a :b] [pred/required-key]}
+    (subject/canonicalize type-map (path/includes :type)) => {[:a] [pred/required-key #'odd?]
+                                                              [:b] [#'even?]}
+    
+    (subject/canonicalize type-map [ [:a (path/includes :type) ]])  => {[:a :a] [pred/required-key]
+                                                                        [:a :b] [pred/required-key]}
 
     (subject/canonicalize type-map
-                          {:a (path/a :type) }
+                          {:a (path/includes :type) }
                           {:a {:c #'pos?}}
                           [:c])
     => {[:a :a] [pred/required-key #'odd?]
@@ -119,46 +119,46 @@
                                                                  {:color #'string?})))]
     (fact "merging types"
       (fact "making a colored point by addition"
-        (subject/canonicalize type-map (path/a :Point) [:color] {:color #'string?})
+        (subject/canonicalize type-map (path/includes :Point) [:color] {:color #'string?})
         => {[:color] [pred/required-key #'string?]
             [:x] [pred/required-key #'integer?]
             [:y] [pred/required-key #'integer?]})
       
       (fact "or you can just merge types"
-        (subject/canonicalize type-map (path/a :Point) (path/a :Colored))
+        (subject/canonicalize type-map (path/includes :Point) (path/includes :Colored))
         => {[:color] [pred/required-key #'string?]
             [:x] [pred/required-key #'integer?]
             [:y] [pred/required-key #'integer?]})
       
       (fact "note that merging an optional type doesn't make it required"
-        (subject/canonicalize type-map (path/a :Point) (path/a :OptionalColored))
+        (subject/canonicalize type-map (path/includes :Point) (path/includes :OptionalColored))
         => {[:color] [#'string?]
             [:x] [pred/required-key #'integer?]
             [:y] [pred/required-key #'integer?]}))
 
     (fact "subtypes"
       (fact "making a colored point by addition"
-        (subject/canonicalize type-map (path/a :Point) [:color] {:color #'string?})
+        (subject/canonicalize type-map (path/includes :Point) [:color] {:color #'string?})
         => {[:color] [pred/required-key #'string?]
             [:x] [pred/required-key #'integer?]
             [:y] [pred/required-key #'integer?]}
       
         (fact "or you can just merge types"
-          (subject/canonicalize type-map (path/a :Point) (path/a :Colored))
+          (subject/canonicalize type-map (path/includes :Point) (path/includes :Colored))
           => {[:color] [pred/required-key #'string?]
               [:x] [pred/required-key #'integer?]
               [:y] [pred/required-key #'integer?]})
         
         (fact "note that merging an optional type doesn't make it required"
-          (subject/canonicalize type-map (path/a :Point) (path/a :OptionalColored))
+          (subject/canonicalize type-map (path/includes :Point) (path/includes :OptionalColored))
           => {[:color] [#'string?]
               [:x] [pred/required-key #'integer?]
               [:y] [pred/required-key #'integer?]}))
 
       (fact "a line has a start and an end, which are points"
         (subject/canonicalize type-map [:start :end]
-                                       {:start (path/a :Point)
-                                        :end (path/a :Point)})
+                                       {:start (path/includes :Point)
+                                        :end (path/includes :Point)})
         => {[:start] [pred/required-key]
             [:end] [pred/required-key]
             [:start :x] [pred/required-key #'integer?]
@@ -168,8 +168,8 @@
 
       (fact "a figure has a color and a set of points"
         (subject/canonicalize type-map [:points]
-                                       {[:points ALL] (path/a :Point)}
-                                       (path/a :Colored))
+                                       {[:points ALL] (path/includes :Point)}
+                                       (path/includes :Colored))
         => {[:color] [pred/required-key #'string?]
             [:points] [pred/required-key]
             [:points ALL :x] [pred/required-key #'integer?]
@@ -177,8 +177,8 @@
 
       (fact "noting that a figure has colored points"
         (subject/canonicalize type-map [:points]
-                                       {[:points ALL] (path/a :Point)}
-                                       {[:points ALL] (path/a :Colored)})
+                                       {[:points ALL] (path/includes :Point)}
+                                       {[:points ALL] (path/includes :Colored)})
         => {[:points] [pred/required-key]
             [:points ALL :color] [pred/required-key #'string?]
             [:points ALL :x] [pred/required-key #'integer?]
@@ -352,13 +352,13 @@
   (let [point {[:x] [#'even?], [:y] [#'odd?]}
         type-map {:Point point}]
 
-    (subject/expand-type-finders type-map (path/a :Point)) => point
-    (subject/expand-type-finders type-map [(path/a :Point)]) => [point]
-    (subject/expand-type-finders type-map [:a [:b (path/a :Point)]]) => [:a [:b point]]
+    (subject/expand-type-finders type-map (path/includes :Point)) => point
+    (subject/expand-type-finders type-map [(path/includes :Point)]) => [point]
+    (subject/expand-type-finders type-map [:a [:b (path/includes :Point)]]) => [:a [:b point]]
 
-    (subject/expand-type-finders type-map {:a (path/a :Point)}) => {:a point}
-    (subject/expand-type-finders type-map {:a {:b (path/a :Point)}}) => {:a {:b point}}
-    (subject/expand-type-finders type-map [:a {:b (path/a :Point)}]) => [:a {:b point}]))
+    (subject/expand-type-finders type-map {:a (path/includes :Point)}) => {:a point}
+    (subject/expand-type-finders type-map {:a {:b (path/includes :Point)}}) => {:a {:b point}}
+    (subject/expand-type-finders type-map [:a {:b (path/includes :Point)}]) => [:a {:b point}]))
 
 
 

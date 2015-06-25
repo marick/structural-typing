@@ -15,12 +15,11 @@
 (defn type-finder? [x]
   (= type-finder-key (type x)))
 
-(defn a [type-key]
+(defn includes [type-key]
   (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
   (-> (fn type-finder [type-map]
         (if-let [result (get type-map type-key)]
           result
           (frob/boom "%s does not name a type" type-key)))
       (with-meta {:type type-finder-key})))
-(def an a)
 

@@ -9,8 +9,8 @@
   (oopsies [self type-signifier candidate])
   (replace-success-handler [self handler])
   (replace-error-handler [self handler])
-  (success-handler [self])
-  (error-handler [self]))
+  (the-success-handler [self])
+  (the-error-handler [self]))
 
 (defrecord TypeRepo [success-handler error-handler]
     TypeRepoLike
@@ -35,8 +35,8 @@
     (replace-success-handler [self f]
       (assoc self :success-handler f))
 
-    (error-handler [self] (:error-handler self))
-    (success-handler [self] (:success-handler self)))
+    (the-error-handler [self] (:error-handler self))
+    (the-success-handler [self] (:success-handler self)))
 
 (def empty-type-repo (->TypeRepo default/default-success-handler default/default-error-handler))
 

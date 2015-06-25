@@ -35,7 +35,7 @@
 ;;   [type-signifier f]
 ;;   (swap! stages/repo-type-repo type/coercion type-signifier f))
 
-(defn named! 
+(defn type! 
   "Modifies the global type repo to define the type `type-signifier` as being
    a map or record described by the `type-descriptions`.
    See also [[named]].

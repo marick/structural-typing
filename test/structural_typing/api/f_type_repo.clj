@@ -21,7 +21,7 @@
 (fact "using previously-defined types"
   (let [repo (-> subject/empty-type-repo
                  (subject/hold-type :A [ {:a integer?} ])
-                 (subject/hold-type :AB [ (path/an :A) [:b] {:b string?} ])
+                 (subject/hold-type :AB [ (path/includes :A) [:b] {:b string?} ])
                  (subject/replace-error-handler default/explanations))]
     (subject/oopsies repo :AB {:b "s"}) => empty?
     (subject/oopsies repo :AB {:a 1 :b "s"}) => empty?

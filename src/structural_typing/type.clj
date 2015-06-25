@@ -1,6 +1,5 @@
 (ns structural-typing.type
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm)."
-  (:refer-clojure :exclude [instance?])
   (:require [such.immigration :as immigrate])
   (:require [structural-typing.frob :as frob]
             [structural-typing.api.type-repo :as repo]
@@ -9,7 +8,7 @@
 (immigrate/selection 'structural-typing.api.type-repo
                      '[empty-type-repo replace-error-handler replace-success-handler])
 (immigrate/selection 'structural-typing.api.path
-                     '[a an ALL])
+                     '[includes ALL])
 (immigrate/selection 'structural-typing.api.predicates
                      '[show-as explain-with required-key member])
 (immigrate/selection 'structural-typing.api.defaults
@@ -36,8 +35,10 @@
   ([type-repo type-signifier candidate]
      (let [oopsies (all-oopsies type-repo type-signifier candidate)]
        (if (empty? oopsies)
-         ((repo/success-handler type-repo) candidate)
-         ((repo/error-handler type-repo) oopsies))))
+         ((repo/the-success-handler type-repo) candidate)
+         (->> oopsies
+              (sort-by :leaf-index)
+              ((repo/the-error-handler type-repo))))))
 
   ([type-signifier candidate]
      (checked @global-type/repo type-signifier candidate)))
@@ -54,20 +55,27 @@
      (repo/hold-type type-repo type-signifier type-descriptions)))
 
   
-(defn instance? 
+(defn described-by? 
   "Return `true` iff the map or record `candidate` typechecks against
    the type named `type-signifier` (or vector of signifiers).
 
    With three arguments, the check is against the `type-repo`. If `type-repo` is
    omitted, the global repo is used.
    
-       (type/instance? :Point candidate)
-       (type/instance? [:Colorful :Point] candidate)
+       (type/described-by? :Point candidate)
+       (type/described-by? [:Colorful :Point] candidate)
 "
   ([type-repo type-signifier candidate]
      (empty? (all-oopsies type-repo type-signifier candidate)))
   ([type-signifier candidate]
-     (instance? @global-type/repo type-signifier candidate)))
+     (described-by? @global-type/repo type-signifier candidate)))
+
+
+(def required-paths 
+  "Used to create an argument to `named`. All of the elements are keys or paths
+   that are required (as with `[required-key`) to be present in any matching
+   candidate. This is exactly the same thing as putting the arguments in a vector."
+vector)
 
 ;; (defn coercion 
 ;;   "Register function `f` as one that can coerce a map or record into 
