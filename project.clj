@@ -7,9 +7,9 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "2.2.0" :exclusions [org.clojure/clojure]]
                  [bouncer "0.3.2" :exclusions [org.clojure/clojure]]
-                 [com.rpl/specter "0.5.2" :exclusions [org.clojure/clojure]]]
+                 [potemkin "0.3.13"]
+                 [com.rpl/specter "0.5.4" :exclusions [org.clojure/clojure]]]
 
   :profiles {:dev {:dependencies [[midje "1.7.0-beta1" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
@@ -17,7 +17,7 @@
              :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
              :1.5.1 {:dependencies [[org.clojure/clojure "1.5.1"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-beta3"]]}
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-RC1"]]}
              }
 
   :test-paths ["test" "examples"]

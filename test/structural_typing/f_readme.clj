@@ -1,6 +1,7 @@
 (ns structural-typing.f-readme
-  (:use [structural-typing type global-type])
-  (:use midje.sweet))
+ (:require [structural-typing.type :refer :all]
+           [structural-typing.global-type :refer :all])
+ (:use midje.sweet))
 
 (start-over!)
 
@@ -16,7 +17,7 @@
   (checked :Point {:x "one" :y "two"}) => (throws))
 
 
-
+ 
 (start-over!)
 (type! :Point {:x integer? :y integer?})
 

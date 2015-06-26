@@ -1,18 +1,31 @@
 (ns structural-typing.type
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm)."
-  (:require [such.immigration :as immigrate])
-  (:require [structural-typing.frob :as frob]
-            [structural-typing.api.type-repo :as repo]
-            [structural-typing.global-type :as global-type]))
+  (:require [structural-typing.api.type-repo :as repo]
+            [structural-typing.global-type :as global-type]
+            [potemkin.namespaces :as ns]))
 
-(immigrate/selection 'structural-typing.api.type-repo
-                     '[empty-type-repo replace-error-handler replace-success-handler])
-(immigrate/selection 'structural-typing.api.path
-                     '[includes ALL])
-(immigrate/selection 'structural-typing.api.predicates
-                     '[show-as explain-with required-key member])
-(immigrate/selection 'structural-typing.api.defaults
-                     '[throwing-error-handler default-error-handler default-success-handler])
+(ns/import-vars [structural-typing.api.predicates
+                 show-as
+                 explain-with
+                 required-key
+                 member])
+
+(ns/import-vars [structural-typing.api.type-repo
+                 empty-type-repo
+                 replace-error-handler
+                 replace-success-handler])
+      
+(ns/import-vars [structural-typing.api.path
+                 includes
+                 ALL])
+
+(ns/import-vars [structural-typing.api.defaults
+                 throwing-error-handler
+                 default-error-handler
+                 default-success-handler])
+
+
+;;;; 
 
 (defn- all-oopsies [type-repo one-or-more candidate]
   (let [signifiers (if (sequential? one-or-more) one-or-more (vector one-or-more))]
