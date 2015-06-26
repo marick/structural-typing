@@ -41,7 +41,7 @@ functions are then used like this:
 
 ... (checked :Point incoming-data) ...
 
-```e
+```
 
 For examples to try in a repl, though, it's convenient to use the
 single implicit global repo. Like this:
@@ -67,8 +67,8 @@ user=> (checked :Point {:x "one" :y "two"})
 => nil
 ```
 
-By default, type errors are printed as with `println`. That can be
-changed; for example, to throw an exception:
+By default, type errors are printed as with `println`. That's easily
+changed. For example, to throw an exception, do this:
 
 ```clojure
 user=> (on-error! throwing-error-handler)
@@ -93,10 +93,10 @@ user=> (on-error! default-error-handler)
 ```
 
 
-The named `checked` is a bit peculiar. That's because it's intended to be used in this sort of pipeline:
+The name `checked` is a bit peculiar. That's because it's intended to be used in this sort of pipeline:
 
 ```clojure
-(defn handler [payload]
+(defn amqp-handler [payload]
   (some-> (type/checked :Point payload)
           frob
           twiddle
@@ -104,10 +104,10 @@ The named `checked` is a bit peculiar. That's because it's intended to be used i
 ```
 
 You place type checks at important boundaries, which pass along
-type-checked values to interior functions. When the candidate value
+type-checked values to interior functions. When the candidate payload
 fails the type check, `checked` returns `nil`, so the pipeline is
 short-circuited. (Note: if you roll monadically, you can make success
-and failure return Either monads. See [TBD].)
+and failure return `Either` values. See [TBD].)
 
 In the success case, `checked` returns the unmodified original value:
 
@@ -169,7 +169,7 @@ user=> (checked :Point {:x "1"})
 ```
 
 There is an alternate notation that's shorter and perhaps clearer for
-many cases. It lists the the required keys in a vector, separately
+many cases. It lists the required keys in a vector, separately
 from the map of keys to predicates. It looks like this:
 
 ```clojure
@@ -222,7 +222,7 @@ user=> (checked :ColorfulPoint {:y 1 :color 1})
 
 ```
 
-If you'll have many colored objects, you can create a `:Colorful` "mixin" and then use it:
+If you'll have many colored objects, you can create a `:Colorful` "[mixin](https://en.wikipedia.org/wiki/Mixin)" and then use it:
 
 ```clojure
 user=> (type! :Colorful {:color [required-key string?]})
@@ -264,9 +264,8 @@ user=> (type! :Figure (includes :Colorful)
                        [:points ALL :y] [required-key integer?]})
 ```
 
-You see that you can supply a *path* to a key, not just a
-key. Further, that path can include `ALL`, which stands in for all
-elements of a collection.
+The vector describes a *path* into a nested structure. That path can
+include `ALL`, which stands in for all elements of a collection.
 
 The `ok-figure` matches that type:
 
@@ -285,8 +284,8 @@ user=> (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]})
 => nil
 ```
 
-Notice that the paths appear in the output. Notice further that the
-paths are suffixed with an index that helps you identify which point
+Notice that the paths appear in the output, and that they
+are suffixed with an index to help you identify which value
 was in error.
 
 Here's an example of the output for a figure that has a point instead of an array of points:
@@ -301,7 +300,10 @@ user=> (checked :Figure {:points {:x 1 :y 2}})
 => nil
 ```
 
-It's not as good a description of the real problem as you'd hope for, but it's something.
+It's not as good a description of the real problem as you'd hope for,
+but it's something. This output can be explained when you realize that
+"ALL" of `{:x 1, :y 2}` is equal to `[[:x 1] [:y 2]]` (as is the case
+whenever you map over a hashmap).
 
 Other flat-out wrong candidates return better errors:
 
@@ -334,7 +336,7 @@ I first used type checking of this sort at
 [GetSet](http://getset.com), though this version is way
 better. (Sorry, GetSet!)
 
-[Specter](https://github.com/nathanmarz/specter) does the work of traversing structures.
+[Specter](https://github.com/nathanmarz/specter) does the work of traversing structures. [Potemkin](https://github.com/ztellman/potemkin) gave me a function I couldn't write correctly myself.
 
 ## Contributing
 
