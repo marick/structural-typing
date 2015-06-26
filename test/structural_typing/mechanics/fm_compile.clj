@@ -95,5 +95,26 @@
                                    :y "2"}}))
       => (just "[:point :x] should be `integer?`; it is `\"1\"`"
                "[:point :y] should be `integer?`; it is `\"2\"`"
-               :in-any-order))))
+               :in-any-order)))
 
+  (fact "a path that can't be applied produces an error"
+    (let [type (subject/compile-type (canonicalize {} [[:x path/ALL :y]]))]
+      (type {:x 1}) => (just (contains {:leaf-count 1 :leaf-index 0
+                                        :leaf-value nil
+                                        :path [:x path/ALL :y]
+                                        :whole-value {:x 1}}))
+      (default/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
+      (default/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
+
+      (fact "these are fine, though"
+        (default/explanations (type {:x [1]})) => (just "[:x ALL :y] must exist and be non-nil")
+        (type {:x []}) => empty?)
+
+      (future-fact "A path containing an array complains if prefix doesn't exist"
+        ;; This is equivalent of changing the call to canonicalize above to 
+        ;; (canonicalize {} [[:x path/ALL :y] [:x]]))]
+        (default/explanations (type {})) => (just "must be present and non-nil"))
+
+      (fact "an unfortunate side effect of strings being collections"
+        (default/explanations (type {:x "string"}))
+        => (contains "[:x ALL :y][0] must exist and be non-nil")))))
