@@ -1,5 +1,5 @@
 (defproject marick/structural-typing "0.4.0"
-  :description "Extended structural typing for Clojure"
+  :description "Structural typing for Clojure"
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
   :license {:name "The Unlicense"
@@ -7,7 +7,6 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [bouncer "0.3.2" :exclusions [org.clojure/clojure]]
                  [potemkin "0.3.13"]
                  [com.rpl/specter "0.5.4" :exclusions [org.clojure/clojure]]]
 
