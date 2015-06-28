@@ -69,7 +69,23 @@
 
 (defn explanations 
   "Convert a collection of [[oopsies]] into a collection of explanatory strings.
-   See [[explanation]]."
+   See [[explanation]]. Note: processing is eager, not lazy."
   [oopsies]
   (map explanation oopsies))
 
+(defn mkfn:apply-to-each-explanation
+  "Checking a single candidate may result in multiple errors ([[oopsies]]). 
+   The generated function applies the `handler` to each oopsie's [[explanation]] in
+   turn."
+  [handler]
+  (fn [oopsies]
+    (doseq [e (explanations oopsies)]
+      (handler e))))
+  
+(defn mkfn:apply-to-explanation-collection
+  "Checking a single candidate may result in multiple errors ([[oopsies]]). 
+   The generated function applies the `handler` once to a collection of all the oopsie's
+   [[explanations]]."
+  [handler]
+  (fn [oopsies]
+    (handler (explanations oopsies))))

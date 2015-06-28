@@ -20,7 +20,7 @@
   "The default success handler just returns the original candidate structure passed to `checked`."
   identity)
 
-(defn default-error-handler
+(def default-error-handler
   "This error handler takes the output of type checking (a sequence of [[oopsies]]) and prints
    each one's explanation to standard output. It returns
    `nil`, allowing constructs like this:
@@ -29,11 +29,7 @@
                 (assoc :goodness true)
                 ...)
 "
-  [oopsies]
-  (doseq [s (custom/explanations oopsies)]
-    (println s))
-  nil)
-
+  (custom/mkfn:apply-to-each-explanation println))
 
 (defn throwing-error-handler 
   "In contrast to the default error handler, this one throws a
