@@ -1,13 +1,16 @@
 (ns structural-typing.api.defaults
-  "User-visible default behaviors, plus the functions used to construct them."
+  "User-visible default behaviors, plus the functions used to construct them. (The latter will be of use to people changing default behavior.)"
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [clojure.repl :as repl])
   (:require [structural-typing.api.path :as path]))
 
-(declare default-predicate-explainer default-success-handler default-explanation-handler)
-
-(defn friendly-function-name [f]
+(defn friendly-function-name
+  "The argument is probably a function. Produce a string that will help a
+   human understand which chunk o' code is being referred to. Can also take
+   vars - potentially useful when the raw function is befuddling. For other
+   cases, like multimethods, it just punts to `str`."
+  [f]
   (cond (var? f)
         (str (:name (meta f)))
 
@@ -42,33 +45,43 @@
     (first components)
     (cl-format nil "[~{~A~^ ~}]" components)))
 
-(defn friendly-path [{:keys [path] :as oopsie}]
+(defn friendly-path
+  "Convert the path into a string, with Specter components printed nicely and
+   an index appended if needed."
+  [{:keys [path] :as oopsie}]
   (->> path
        (map friendly-path-component)
        perhaps-simplified-path
        (perhaps-indexed oopsie)))
 
-(defn explanation [oopsie]
+(defn explanation
+  "Convert an oopsie into a string explaining the error,
+   according to the `:predicate-explainer` within it."
+  [oopsie]
   ((:predicate-explainer oopsie) oopsie))
 
-(defn explanations [oopsies]
+(defn explanations 
+  "Convert a collection of oopsies into a collection of explanatory strings."
+  [oopsies]
   (map explanation oopsies))
 
 
 ;;; 
 
-(defn default-predicate-explainer [{:keys [predicate-string leaf-value] :as oopsie}]
+(defn default-predicate-explainer
+  "Converts an oopsie into a string of the form \"%s should be %s; it is %s\"."
+  [{:keys [predicate-string leaf-value] :as oopsie}]
   (format "%s should be `%s`; it is `%s`"
           (friendly-path oopsie)
           predicate-string
           (pr-str leaf-value)))
 
 (def default-success-handler 
-  "The default success handler just returns the original value that was checked."
+  "The default success handler just returns the original value passed to `checked`."
   identity)
 
 (defn default-error-handler
-  "This error handler prints each error's explanation on a separate line. It returns
+  "This error handler takes the output of type checking (a sequence of \"oopsies\") and prints each one's explanation on a separate line. It returns
    `nil`, allowing constructs like this:
    
         (some-> (type/checked :frobnoz x)

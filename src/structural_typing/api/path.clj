@@ -3,19 +3,25 @@
             [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
 
-(def friendly-path-components
+(def ^:no-doc friendly-path-components
   {specter/ALL "ALL"})
 
-(def ALL specter/ALL)
+(def ALL 
+  "Use this in a path to select all values of a collection."
+  specter/ALL)
 
 
 
 (def ^:private type-finder-key ::type-finder)
 
-(defn type-finder? [x]
+(defn ^:no-doc type-finder? [x]
   (= type-finder-key (type x)))
 
-(defn includes [type-key]
+(defn includes
+  "During creation of a type by `named`, this is replaced with the content the type-key refers to.
+   The exact meaning depends on whether it's used in a path, as the value of a path, or
+   as an entire argument itself. See the wiki documentation."
+  [type-key]
   (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
   (-> (fn type-finder [type-map]
         (if-let [result (get type-map type-key)]

@@ -1,4 +1,4 @@
-(ns structural-typing.frob
+(ns ^:no-doc structural-typing.frob
   "General-purpose functions for frobbing data in various ways.")
 
 (defn boom [fmt & args]

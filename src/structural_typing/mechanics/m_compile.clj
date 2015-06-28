@@ -1,4 +1,4 @@
-(ns structural-typing.mechanics.m-compile
+(ns ^:no-doc structural-typing.mechanics.m-compile
   (:require [blancas.morph.monads :as e]
             [structural-typing.api.predicates :as pred]
             [com.rpl.specter :as specter]

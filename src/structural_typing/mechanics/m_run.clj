@@ -1,4 +1,4 @@
-(ns structural-typing.mechanics.m-run
+(ns ^:no-doc structural-typing.mechanics.m-run
   (:require [blancas.morph.monads :as e])
   (:require [structural-typing.mechanics.m-lifting-predicates :as pred]))
 
