@@ -2,7 +2,7 @@
   (:require [blancas.morph.monads :as e]
             [structural-typing.api.predicates :as pred]
             [com.rpl.specter :as specter]
-            [structural-typing.api.defaults :as default]
+            [structural-typing.api.custom :as custom]
             [structural-typing.mechanics.m-lifting-predicates :refer [lift]]))
 
 (defn compile-predicates [preds]
@@ -35,7 +35,7 @@
     (assoc :predicate-explainer (constantly 
                                  (format "%s is not a path into `%s`"
                                          ;; ick.
-                                         (default/friendly-path base-oopsie)
+                                         (custom/friendly-path base-oopsie)
                                          (pr-str whole-value))))
     vector)))
 

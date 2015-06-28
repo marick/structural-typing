@@ -1,11 +1,13 @@
 (ns ^:no-doc structural-typing.mechanics.m-lifting-predicates
   (:require [blancas.morph.monads :as e]
             [structural-typing.api.path :as path]
-            [structural-typing.api.defaults :as defaults]))
+            [structural-typing.api.defaults :as defaults]
+            [structural-typing.api.custom :as custom]
+            ))
 
 (letfn [(gm [f k default] (get (meta f) k default))]
   (defn get-predicate [f]        (gm f ::original-predicate f))
-  (defn get-predicate-string [f] (gm f ::predicate-string (defaults/friendly-function-name f)))
+  (defn get-predicate-string [f] (gm f ::predicate-string (custom/friendly-function-name f)))
   (defn get-explainer [f]        (gm f ::predicate-explainer defaults/default-predicate-explainer)))
 
 (letfn [(vm [f k v] (vary-meta f assoc k v))
@@ -14,7 +16,7 @@
   (defn stash-defaults [f]
     (-> f
         (ensure-meta ::original-predicate f)
-        (ensure-meta ::predicate-string (defaults/friendly-function-name f))))
+        (ensure-meta ::predicate-string (custom/friendly-function-name f))))
 
   (defn replace-predicate-string [f name] (vm f ::predicate-string name))
   (defn replace-explainer [f explainer] (vm f ::predicate-explainer explainer)))

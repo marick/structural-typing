@@ -3,7 +3,7 @@
             [structural-typing.mechanics.m-run :as run]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
-            [structural-typing.api.defaults :as default]
+            [structural-typing.api.custom :as custom]
             [structural-typing.mechanics.m-canonical :refer [canonicalize]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
@@ -13,22 +13,22 @@
   (let [input {:leaf-value 1 :whole-value {:x 1} :path [:x]}
         oopsies ((subject/compile-predicates [even? odd?]) input)]
     oopsies => (just (contains (assoc input :predicate (exactly even?))))
-    (default/explanations oopsies) => [":x should be `even?`; it is `1`"])
+    (custom/explanations oopsies) => [":x should be `even?`; it is `1`"])
 
   (let [input {:leaf-value -3 :whole-value {[:x :y] -3} :path [:x :y]}
         oopsies ((subject/compile-predicates [pos? #'even?]) input)]
     oopsies => (just (contains (assoc input :predicate (exactly pos?)))
                     (contains (assoc input :predicate (exactly #'even?))))
-    (default/explanations oopsies) => ["[:x :y] should be `pos?`; it is `-3`"
+    (custom/explanations oopsies) => ["[:x :y] should be `pos?`; it is `-3`"
                           "[:x :y] should be `even?`; it is `-3`"])
 
   (let [input {:leaf-value -3 :whole-value {[:x :y] -3} :path [:x :y]}
         oopsies ((subject/compile-predicates [(->> pos? (pred/show-as "POS!"))]) input)]
-    (default/explanations oopsies) => ["[:x :y] should be `POS!`; it is `-3`"])
+    (custom/explanations oopsies) => ["[:x :y] should be `POS!`; it is `-3`"])
 
   (let [input {:leaf-value "string" :whole-value {[:x] "string"} :path [:x]}
         oopsies ((subject/compile-predicates [pos?]) input)]
-    (default/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
+    (custom/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 
 (fact "intermediate step - a function that returns all the errors for one path"
@@ -44,39 +44,39 @@
 
 (fact "compiling a whole type"
   (fact "Simple case"
-    (default/explanations ((subject/compile-type (canonicalize {} [:a])) {}))
+    (custom/explanations ((subject/compile-type (canonicalize {} [:a])) {}))
     => (just ":a must exist and be non-nil"))
 
   (fact "An optional value"
     (let [odd-if-exists (subject/compile-type (canonicalize {} {:a odd?}))]
-      (default/explanations (odd-if-exists {})) => empty?
-      (default/explanations (odd-if-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
-      (default/explanations (odd-if-exists {:a 3})) => empty?)
+      (custom/explanations (odd-if-exists {})) => empty?
+      (custom/explanations (odd-if-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
+      (custom/explanations (odd-if-exists {:a 3})) => empty?)
 
     (fact "Note the difference from a required value"
       (let [odd-and-exists (subject/compile-type (canonicalize {} [:a] {:a odd?}))]
-        (default/explanations (odd-and-exists {})) => (just ":a must exist and be non-nil")
-        (default/explanations (odd-and-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
-        (default/explanations (odd-and-exists {:a 3})) => empty?)))
+        (custom/explanations (odd-and-exists {})) => (just ":a must exist and be non-nil")
+        (custom/explanations (odd-and-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
+        (custom/explanations (odd-and-exists {:a 3})) => empty?)))
 
   (fact "a path"
     (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
-      (default/explanations (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
-      (default/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
-      (default/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
-      (default/explanations (odd-and-exists {:a {:b 3}})) => empty?))
+      (custom/explanations (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
+      (custom/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
+      (custom/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
+      (custom/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
   (fact "a path"
     (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
-      (default/explanations (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
-      (default/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
-      (default/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
-      (default/explanations (odd-and-exists {:a {:b 3}})) => empty?))
+      (custom/explanations (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
+      (custom/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
+      (custom/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
+      (custom/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
   (fact "a path with multiple values (ALL)"
     (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
                                                    {[:points path/ALL :x] even?}))]
-      (default/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
+      (custom/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
       => (just "[:points ALL :x][0] should be `even?`; it is `1`"
                "[:points ALL :x][2] should be `even?`; it is `3`"
                "[:points ALL :x][3] must exist and be non-nil"
@@ -87,10 +87,10 @@
     (let [type (subject/compile-type (canonicalize {} {:color string?
                                                        :point {:x integer?
                                                                :y integer?}}))]
-      (default/explanations (type {})) => empty? ; all optional
-      (default/explanations (type {:color "green"})) => empty?
-      (default/explanations (type {:color 1})) => (just ":color should be `string?`; it is `1`")
-      (default/explanations (type {:color "green"
+      (custom/explanations (type {})) => empty? ; all optional
+      (custom/explanations (type {:color "green"})) => empty?
+      (custom/explanations (type {:color 1})) => (just ":color should be `string?`; it is `1`")
+      (custom/explanations (type {:color "green"
                            :point {:x "1"
                                    :y "2"}}))
       => (just "[:point :x] should be `integer?`; it is `\"1\"`"
@@ -103,18 +103,18 @@
                                         :leaf-value nil
                                         :path [:x path/ALL :y]
                                         :whole-value {:x 1}}))
-      (default/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
-      (default/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
+      (custom/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
+      (custom/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
 
       (fact "these are fine, though"
-        (default/explanations (type {:x [1]})) => (just "[:x ALL :y] must exist and be non-nil")
+        (custom/explanations (type {:x [1]})) => (just "[:x ALL :y] must exist and be non-nil")
         (type {:x []}) => empty?)
 
       (future-fact "A path containing an array complains if prefix doesn't exist"
         ;; This is equivalent of changing the call to canonicalize above to 
         ;; (canonicalize {} [[:x path/ALL :y] [:x]]))]
-        (default/explanations (type {})) => (just "must be present and non-nil"))
+        (custom/explanations (type {})) => (just "must be present and non-nil"))
 
       (fact "an unfortunate side effect of strings being collections"
-        (default/explanations (type {:x "string"}))
+        (custom/explanations (type {:x "string"}))
         => (contains "[:x ALL :y][0] must exist and be non-nil")))))

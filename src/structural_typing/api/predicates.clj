@@ -5,7 +5,7 @@
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
             [structural-typing.frob :as frob]
-            [structural-typing.api.defaults :as default]))
+            [structural-typing.api.custom :as custom]))
 
 ;; Utilities
 
@@ -43,7 +43,7 @@
   "False iff a key/path does not exist or has value `nil`. This is the only
    predicate that is not considered optional."
   (-> (compose-predicate (comp not nil?)
-                         #(format "%s must exist and be non-nil" (default/friendly-path %)))
+                         #(format "%s must exist and be non-nil" (custom/friendly-path %)))
       (lift/lift* false)))
 
 
@@ -58,7 +58,7 @@
   (compose-predicate
    #(some (set args) %)
    #(format "%s should be a member of %s; it is `%s`",
-            (default/friendly-path %)
+            (custom/friendly-path %)
             (pr-str args)
             (pr-str (:leaf-value %)))))
 

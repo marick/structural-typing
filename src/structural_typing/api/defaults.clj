@@ -1,88 +1,18 @@
 (ns structural-typing.api.defaults
-  "User-visible default behaviors, plus the functions used to construct them. (The latter will be of use to people changing default behavior.)
+  "User-visible default behaviors.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [clojure.repl :as repl])
-  (:require [structural-typing.api.path :as path]))
-
-(defn friendly-function-name
-  "The argument is probably a function. Produce a string that will help a
-   human understand which chunk o' code is being referred to. Can also take
-   vars - potentially useful when the raw function is befuddling. For other
-   cases, like multimethods, it just punts to `str`.
-
-       (d/friendly-function-name even?) => \"even?\"
-       (d/friendly-function-name #'even?) => \"even?\"
-"
-
-
-  [f]
-  (cond (var? f)
-        (str (:name (meta f)))
-
-        (fn? f)
-        (let [basename (-> (str f)
-                             repl/demunge
-                             (str/split #"/")
-                             last
-                             (str/split #"@")
-                             first
-                             (str/split #"--[0-9]+$")
-                             first)]
-          (if (= basename "fn") "your custom predicate" basename))
-
-        :else
-        (str f)))
-
-(defn- friendly-path-component [component]
-  (cond (contains? path/friendly-path-components component)
-        (path/friendly-path-components component)
-
-        :else
-        (str component)))
-
-(defn- perhaps-indexed [{:keys [leaf-index leaf-count]} string-so-far]
-  (if (and leaf-index leaf-count (> leaf-count 1)) ; existence checks simplify tests
-    (format "%s[%s]" string-so-far leaf-index)
-    string-so-far))
-
-(defn- perhaps-simplified-path [components]
-  (if (= 1 (count components))
-    (first components)
-    (cl-format nil "[~{~A~^ ~}]" components)))
-
-(defn friendly-path
-  "Convert the path into a string, with Specter components printed nicely and
-   an index appended if needed."
-  [oopsie]
-  (->> oopsie
-       :path
-       (map friendly-path-component)
-       perhaps-simplified-path
-       (perhaps-indexed oopsie)))
-
-(defn explanation
-  "Convert an [[oopsie]] into a string explaining the error,
-   using the `:predicate-explainer` within it."
-  [oopsie]
-  ((:predicate-explainer oopsie) oopsie))
-
-(defn explanations 
-  "Convert a collection of [[oopsies]] into a collection of explanatory strings.
-   See [[explanation]]."
-  [oopsies]
-  (map explanation oopsies))
-
-
-;;; 
+  (:require [structural-typing.api.path :as path]
+            [structural-typing.api.custom :as custom]))
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
   [{:keys [predicate-string leaf-value] :as oopsie}]
   (format "%s should be `%s`; it is `%s`"
-          (friendly-path oopsie)
+          (custom/friendly-path oopsie)
           predicate-string
           (pr-str leaf-value)))
 
@@ -100,7 +30,7 @@
                 ...)
 "
   [oopsies]
-  (doseq [s (explanations oopsies)]
+  (doseq [s (custom/explanations oopsies)]
     (println s))
   nil)
 
@@ -116,7 +46,7 @@
           (type/replace-error-handler type-repo type/throwing-failure-handler) ; local repo
 "
   [oopsies]
-  (throw (new Exception (str/join "\n" (explanations oopsies)))))
+  (throw (new Exception (str/join "\n" (custom/explanations oopsies)))))
 
 
 
