@@ -321,6 +321,7 @@ user=> (checked :Figure {:points 3})
 
 * Coercion and migration
 * Friendly printing for Specter operators other than ALL.
+* Predicates that apply to more than one value
 * Use for collection checking in Midje 2
 * Accurate indexes for multiple uses of ALL (etc.)
 
