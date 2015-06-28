@@ -10,7 +10,11 @@
   {specter/ALL "ALL"})
 
 (def ALL 
-  "Use this in a path to select all values of a collection."
+  "Use this in a path to select all values of a 
+   collection.
+      
+       (type! :Figure {:points ALL (type/include :Point)})
+"
   specter/ALL)
 
 
@@ -21,19 +25,21 @@
   (= type-finder-key (type x)))
 
 (defn includes
-  "During creation of a type by `named`, this is replaced with the content the type-key refers to.
-   The exact meaning depends on whether it's used in a path, as the value of a path, or
-   as an entire argument itself. See the wiki documentation."
-  [type-key]
-  (when-not (keyword? type-key) (frob/boom "%s is supposed to be a keyword." type-key))
+  "During creation of a type by [[named]] or [[type!]], a call to
+   `includes` is replaced with the type the `type-signifier` refers
+   to.  The exact meaning of that replacement depends on whether it's used in a path, as
+   the value of a path, or as an entire argument itself. See the wiki
+   documentation."
+  [type-signifier]
+  (when-not (keyword? type-signifier) (frob/boom "%s is supposed to be a keyword." type-signifier))
   (-> (fn type-finder [type-map]
-        (if-let [result (get type-map type-key)]
+        (if-let [result (get type-map type-signifier)]
           result
-          (frob/boom "%s does not name a type" type-key)))
+          (frob/boom "%s does not name a type" type-signifier)))
       (with-meta {:type type-finder-key})))
 
 (def required-paths 
-  "Used to create an argument to `named`. All of the elements are keys or paths
+  "Used to create an argument to [[named]] or [[type!]]. All of the elements are keys or paths
    that are required (as with [[required-key]]) to be present in any matching
    candidate. This is exactly the same thing as putting the arguments in a vector.
 

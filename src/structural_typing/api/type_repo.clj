@@ -43,5 +43,7 @@
     (the-error-handler [type-repo] (:error-handler type-repo))
     (the-success-handler [type-repo] (:success-handler type-repo)))
 
-(def empty-type-repo (->TypeRepo default/default-success-handler default/default-error-handler))
+(def empty-type-repo
+  "A type repo that contains no types and uses the default success and error handlers."
+  (->TypeRepo default/default-success-handler default/default-error-handler))
 

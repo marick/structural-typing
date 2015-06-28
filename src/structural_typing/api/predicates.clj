@@ -1,6 +1,6 @@
 (ns structural-typing.api.predicates
-  "Functions used to construct predicates that explain themselves, plus some often-useful
-   predicates of that sort.
+  "Functions used to construct predicates that explain themselves, plus some
+   frequently useful predicates of that sort.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
@@ -9,12 +9,13 @@
 
 ;; Utilities
 
-(defn show-as [name predicate]
+(defn show-as 
   "Associate the given `name` string with the predicate for use when predicate failures
    are explained.
      
          (->> (partial >= 3) (show-as \"less than 3\"))
 "
+  [name predicate]
   (when (fn? name) (frob/boom "First arg is a function. You probably got your args reversed."))
   (when-not (string? name) (frob/boom "First arg must be a string: %s %s" name predicate))
   (-> predicate
@@ -23,7 +24,7 @@
 
 (defn explain-with
   "After the `predicate` fails, the failure will need to be explained. Arrange for
-   the `explainer` function to be called with the \"oopsie\" that results from the
+   the `explainer` function to be called with the [[oopsie]] that results from the
    failure."
   [explainer predicate]
   (-> predicate
