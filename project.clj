@@ -1,5 +1,5 @@
 (defproject marick/structural-typing "0.4.0"
-  :description "Structural typing for Clojure"
+  :description "Structural typing for Clojure. Generally useful when you want to define predicates to apply in bulk to parts of structures."
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
   :license {:name "The Unlicense"

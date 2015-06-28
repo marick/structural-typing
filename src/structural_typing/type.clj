@@ -1,5 +1,7 @@
 (ns structural-typing.type
-  "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm)."
+  "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
+
+  Most of the work is done by `structural-typing.api` functions, which are re-exported here."
   (:require [structural-typing.api.type-repo :as repo]
             [structural-typing.global-type :as global-type]
             [potemkin.namespaces :as ns]))
@@ -17,6 +19,7 @@
       
 (ns/import-vars [structural-typing.api.path
                  includes
+                 required-paths
                  ALL])
 
 (ns/import-vars [structural-typing.api.defaults
@@ -29,21 +32,21 @@
 
 (defn- all-oopsies [type-repo one-or-more candidate]
   (let [signifiers (if (sequential? one-or-more) one-or-more (vector one-or-more))]
-    (mapcat #(repo/oopsies type-repo % candidate) signifiers)))
+    (mapcat #(repo/check-type type-repo % candidate) signifiers)))
 
 (defn checked
-  "Check the map `candidate` against the previously-defined type named by `type-signifier` in
+  "Check the `candidate` collection against the previously-defined type named by `type-signifier` in
   the given `type-repo`. If the `type-repo` is omitted, the global one is used.
    
        (type/checked :Point {:x 1 :y 2})
 
-   To check if a candidate matches all of a set of types, wrap them in a vector:
+   To check if a candidate matches each of a set of types, wrap them in a vector:
 
        (type/checked [:Colorful :Point] {:x 1, :y 2, :color \"red\"})
    
-   Types are defined with [[named]] or [[named!]]. By default, `checked` returns
+   Types are defined with [[named]] or [[type!]]. By default, `checked` returns
    the `candidate` argument if it checks out, `nil` otherwise. Those defaults can be
-   changed.
+   changed ([[replace-success-handler]], [[replace-error-handler]], [[on-success!]], [[on-error!]]). 
 "
   ([type-repo type-signifier candidate]
      (let [oopsies (all-oopsies type-repo type-signifier candidate)]
@@ -69,8 +72,9 @@
 
   
 (defn described-by? 
-  "Return `true` iff the map or record `candidate` typechecks against
-   the type named `type-signifier` (or vector of signifiers).
+  "Return `true` iff the `candidate` structure typechecks against
+   the type named `type-signifier`. `type-signifier` may also be a vector
+   of types, in which case the `candidate` must typecheck against each of them. 
 
    With three arguments, the check is against the `type-repo`. If `type-repo` is
    omitted, the global repo is used.
@@ -83,12 +87,6 @@
   ([type-signifier candidate]
      (described-by? @global-type/repo type-signifier candidate)))
 
-
-(def required-paths 
-  "Used to create an argument to `named`. All of the elements are keys or paths
-   that are required (as with `[required-key`) to be present in any matching
-   candidate. This is exactly the same thing as putting the arguments in a vector."
-vector)
 
 ;; (defn coercion 
 ;;   "Register function `f` as one that can coerce a map or record into 

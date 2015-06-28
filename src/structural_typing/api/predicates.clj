@@ -1,4 +1,8 @@
 (ns structural-typing.api.predicates
+  "Functions used to construct predicates that explain themselves, plus some often-useful
+   predicates of that sort.
+
+   Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
             [structural-typing.frob :as frob]
             [structural-typing.api.defaults :as default]))

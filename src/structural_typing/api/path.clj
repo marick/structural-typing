@@ -1,4 +1,7 @@
 (ns structural-typing.api.path
+  "Functions used in the construction of paths into structures.
+
+   Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [com.rpl.specter :as specter]
             [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
@@ -28,4 +31,15 @@
           result
           (frob/boom "%s does not name a type" type-key)))
       (with-meta {:type type-finder-key})))
+
+(def required-paths 
+  "Used to create an argument to `named`. All of the elements are keys or paths
+   that are required (as with [[required-key]]) to be present in any matching
+   candidate. This is exactly the same thing as putting the arguments in a vector.
+
+       (type! :Figure (type/required-paths :color 
+                                           [:points ALL (type/include :Point)]))
+
+   "
+vector)
 

@@ -1,4 +1,5 @@
 (ns structural-typing.global-type
+  "If you want to mutate the state of a single global type repo, these functions support that."
   (:require [structural-typing.api.type-repo :as repo]))
 
 
@@ -13,7 +14,7 @@
 
 (defn on-success!
   "Change the global type repo so that `f` is called when [[checked]]
-   succeeds. `f` is given the original map or record. `f`'s return value becomes
+   succeeds. `f` is given the original candidate structure. `f`'s return value becomes
    the return value of `checked`.
 "
   [f]
@@ -21,7 +22,7 @@
 
 (defn on-error!
   "Change the global type repo so that `f` is called when [[checked]]
-   fails. `f` is given a list of \"oopsies\". (See `type-repo/self-repo`.)
+   fails. `f` is given a list of [[oopsies]].
    `f`'s return value becomes the return value of `checked`.
 "
   [f]
@@ -37,7 +38,7 @@
 
 (defn type! 
   "Modifies the global type repo to define the type `type-signifier` as being
-   a map or record described by the `type-descriptions`.
+   a structure constrained by the `type-descriptions`.
    See also [[named]].
 "
   [type-signifier & type-descriptions]

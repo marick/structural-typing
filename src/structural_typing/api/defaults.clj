@@ -1,5 +1,7 @@
 (ns structural-typing.api.defaults
-  "User-visible default behaviors, plus the functions used to construct them. (The latter will be of use to people changing default behavior.)"
+  "User-visible default behaviors, plus the functions used to construct them. (The latter will be of use to people changing default behavior.)
+
+   Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [clojure.repl :as repl])
@@ -9,7 +11,13 @@
   "The argument is probably a function. Produce a string that will help a
    human understand which chunk o' code is being referred to. Can also take
    vars - potentially useful when the raw function is befuddling. For other
-   cases, like multimethods, it just punts to `str`."
+   cases, like multimethods, it just punts to `str`.
+
+       (d/friendly-function-name even?) => \"even?\"
+       (d/friendly-function-name #'even?) => \"even?\"
+"
+
+
   [f]
   (cond (var? f)
         (str (:name (meta f)))
@@ -48,20 +56,22 @@
 (defn friendly-path
   "Convert the path into a string, with Specter components printed nicely and
    an index appended if needed."
-  [{:keys [path] :as oopsie}]
-  (->> path
+  [oopsie]
+  (->> oopsie
+       :path
        (map friendly-path-component)
        perhaps-simplified-path
        (perhaps-indexed oopsie)))
 
 (defn explanation
-  "Convert an oopsie into a string explaining the error,
-   according to the `:predicate-explainer` within it."
+  "Convert an [[oopsie]] into a string explaining the error,
+   using the `:predicate-explainer` within it."
   [oopsie]
   ((:predicate-explainer oopsie) oopsie))
 
 (defn explanations 
-  "Convert a collection of oopsies into a collection of explanatory strings."
+  "Convert a collection of [[oopsies]] into a collection of explanatory strings.
+   See [[explanation]]."
   [oopsies]
   (map explanation oopsies))
 
@@ -69,7 +79,7 @@
 ;;; 
 
 (defn default-predicate-explainer
-  "Converts an oopsie into a string of the form \"%s should be %s; it is %s\"."
+  "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
   [{:keys [predicate-string leaf-value] :as oopsie}]
   (format "%s should be `%s`; it is `%s`"
           (friendly-path oopsie)
@@ -77,11 +87,12 @@
           (pr-str leaf-value)))
 
 (def default-success-handler 
-  "The default success handler just returns the original value passed to `checked`."
+  "The default success handler just returns the original candidate structure passed to `checked`."
   identity)
 
 (defn default-error-handler
-  "This error handler takes the output of type checking (a sequence of \"oopsies\") and prints each one's explanation on a separate line. It returns
+  "This error handler takes the output of type checking (a sequence of [[oopsies]]) and prints
+   each one's explanation to standard output. It returns
    `nil`, allowing constructs like this:
    
         (some-> (type/checked :frobnoz x)
@@ -97,11 +108,12 @@
 (defn throwing-error-handler 
   "In contrast to the default error handler, this one throws a
    `java.lang.Exception` whose message is the concatenation of the
-   type-mismatch messages.
+   [[explanations]] of the [[oopsies]].
    
    To make all type mismatches throw failures, do this:
    
-          (type/set-error-handler! type/throwing-failure-handler)
+          (global-type/on-error! type/throwing-failure-handler) ; for the global type repo
+          (type/replace-error-handler type-repo type/throwing-failure-handler) ; local repo
 "
   [oopsies]
   (throw (new Exception (str/join "\n" (explanations oopsies)))))
