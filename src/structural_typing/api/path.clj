@@ -38,13 +38,13 @@
           (frob/boom "%s does not name a type" type-signifier)))
       (with-meta {:type type-finder-key})))
 
-(def required-paths 
+(def requires
   "Used to create an argument to [[named]] or [[type!]]. All of the elements are keys or paths
    that are required (as with [[required-key]]) to be present in any matching
    candidate. This is exactly the same thing as putting the arguments in a vector.
 
-       (type! :Figure (type/required-paths :color 
-                                           [:points ALL (type/include :Point)]))
+       (type! :Figure (type/requires :color 
+                                     [:points ALL (type/include :Point)]))
 
    "
 vector)

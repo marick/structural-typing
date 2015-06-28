@@ -134,8 +134,8 @@
         result => #"(?s)\[0\].+\[1\]"))
 
     (fact "taking required values from previous types"
-      (type! :Figure (required-paths (includes :Colorful)
-                                                       [:points ALL (includes :Point)]))
+      (type! :Figure (requires (includes :Colorful)
+                               [:points ALL (includes :Point)]))
       (let [result (with-out-str (checked :Figure bad-figure))]
         result => #":color must exist"
         result => #"\[:points ALL :x\]\[1\] must exist"

@@ -19,7 +19,7 @@
       
 (ns/import-vars [structural-typing.api.path
                  includes
-                 required-paths
+                 requires
                  ALL])
 
 (ns/import-vars [structural-typing.api.defaults
