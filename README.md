@@ -1,6 +1,6 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.6+  
-For lein: [marick/structural-typing "0.5.0"]    
-Development version: [marick/structural-typing "0.6.0-SNAPSHOT"]    
+For lein: [marick/structural-typing "0.6.0"]    
+Development version: [marick/structural-typing "0.7.0-SNAPSHOT"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)
  
@@ -86,7 +86,7 @@ Exception :y should be `integer?`; it is `"two"`
 
 Not all that pretty, but I hope you didn't come to Clojure expecting pretty stack traces.
 
-See [TBD: monadic, timbre] to see how to write your own error-reporting functions. And if you're following along at the repl, revert to the original error handler now:
+See [using a logging library](https://github.com/marick/structural-typing/wiki/Using-a-logging-library) and [using the Either monad](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad) to see how to write your own error-reporting functions. And if you're following along at the repl, revert to the original error handler now:
 
 ```clojure
 user=> (on-error! default-error-handler)
@@ -107,7 +107,7 @@ You place type checks at important boundaries, which pass along
 type-checked values to interior functions. When the candidate payload
 fails the type check, `checked` returns `nil`, so the pipeline is
 short-circuited. (Note: if you roll monadically, you can make success
-and failure return `Either` values. See [TBD].)
+and failure return `Either` values. See [the wiki page](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad).)
 
 In the success case, `checked` returns the unmodified original value:
 
@@ -179,7 +179,7 @@ user=> (type! :Point
 ```
 
 Because its use involves some subtlety when it comes to types that include other
-types, I won't describe it further here. See TBD.
+types, I won't describe it further here. See [all about condensed type descriptions](https://github.com/marick/structural-typing/wiki/All-about-condensed-type-descriptions).
 
 One final note about optionality. Extra keys are not considered an
 error. A value can have as many extra keys as you want and still be
@@ -316,6 +316,8 @@ user=> (checked :Figure {:points 3})
 ```
 
 ## For more details
+
+See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended setup, use with logging libraries and monads, and details on semantics. 
 
 ## Todo list
 

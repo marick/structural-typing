@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "0.5.0"
+(defproject marick/structural-typing "0.6.0"
   :description "Structural typing for Clojure. Generally useful when you want to define predicates to apply in bulk to parts of structures."
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
@@ -11,7 +11,7 @@
                  [com.rpl/specter "0.5.4" :exclusions [org.clojure/clojure]]]
 
   :profiles {:dev {:dependencies [[midje "1.7.0-beta1" :exclusions [org.clojure/clojure]]
-                                  [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
+                                  [org.blancas/morph "0.3.0" :exclu<sions [org.clojure/clojure]]
                                   [com.taoensso/timbre "4.0.2" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
              :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
