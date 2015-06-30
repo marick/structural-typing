@@ -4,7 +4,9 @@
             [structural-typing.api.custom :as custom]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]
-            [taoensso.timbre :as timbre]))
+            [taoensso.timbre :as timbre])
+  ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
+  (:use [structural-typing.type :exclude [checked]]))
 
 (timbre/set-level! :info)
 
@@ -17,11 +19,11 @@
   (timbre/error "Boundary type check failed"))
 
 (def type-repo
-  (-> type/empty-type-repo
-      (type/named :Point
-                  (type/requires :x :y)
-                  {:x integer? :y integer?})
-      (type/replace-error-handler error-explainer)))
+  (-> empty-type-repo
+      (named :Point
+             (requires :x :y)
+             {:x integer? :y integer?})
+      (replace-error-handler error-explainer)))
 
 (def checked (partial type/checked type-repo))
 

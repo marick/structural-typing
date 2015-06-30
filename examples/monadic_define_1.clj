@@ -2,19 +2,21 @@
   "Using an Either monad to separate mistyped from valid values"
   (:require [structural-typing.type :as type]
             [structural-typing.api.custom :as custom]
-            [blancas.morph.monads :as m]))
+            [blancas.morph.monads :as m])
+  ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
+  (:use [structural-typing.type :exclude [checked]]))
 
 ;; Example 1: not the greatest error reporting
 
 (def type-repo
-  (-> type/empty-type-repo
-      (type/named :Point
-                  (type/requires :x :y)
-                  {:x integer? :y integer?})
-      (type/named :FormsTriangle
-                  {:x (complement zero?) :y (complement zero?)})
-      (type/replace-success-handler m/right)
-      (type/replace-error-handler (custom/mkfn:apply-to-explanation-collection m/left))))
+  (-> empty-type-repo
+      (named :Point
+             (requires :x :y)
+             {:x integer? :y integer?})
+      (named :FormsTriangle
+             {:x (complement zero?) :y (complement zero?)})
+      (replace-success-handler m/right)
+      (replace-error-handler (custom/mkfn:apply-to-explanation-collection m/left))))
 
 (def checked (partial type/checked type-repo))
 
