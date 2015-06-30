@@ -49,3 +49,15 @@
    "
 vector)
 
+(def forks
+  "When writing a forking path, you may end up with vectors within vectors within
+   vectors. You can use `forks` instead of a vector to mark where the path
+   forks. 
+
+       (type! :Figure (type/requires [:a (forks :b1 :b2) :c]))
+
+  `forks` is nothing but an alias for `vector`.
+"
+  vector)
+
+

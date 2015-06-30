@@ -20,6 +20,7 @@
 (ns/import-vars [structural-typing.api.path
                  includes
                  requires
+                 forks
                  ALL])
 
 (ns/import-vars [structural-typing.api.defaults

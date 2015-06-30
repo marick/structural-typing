@@ -315,7 +315,9 @@
         [:a :b :c :e :g] 
         [:a :b :d :e :f] 
         [:a :b :d :e :g] ]
-    
+
+    (fact "note that `forks` is a synonym"
+      (subject/expand-path-with-forks [:x (path/forks :y1 :y2)]) => [[:x :y1] [:x :y2]])
     
     (fact "using maps for their keys"
       (subject/expand-path-with-forks [{:a #'even? :b #'even?}])
