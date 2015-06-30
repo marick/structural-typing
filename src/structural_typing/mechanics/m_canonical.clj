@@ -15,7 +15,7 @@
 (defn undo-singleton-path-convenience [x]
   (if (sequential? x) x (vector x)))
 
-(declare expand-path-shorthand)
+(declare expand-path-with-forks)
 
 (defn validate-description [description]
   (when-not (or (map? description)
@@ -29,31 +29,36 @@
         
         (sequential? description)
         (frob/mkmap:all-keys-with-value
-         (mapcat expand-path-shorthand (map undo-singleton-path-convenience description))
+         (mapcat expand-path-with-forks (map undo-singleton-path-convenience description))
          (vector pred/required-key))
         
         :else
         (frob/boom "Unexpected type description: %s" description)))
 
+(defn- splice [parent-path maybe-vector]
+  (into parent-path (frob/force-vector maybe-vector)))
 
 (defn nested-map->path-map
   ([kvs parent-path]
-     (letfn [(splice [maybe-vector]
-               (into parent-path (frob/force-vector maybe-vector)))]
-       (reduce (fn [so-far [k v]]
-                 (if (map? v)
-                     (merge so-far (nested-map->path-map v (splice k)))
-                     (assoc so-far (splice k) (frob/force-vector v))))
-               {}
-               kvs)))
+     (reduce (fn [so-far [possibly-forking-path-element v]]
+               (reduce (fn [so-far flat-element]
+                         (let [additions (if (map? v)
+                                           (nested-map->path-map v (splice parent-path flat-element))
+                                           (hash-map (splice parent-path flat-element)
+                                                     (frob/force-vector v)))]
+                           (merge-with into so-far additions)))
+                       so-far
+                       (expand-path-with-forks (frob/force-vector possibly-forking-path-element))))
+             {}
+             kvs))
   ([kvs]
      (nested-map->path-map kvs [])))
 
-(defn expand-path-shorthand
-  "Expand a vector containing path elements + shorthand for alternatives into 
+(defn expand-path-with-forks
+  "Expand a vector containing path elements + shorthand for forks into 
    a vector of paths"
   ([value]
-     (expand-path-shorthand value [[]]))
+     (expand-path-with-forks value [[]]))
        
   ([[x & xs :as value] parent-paths]
      (let [x (first value)
@@ -64,7 +69,7 @@
              (sequential? x)
              (let [extended (for [pp parent-paths, elt x]
                               (conj pp elt))]
-               (expand-path-shorthand xs (vec extended)))
+               (expand-path-with-forks xs (vec extended)))
              
              (and (map? x) (empty? xs))
              (for [pp parent-paths, elt (keys (nested-map->path-map x []))]
@@ -75,7 +80,7 @@
              
              :else
              (let [extended (for [pp parent-paths] (conj pp x))]
-               (expand-path-shorthand xs (frob/force-vector extended)))))))
+               (expand-path-with-forks xs (frob/force-vector extended)))))))
 
   
 (defn canonicalize [type-map & condensed-type-descriptions]

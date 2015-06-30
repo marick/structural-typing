@@ -14,18 +14,45 @@
 ;; ..t.. is an irrelevant type-rep
 (fact "type descriptions that are maps"
   (fact "simple maps just have their keys and values vectorized"
-    (subject/canonicalize ..t.. {:a pred/required-key}) => {[:a] [pred/required-key]}
-    (subject/canonicalize ..t.. {:a pred/required-key, :b pred/required-key})
-    => {[:a] [pred/required-key]
-        [:b] [pred/required-key]})
+    (subject/canonicalize ..t.. {:a even?}) => {[:a] [even?]}
+    (subject/canonicalize ..t.. {:a even?, :b even?})
+    => {[:a] [even?]
+        [:b] [even?]})
   
-  (fact "already vectorized keys and values are left alone"
-    (subject/canonicalize ..t.. {[:a] pred/required-key}) => {[:a] [pred/required-key]}
-    (subject/canonicalize ..t.. {[:a] [pred/required-key]}) => {[:a] [pred/required-key]}
-    (subject/canonicalize ..t.. {[:a :b] pred/required-key}) => {[:a :b] [pred/required-key]})
+  (fact "already vectorized keys and values are left alone if flat"
+    (subject/canonicalize ..t.. {[:a] even?}) => {[:a] [even?]}
+    (subject/canonicalize ..t.. {[:a] [even?]}) => {[:a] [even?]}
+    (subject/canonicalize ..t.. {[:a :b] even?}) => {[:a :b] [even?]})
+
+  (fact "forks are allowed in vectors"
+    (subject/canonicalize ..t.. {[:a [:b1 :b2]] even?})
+    => {[:a :b1] [even?]
+        [:a :b2] [even?]}
+
+    (subject/canonicalize ..t.. {[:a [:b1 :b2] :c [:d1 :d2]] even?})
+    => {[:a :b1 :c :d1] [even?]
+        [:a :b1 :c :d2] [even?]
+        [:a :b2 :c :d1] [even?]
+        [:a :b2 :c :d2] [even?]})
+
+  (fact "note that forks allow the possibility of duplicate paths"
+    (subject/canonicalize ..t.. {[:a :b1] pos?
+                                 [:a [:b1 :b2]] even?})
+    => (just {[:a :b1] (just [(exactly pos?) (exactly even?)] :in-any-order)
+              [:a :b2] [even?]})
+
+    (subject/canonicalize ..t.. {[:a :b] pos?
+                                 [:a] {:b even?}})
+    => (just {[:a :b] (just [(exactly pos?) (exactly even?)] :in-any-order)}))
+                          
 
   (fact "nested maps have keys flattened into paths"
-    (subject/canonicalize ..t.. {:a {:b pred/required-key}}) => {[:a :b] [pred/required-key]})
+    (subject/canonicalize ..t.. {:a {:b even?}}) => {[:a :b] [even?]})
+
+  (fact "nested keys can be forked paths, though that should be an unusual case"
+    (subject/canonicalize ..t.. {[:a :b] {[:c [:d1 :d2]] even?}})
+    => {[:a :b :c :d1] [even?]
+        [:a :b :c :d2] [even?]})
 
   (fact "this is a pretty unlikely map to use, but it will work"
     (subject/canonicalize ..t..
@@ -271,19 +298,19 @@
 
 
 
-(facts "`expand-path-shorthand` converts a single vector into a vector of paths."
+(facts "`expand-path-with-forks` converts a single vector into a vector of paths."
         
   (fact "single-argument form"
-    (subject/expand-path-shorthand [:x]) => [[:x]]
-    (subject/expand-path-shorthand [:x :y]) => [[:x :y]]
-    (subject/expand-path-shorthand [:x :y]) => [[:x :y]]
+    (subject/expand-path-with-forks [:x]) => [[:x]]
+    (subject/expand-path-with-forks [:x :y]) => [[:x :y]]
+    (subject/expand-path-with-forks [:x :y]) => [[:x :y]]
     
-    (subject/expand-path-shorthand [:x [:y :z]]) => [[:x :y] [:x :z]]
-    (subject/expand-path-shorthand [:a :b [:c :d]]) => [[:a :b :c] [:a :b :d]]
+    (subject/expand-path-with-forks [:x [:y :z]]) => [[:x :y] [:x :z]]
+    (subject/expand-path-with-forks [:a :b [:c :d]]) => [[:a :b :c] [:a :b :d]]
     
-    (subject/expand-path-shorthand [:a :b [:c :d] :e]) => [[:a :b :c :e] [:a :b :d :e]]
+    (subject/expand-path-with-forks [:a :b [:c :d] :e]) => [[:a :b :c :e] [:a :b :d :e]]
     
-    (subject/expand-path-shorthand [:a :b [:c :d] :e [:f :g]])
+    (subject/expand-path-with-forks [:a :b [:c :d] :e [:f :g]])
     => [[:a :b :c :e :f] 
         [:a :b :c :e :g] 
         [:a :b :d :e :f] 
@@ -291,43 +318,43 @@
     
     
     (fact "using maps for their keys"
-      (subject/expand-path-shorthand [{:a #'even? :b #'even?}])
+      (subject/expand-path-with-forks [{:a #'even? :b #'even?}])
       => (just [:a] [:b] :in-any-order)
       
-      (subject/expand-path-shorthand [:x :y {[:a :c] #'even? :b #'even?}])
+      (subject/expand-path-with-forks [:x :y {[:a :c] #'even? :b #'even?}])
       => (just [:x :y :a :c] [:x :y :b] :in-any-order)
       
-      (subject/expand-path-shorthand [:x :y {:a {:c #'even?} :b #'even?}])
+      (subject/expand-path-with-forks [:x :y {:a {:c #'even?} :b #'even?}])
       => (just [:x :y :a :c] [:x :y :b] :in-any-order)
       
       (fact "such a map must be the last element in the vector"
-        (subject/expand-path-shorthand [:x :y {[:a :c] #'even? :b #'even?} :z])
+        (subject/expand-path-with-forks [:x :y {[:a :c] #'even? :b #'even?} :z])
       => (throws #"The map must be the last element")))
     
     (fact "the embedded paths don't have to be vectors"
-      (subject/expand-path-shorthand [:x (list :y :z)]) => [[:x :y] [:x :z]]))
+      (subject/expand-path-with-forks [:x (list :y :z)]) => [[:x :y] [:x :z]]))
 
   (fact "two argument forms"
-    (subject/expand-path-shorthand [] [[]]) => [[]]
-    (subject/expand-path-shorthand [:b] [[:a]]) => [[:a :b]]
-    (subject/expand-path-shorthand [:b] [[1] [2]]) => [[1 :b] [2 :b]]
+    (subject/expand-path-with-forks [] [[]]) => [[]]
+    (subject/expand-path-with-forks [:b] [[:a]]) => [[:a :b]]
+    (subject/expand-path-with-forks [:b] [[1] [2]]) => [[1 :b] [2 :b]]
 
-    (subject/expand-path-shorthand [{:a 1 :b 2}] [[1] [2]])
+    (subject/expand-path-with-forks [{:a 1 :b 2}] [[1] [2]])
     => (just [1 :a] [1 :b] [2 :a] [2 :b] :in-any-order)
 
-    (subject/expand-path-shorthand [:z {:a 1 :b 2}] [[1] [2]])
+    (subject/expand-path-with-forks [:z {:a 1 :b 2}] [[1] [2]])
     => (just [1 :z :a] [1 :z :b] [2 :z :a] [2 :z :b] :in-any-order)
 
-    (subject/expand-path-shorthand [:z {:a {:b 2}}] [[1]])
+    (subject/expand-path-with-forks [:z {:a {:b 2}}] [[1]])
     => [[1 :z :a :b]]
 
-    (subject/expand-path-shorthand [:a [:b :c] :d] [[1] [2]])
+    (subject/expand-path-with-forks [:a [:b :c] :d] [[1] [2]])
     => (just [1 :a :b :d] [1 :a :c :d] [2 :a :b :d] [2 :a :c :d] :in-any-order)
 
-    (subject/expand-path-shorthand [:a [:b :c] [:d :e]] [[1]])
+    (subject/expand-path-with-forks [:a [:b :c] [:d :e]] [[1]])
     => (just [1 :a :b :d] [1 :a :b :e] [1 :a :c :d] [1 :a :c :e])
 
-    (subject/expand-path-shorthand [:a [:b :c] {:d 3 :e 4}] [[1]])
+    (subject/expand-path-with-forks [:a [:b :c] {:d 3 :e 4}] [[1]])
     => (just [1 :a :b :d] [1 :a :b :e] [1 :a :c :d] [1 :a :c :e])))
     
 
