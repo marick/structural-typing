@@ -1,5 +1,5 @@
 (ns timbre-define-1
-  "Using an Either monad to separate mistyped from valid values"
+  "Logging to Timbre"
   (:require [structural-typing.type :as type]
             [structural-typing.api.custom :as custom]
             [taoensso.timbre :as timbre]))

@@ -1,10 +1,8 @@
 (ns monadic-define-2
-  "Using an Either monad to separate mistyped from valid values"
+  "Logging to Timbre"
   (:require [structural-typing.type :as type]
             [structural-typing.api.custom :as custom]
             [blancas.morph.monads :as m]))
-
-;; Example 1: not the greatest error reporting
 
 (defn add-whole-value [oopsies]
   (cons (:whole-value (first oopsies))
@@ -14,6 +12,9 @@
                    (type/named :Point
                                (type/requires :x :y)
                                {:x integer? :y integer?})
+                   (type/named :OriginTriangle
+                               (type/includes :Point)
+                               {:x (complement zero?) :y (complement zero?)})
                    (type/replace-error-handler (comp m/left add-whole-value))
                    (type/replace-success-handler m/right)))
 

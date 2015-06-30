@@ -2,7 +2,9 @@
   "Using an Either monad to separate mistyped from valid values"
   (:require [monadic-define-1 :as v1]
             [monadic-define-2 :as v2]
-            [blancas.morph.monads :as m])
+            [blancas.morph.core :as mc]
+            [blancas.morph.monads :as m]
+            [clojure.math.numeric-tower :as math])
   (:use midje.sweet))
 
 (fact "using an Either monad to separate out success from failure cases"
@@ -25,3 +27,20 @@
                                       ":y must exist and be non-nil"
                                       ":x should be `integer?`; it is `\"1\"`"
                                       :in-any-order)))
+
+(def right m/right)
+(def wrong m/left)
+(def square #(math/expt % 2))
+
+(defn hypotenuse-length [{:keys [x y]}]
+  (math/sqrt (+ (square x) (square y))))
+
+(fact "an example of sequencing"
+  (m/run-right
+   (mc/monad [origin-triangle (v2/checked :OriginTriangle {:x 3, :y 4})]
+     (right (hypotenuse-length origin-triangle))))
+  => 5
+
+  (mc/monad [origin-triangle (v2/checked :OriginTriangle {:x 0, :y 4})]
+    (right (hypotenuse-length origin-triangle)))
+  => m/left?)

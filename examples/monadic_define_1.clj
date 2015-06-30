@@ -11,6 +11,8 @@
       (type/named :Point
                   (type/requires :x :y)
                   {:x integer? :y integer?})
+      (type/named :FormsTriangle
+                  {:x (complement zero?) :y (complement zero?)})
       (type/replace-success-handler m/right)
       (type/replace-error-handler (custom/mkfn:apply-to-explanation-collection m/left))))
 

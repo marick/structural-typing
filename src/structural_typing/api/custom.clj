@@ -68,24 +68,27 @@
   ((:predicate-explainer oopsie) oopsie))
 
 (defn explanations 
-  "Convert a collection of [[oopsies]] into a collection of explanatory strings.
-   See [[explanation]]. Note: processing is eager, not lazy."
+  "Convert a collection of [[oopsies]] into a lazy sequence of explanatory strings.
+   See [[explanation]]."
   [oopsies]
   (map explanation oopsies))
 
 (defn mkfn:apply-to-each-explanation
   "Checking a single candidate may result in multiple errors ([[oopsies]]). 
    The generated function applies the `handler` to each oopsie's [[explanation]] in
-   turn."
+   turn. The `handler` must be called for side-effect, as the generated function
+   always returns `nil`."
   [handler]
   (fn [oopsies]
     (doseq [e (explanations oopsies)]
-      (handler e))))
+      (handler e))
+    nil))
   
 (defn mkfn:apply-to-explanation-collection
   "Checking a single candidate may result in multiple errors ([[oopsies]]). 
    The generated function applies the `handler` once to a collection of all the oopsie's
-   [[explanations]]."
+   [[explanations]]. The value it returns is whatever the `handler` returns; it is
+   not guaranteed to be `nil`."
   [handler]
   (fn [oopsies]
     (handler (explanations oopsies))))

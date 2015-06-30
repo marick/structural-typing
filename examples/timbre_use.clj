@@ -1,5 +1,5 @@
 (ns timbre-use
-  "Using an Either monad to separate mistyped from valid values"
+  "An example of logging to Timbre"
   (:require [timbre-define-1 :as v1]
             [timbre-define-2 :as v2])
   (:use midje.sweet))
