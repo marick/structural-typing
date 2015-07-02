@@ -41,7 +41,7 @@ loosely-coupled systems.
 	- [Credits](#)
 	- [Contributing](#)
 
-** Simple examples **
+**Simple examples**
 
 This library works with a *type repository* or "type repo".
 [In real life](https://github.com/marick/structural-typing/wiki/Recommended-setup),
