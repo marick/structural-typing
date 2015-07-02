@@ -56,7 +56,7 @@
 "
   [& args]
   (compose-predicate
-   #(some (set args) %)
+   #(boolean ((set args) %))
    #(format "%s should be a member of %s; it is `%s`",
             (custom/friendly-path %)
             (pr-str args)
