@@ -1,4 +1,4 @@
-(ns structural-typing.f-readme
+(ns structural-typing.docs.f-readme
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
            [clojure.string :as str])
