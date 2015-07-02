@@ -29,17 +29,17 @@ loosely-coupled systems.
 
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
-- [structural-typing](#)
-	- [Simple examples](#)
-	- [Multiple checks for a key](#)
-	- [Optional and required values](#)
-	- [Combining types](#)
-	- [Nesting types and key paths](#)
-	- [For more details](#)
-	- [Todo list](#)
-- [Back Matter](#)
-	- [Credits](#)
-	- [Contributing](#)
+- [structural-typing](#structural-typing)
+	- [Simple examples](#simple-examples)
+	- [Multiple checks for a key](#multiple-checks-for-a-key)
+	- [Optional and required values](#optional-and-required-values)
+	- [Combining types](#combining-types)
+	- [Nesting types and key paths](#nesting-types-and-key-paths)
+	- [For more details](#for-more-details)
+- [Back Matter](#back-matter)
+	- [Todo list](#todo-list)
+	- [Credits](#credits)
+	- [Contributing](#contributing)
 
 ## Simple examples
 
@@ -339,15 +339,16 @@ user=> (checked :Figure {:points 3})
 
 See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended setup, use with logging libraries and monads, and details on semantics. 
 
+-------------------
+
 ## Todo list
 
 * Coercion and migration
 * Friendly printing for Specter operators other than ALL.
-* Predicates that apply to more than one value
+* Predicates that apply to the whole input
+* Implement Midje collection checkers with this library
 * Use for collection checking in Midje 2
-* Accurate indexes for multiple uses of ALL (etc.)
-
--------------------
+* Accurate (multi-level) indexes for multiple uses of ALL (etc.)
 
 # Back Matter
 
