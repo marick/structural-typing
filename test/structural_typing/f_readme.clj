@@ -1,6 +1,7 @@
 (ns structural-typing.f-readme
  (:require [structural-typing.type :refer :all]
-           [structural-typing.global-type :refer :all])
+           [structural-typing.global-type :refer :all]
+           [clojure.string :as str])
  (:use midje.sweet))
 
 (start-over!)
@@ -12,23 +13,34 @@
     result => #":y should be `integer.*two"
     result => #":x should be `integer.*one"))
 
+
+;;; The throwing error handler.
+
 (on-error! throwing-error-handler)
+
 (fact
   (checked :Point {:x "one" :y "two"}) => (throws))
 
-
+(on-error! default-error-handler)
  
-(start-over!)
-(type! :Point {:x integer? :y integer?})
 
 (fact "Default error handler returns nil"
   (with-out-str 
     (some-> (checked :Point {:x "one" :y "two"})
             (prn "successful stuff")))
-  =not=> #"successful stuff")
+  =not=> #"successful")
 
 (fact "default success handler returns the original value"
   (checked :Point {:x 1 :y 2}) => {:x 1 :y 2})
+
+
+;;; Multiple predicates
+
+(type! :Point {:x [integer? pos?] :y [integer? pos?]})
+
+(fact
+  (let [result (with-out-str (checked :Point {:x -1 :y 2}))]
+    result => #":x should be `pos\?`"))
 
 
 (fact "map descriptions leave keys optional"
@@ -37,114 +49,100 @@
 
 
 
-(fact "explicit required key in map"
-  (start-over!)
-  (type! :Point {:x [required-key integer?]
-                              :y [required-key integer?]})
+;;; Required keys
 
+(type! :Point {:x [required-key integer?]
+               :y [required-key integer?]})
+
+(fact
   (let [result (with-out-str (checked :Point {:x "1"}))]
     result => #":y must exist and be non-nil"
     result => #":x should be `integer"))
 
+(type! :Point
+       [:x :y]
+       {:x integer? :y integer?})
 
-(fact "all predicates are checked"
-  (type! :Whatever {:x [pos? even?]})
-  (let [result (with-out-str (checked :Whatever {:x -1}))]
-    result => #":x should be `pos"
-    result => #":x should be `even"))
-
-(fact "vector form for required keys"
-  (type! :Point
-                      [:x :y]
-                      {:x integer? :y integer?})
-  (with-out-str (checked :Point {:x 1})) => #":y must exist")
-
-(fact "only required"
-  (type! :Point [:x :y])
-  (with-out-str (checked :Point {:x "one!"})) => #":y must exist and be non-nil")
+(fact 
+  (let [result (with-out-str (checked :Point {:x "1"}))]
+    result => #":y must exist and be non-nil"
+    result => #":x should be `integer"))
 
 (fact "excess keys are fine"
   (map #(checked :Point %) [{:x 1 :y 2}
-                                 {:x 1 :y 2 :z 3}
-                                 {:x 1 :y 2 :color "red"}])
+                            {:x 1 :y 2 :z 3}
+                            {:x 1 :y 2 :color "red"}])
   => [{:y 2, :x 1} {:y 2, :z 3, :x 1} {:y 2, :color "red", :x 1}])
 
-(facts "many ways to create types"
-  (fact "explicit"
-    (type! :ColorfulPoint
-                        [:x :y :color]
-                        {:x integer? :y integer? :color string?})
-    (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
-      result => #":x must exist"
-      result => #":color should be `string"))
+
+;;; Combining types
 
 
-  (fact "like type extension"
-    (type! :ColorfulPoint
-                        (includes :Point) ; "base type"
-                        [:color]               ; new required keys
-                        {:color string?})      ; what we want to insist about our colors
-    (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
-      result => #":x must exist"
-      result => #":color should be `string"))
+(type! :ColorfulPoint
+          {:x [required-key integer?]
+           :y [required-key integer?]
+           :color [required-key string?]})
 
-  (fact "mixins"
-    (type! :Colorful [:color] {:color string?})
-    (type! :ColorfulPoint (includes :Point) (includes :Colorful))
-    (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
-      result => #":x must exist"
-      result => #":color should be `string"))
-  
-  (fact "combining types at check time"
-    (let [result (with-out-str (checked [:Colorful :Point] {:y 1 :color 1}))]
-      result => #":x must exist"
-      result => #":color should be `string"))
-)
+(fact
+  (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
+    result => #":x must exist"
+    result => #":color should be `string"))
 
 
+(type! :ColorfulPoint
+              (includes :Point)
+              {:color string?})
+(fact
+  (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
+    result => #":x must exist"
+    result => #":color should be `string"))
 
+(type! :Colorful {:color [required-key string?]})
+(type! :ColorfulPoint (includes :Point) (includes :Colorful))
+
+(fact
+  (let [result (with-out-str (checked :ColorfulPoint {:y 1 :color 1}))]
+    result => #":x must exist"
+    result => #":color should be `string"))
+
+(fact "combining types at check time"
+  (let [result (with-out-str (checked [:Colorful :Point] {:y 1 :color 1}))]
+    result => #":x must exist"
+    result => #":color should be `string"))
+
+
+;;; Nesting types and key paths
+
+(def ok-figure {:color "red"
+                :points [{:x 1, :y 1}
+                         {:x 2, :y 3}]})
+
+
+(type! :Figure (includes :Colorful)
+               {[:points ALL :x] [required-key integer?]
+                [:points ALL :y] [required-key integer?]})
+
+
+(fact 
+  (checked :Figure ok-figure) => ok-figure
+
+  (let [result (with-out-str (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]}))]
+    result => #":color must exist"
+    result => #"\[:points ALL :x\]\[0\] must exist"
+    result => #"\[:points ALL :y\]\[1\] should be `integer\?`"
+    ;; check sort order
+    result => #"(?s)\[0\].+\[1\]"))
+
+(fact "an ugly result"
+  (let [result (with-out-str (checked :Figure {:points {:x 1 :y 2}}))]
+    (count (str/split result #"\n")) => 5))
+    
+(fact "better"
+  (let [result (with-out-str (checked :Figure {:points 3}))]
+    result => #":color must exist"
+    result => #"\[:points ALL :x\] is not a path into `\{:points 3\}`"
+    result => #"\[:points ALL :y\] is not a path into `\{:points 3\}`"))
+    
 
 (start-over!)
 
-(fact "versions of a figure"
-  (let [bad-figure {:colr-typo "red"
-                    :points [ {:x 1}
-                              {:y 2}]}]
-    (fact "explicit"
-      (type! :Figure
-                          [:color [:points ALL :x]
-                                  [:points ALL :y]])
-      (let [result (with-out-str (checked :Figure bad-figure))]
-        result => #":color must exist"
-        result => #"\[:points ALL :x\]\[1\] must exist"
-        result => #"\[:points ALL :y\]\[0\] must exist"
-        ;; check sort order
-        result => #"(?s)\[0\].+\[1\]"))
-    
-    (fact "taking required values from previous types"
-      (type! :Point [:x :y] {:x integer? :y integer?})
-      (type! :Colorful [:color] {:color string?})
-      (type! :Figure [(includes :Colorful)
-                                   [:points ALL (includes :Point)]])
-      (let [result (with-out-str (checked :Figure bad-figure))]
-        result => #":color must exist"
-        result => #"\[:points ALL :x\]\[1\] must exist"
-        result => #"\[:points ALL :y\]\[0\] must exist"
-        ;; check sort order
-        result => #"(?s)\[0\].+\[1\]"))
-
-    (fact "taking required values from previous types"
-      (type! :Figure (requires (includes :Colorful)
-                               [:points ALL (includes :Point)]))
-      (let [result (with-out-str (checked :Figure bad-figure))]
-        result => #":color must exist"
-        result => #"\[:points ALL :x\]\[1\] must exist"
-        result => #"\[:points ALL :y\]\[0\] must exist"
-        ;; check sort order
-        result => #"(?s)\[0\].+\[1\]"))
-
-
-)
-
-)
-    

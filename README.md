@@ -23,23 +23,26 @@ stages of a pipeline, then transformed into new data that's pumped out
 the other side.
 
 Unlike nominal typing, structural types are described by predicates on
-keys, rather than by relationships between type names and other type
-names. That makes structural typing is especially useful for
+keys, not by relationships between type names and other type
+names. That makes structural typing especially useful for
 loosely-coupled systems.
 
 ## Simple examples
 
-This library works with a *type repository* or "type repo". In real
-life, I put the repo in one or more namespaces that hold their own
-type repositories and define checking functions that work on it. Those
+This library works with a *type repository* or "type repo".
+[In real life](https://github.com/marick/structural-typing/wiki/Recommended-setup),
+I put the repo in one or more namespaces that hold their own
+type repositories. Such a namespace also defines (via `partial`) checking functions that use the
+type repo. Those
 functions are then used like this:
 
 ```clojure
-(ns myapp.some-namespace
-  (:require [myapp.types :as type])
+(ns my.namespace
+  (:require [my.types :as type])
   ...)
 
-... (checked :Point incoming-data) ...
+...
+... (type/checked :Point incoming-data) ...
 
 ```
 
@@ -122,7 +125,7 @@ user=> (checked :Point {:x 1 :y 2})
 To apply more than one predicate to a key's value, enclose them in a vector:
 
 ```clojure
-user=> (named! :Point {:x [integer? pos?] :y [integer? pos?]})
+user=> (type! :Point {:x [integer? pos?] :y [integer? pos?]})
 
 user=> (checked :Point {:x -1 :y 2})
 :x should be `pos?`; it is `-1`
@@ -156,7 +159,8 @@ user=> (map #(checked :Point %) [{} {:x 1} {:y 1} {:x 1 :y 2}])
 (Note: For this library, a `nil` value is treated the same as a missing
 value. There is no difference in the handling of `{:x nil}` and `{}`.)
 
-This optionality seems crazy for points, but it's easy to require a key:
+It's hard to imagine a useful Point type where the coordinates are optional, so we'd want to
+require them:
 
 ```clojure
 user=> (type! :Point {:x [required-key integer?]
@@ -178,8 +182,8 @@ user=> (type! :Point
               {:x integer? :y integer?})
 ```
 
-Because its use involves some subtlety when it comes to types that include other
-types, I won't describe it further here. See [all about condensed type descriptions](https://github.com/marick/structural-typing/wiki/All-about-condensed-type-descriptions).
+I won't describe it further here. See
+[all about condensed type descriptions](https://github.com/marick/structural-typing/wiki/All-about-condensed-type-descriptions).
 
 One final note about optionality. Extra keys are not considered an
 error. A value can have as many extra keys as you want and still be
@@ -208,7 +212,8 @@ user=> (checked :ColorfulPoint {:y 1 :color 1})
 => nil
 ```
 
-That seems a bit silly, given that we've already defined a `:Point`. Here's how you'd build on that:
+That seems a bit silly, given that we've already defined a
+`:Point`. We should reuse its definition:
 
 ```clojure
 user=> (type! :ColorfulPoint
@@ -243,7 +248,8 @@ user=> (checked [:Colorful :Point] {:y 1 :color 1})
 It's important to understand that all of the above types are *the
 same*. The names are only for human convenience; types are defined by
 a structure of keys and predicates, and do not have any intrinsic
-relationship to other types.
+relationship to other types. One consequence is that if you redefine
+`:Colorful`, that will not affect `:ColorfulPoint`.
 
 ## Nesting types and key paths
 
@@ -302,8 +308,8 @@ user=> (checked :Figure {:points {:x 1 :y 2}})
 
 It's not as good a description of the real problem as you'd hope for,
 but it's something. This output can be explained when you realize that
-"ALL" of `{:x 1, :y 2}` is equal to `[[:x 1] [:y 2]]` (as is the case
-whenever you map over a hashmap).
+`ALL` converts `{:x 1, :y 2}` into a sequential collection. As is the
+case throughout Clojure, that means the map becomes `[[:x 1] [:y 2]]`.
 
 Other flat-out wrong candidates return better errors:
 
