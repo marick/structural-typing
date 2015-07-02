@@ -27,6 +27,20 @@ keys, not by relationships between type names and other type
 names. That makes structural typing especially useful for
 loosely-coupled systems.
 
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [structural-typing](#)
+	- [Simple examples](#)
+	- [Multiple checks for a key](#)
+	- [Optional and required values](#)
+	- [Combining types](#)
+	- [Nesting types and key paths](#)
+	- [For more details](#)
+	- [Todo list](#)
+- [Back Matter](#)
+	- [Credits](#)
+	- [Contributing](#)
+
 ## Simple examples
 
 This library works with a *type repository* or "type repo".
@@ -196,7 +210,7 @@ user=> (map #(checked :Point %) [{:x 1 :y 2}
 => ({:y 2, :x 1} {:y 2, :z 3, :x 1} {:y 2, :color "red", :x 1})
 ```
 
-### Combining types
+## Combining types
 
 Here's one way to create a point with a color:
 
