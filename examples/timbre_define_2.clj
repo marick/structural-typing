@@ -12,9 +12,15 @@
 
 ;; Example 2: print a stack trace following the last error.
 
+(def pprint-to-string #(with-out-str pprint %))
+
 (defn error-explainer [oopsies]
   (timbre/info "While checking this:")
-  (timbre/info (str/trimr (with-out-str (pprint (:whole-value (first oopsies))))))
+  (-> (first oopsies) ; the error handler is always given at least one oopsie.
+      :whole-value    ; the original candidate being checked
+      pprint-to-string
+      str/trimr       ; be tidy by getting rid of pprint's trailing newline
+      timbre/info)
   (doseq [e (custom/explanations oopsies)] (timbre/info e))
   (timbre/error "Boundary type check failed"))
 
