@@ -341,6 +341,8 @@ See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended
 
 -------------------
 
+# Back Matter
+
 ## Todo list
 
 * Coercion and migration
@@ -349,8 +351,6 @@ See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended
 * Implement Midje collection checkers with this library
 * Use for collection checking in Midje 2
 * Accurate (multi-level) indexes for multiple uses of ALL (etc.)
-
-# Back Matter
 
 ## Credits
 
