@@ -5,9 +5,6 @@
 
 
 
-(future-fact "should be able to use a point to name a type")
-;; ; (type/named! :line [:start :end] {:start :Point, :end :Point})
-  
 
 (future-fact "throw an exception if there is no matching key in the repo")
 

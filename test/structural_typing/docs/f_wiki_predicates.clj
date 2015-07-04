@@ -30,3 +30,5 @@
 (fact
   (with-out-str (checked :Account {:password "foo"}))
   => #":password should contain a digit")
+
+(start-over!)

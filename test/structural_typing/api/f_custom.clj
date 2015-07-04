@@ -23,20 +23,6 @@
 
 
 
-(future-fact "default error explainer"
-  (subject/default-predicate-explainer {:predicate-string "core/even?"
-                                               :path [:x]
-                                               :leaf-value 3})
-  => ":x should be `core/even?`; it is `3`"
-
-
-  (subject/default-predicate-explainer {:predicate-string "core/even?"
-                                               :path [:x ALL :y]
-                                               :leaf-value 3
-                                               :index-string "[0]"})
-  => "[:x ALL :y] should be `core/even?`; it is `3`"
-)
-
 (fact "friendly paths"
   (subject/friendly-path (simple-path [:a])) => ":a"
   (subject/friendly-path (simple-path [:a :b])) => "[:a :b]"
