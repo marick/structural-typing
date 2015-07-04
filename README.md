@@ -2,8 +2,9 @@ Available via [clojars](https://clojars.org/marick/structural-typing) for Clojur
 For lein: [marick/structural-typing "0.6.0"]    
 Development version: [marick/structural-typing "0.7.0-SNAPSHOT"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
-[API docs](http://marick.github.io/structural-typing/)
- 
+[API docs](http://marick.github.io/structural-typing/)       
+[Wiki docs](https://github.com/marick/structural-typing/wiki)
+
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
 # structural-typing
