@@ -126,14 +126,39 @@
                  kvs))
        maps))
 
+(defn dc:add-required-subpaths [kvs]
+  (letfn [(candidate-preds? [preds]
+            (some #{pred/required-key} preds))
+          (split-paths [path]
+            (reduce (fn [so-far [prefix current]]
+                      (cond (keyword? current)
+                            so-far
 
+                            ;; This is the [... ALL ALL ...] case
+                            (not (keyword? (last prefix)))
+                            so-far
 
+                            :else 
+                            (conj so-far prefix)))
+                    []
+                    (map vector (reductions conj [] path) path)))]
 
-
-
-
-
-
+    (let [ensure-required (->> kvs
+                               (map identity)
+                               (filter #(candidate-preds? (second %)))
+                               (map first)
+                               (mapcat split-paths))]
+      (reduce (fn [so-far ensure]
+                (cond (not (contains? so-far ensure))
+                      (assoc so-far ensure [pred/required-key])
+                      
+                      (some #{pred/required-key} (so-far ensure))
+                      so-far
+                      
+                      :else 
+                      (update-in so-far [ensure] conj pred/required-key)))
+              kvs
+              ensure-required))))
 
 
 (defn canonicalize [type-map & condensed-type-descriptions]
@@ -149,4 +174,6 @@
        dc:required-paths->maps         ; everything is now a flatmap w/ potentially forking keys
        dc:validate-all-are-flatmaps
        dc:unfork-map-paths
-       (apply merge-with into)))
+       (apply merge-with into)
+;       dc:add-required-subpaths
+       ))

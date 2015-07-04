@@ -111,9 +111,7 @@
         (type {:x []}) => empty?)
 
       (future-fact "A path containing an array complains if prefix doesn't exist"
-        ;; This is equivalent of changing the call to canonicalize above to 
-        ;; (canonicalize {} [[:x path/ALL :y] [:x]]))]
-        (custom/explanations (type {})) => (just "must be present and non-nil"))
+        (custom/explanations (type {})) => (just #":x must exist"))
 
       (fact "an unfortunate side effect of strings being collections"
         (custom/explanations (type {:x "string"}))

@@ -241,8 +241,6 @@
                                                                      [:b :c] [pred/required-key]
                                                                      [:d] [pred/required-key]})))
 
-
-
 (fact dc:unfork-map-paths
   (fact "leaves flat paths alone"
     (subject/dc:unfork-map-paths []) => []
@@ -263,13 +261,78 @@
       (result [:a :b2 :c]) => (just [2 3] :in-any-order)))
 
   (fact "affects canonicalization"
-    (subject/canonicalize ..t.. (path/requires :a [:b [1 2] :c] :d)) => {[:a] [pred/required-key]
-                                                                         [:b 1 :c] [pred/required-key]
-                                                                         [:b 2 :c] [pred/required-key]
-                                                                         [:d] [pred/required-key]}
+    (subject/canonicalize ..t.. (path/requires :a [:b [:l1 :l2] :c] :d))
+    => {[:a] [pred/required-key]
+        [:b :l1 :c] [pred/required-key]
+        [:b :l2 :c] [pred/required-key]
+        [:d] [pred/required-key]}
     
     (subject/canonicalize ..t.. (path/requires [[:a :b]])) => {[:a] [pred/required-key]
                                                                [:b] [pred/required-key]}))
+
+(fact dc:add-required-subpaths
+  (subject/dc:add-required-subpaths []) => []
+  (fact "leaves non-required paths alone"
+    (let [in [ {[:a ALL] [even?]} ]]
+      (subject/dc:add-required-subpaths in) => in))
+  (fact "leaves paths with only keys alone"
+    (let [in [ {[:a :b] [pred/required-key]} ]]
+      (subject/dc:add-required-subpaths in) => in))
+
+  (tabular 
+    (fact "adds new maps for subpaths of required paths"
+      (let [original {?path [even? pred/required-key]}]
+        (subject/dc:add-required-subpaths original)
+        => (merge original ?additions)))
+    ?path                ?additions
+    [:a ALL]             {[:a] [pred/required-key]}
+    [:a ALL :b]          {[:a] [pred/required-key]}
+    [:a ALL :b ALL]      {[:a] [pred/required-key]
+                          [:a ALL :b] [pred/required-key]}
+    [:a ALL :b ALL :c]   {[:a] [pred/required-key]
+                          [:a ALL :b] [pred/required-key]}
+    [:a :b ALL :c]       {[:a :b] [pred/required-key]}
+    [:a :b ALL :c :d]    {[:a :b] [pred/required-key]}
+    [:a :b ALL ALL]      {[:a :b] [pred/required-key]}
+    [:a :b ALL ALL :c]   {[:a :b] [pred/required-key]}
+    )
+
+  (fact "new keys are created"
+    (subject/dc:add-required-subpaths {[:a ALL] [pred/required-key]})
+    => {[:a ALL] [pred/required-key]
+            [:a] [pred/required-key]})
+
+  (fact "old keys have required-key added on"
+    (subject/dc:add-required-subpaths {[:a] [vector?]
+                                       [:a ALL] [pred/required-key]})
+    => {[:a ALL] [pred/required-key]
+        [:a] [vector? pred/required-key]})
+
+  (fact "but it's not added on twice"
+    (subject/dc:add-required-subpaths {[:a] [pred/required-key]
+                                       [:a ALL] [pred/required-key]})
+    => {[:a ALL] [pred/required-key]
+        [:a] [pred/required-key]}
+
+    (subject/dc:add-required-subpaths {[:a] [vector?]
+                                       [:a ALL] [pred/required-key]
+                                       [:a ALL :b] [pred/required-key]})
+    => {[:a ALL] [pred/required-key]
+        [:a ALL :b] [pred/required-key]
+        [:a] [vector? pred/required-key]})
+  
+
+
+  (future-fact "affects canonicalization"
+
+    (subject/canonicalize ..t.. (path/requires [:a ALL :c]
+                                               [:b :f ALL])
+                                {:a even?}
+                                {[:b :f ALL] even?})
+    => {[:a ALL :c] [pred/required-key]
+        [:b :f ALL] [pred/required-key even?]
+        [:a]        [even? pred/required-key]
+        [:b :f]     [pred/required-key]}))
 
 
 
