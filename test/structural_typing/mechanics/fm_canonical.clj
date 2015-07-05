@@ -1,5 +1,6 @@
 (ns structural-typing.mechanics.fm-canonical
   (:require [structural-typing.mechanics.m-canonical :as subject]
+            [structural-typing.mechanics.ppps :as ppp]
             [structural-typing.api.path :as path]
             [structural-typing.api.predicates :as pred])
   (:require [com.rpl.specter :refer [ALL]])
@@ -10,43 +11,7 @@
 
 ;;; Utilities
 
-(facts "`flatten-forked-path` converts a single vector into a vector of paths."
-        
-  (fact "single-argument form"
-    (subject/flatten-forked-path [:x]) => [[:x]]
-    (subject/flatten-forked-path [:x :y]) => [[:x :y]]
-    (subject/flatten-forked-path [:x :y]) => [[:x :y]]
-    
-    (subject/flatten-forked-path [:x [:y :z]]) => [[:x :y] [:x :z]]
-    (subject/flatten-forked-path [:a :b [:c :d]]) => [[:a :b :c] [:a :b :d]]
-    
-    (subject/flatten-forked-path [:a :b [:c :d] :e]) => [[:a :b :c :e] [:a :b :d :e]]
-    
-    (subject/flatten-forked-path [:a :b [:c :d] :e [:f :g]])
-    => [[:a :b :c :e :f] 
-        [:a :b :c :e :g] 
-        [:a :b :d :e :f] 
-        [:a :b :d :e :g] ]
 
-    (fact "note that `forks` is a synonym"
-      (subject/flatten-forked-path [:x (path/forks :y1 :y2)]) => [[:x :y1] [:x :y2]])
-    
-    (fact "maps should have been removed before this is called"
-      (subject/flatten-forked-path [{:a even? :b even?}]) => (throws)
-      (subject/flatten-forked-path [:x :y {[:a :c] even? :b even?}]) => (throws)
-      (subject/flatten-forked-path [:x :y {:a {:c even?} :b even?}]) => (throws)
-      (subject/flatten-forked-path [:x :y {[:a :c] even? :b even?} :z]) => (throws))
-
-    (fact "the embedded paths don't have to be vectors"
-      (subject/flatten-forked-path [:x (list :y :z)]) => [[:x :y] [:x :z]]))
-
-  (fact "two argument forms"
-    (subject/flatten-forked-path [] [[]]) => [[]]
-    (subject/flatten-forked-path [:b] [[:a]]) => [[:a :b]]
-    (subject/flatten-forked-path [:b] [[1] [2]]) => [[1 :b] [2 :b]]
-
-    (subject/flatten-forked-path [:a [:b :c] [:d :e]] [[1]])
-    => (just [1 :a :b :d] [1 :a :b :e] [1 :a :c :d] [1 :a :c :e])))
 
 
 
@@ -111,16 +76,16 @@
           [:a :c] [pos?]
           [:c] [pred/required-key]})))
 
-(fact dc:spread-path-collections
+(fact dc:spread-collections-of-required-paths
   (fact "passes maps through unchanged"
-    (subject/dc:spread-path-collections (list {} {:a 1} )) => (just {} {:a 1}))
+    (subject/dc:spread-collections-of-required-paths (list {} {:a 1} )) => (just {} {:a 1}))
     
   (fact "splicing-substitutes paths"
-    (subject/dc:spread-path-collections (list (path/requires [:l1a :l2a] [:l1b :l2b]) ))
+    (subject/dc:spread-collections-of-required-paths (list (path/requires [:l1a :l2a] [:l1b :l2b]) ))
     => (just [:l1a :l2a] [:l1b :l2b]))
   
   (fact "converts a single key to a singleton path"
-    (subject/dc:spread-path-collections (list (path/requires :a :b) ))
+    (subject/dc:spread-collections-of-required-paths (list (path/requires :a :b) ))
     => (just [:a] [:b] ))
 
   (fact "affects canonicalization"
@@ -270,69 +235,6 @@
     (subject/canonicalize ..t.. (path/requires [[:a :b]])) => {[:a] [pred/required-key]
                                                                [:b] [pred/required-key]}))
 
-(fact dc:add-required-subpaths
-  (subject/dc:add-required-subpaths []) => []
-  (fact "leaves non-required paths alone"
-    (let [in [ {[:a ALL] [even?]} ]]
-      (subject/dc:add-required-subpaths in) => in))
-  (fact "leaves paths with only keys alone"
-    (let [in [ {[:a :b] [pred/required-key]} ]]
-      (subject/dc:add-required-subpaths in) => in))
-
-  (tabular 
-    (fact "adds new maps for subpaths of required paths"
-      (let [original {?path [even? pred/required-key]}]
-        (subject/dc:add-required-subpaths original)
-        => (merge original ?additions)))
-    ?path                ?additions
-    [:a ALL]             {[:a] [pred/required-key]}
-    [:a ALL :b]          {[:a] [pred/required-key]}
-    [:a ALL :b ALL]      {[:a] [pred/required-key]
-                          [:a ALL :b] [pred/required-key]}
-    [:a ALL :b ALL :c]   {[:a] [pred/required-key]
-                          [:a ALL :b] [pred/required-key]}
-    [:a :b ALL :c]       {[:a :b] [pred/required-key]}
-    [:a :b ALL :c :d]    {[:a :b] [pred/required-key]}
-    [:a :b ALL ALL]      {[:a :b] [pred/required-key]}
-    [:a :b ALL ALL :c]   {[:a :b] [pred/required-key]}
-    )
-
-  (fact "new keys are created"
-    (subject/dc:add-required-subpaths {[:a ALL] [pred/required-key]})
-    => {[:a ALL] [pred/required-key]
-            [:a] [pred/required-key]})
-
-  (fact "old keys have required-key added on"
-    (subject/dc:add-required-subpaths {[:a] [vector?]
-                                       [:a ALL] [pred/required-key]})
-    => {[:a ALL] [pred/required-key]
-        [:a] [vector? pred/required-key]})
-
-  (fact "but it's not added on twice"
-    (subject/dc:add-required-subpaths {[:a] [pred/required-key]
-                                       [:a ALL] [pred/required-key]})
-    => {[:a ALL] [pred/required-key]
-        [:a] [pred/required-key]}
-
-    (subject/dc:add-required-subpaths {[:a] [vector?]
-                                       [:a ALL] [pred/required-key]
-                                       [:a ALL :b] [pred/required-key]})
-    => {[:a ALL] [pred/required-key]
-        [:a ALL :b] [pred/required-key]
-        [:a] [vector? pred/required-key]})
-  
-
-
-  (future-fact "affects canonicalization"
-
-    (subject/canonicalize ..t.. (path/requires [:a ALL :c]
-                                               [:b :f ALL])
-                                {:a even?}
-                                {[:b :f ALL] even?})
-    => {[:a ALL :c] [pred/required-key]
-        [:b :f ALL] [pred/required-key even?]
-        [:a]        [even? pred/required-key]
-        [:b :f]     [pred/required-key]}))
 
 
 
@@ -475,4 +377,69 @@
       [:a :b1 :c :d2] [even?]
       [:a :b2 :c :d1] [even?]
       [:a :b2 :c :d2] [even?]})
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Canonicalization performs the following steps
+
+(fact
+  (let [Point {:x2x [pred/required-key integer?]
+               :x2y [pred/required-key integer?]}
+        type-map {:Point Point}]
+
+    (future-fact "first, expand type signifiers: no old types are irrelevant"
+      (dc:expand-type-signifiers type-map [[:a (path/includes :Point)]]) => [[:a Point]])
+    ;; Now there are no type signifiers
+
+    (future-fact "get rid of vectors"
+      (future-fact "maps remain unchanged"
+        (subject/dc2:signifier-free->condensed-maps [{:a even?}] => [{:a even?}]))
+
+      (future-fact "vectors produce a map for each element"
+        (subject/dc2:signifier-free->condensed-maps [ :a
+                                            [:b :c] ] => [ {:a pred/required-key}
+                                                           {[:b :d] pred/required-key?}])
+
+        (future-fact "exception: vectors with a trailing map produce two maps"
+          (subject/dc2:signifier-free->condensed-maps [ [:a :b {:x even? :y odd?}] ])
+          => [ { [:a :b] pred/required-key }
+               { [:a :b] {:x even? :y odd?} } ])))
+
+    (future-fact "maps to condensed ppps"
+      (subject/dc2:condensed-maps->condensed-ppps [ {:a pred/required-key}
+                                                    {[:a :b] [pred/required-key even?]}
+                                                    {:a {:b even?}} ])
+      => (just (just [:a] #{pred/required-key})
+               (just [:a :b] #{pred/required-key even?})
+               (just [:a :b] #{even?})))
+
+    (fact "condensed ppps to ppps"
+      (fact "unforking"
+        (subject/dc2:condensed-ppps->ppps [ (vector [:a [:b1 :b2] ] #{even?}) ])
+        => (just (just [:a :b1] #{even?})
+                 (just [:a :b2] #{even?})))
+
+      (future-fact "dealing with required elements in paths through collections"
+        (subject/dc2:condensed-ppps->ppps [ (vector [:a ALL] #{pred/required-key even?}) ])
+        => (just (vector [:a ALL] #{pred/required-key even?})
+                 (vector [:a] #{pred/required}))))
+
+    (fact "combining into a type description"
+      (let [result (ppp/dc2:ppps->type-description [ (vector [:a :b] #{even?})
+                                                         (vector [:a :b] #{odd?})
+                                                         (vector [:a] #{pred/required-key})])]
+        (get result [:a :b]) => vector?
+        (get result [:a :b]) => (just [(exactly even?) (exactly odd?)] :in-any-order)
+        (get result [:a]) => vector?
+        (get result [:a]) => [pred/required-key]))))
+
 
