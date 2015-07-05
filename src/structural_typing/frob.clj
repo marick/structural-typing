@@ -34,7 +34,6 @@
   (fn two-arg-form
     ([transformer pred]
        (fn lazily-handle [[x & xs :as lazyseq]]
-         (prn lazyseq)
          (lazy-seq 
           (cond (empty? lazyseq)
                 nil
