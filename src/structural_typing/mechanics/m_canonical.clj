@@ -10,30 +10,12 @@
 ;;; Utilities 
 
 
-
-
-
-
-
-
-
-
-
-
-(defn- mkfn:passing-through [ignore-pred process-fn]
-  (fn [mixture]
-    (map #(if (ignore-pred %)
-            %
-            (process-fn %))
-         mixture)))
-  
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 
-(defn dc:validate-description-types [mixture]
-  ( (mkfn:passing-through (some-fn map? sequential?)
-                          #(frob/boom "Types are described with maps or vectors: `%s` has `%s`"
-                                      mixture %))
-    mixture))
+(def dc:validate-description-types
+  (frob/mkst:validator (some-fn map? sequential?)
+                       #(frob/boom "Types are described with maps or vectors: `%s` has `%s`"
+                                   %1 %2)))
 
 (defn dc:expand-type-signifiers [type-map form]
   (let [do-one #(if (path/type-finder? %) (% type-map) %)]
@@ -66,23 +48,25 @@
                     path-ending-in-map?))
                     
 
-(defn dc:flatten-maps [mixture]
+
+
+(def dc:flatten-maps
   (letfn [(do-one [kvs parent-path]
             (reduce (fn [so-far [path v]]
                       (when (and (sequential? path)
                                  (some map? path))
-                          (frob/boom "A path used as a map key may not itself contain a map: `%s`" path))
+                        (frob/boom "A path used as a map key may not itself contain a map: `%s`" path))
                       (let [extended-path (frob/adding-on parent-path path)]
                         (merge-with into so-far
-                                  (if (map? v)
-                                    (do-one v extended-path)
-                                    (hash-map extended-path (frob/force-vector v))))))
+                                    (if (map? v)
+                                      (do-one v extended-path)
+                                      (hash-map extended-path (frob/force-vector v))))))
                     {}
                     kvs))]
-    ( (mkfn:passing-through sequential? #(do-one % [])) mixture)))
+    (frob/mkst:x->y #(do-one % []) map?)))
 
 (def dc:required-paths->maps 
-  (mkfn:passing-through map? #(hash-map % [pred/required-key])))
+  (frob/mkst:x->y #(hash-map % [pred/required-key]) (complement map?)))
 
 (defn dc:validate-all-are-flatmaps [xs]
   (doseq [x xs]
@@ -118,8 +102,9 @@
     (frob/boom "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
 
   (->> condensed-type-descriptions
-       (dc:expand-type-signifiers type-map)
+       (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level
        dc:validate-description-types
+
        dc:spread-collections-of-required-paths      ; affects vectors, skips maps
        dc:split-paths-ending-in-maps   ; produces new vectors and maps
        dc:flatten-maps                 ; affects maps
