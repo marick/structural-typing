@@ -38,6 +38,13 @@
   (spread-path-and-x spreader preds-part))
 
 
+(def flatmaps->ppps 
+  (frob/mkst:x->abc (partial map (fn [[path preds]] (->ppp path (set preds))))))
+
+
+
+
+
 
 (def fix-forked-paths 
   (frob/mkst:x->abc (spread-path derive/from-forked-paths)

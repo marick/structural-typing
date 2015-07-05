@@ -5,7 +5,13 @@
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
-
+(fact flatmaps->ppps 
+  (subject/flatmaps->ppps [{[:a] [even?]
+                            [:b] [odd?]}
+                           {[:c] [pos?]}]) => (just (->ppp [:a] #{even?})
+                                                    (->ppp [:b] #{odd?})
+                                                    (->ppp [:c] #{pos?})
+                                                    :in-any-order))
 (fact fix-forked-paths
   (fact "leaves flat paths alone"
     (subject/fix-forked-paths []) => empty?
