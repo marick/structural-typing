@@ -37,27 +37,23 @@
 (defn spread-path [spreader]
   (spread-path-and-x spreader preds-part))
 
+;;; description decompressors
 
-(def flatmaps->ppps 
+(def dc:flatmaps->ppps 
   (frob/mkst:x->abc (partial map (fn [[path preds]] (->ppp path (set preds))))))
 
-
-
-
-
-
-(def fix-forked-paths 
+(def dc:fix-forked-paths 
   (frob/mkst:x->abc (spread-path derive/from-forked-paths)
                     forking?))
 
-(def fix-required-paths-with-collection-selectors
+(def dc:fix-required-paths-with-collection-selectors
   (frob/mkst:x->xabc (spread-path-into-required-ppps derive/from-paths-with-collection-selectors)
                      required?))
 
 
+;;; And the final result
 
-
-(defn dc2:ppps->type-description [stream]
+(defn ->type-description [stream]
   (letfn [(make-map [stream]
             (reduce (fn [so-far [path preds]]
                       (update-in so-far [path] set/union preds))

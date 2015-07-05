@@ -5,25 +5,25 @@
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
-(fact flatmaps->ppps 
-  (subject/flatmaps->ppps [{[:a] [even?]
-                            [:b] [odd?]}
-                           {[:c] [pos?]}]) => (just (->ppp [:a] #{even?})
-                                                    (->ppp [:b] #{odd?})
-                                                    (->ppp [:c] #{pos?})
-                                                    :in-any-order))
-(fact fix-forked-paths
+(fact dc:flatmaps->ppps 
+  (subject/dc:flatmaps->ppps [{[:a] [even?]
+                               [:b] [odd?]}
+                              {[:c] [pos?]}]) => (just (->ppp [:a] #{even?})
+                                                       (->ppp [:b] #{odd?})
+                                                       (->ppp [:c] #{pos?})
+                                                       :in-any-order))
+(fact dc:fix-forked-paths
   (fact "leaves flat paths alone"
-    (subject/fix-forked-paths []) => empty?
-    (subject/fix-forked-paths [ (->ppp [:a] ..preds..) ]) => [ (->ppp [:a] ..preds..) ])
+    (subject/dc:fix-forked-paths []) => empty?
+    (subject/dc:fix-forked-paths [ (->ppp [:a] ..preds..) ]) => [ (->ppp [:a] ..preds..) ])
 
   (fact "produces new ppps for forking paths"
-    (subject/fix-forked-paths [ (->ppp [:a [:b1 :b2] :c] ..preds..)
-                                          (->ppp [:simple] ..more-preds..)])
+    (subject/dc:fix-forked-paths [ (->ppp [:a [:b1 :b2] :c] ..preds..)
+                                   (->ppp [:simple] ..more-preds..)])
     => (just (->ppp [:a :b1 :c] ..preds..)
              (->ppp [:a :b2 :c] ..preds..)
              (->ppp [:simple] ..more-preds..)))
-
+  
   (future-fact "affects canonicalization"
     (subject/canonicalize ..t.. (path/requires :a [:b [:l1 :l2] :c] :d))
     => {[:a] [pred/required-key]
@@ -35,20 +35,20 @@
                                                                [:b] [pred/required-key]}))
   
 
-(fact fix-required-paths-with-collection-selectors
-  (subject/fix-required-paths-with-collection-selectors []) => []
+(fact dc:fix-required-paths-with-collection-selectors
+  (subject/dc:fix-required-paths-with-collection-selectors []) => []
 
   (fact "leaves non-required paths alone"
     (let [in [ (->ppp [:a ALL] #{even?}) ]]
-      (subject/fix-required-paths-with-collection-selectors in) => in))
+      (subject/dc:fix-required-paths-with-collection-selectors in) => in))
   (future-fact "leaves paths with only keys alone"
     (let [in [ (->ppp [:a :b] #{pred/required-key}) ]]
-      (subject/fix-required-paths-with-collection-selectors in) => in))
+      (subject/dc:fix-required-paths-with-collection-selectors in) => in))
 
   (tabular 
     (fact "adds new ppps for subpaths of required paths"
       (let [original (->ppp ?path #{even? pred/required-key})]
-        (subject/fix-required-paths-with-collection-selectors [original])
+        (subject/dc:fix-required-paths-with-collection-selectors [original])
         => (cons original ?additions)))
     ?path                ?additions
     [:a ALL]             [(->ppp [:a] #{pred/required-key})]
@@ -77,30 +77,30 @@
 
 
 
-(fact dc2:ppps->type-description
+(fact ->type-description
   (fact "it produces a map from ppps"
-    (let [result (subject/dc2:ppps->type-description [ (->ppp [:x] #{1 2})
+    (let [result (subject/->type-description [ (->ppp [:x] #{1 2})
                                                        (->ppp [:y] #{3})])]
       (get result [:x]) => vector?
       (get result [:x]) => (just 1 2 :in-any-order)
       (get result [:y]) => [3]))
-                                             
-  (fact "duplicate paths are combined"
-    (let [result (subject/dc2:ppps->type-description [ (->ppp [:x] #{1})
-                                                       (->ppp [:x] #{2})])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
-
-  (fact "duplicate predicates appear only once"
-    (let [result (subject/dc2:ppps->type-description [ (->ppp [:x] #{1})
-                                                       (->ppp [:x] #{2})
-                                                       (->ppp [:x] #{2})])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
-
-  (fact "the predicate list is a vector with required-key first (if present)")
-    (let [result (subject/dc2:ppps->type-description [ (->ppp [:x] #{even?})
-                                                       (->ppp [:x] #{odd?})
-                                                       (->ppp [:x] #{pred/required-key})
-                                                       (->ppp [:x] #{integer?})
-                                                       (->ppp [:x] #{pos?})])]
-      (first (get result [:x])) => (exactly pred/required-key)))
   
+  (fact "duplicate paths are combined"
+    (let [result (subject/->type-description [ (->ppp [:x] #{1})
+                                               (->ppp [:x] #{2})])]
+      (get result [:x]) => (just 1 2 :in-any-order)))
+  
+  (fact "duplicate predicates appear only once"
+    (let [result (subject/->type-description [ (->ppp [:x] #{1})
+                                               (->ppp [:x] #{2})
+                                               (->ppp [:x] #{2})])]
+      (get result [:x]) => (just 1 2 :in-any-order)))
+  
+  (fact "the predicate list is a vector with required-key first (if present)"
+    (let [result (subject/->type-description [ (->ppp [:x] #{even?})
+                                               (->ppp [:x] #{odd?})
+                                               (->ppp [:x] #{pred/required-key})
+                                               (->ppp [:x] #{integer?})
+                                               (->ppp [:x] #{pos?})])]
+      (first (get result [:x])) => (exactly pred/required-key))))
+

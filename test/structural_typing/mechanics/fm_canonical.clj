@@ -206,34 +206,7 @@
                                                                      [:b :c] [pred/required-key]
                                                                      [:d] [pred/required-key]})))
 
-(fact dc:unfork-map-paths
-  (fact "leaves flat paths alone"
-    (subject/dc:unfork-map-paths []) => []
-    (subject/dc:unfork-map-paths (list {[:a] [1]} )) => (just {[:a] [1]}))
 
-  (fact "produces new keys for forking paths"
-    (subject/dc:unfork-map-paths (list {[:a [:b1 :b2] :c] [1], [:simple] [2]}))
-    => (just {[:a :b1 :c] [1]
-              [:a :b2 :c] [1]
-              [:simple] [2]}))
-
-  (fact "when de-forking causes duplicate paths, values are merged"
-    (let [[result] (subject/dc:unfork-map-paths (list {[:a :b1 :c] [1]
-                                                     [:a [:b1 :b2] :c] [2]
-                                                     [:a :b2 :c] [3]}))]
-      (keys result) => (just [:a :b1 :c] [:a :b2 :c] :in-any-order)
-      (result [:a :b1 :c]) => (just [1 2] :in-any-order)
-      (result [:a :b2 :c]) => (just [2 3] :in-any-order)))
-
-  (fact "affects canonicalization"
-    (subject/canonicalize ..t.. (path/requires :a [:b [:l1 :l2] :c] :d))
-    => {[:a] [pred/required-key]
-        [:b :l1 :c] [pred/required-key]
-        [:b :l2 :c] [pred/required-key]
-        [:d] [pred/required-key]}
-    
-    (subject/canonicalize ..t.. (path/requires [[:a :b]])) => {[:a] [pred/required-key]
-                                                               [:b] [pred/required-key]}))
 
 
 
@@ -399,20 +372,6 @@
     (future-fact "first, expand type signifiers: no old types are irrelevant"
       (dc:expand-type-signifiers type-map [[:a (path/includes :Point)]]) => [[:a Point]])
     ;; Now there are no type signifiers
-
-    (future-fact "get rid of vectors"
-      (future-fact "maps remain unchanged"
-        (subject/dc2:signifier-free->condensed-maps [{:a even?}] => [{:a even?}]))
-
-      (future-fact "vectors produce a map for each element"
-        (subject/dc2:signifier-free->condensed-maps [ :a
-                                            [:b :c] ] => [ {:a pred/required-key}
-                                                           {[:b :d] pred/required-key?}])
-
-        (future-fact "exception: vectors with a trailing map produce two maps"
-          (subject/dc2:signifier-free->condensed-maps [ [:a :b {:x even? :y odd?}] ])
-          => [ { [:a :b] pred/required-key }
-               { [:a :b] {:x even? :y odd?} } ])))
 
     (future-fact "maps to condensed ppps"
       (subject/dc2:condensed-maps->condensed-ppps [ {:a pred/required-key}
