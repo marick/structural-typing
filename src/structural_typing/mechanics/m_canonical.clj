@@ -40,9 +40,6 @@
                        (vector prefix-path (hash-map prefix-path (last %))))
                     path-ending-in-map?))
                     
-
-
-
 (def dc:flatten-maps
   (letfn [(do-one [kvs parent-path]
             (reduce (fn [so-far [path v]]
@@ -92,9 +89,11 @@
        dc:required-paths->maps         ; everything is now a flatmap w/ potentially forking keys
 
        dc:flatten-maps
-       dc:unfork-map-paths
-       (apply merge-with into)
-       ))
+
+       ppp/flatmaps->ppps
+       ppp/fix-forked-paths
+       ppp/fix-required-paths-with-collection-selectors
+       ppp/dc2:ppps->type-description))
 
 
 
