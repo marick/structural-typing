@@ -69,3 +69,6 @@
 
 
             
+(defn mkst:validator [pred exploder]
+  (fn [coll]
+    (map #(if (pred %) % (exploder coll %)) coll)))
