@@ -30,4 +30,43 @@
 (defn adding-on [coll maybe-vector]
   (into coll (force-vector maybe-vector)))
 
+(defn mkfn:mkst [prefixer]
+  (fn two-arg-form
+    ([transformer pred]
+       (fn lazily-handle [[x & xs :as lazyseq]]
+         (prn lazyseq)
+         (lazy-seq 
+          (cond (empty? lazyseq)
+                nil
+                          
+                (pred x)
+                ((prefixer x (transformer x)) (lazily-handle xs))
+                          
+                :else
+                (cons x (lazily-handle xs))))))
+    ([transformer]
+       (two-arg-form transformer (constantly true)))))
 
+(def mkst:x->abc
+  "Takes a transformer function and optional predicate, which defaults to `(constantly true)`.
+   The transformer function must produce a collection. 
+   Produces a function that converts one lazy sequence into another.
+   For each element of the input sequence:
+   * If `pred` is falsey, the unchanged element is in the output sequence.
+   * If `pred` is truthy, the transformed element is \"spliced\" into the output
+     sequence in replace of the original.
+   
+           (let [replace-with-N-copies (mkst:x->abc #(repeat % %))]
+             (replace-with-n-copies [0 1 2 3]) => [1 2 2 3 3 3])
+
+           (let [replace-evens-with-N-copies (mkst:x->abc #(repeat % %) even?)]
+             (replace-with-n-copies [0 1 2 3]) => [1 2 2 3])
+"
+  (mkfn:mkst (fn [x tx] #(concat tx %))))
+
+(def mkst:x->xabc (mkfn:mkst (fn [x tx] #(cons x (concat tx %)))))
+(def mkst:x->y (mkfn:mkst (fn [x tx] #(cons tx %))))
+            
+
+
+            
