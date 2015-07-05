@@ -24,7 +24,7 @@
 
 (fact dc:validate-description-types
   (fact "passes through many things unchanged"
-    (subject/dc:validate-description-types (list {} [] )) => (list {} [] ))
+    (subject/dc:validate-starting-descriptions (list {} [] )) => (list {} [] ))
 
   (fact "errors in canonicalize context"
     (subject/canonicalize ..t.. :a) => (throws #"maps or vectors")))
@@ -421,17 +421,6 @@
       => (just (just [:a] #{pred/required-key})
                (just [:a :b] #{pred/required-key even?})
                (just [:a :b] #{even?})))
-
-    (fact "condensed ppps to ppps"
-      (fact "unforking"
-        (subject/dc2:condensed-ppps->ppps [ (vector [:a [:b1 :b2] ] #{even?}) ])
-        => (just (just [:a :b1] #{even?})
-                 (just [:a :b2] #{even?})))
-
-      (future-fact "dealing with required elements in paths through collections"
-        (subject/dc2:condensed-ppps->ppps [ (vector [:a ALL] #{pred/required-key even?}) ])
-        => (just (vector [:a ALL] #{pred/required-key even?})
-                 (vector [:a] #{pred/required}))))
 
     (fact "combining into a type description"
       (let [result (ppp/dc2:ppps->type-description [ (vector [:a :b] #{even?})

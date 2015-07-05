@@ -6,26 +6,6 @@
             [com.rpl.specter :as specter]
             [clojure.set :as set]))
 
-
-;;; Utilities 
-
-
-;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
-
-(def dc:validate-description-types
-  (frob/mkst:validator (some-fn map? sequential?)
-                       #(frob/boom "Types are described with maps or vectors: `%s` has `%s`"
-                                   %1 %2)))
-
-(defn dc:expand-type-signifiers [type-map form]
-  (let [do-one #(if (path/type-finder? %) (% type-map) %)]
-    (specter/update (specter/walker path/type-finder?) do-one form)))
-
-
-(def dc:spread-collections-of-required-paths
-  (frob/mkst:x->abc (partial map frob/force-vector) (complement map?)))
-
-
 (defn path-ending-in-map? [x]
   (cond (map? x)
         false
@@ -41,6 +21,19 @@
         
         :else
         true))
+
+;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
+
+(defn dc:expand-type-signifiers [type-map form]
+  (let [do-one #(if (path/type-finder? %) (% type-map) %)]
+    (specter/update (specter/walker path/type-finder?) do-one form)))
+
+(def dc:validate-starting-descriptions
+  (frob/mkst:validator (some-fn map? sequential?)
+                       #(frob/boom "Types are described with maps or vectors: `%s` has `%s`"
+                                   %1 %2)))
+(def dc:spread-collections-of-required-paths
+  (frob/mkst:x->abc (partial map frob/force-vector) (complement map?)))
 
 (def dc:split-paths-ending-in-maps
   (frob/mkst:x->abc #(let [prefix-path (pop %)]
@@ -68,18 +61,6 @@
 (def dc:required-paths->maps 
   (frob/mkst:x->y #(hash-map % [pred/required-key]) (complement map?)))
 
-(defn dc:validate-all-are-flatmaps [xs]
-  (doseq [x xs]
-    (when-not (map? x)
-      (frob/boom "Program error: %s should be a map" x))
-    (doseq [[k v] x]
-      (when-not (vector? k)
-        (frob/boom "Program error: %s is supposed to be an expanded path" x))
-      
-      (when-not (vector? v)
-        (frob/boom "Program error: %s is supposed to be a vector of predicates" x))))
-  xs)
-
 (def forked-path? (partial some sequential?))
 
       
@@ -103,53 +84,18 @@
 
   (->> condensed-type-descriptions
        (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level
-       dc:validate-description-types
+       dc:validate-starting-descriptions
 
+       ;; Let's work with the vectors of required paths, ending up with maps
        dc:spread-collections-of-required-paths      ; affects vectors, skips maps
        dc:split-paths-ending-in-maps   ; produces new vectors and maps
-       dc:flatten-maps                 ; affects maps
        dc:required-paths->maps         ; everything is now a flatmap w/ potentially forking keys
-       dc:validate-all-are-flatmaps
+
+       dc:flatten-maps
        dc:unfork-map-paths
        (apply merge-with into)
-;       dc:fix-required-paths-with-collection-selectors
        ))
 
 
-
-
-(defn canonicalize2 [type-map & condensed-type-descriptions]
-  (when (empty? condensed-type-descriptions)
-    (frob/boom "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
-
-  (->> condensed-type-descriptions
-       (dc:expand-type-signifiers type-map)
-       dc:validate-description-types
-       dc:spread-collections-of-required-paths      ; affects vectors, skips maps
-       dc:split-paths-ending-in-maps   ; produces new vectors and maps
-       dc:flatten-maps                 ; affects maps
-       dc:required-paths->maps         ; everything is now a flatmap w/ potentially forking keys
-       dc:validate-all-are-flatmaps
-       dc:unfork-map-paths
-       (apply merge-with into)
-;       dc:fix-required-paths-with-collection-selectors
-       ))
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn dc2:signifier-free->condensed-maps [[x & xs :as stream]]
-)
-
-(defn dc2:condensed-maps->condensed-ppps [[x & xs :as stream]]
-)
-
-
-(defn dc2:condensed-ppps->ppps [[x & xs :as stream]]
-  (-> stream
-      ppp/fix-forked-paths))
 
 
