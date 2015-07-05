@@ -382,9 +382,9 @@
                (just [:a :b] #{even?})))
 
     (fact "combining into a type description"
-      (let [result (ppp/dc2:ppps->type-description [ (vector [:a :b] #{even?})
-                                                         (vector [:a :b] #{odd?})
-                                                         (vector [:a] #{pred/required-key})])]
+      (let [result (ppp/->type-description [ (vector [:a :b] #{even?})
+                                             (vector [:a :b] #{odd?})
+                                             (vector [:a] #{pred/required-key})])]
         (get result [:a :b]) => vector?
         (get result [:a :b]) => (just [(exactly even?) (exactly odd?)] :in-any-order)
         (get result [:a]) => vector?
