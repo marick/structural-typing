@@ -1,6 +1,5 @@
 (ns structural-typing.mechanics.fm-lifting-predicates
   (:require [structural-typing.mechanics.m-lifting-predicates :as subject]
-            [structural-typing.mechanics.m-run :as run]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as default])

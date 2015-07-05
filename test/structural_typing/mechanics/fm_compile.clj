@@ -1,6 +1,5 @@
 (ns structural-typing.mechanics.fm-compile
   (:require [structural-typing.mechanics.m-compile :as subject]
-            [structural-typing.mechanics.m-run :as run]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.custom :as custom]
