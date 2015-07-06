@@ -90,21 +90,18 @@
 (type! :Middle {[:a ALL :b] [required-key even?]})
 (type! :Double {[:a ALL :b ALL] [required-key even?]})
 (fact 
-  (with-out-str (checked :Terminal {})) =future=> #":a must exist"
+  (with-out-str (checked :Terminal {})) => #":a must exist"
 
-  (with-out-str (checked :Middle {})) =future=> #":a must exist"
+  (with-out-str (checked :Middle {})) => #":a must exist"
   (checked :Middle {:a []}) => {:a []}
   (with-out-str (checked :Middle {:a [{:c 1}]})) => #"\[:a ALL :b\] must exist"
 
-  (with-out-str (checked :Double {}) =future=> #":a must exist")
+  (with-out-str (checked :Double {})) => #":a must exist"
   (checked :Double {:a []}) => {:a []}
-  (with-out-str (checked :Double {:a [{:c 1}]}) =future=> #"\[:a ALL :b\] must exist")
+  (with-out-str (checked :Double {:a [{:c 1}]})) => #"\[:a ALL :b\] must exist"
   (checked :Double {:a [{:b []}]}) => {:a [{:b []}]}
   (with-out-str (checked :Double {:a [{:b [1]}]})) => #"\[:a ALL :b ALL\] should be `even"
-  (checked :Double {:a [{:b [2 4]}]}) => {:a [{:b [2 4]}]}
-  )
-
-
+  (checked :Double {:a [{:b [2 4]}]}) => {:a [{:b [2 4]}]})
 
 
 (type! :DoubleNested {[:a ALL :b ALL] even?})

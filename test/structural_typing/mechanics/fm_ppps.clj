@@ -28,17 +28,7 @@
                                    (->ppp [:simple] ..more-preds..)])
     => (just (->ppp [:a :b1 :c] ..preds..)
              (->ppp [:a :b2 :c] ..preds..)
-             (->ppp [:simple] ..more-preds..)))
-  
-  (future-fact "affects canonicalization"
-    (subject/canonicalize ..t.. (path/requires :a [:b [:l1 :l2] :c] :d))
-    => {[:a] [pred/required-key]
-        [:b :l1 :c] [pred/required-key]
-        [:b :l2 :c] [pred/required-key]
-        [:d] [pred/required-key]}
-    
-    (subject/canonicalize ..t.. (path/requires [[:a :b]])) => {[:a] [pred/required-key]
-                                                               [:b] [pred/required-key]}))
+             (->ppp [:simple] ..more-preds..))))
   
 
 (fact dc:fix-required-paths-with-collection-selectors
@@ -47,7 +37,7 @@
   (fact "leaves non-required paths alone"
     (let [in [ (->ppp [:a ALL] #{even?}) ]]
       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
-  (future-fact "leaves paths with only keys alone"
+  (fact "leaves paths with only keys alone"
     (let [in [ (->ppp [:a :b] #{pred/required-key}) ]]
       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
 
@@ -66,20 +56,8 @@
     [:a :b ALL :c]       [(->ppp [:a :b] #{pred/required-key})]
     [:a :b ALL :c :d]    [(->ppp [:a :b] #{pred/required-key})]
     [:a :b ALL ALL]      [(->ppp [:a :b] #{pred/required-key})]
-    [:a :b ALL ALL :c]   [(->ppp [:a :b] #{pred/required-key})]
-    )
+    [:a :b ALL ALL :c]   [(->ppp [:a :b] #{pred/required-key})]))
 
-
-  (future-fact "affects canonicalization"
-
-    (subject/canonicalize ..t.. (path/requires [:a ALL :c]
-                                               [:b :f ALL])
-                                {:a even?}
-                                {[:b :f ALL] even?})
-    => {[:a ALL :c] [pred/required-key]
-        [:b :f ALL] [pred/required-key even?]
-        [:a]        [even? pred/required-key]
-        [:b :f]     [pred/required-key]}))
 
 
 

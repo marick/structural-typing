@@ -166,6 +166,31 @@
                                            :y integer?}}})
       => {[:points ALL :x] [integer?]
           [:points ALL :y] [integer?]}))
+
+
+  (fact dc:fix-forked-paths
+    (subject/canonicalize ..t.. (path/requires :a [:b [:l1 :l2] :c] :d))
+    => {[:a] [pred/required-key]
+        [:b :l1 :c] [pred/required-key]
+        [:b :l2 :c] [pred/required-key]
+        [:d] [pred/required-key]}
+    
+    (subject/canonicalize ..t.. (path/requires [[:a :b]])) => {[:a] [pred/required-key]
+                                                               [:b] [pred/required-key]})
+  
+
+  (fact dc:fix-required-paths-with-collection-selectors
+    (subject/canonicalize ..t.. (path/requires [:a ALL :c]
+                                               [:b :f ALL])
+                                {:a even?}
+                                {[:b :f ALL] even?})
+    => {[:a ALL :c] [pred/required-key]
+        [:b :f ALL] [pred/required-key even?] ; Note that this order is enforced
+        [:a]        [pred/required-key even?]
+        [:b :f]     [pred/required-key]})
+
+
+
 )
 
 

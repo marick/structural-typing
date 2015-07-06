@@ -109,7 +109,7 @@
         (custom/explanations (type {:x [1]})) => (just "[:x ALL :y] must exist and be non-nil")
         (type {:x []}) => empty?)
 
-      (future-fact "A path containing an array complains if prefix doesn't exist"
+      (fact "A path containing an array complains if prefix doesn't exist"
         (custom/explanations (type {})) => (just #":x must exist"))
 
       (fact "an unfortunate side effect of strings being collections"
