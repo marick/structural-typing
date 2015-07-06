@@ -1,7 +1,7 @@
 (ns structural-typing.api.type-repo
   "The `TypeRepo` structure and its functions."
-  (:require [structural-typing.mechanics.m-canonical :as canon]
-            [structural-typing.mechanics.m-compile :as compile]
+  (:require [structural-typing.mechanics.canonicalizing-types :as canon]
+            [structural-typing.mechanics.compiling-types :as compile]
             [structural-typing.api.defaults :as default]
             [structural-typing.frob :as frob]))
 

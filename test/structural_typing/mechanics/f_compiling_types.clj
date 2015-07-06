@@ -1,9 +1,9 @@
-(ns structural-typing.mechanics.fm-compile
-  (:require [structural-typing.mechanics.m-compile :as subject]
+(ns structural-typing.mechanics.f-compiling-types
+  (:require [structural-typing.mechanics.compiling-types :as subject]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.custom :as custom]
-            [structural-typing.mechanics.m-canonical :refer [canonicalize]])
+            [structural-typing.mechanics.canonicalizing-types :refer [canonicalize]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
 

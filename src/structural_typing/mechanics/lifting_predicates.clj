@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.mechanics.m-lifting-predicates
+(ns ^:no-doc structural-typing.mechanics.lifting-predicates
   (:require [blancas.morph.monads :as e]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as defaults]

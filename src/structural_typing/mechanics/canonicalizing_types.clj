@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.mechanics.m-canonical
+(ns ^:no-doc structural-typing.mechanics.canonicalizing-types
   (:require [structural-typing.frob :as frob]
             [structural-typing.mechanics.ppps :as ppp]
             [structural-typing.api.path :as path]

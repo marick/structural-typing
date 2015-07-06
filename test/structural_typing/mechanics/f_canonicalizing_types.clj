@@ -1,5 +1,5 @@
-(ns structural-typing.mechanics.fm-canonical
-  (:require [structural-typing.mechanics.m-canonical :as subject]
+(ns structural-typing.mechanics.f-canonicalizing-types
+  (:require [structural-typing.mechanics.canonicalizing-types :as subject]
             [structural-typing.mechanics.ppps :as ppp]
             [structural-typing.api.path :as path]
             [structural-typing.api.predicates :as pred])

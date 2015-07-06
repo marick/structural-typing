@@ -3,7 +3,7 @@
    frequently useful predicates of that sort.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
-  (:require [structural-typing.mechanics.m-lifting-predicates :as lift]
+  (:require [structural-typing.mechanics.lifting-predicates :as lift]
             [structural-typing.frob :as frob]
             [structural-typing.api.custom :as custom]))
 
