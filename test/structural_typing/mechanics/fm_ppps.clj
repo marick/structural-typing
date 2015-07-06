@@ -11,7 +11,13 @@
                               {[:c] [pos?]}]) => (just (->ppp [:a] #{even?})
                                                        (->ppp [:b] #{odd?})
                                                        (->ppp [:c] #{pos?})
-                                                       :in-any-order))
+                                                       :in-any-order)
+
+  (fact "you must have only predicates in the predicate list"
+    (subject/dc:flatmaps->ppps [ {[:points ALL] [pred/required-key 5]} ])
+    => (throws #"`5` is not a predicate.")))
+
+                              
 (fact dc:fix-forked-paths
   (fact "leaves flat paths alone"
     (subject/dc:fix-forked-paths []) => empty?

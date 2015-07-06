@@ -37,12 +37,15 @@
 (defn spread-path [spreader]
   (spread-path-and-x spreader preds-part))
 
-
+(def validated-preds 
+  (partial map #(if (frob/extended-fn? %)
+                  %
+                  (frob/boom "`%s` is not a predicate." %))))
 
 ;;; description decompressors
 
 (def dc:flatmaps->ppps 
-  (frob/mkst:x->abc (partial map (fn [[path preds]] (->ppp path (set preds))))))
+  (frob/mkst:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
 
 (def dc:fix-forked-paths 
   (frob/mkst:x->abc (spread-path derive/from-forked-paths)
