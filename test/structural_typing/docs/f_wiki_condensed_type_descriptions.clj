@@ -180,18 +180,23 @@
   :Line1
   :Line2)
 
+
+;;; This 
+(future-fact "Delete undocumented feature?")
+
 (type! :Figure1
        (requires :color
                  [:points ALL (includes :Point)])
        {:color string?})
 
 (type! :Figure2
-       {:color [required-key string?]
-        [:points ALL] [required-key (includes :Point)]})
+       (requires :color :points)
+       {:color string?
+        [:points ALL] (includes :Point)})
 
 
 (tabular 
-  (future-fact
+  (fact
     (let [result (with-out-str (checked ?version {:points [{:x 1 :y "2"}]}))]
       result => #":color must exist"
       result => #"\[:points ALL :y\] should be `integer"))
