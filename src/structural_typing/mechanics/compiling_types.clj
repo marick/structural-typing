@@ -1,6 +1,5 @@
 (ns ^:no-doc structural-typing.mechanics.compiling-types
   (:require [blancas.morph.monads :as e]
-            [structural-typing.api.predicates :as pred]
             [com.rpl.specter :as specter]
             [structural-typing.api.custom :as custom]
             [structural-typing.mechanics.lifting-predicates :refer [lift]]))

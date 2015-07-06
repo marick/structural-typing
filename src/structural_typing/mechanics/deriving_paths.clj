@@ -1,6 +1,5 @@
 (ns ^:no-doc structural-typing.mechanics.deriving-paths
-  (:require [structural-typing.frob :as frob]
-            [structural-typing.api.path :as path]))
+  (:require [structural-typing.frob :as frob]))
 
 (defn from-forked-paths
   "Expand a vector containing path elements + shorthand for forks into 

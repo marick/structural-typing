@@ -1,5 +1,5 @@
-(ns structural-typing.mechanics.f-ppps
-  (:require [structural-typing.mechanics.ppps :as subject :refer [->ppp]]
+(ns structural-typing.mechanics.fm-ppps
+  (:require [structural-typing.mechanics.m-ppps :as subject :refer [->ppp]]
             [structural-typing.api.path :as path]
             [structural-typing.api.predicates :as pred])
   (:require [com.rpl.specter :refer [ALL]])

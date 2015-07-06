@@ -1,6 +1,8 @@
 (ns structural-typing.mechanics.f-canonicalizing-types
   (:require [structural-typing.mechanics.canonicalizing-types :as subject]
-            [structural-typing.mechanics.ppps :as ppp]
+            [structural-typing.mechanics.m-ppps :as ppp]
+            [structural-typing.mechanics.m-paths :as m-path]
+            [structural-typing.mechanics.m-maps :as m-map]
             [structural-typing.api.path :as path]
             [structural-typing.api.predicates :as pred])
   (:require [com.rpl.specter :refer [ALL]])
@@ -123,43 +125,13 @@
 
 
 (fact dc:flatten-maps
-  (fact "doesn't care about sequences"
-    (subject/dc:flatten-maps []) => []
+  (subject/dc:flatten-maps []) => []
+
+  (fact "only cares about maps"
     (subject/dc:flatten-maps (list [:a :b] [:a])) => (just [:a :b] [:a]))
 
-  (fact "makes sure keys are converted to paths and values are vectorized"
-    (subject/dc:flatten-maps (list {} {:a 1})) => (just {} {[:a] [1]})
-    (subject/dc:flatten-maps (list {} {[:a] [1]})) => (just {} {[:a] [1]}))
-  
-  (fact "flattens sub-maps"
-    (subject/dc:flatten-maps (list {:a {:b 1}}
-                                   {[:c :d] {:e 1}}
-                                   {:f {[:g :h] {:i [3 4]
-                                                 [:j :k] 5}}}))
-    => (just {[:a :b] [1]}
-             {[:c :d :e] [1]}
-             {[:f :g :h :i] [3 4]
-              [:f :g :h :j :k] [5]}))
-             
-
-  (fact "when flattening causes duplicate paths, values are merged"
-    (let [[result] (subject/dc:flatten-maps (list {[:a :b :c] 1
-                                                   :a {[:b :c] 2}
-                                                   [:a :b] {:c 3
-                                                            :d 4}}))]
-      (keys result) => (just [:a :b :c] [:a :b :d] :in-any-order)
-      (result [:a :b :c]) => (just [1 2 3] :in-any-order)
-      (result [:a :b :d]) => [4]))
-
-  (fact "forking paths are left alone"
-    (subject/dc:flatten-maps (list {[:a [:b :c] :d] 1}
-                                   {[ [:b :c] ] {[[:d :e]] 2}}))
-    => (just {[:a [:b :c] :d]   [1]}
-             {[[:b :c] [:d :e]] [2]}))
-
-  (fact "error cases in context of canonicalization"
-    (subject/canonicalize ..t.. {[:a {:a 1}] pos?})
-    => (throws #"A path used as a map key.*a 1"))
+  (fact "flattens individual maps"
+    (subject/dc:flatten-maps [ {:a {:b even?}}]) => [ { [:a :b] [even?] } ])
  
   (fact "affects canonicalization"
     (subject/canonicalize ..t.. {:a {:b even?}}) => {[:a :b] [even?]}

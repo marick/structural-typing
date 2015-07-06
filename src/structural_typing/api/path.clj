@@ -2,7 +2,8 @@
   "Functions used in the construction of paths into structures.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
-  (:require [com.rpl.specter :as specter]
+  (:require [structural-typing.mechanics.m-paths :as path]
+            [com.rpl.specter :as specter]
             [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
 
@@ -19,11 +20,6 @@
 
 
 
-(def ^:private type-finder-key ::type-finder)
-
-(defn ^:no-doc type-finder? [x]
-  (= type-finder-key (type x)))
-
 (defn includes
   "During creation of a type by [[named]] or [[type!]], a call to
    `includes` is replaced with the type the `type-signifier` refers
@@ -32,11 +28,11 @@
    documentation."
   [type-signifier]
   (when-not (keyword? type-signifier) (frob/boom "%s is supposed to be a keyword." type-signifier))
-  (-> (fn type-finder [type-map]
+  (-> (fn [type-map]
         (if-let [result (get type-map type-signifier)]
           result
           (frob/boom "%s does not name a type" type-signifier)))
-      (with-meta {:type type-finder-key})))
+      (with-meta {:type path/type-finder-key})))
 
 (def requires
   "Used to create an argument to [[named]] or [[type!]]. All of the elements are keys or paths

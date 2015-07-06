@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.mechanics.ppps
+(ns ^:no-doc structural-typing.mechanics.m-ppps
   "PPP is short for 'path-predicate pair': a vector + a set. Condensed
   ppps have paths that can be used to generate other ppps."
   (:require [structural-typing.frob :as frob]
@@ -36,6 +36,8 @@
 
 (defn spread-path [spreader]
   (spread-path-and-x spreader preds-part))
+
+
 
 ;;; description decompressors
 
