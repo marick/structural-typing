@@ -1,6 +1,12 @@
 (ns ^:no-doc structural-typing.frob
   "General-purpose functions for frobbing data in various ways.")
 
+(defn extended-fn?
+  "`fn?` does not consider multimethods to be functions. This does."
+  [x]
+  (or (fn? x)
+      (instance? clojure.lang.MultiFn x)))
+  
 (defn boom [fmt & args]
   (throw (new RuntimeException (apply format fmt args))))
 
