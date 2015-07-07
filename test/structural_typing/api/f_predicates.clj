@@ -6,15 +6,27 @@
 
 (fact member
   (fact "member produces a predicate"
-    ( (subject/member 1 2 3) 2) => true
-    ( (subject/member 1 2 3) 5) => false)
+    ( (subject/member [1 2 3]) 2) => true
+    ( (subject/member [1 2 3]) 5) => false)
 
   (fact "helpful output"
-    (let [lifted (lift (subject/member 1 2 3))
+    (let [lifted (lift (subject/member [1 2 3]))
           result (e/run-left (lifted {:leaf-value 8 :path [:x]}))]
       result => (contains {:path [:x]
                            :leaf-value 8})
-      ((:predicate-explainer result) result) => ":x should be a member of (1 2 3); it is `8`")))
+      ((:predicate-explainer result) result) => ":x should be a member of `[1 2 3]`; it is `8`")))
+
+(fact exactly
+  (fact "produces a predicate"
+    ( (subject/exactly 1) 1) => true
+    ( (subject/exactly 3) 5) => false)
+
+  (fact "helpful output"
+    (let [lifted (lift (subject/exactly 3))
+          result (e/run-left (lifted {:leaf-value 8 :path [:x]}))]
+      result => (contains {:path [:x]
+                           :leaf-value 8})
+      ((:predicate-explainer result) result) => ":x should be exactly `3`; it is `8`")))
 
 (fact "show-as and explain-with"
   (let [pred (->> even?
@@ -27,6 +39,9 @@
       ((:predicate-explainer result) result) => "name")
 
     ( (lift pred) {:leaf-value 2}) => e/right?))
+
+  
+  
 
     
   

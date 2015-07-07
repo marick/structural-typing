@@ -31,3 +31,12 @@
       (type/described-by? repo [:A :B] {:a 1}) => false
       (type/described-by? repo [:A :B] {:b 1}) => false
       (type/described-by? repo [:A :B] {:a 1, :b 1}) => true)))
+
+
+
+(fact "imported preds"
+  (let [repo (-> type/empty-type-repo
+                 (type/named :Member {:a (type/member [1 2 3])})
+                 (type/named :Exactly {:a (type/exactly even?)}))]
+    (type/checked repo :Member {:a 3}) => {:a 3}
+    (type/checked repo :Exactly {:a even?}) => {:a even?}))

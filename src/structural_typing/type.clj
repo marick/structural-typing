@@ -10,6 +10,7 @@
                  show-as
                  explain-with
                  required-key
+                 exactly
                  member])
 
 (ns/import-vars [structural-typing.api.type-repo

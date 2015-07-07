@@ -47,18 +47,35 @@
       (lift/lift* false)))
 
 
+(defn should-be [format-string expected]
+  #(format format-string,
+           (custom/friendly-path %)
+           (pr-str expected)
+           (pr-str (:leaf-value %))))
+
+
 (defn member
-  "Produce a predicate that's false when applied to a value not a member of `args`. The explainer
-   associated with `member` prints those `args`.
+  "Produce a predicate that's false when applied to a value not a member of `coll`. The explainer
+   associated with `member` prints those `colls`.
      
-         ( (member 2 3 5 7) 4) => false
-         (type! :small-primes {:n (member 2 3 5 7)})
+         ( (member [2 3 5 7]) 4) => false
+         (type! :small-primes {:n (member [2 3 5 7])})
 "
-  [& args]
+  [coll]
   (compose-predicate
-   #(boolean ((set args) %))
-   #(format "%s should be a member of %s; it is `%s`",
-            (custom/friendly-path %)
-            (pr-str args)
-            (pr-str (:leaf-value %)))))
+   #(boolean ((set coll) %))
+   (should-be "%s should be a member of `%s`; it is `%s`" coll)))
+
+(defn exactly
+  "Produce a predicate that's true iff the value it's applied to is `=` to `x`.
+    
+        ( (exactly 5) 4) => false
+        (type! :V5 {:version (exactly 5)})
+"
+  [x]
+  (compose-predicate
+   (partial = x)
+   (should-be "%s should be exactly `%s`; it is `%s`" x)))
+   
+
 
