@@ -47,3 +47,12 @@
   "A type repo that contains no types and uses the default success and error handlers."
   (->TypeRepo default/default-success-handler default/default-error-handler))
 
+(def origin
+  "Returns the original description of the `type-signifier` (a sequence of vectors and maps)"
+  [type-repo type-signifier]
+  (get-in type-repo [:original-type-descriptions type-signifier]))
+
+(def description
+  "Returns the canonical (expanded) description of the `type-signifier`."
+  [type-repo type-signifier]
+  (get-in type-repo [:canonicalized-type-descriptions type-signifier]))

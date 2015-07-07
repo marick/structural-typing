@@ -89,6 +89,23 @@
   ([type-signifier candidate]
      (described-by? @global-type/repo type-signifier candidate)))
 
+(defn origin
+  "Returns the original description of the `type-signifier` (a sequence of vectors and maps). 
+   Uses the global type repo if none is given."
+  ([type-repo type-signifier]
+     (repo/origin type-repo type-signifier))
+  ([type-signifier]
+     (repo/origin @global-type/repo type-signifier)))
+
+(defn description
+  "Returns the canonical (expanded) description of the `type-signifier`.
+   Uses the global type repo if none is given."
+  ([type-repo type-signifier]
+     (repo/description type-repo type-signifier))
+  ([type-signifier]
+     (repo/description @global-type/repo type-signifier)))
+
+
 
 ;; (defn coercion 
 ;;   "Register function `f` as one that can coerce a map or record into 

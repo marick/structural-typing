@@ -40,3 +40,14 @@
                  (type/named :Exactly {:a (type/exactly even?)}))]
     (type/checked repo :Member {:a 3}) => {:a 3}
     (type/checked repo :Exactly {:a even?}) => {:a even?}))
+
+
+(fact "origin and description"
+  (let [origin (list [:x [:y :z]]
+                     {:tag (exactly 'even)
+                      :x integer?})
+        repo (-> type/empty-type-repo
+                 (apply type/named :X origin))]
+    (origin type-repo :X) => 3
+    (description type-repo :X) => 3))
+                             
