@@ -1,4 +1,5 @@
 * Bump version in project and readme
+* lein ancient
 * lein compatibility 
 * push
 * rake doc 
