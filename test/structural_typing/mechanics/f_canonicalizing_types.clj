@@ -91,15 +91,7 @@
       (subject/dc:flatten-maps (ps [:a :b] [:a])) => (just [:a :b] [:a]))
 
     (fact "flattens individual maps"
-      (subject/dc:flatten-maps (ps {:a {:b even?}})) => [ { [:a :b] [even?] } ]))
-
-  
-
-
-
-
-    
-)
+      (subject/dc:flatten-maps (ps {:a {:b even?}})) => [ { [:a :b] [even?] } ])))
 
 
 
@@ -187,11 +179,7 @@
     => {[:a ALL :c] [pred/required-key]
         [:b :f ALL] [pred/required-key even?] ; Note that this order is enforced
         [:a]        [pred/required-key even?]
-        [:b :f]     [pred/required-key]})
-
-
-
-)
+        [:b :f]     [pred/required-key]}))
 
 
 
