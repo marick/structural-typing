@@ -46,8 +46,7 @@
   (let [origin (list [:x [:y :z]]
                      {:tag (exactly 'even)
                       :x integer?})
-        repo (-> type/empty-type-repo
-                 (apply type/named :X origin))]
-    (origin type-repo :X) => 3
-    (description type-repo :X) => 3))
+        repo (apply type/named type/empty-type-repo :X origin)]
+    (type/origin repo :X) => origin
+    (type/description repo :X) =future=> 3))
                              

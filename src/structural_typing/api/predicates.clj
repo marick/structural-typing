@@ -31,8 +31,17 @@
       lift/stash-defaults
       (lift/replace-explainer explainer)))
 
-(defn- compose-predicate [pred fmt-fn]
-  (->> pred (explain-with fmt-fn)))
+(defn should-be [format-string expected]
+  #(format format-string,
+           (custom/friendly-path %)
+           (pr-str expected)
+           (pr-str (:leaf-value %))))
+
+
+(defn- compose-predicate [name pred fmt-fn]
+  (->> pred
+       (show-as name)
+       (explain-with fmt-fn)))
 
 
 ;;; Predefined predicates
@@ -42,16 +51,10 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predicate that is not considered optional."
-  (-> (compose-predicate (comp not nil?)
+  (-> (compose-predicate "required-key"
+                         (comp not nil?)
                          #(format "%s must exist and be non-nil" (custom/friendly-path %)))
       (lift/lift* false)))
-
-
-(defn should-be [format-string expected]
-  #(format format-string,
-           (custom/friendly-path %)
-           (pr-str expected)
-           (pr-str (:leaf-value %))))
 
 
 (defn member
@@ -63,6 +66,7 @@
 "
   [coll]
   (compose-predicate
+   (format "(member %s)" coll)
    #(boolean ((set coll) %))
    (should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
@@ -74,6 +78,7 @@
 "
   [x]
   (compose-predicate
+   (format "(exactly %s)" x)
    (partial = x)
    (should-be "%s should be exactly `%s`; it is `%s`" x)))
    
