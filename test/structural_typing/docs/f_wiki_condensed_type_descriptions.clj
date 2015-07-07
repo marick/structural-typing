@@ -178,7 +178,29 @@
   :Line2)
 
 
-;;; This 
+(type! :Point1
+       (requires :x :y :color)
+       {[(forks :x :y)] integer?})
+
+(type! :Point2
+       {[:x] [required-key integer?]
+        [:y] [required-key integer?]
+        [:color] [required-key]})
+
+(tabular
+  (fact 
+    (let [result (with-out-str (checked ?version {:x 3.0}))]
+      result => #":color must exist"
+      result => #":x should be `integer"
+      result => #":y must exist"))
+  ?version
+  :Point1
+  :Point2)
+
+
+
+
+;;; Took out the documentation for this feature, but it still exists.
 (future-fact "Delete undocumented feature?")
 
 (type! :Figure1
