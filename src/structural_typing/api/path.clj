@@ -27,11 +27,11 @@
    the value of a path, or as an entire argument itself. See the wiki
    documentation."
   [type-signifier]
-  (when-not (keyword? type-signifier) (frob/boom "%s is supposed to be a keyword." type-signifier))
+  (when-not (keyword? type-signifier) (frob/boom! "%s is supposed to be a keyword." type-signifier))
   (-> (fn [type-map]
         (if-let [result (get type-map type-signifier)]
           result
-          (frob/boom "%s does not name a type" type-signifier)))
+          (frob/boom! "%s does not name a type" type-signifier)))
       (with-meta {:type path/type-finder-key})))
 
 (def requires

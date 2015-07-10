@@ -17,7 +17,7 @@
              (from-forked-paths xs (vec extended)))
            
            (map? x)
-           (frob/boom "Program error: Path contains a map: %s." path)
+           (frob/boom! "Program error: Path contains a map: %s." path)
            
            :else
            (let [extended (for [pp parent-paths] (conj pp x))]

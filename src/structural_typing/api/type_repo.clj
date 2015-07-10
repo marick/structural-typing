@@ -32,7 +32,7 @@
     (check-type [type-repo type-signifier candidate]
       (if-let [checker (get-in type-repo [:compiled-types type-signifier])]
         (checker candidate)
-        (frob/boom "There is no type `%s`" type-signifier)))
+        (frob/boom! "There is no type `%s`" type-signifier)))
     
     (replace-error-handler [type-repo f]
       (assoc type-repo :error-handler f))

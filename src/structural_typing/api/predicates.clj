@@ -16,8 +16,8 @@
          (->> (partial >= 3) (show-as \"less than 3\"))
 "
   [name predicate]
-  (when (fn? name) (frob/boom "First arg is a function. You probably got your args reversed."))
-  (when-not (string? name) (frob/boom "First arg must be a string: %s %s" name predicate))
+  (when (fn? name) (frob/boom! "First arg is a function. You probably got your args reversed."))
+  (when-not (string? name) (frob/boom! "First arg must be a string: %s %s" name predicate))
   (-> predicate
       lift/stash-defaults
       (lift/replace-predicate-string name)))

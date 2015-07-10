@@ -7,7 +7,7 @@
      (reduce (fn [so-far [path v]]
                (when (and (sequential? path)
                           (some map? path))
-                 (frob/boom "A path used as a map key may not itself contain a map: `%s`" path))
+                 (frob/boom! "A path used as a map key may not itself contain a map: `%s`" path))
                (let [extended-path (frob/adding-on parent-path path)]
                  (merge-with into so-far
                              (if (map? v)

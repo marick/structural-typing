@@ -14,10 +14,10 @@
         false
         
         (map? (first x))
-        (frob/boom "A map cannot be the first element of a path: `%s`" x)
+        (frob/boom! "A map cannot be the first element of a path: `%s`" x)
         
         (not (map? (last x)))
-        (frob/boom "Nothing may follow a map within a path: `%s`" x)
+        (frob/boom! "Nothing may follow a map within a path: `%s`" x)
         
         :else
         true))

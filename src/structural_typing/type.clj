@@ -4,7 +4,7 @@
   Most of the work is done by `structural-typing.api` functions, which are re-exported here."
   (:require [structural-typing.api.type-repo :as repo]
             [structural-typing.global-type :as global-type]
-            [potemkin.namespaces :as ns]))
+            [such.immigration :as ns]))
 
 (ns/import-vars [structural-typing.api.predicates
                  show-as

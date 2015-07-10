@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.mechanics.m-ppps
   "PPP is short for 'path-predicate pair': a vector + a set. Condensed
   ppps have paths that can be used to generate other ppps."
+  (:require [such.function-makers :as mkfn])
   (:require [structural-typing.frob :as frob]
             [structural-typing.api.path :as path]
             [structural-typing.mechanics.deriving-paths :as derive]
@@ -40,20 +41,20 @@
 (def validated-preds 
   (partial map #(if (frob/extended-fn? %)
                   %
-                  (frob/boom "`%s` is not a predicate." %))))
+                  (frob/boom! "`%s` is not a predicate." %))))
 
 ;;; description decompressors
 
 (def dc:flatmaps->ppps 
-  (frob/mkst:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
+  (mkfn/lazyseq:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
 
 (def dc:fix-forked-paths 
-  (frob/mkst:x->abc (spread-path derive/from-forked-paths)
-                    forking?))
+  (mkfn/lazyseq:x->abc (spread-path derive/from-forked-paths)
+                       forking?))
 
 (def dc:fix-required-paths-with-collection-selectors
-  (frob/mkst:x->xabc (spread-path-into-required-ppps derive/from-paths-with-collection-selectors)
-                     required?))
+  (mkfn/lazyseq:x->xabc (spread-path-into-required-ppps derive/from-paths-with-collection-selectors)
+                        required?))
 
 
 ;;; And the final result

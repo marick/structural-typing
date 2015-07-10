@@ -1,4 +1,5 @@
 (ns ^:no-doc structural-typing.mechanics.canonicalizing-types
+  (:require [such.function-makers :as mkfn])
   (:require [structural-typing.frob :as frob]
             [structural-typing.mechanics.m-ppps :as ppp]
             [structural-typing.mechanics.m-paths :as path]
@@ -14,29 +15,30 @@
     (specter/update (specter/walker path/type-finder?) do-one form)))
 
 (def dc:validate-starting-descriptions
-  (frob/mkst:validator (some-fn map? sequential?)
-                       #(frob/boom "Types are described with maps or vectors: `%s` has `%s`"
-                                   %1 %2)))
+  (mkfn/lazyseq:criticize-deviationism
+   (complement (some-fn map? sequential?))
+   #(frob/boom! "Types are described with maps or vectors: `%s` has `%s`"
+           %1 %2)))
 
 (def dc:spread-collections-of-required-paths
-  (frob/mkst:x->abc (partial map frob/force-vector) (complement map?)))
+  (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
 
 (def dc:split-paths-ending-in-maps
 
-  (frob/mkst:x->abc #(let [prefix-path (pop %)]
+  (mkfn/lazyseq:x->abc #(let [prefix-path (pop %)]
                        (vector prefix-path (hash-map prefix-path (last %))))
                     path/ends-in-map?))
                     
 (def dc:required-paths->maps 
-  (frob/mkst:x->y #(hash-map % [pred/required-key]) (complement map?)))
+  (mkfn/lazyseq:x->y #(hash-map % [pred/required-key]) (complement map?)))
 
 (def dc:flatten-maps
-  (frob/mkst:x->y map/flatten-map map?))
+  (mkfn/lazyseq:x->y map/flatten-map map?))
 
 
 (defn canonicalize [type-map & condensed-type-descriptions]
   (when (empty? condensed-type-descriptions)
-    (frob/boom "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
+    (frob/boom! "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
 
   (->> condensed-type-descriptions
        (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level
