@@ -1,6 +1,6 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.6+  
-For lein: [marick/structural-typing "0.6.0"]    
-Development version: [marick/structural-typing "0.7.0-SNAPSHOT"]    
+For lein: [marick/structural-typing "0.7.0"]    
+Development version: [marick/structural-typing "0.8.0-SNAPSHOT"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
