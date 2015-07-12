@@ -7,8 +7,7 @@
             [clojure.pprint :refer [cl-format]]
             [structural-typing.frob :as frob]))
 
-(def ^:no-doc friendly-path-components
-  {specter/ALL "ALL"})
+
 
 (def ALL 
   "Use this in a path to select all values of a 
@@ -17,7 +16,6 @@
        (type! :Figure {:points ALL (type/include :Point)})
 "
   specter/ALL)
-
 
 
 (defn includes

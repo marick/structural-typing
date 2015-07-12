@@ -12,11 +12,11 @@
 
 (defn dc:expand-type-signifiers [type-map form]
   (let [do-one #(if (path/type-finder? %) (% type-map) %)]
-    (specter/update (specter/walker path/type-finder?) do-one form)))
+    (specter/transform (specter/walker path/type-finder?) do-one form)))
 
 (def dc:validate-starting-descriptions
   (mkfn/lazyseq:criticize-deviationism
-   (complement (some-fn map? sequential?))
+   (mkfn/pred:none-of? map? sequential?)
    #(frob/boom! "Types are described with maps or vectors: `%s` has `%s`"
            %1 %2)))
 
