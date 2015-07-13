@@ -9,17 +9,12 @@
         combined (apply juxt lifted)]
     (comp e/lefts combined)))
 
-(defn compile-path [path]
-  [(apply specter/comp-paths path) identity identity])
-
 ;; TODO: This code could be made tenser. It cries out for transients.
 
 (defn oopsies-for-one-path [whole-value leaf-values original-path run-path-preds]
   (reduce (fn [so-far [leaf-value index]]
             (let [value-context {:whole-value whole-value
                                  :path original-path
-                                 :leaf-index index
-                                 :leaf-count (count leaf-values)
                                  :leaf-value leaf-value}]
               (->> value-context
                    run-path-preds
@@ -30,8 +25,6 @@
 (defn oopsies-for-bad-path [whole-value original-path]
   (let [base-oopsie {:whole-value whole-value
                      :path original-path
-                     :leaf-index 0
-                     :leaf-count 1
                      :leaf-value nil}]
     (-> base-oopsie
     (assoc :predicate-explainer (constantly 
@@ -44,14 +37,18 @@
 (defn run-select [compiled-path object-to-check]
   (e/make-either (specter/compiled-select compiled-path object-to-check)))
 
+(defn compile-path [path]
+  [(apply specter/comp-paths path) identity (fn [selected-value]
+                                              path)])
+
 (defn compile-path-check [[original-path preds]]
-  (let [[compiled-path leaf-selector path-describer] (compile-path original-path)
-        compiled-preds (compile-predicates preds)]
+  (let [compiled-preds (compile-predicates preds)
+        [compiled-path leaf-value-selector specific-path-maker] (compile-path original-path)]
     (fn [object-to-check]
       (e/either [x (run-select compiled-path object-to-check)]
                 (oopsies-for-bad-path object-to-check original-path)
                 (oopsies-for-one-path object-to-check
-                                      (leaf-selector x)
+                                      (leaf-value-selector x)
                                       original-path
                                       compiled-preds)))))
 

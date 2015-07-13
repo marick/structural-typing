@@ -55,7 +55,6 @@
        (if (empty? oopsies)
          ((repo/the-success-handler type-repo) candidate)
          (->> oopsies
-              (sort-by :leaf-index)
               ((repo/the-error-handler type-repo))))))
 
   ([type-signifier candidate]

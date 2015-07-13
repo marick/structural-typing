@@ -82,9 +82,9 @@
   )
 
 (type! :A-has-evens {[:a ALL] even?})
-(fact 
+(future-fact 
   (with-out-str (checked :A-has-evens {:a [1 2]}))
-  => #"\[:a ALL\]\[0\] should be `even")
+  => #"\[:a 0\] should be `even")
 
 (type! :Terminal {[:a ALL] [required-key even?]})
 (type! :Middle {[:a ALL :b] [required-key even?]})
@@ -105,9 +105,9 @@
 
 
 (type! :DoubleNested {[:a ALL :b ALL] even?})
-(fact 
+(future-fact 
   (with-out-str (checked :DoubleNested {:a [{:b [4 8]} {:b [0 2]} {:b [1 2 4]}]}))
-  => #"\[:a ALL :b ALL\]\[4\] should be `even\?")
+  => #"\[:a 2 :b 0\] should be `even\?")
 
 
 (type! :Figure {[:points ALL [:x :y]] [required-key integer?]})

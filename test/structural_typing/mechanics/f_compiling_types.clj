@@ -36,8 +36,8 @@
                                              ["1" 2 3]
                                              [:xs path/ALL :y]
                                              error-fn)]
-    oopsies => (just (contains {:path [:xs path/ALL :y] :leaf-value "1" :leaf-index 0 :leaf-count 3})
-                    (contains {:path [:xs path/ALL :y] :leaf-value 2 :leaf-index 1 :leaf-count 3})
+    oopsies => (just (contains {:path [:xs path/ALL :y] :leaf-value "1"})
+                    (contains {:path [:xs path/ALL :y] :leaf-value 2})
                     :in-any-order)))
 
 
@@ -72,13 +72,13 @@
       (custom/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
       (custom/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
-  (fact "a path with multiple values (ALL)"
+  (future-fact "a path with multiple values (ALL)"
     (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
                                                    {[:points path/ALL :x] even?}))]
       (custom/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
-      => (just "[:points ALL :x][0] should be `even?`; it is `1`"
-               "[:points ALL :x][2] should be `even?`; it is `3`"
-               "[:points ALL :x][3] must exist and be non-nil"
+      => (just "[:points 0 :x] should be `even?`; it is `1`"
+               "[:points 2 :x] should be `even?`; it is `3`"
+               "[:points 3 :x] must exist and be non-nil"
                :in-any-order)))
 
   
@@ -98,8 +98,7 @@
 
   (fact "a path that can't be applied produces an error"
     (let [type (subject/compile-type (canonicalize {} [[:x path/ALL :y]]))]
-      (type {:x 1}) => (just (contains {:leaf-count 1 :leaf-index 0
-                                        :leaf-value nil
+      (type {:x 1}) => (just (contains {:leaf-value nil
                                         :path [:x path/ALL :y]
                                         :whole-value {:x 1}}))
       (custom/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
@@ -112,6 +111,6 @@
       (fact "A path containing an array complains if prefix doesn't exist"
         (custom/explanations (type {})) => (just #":x must exist"))
 
-      (fact "an unfortunate side effect of strings being collections"
+      (future-fact "an unfortunate side effect of strings being collections"
         (custom/explanations (type {:x "string"}))
-        => (contains "[:x ALL :y][0] must exist and be non-nil")))))
+        => (contains "[:x 0 :y] must exist and be non-nil")))))

@@ -20,25 +20,18 @@
   (readable/fn-string f))
 
 
-(defn- perhaps-indexed [{:keys [leaf-index leaf-count]} string-so-far]
-  (if (and leaf-index leaf-count (> leaf-count 1)) ; existence checks simplify tests
-    (format "%s[%s]" string-so-far leaf-index)
-    string-so-far))
-
 (defn- path-string [components]
   (if (= 1 (count components))
     (str (first components))
     (cl-format nil "[~{~A~^ ~}]" components)))
 
 (defn friendly-path
-  "Convert the path into a string, with Specter components printed nicely and
-   an index appended if needed."
+  "Convert the path into a string, with Specter components printed nicely."
   [oopsie]
   (->> oopsie
        :path
        readable/value
-       path-string
-       (perhaps-indexed oopsie)))
+       path-string))
 
 (defn explanation
   "Convert an [[oopsie]] into a string explaining the error,
