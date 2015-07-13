@@ -1,5 +1,7 @@
 (ns ^:no-doc structural-typing.mechanics.m-paths
-  (:require [structural-typing.frob :as frob]))
+  (:require [structural-typing.frob :as frob]
+            [clojure.math.numeric-tower :as tower]))
+  
 
 (def type-finder-key ::type-finder)
 
@@ -23,3 +25,18 @@
         true))
 
 
+;; Todo: this is certainly a hackish way to do it.
+(defn break-down-leaf-index
+  ([lengths index]
+     (loop [multipliers (reverse (rest (butlast (reductions * 1 (reverse lengths))))) ; whee!
+            result []
+            remainder index]
+       (if (empty? multipliers)
+         (conj result remainder)
+         (let [multiplier (first multipliers)
+               next-result (long (/ remainder multiplier))]
+           (recur (rest multipliers)
+                  (conj result next-result)
+                  (- remainder (* next-result multiplier)))))))
+  ([lengths index offsets]
+     (map + (break-down-leaf-index lengths index) offsets)))
