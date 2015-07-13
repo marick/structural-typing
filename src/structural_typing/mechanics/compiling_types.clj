@@ -9,6 +9,9 @@
         combined (apply juxt lifted)]
     (comp e/lefts combined)))
 
+(defn compile-path [path]
+  [(apply specter/comp-paths path) identity identity])
+
 ;; TODO: This code could be made tenser. It cries out for transients.
 
 (defn oopsies-for-one-path [whole-value leaf-values original-path run-path-preds]
@@ -41,24 +44,22 @@
 (defn run-select [compiled-path object-to-check]
   (e/make-either (specter/compiled-select compiled-path object-to-check)))
 
-(defn compile-path-check [[path preds]]
-  (vector path
-          (apply specter/comp-paths path)
-          (compile-predicates preds)))
-
-(defn run-path-check [object-to-check [original-path compiled-path run-path-preds]]
-  (e/either [x (run-select compiled-path object-to-check)]
-               (oopsies-for-bad-path object-to-check original-path)
-               (oopsies-for-one-path object-to-check
-                                     x
-                                     original-path
-                                     run-path-preds)))
+(defn compile-path-check [[original-path preds]]
+  (let [[compiled-path leaf-selector path-describer] (compile-path original-path)
+        compiled-preds (compile-predicates preds)]
+    (fn [object-to-check]
+      (e/either [x (run-select compiled-path object-to-check)]
+                (oopsies-for-bad-path object-to-check original-path)
+                (oopsies-for-one-path object-to-check
+                                      (leaf-selector x)
+                                      original-path
+                                      compiled-preds)))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.
   (let [compiled-path-checks (map compile-path-check t)]
     (fn [object-to-check]
       (reduce (fn [all-errors path-check]
-                (into all-errors (run-path-check object-to-check path-check)))
+                (into all-errors (path-check object-to-check)))
               []
               compiled-path-checks))))
