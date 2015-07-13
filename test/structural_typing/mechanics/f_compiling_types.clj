@@ -30,16 +30,6 @@
     (custom/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 
-(fact "intermediate step - a function that returns all the errors for one path"
-  (let [error-fn (subject/compile-predicates [odd?])
-        oopsies (subject/oopsies-for-one-path {:xs [{:y 1} {:y 2} {:y 3}]}
-                                             ["1" 2 3]
-                                             [:xs path/ALL :y]
-                                             error-fn)]
-    oopsies => (just (contains {:path [:xs path/ALL :y] :leaf-value "1"})
-                    (contains {:path [:xs path/ALL :y] :leaf-value 2})
-                    :in-any-order)))
-
 
 (fact "compiling a whole type"
   (fact "Simple case"

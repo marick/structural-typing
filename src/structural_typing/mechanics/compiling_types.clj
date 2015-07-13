@@ -11,17 +11,6 @@
 
 ;; TODO: This code could be made tenser. It cries out for transients.
 
-(defn oopsies-for-one-path [whole-value leaf-values original-path run-path-preds]
-  (reduce (fn [so-far [leaf-value index]]
-            (let [value-context {:whole-value whole-value
-                                 :path original-path
-                                 :leaf-value leaf-value}]
-              (->> value-context
-                   run-path-preds
-                   (into so-far))))
-          []
-          (map vector leaf-values (range))))
-
 (defn oopsies-for-bad-path [whole-value original-path]
   (let [base-oopsie {:whole-value whole-value
                      :path original-path
@@ -44,13 +33,15 @@
 (defn compile-path-check [[original-path preds]]
   (let [compiled-preds (compile-predicates preds)
         [compiled-path leaf-value-selector specific-path-maker] (compile-path original-path)]
-    (fn [object-to-check]
-      (e/either [x (run-select compiled-path object-to-check)]
-                (oopsies-for-bad-path object-to-check original-path)
-                (oopsies-for-one-path object-to-check
-                                      (leaf-value-selector x)
-                                      original-path
-                                      compiled-preds)))))
+    (letfn [(oopsies-for-selected [whole-value selected]
+              (let [value-context {:whole-value whole-value
+                                   :path original-path
+                                   :leaf-value selected}]
+                (compiled-preds value-context)))]
+      (fn [object-to-check]
+        (e/either [selected (run-select compiled-path object-to-check)]
+                     (oopsies-for-bad-path object-to-check original-path)
+                     (mapcat #(oopsies-for-selected object-to-check %) selected))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.
