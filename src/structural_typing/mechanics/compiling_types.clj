@@ -41,21 +41,24 @@
 (defn run-select [compiled-path object-to-check]
   (e/make-either (specter/compiled-select compiled-path object-to-check)))
 
-(defn compile-type [t]
-  (let [processed-triples (map (fn [[path preds]]
-                                 (vector path
-                                         (apply specter/comp-paths path)
-                                         (compile-predicates preds)))
-                               t)]
+(defn compile-path-check [[path preds]]
+  (vector path
+          (apply specter/comp-paths path)
+          (compile-predicates preds)))
 
+(defn run-path-check [object-to-check [original-path compiled-path run-path-preds]]
+  (e/either [x (run-select compiled-path object-to-check)]
+               (oopsies-for-bad-path object-to-check original-path)
+               (oopsies-for-one-path object-to-check
+                                     x
+                                     original-path
+                                     run-path-preds)))
+
+(defn compile-type [t]
+  ;; Note that the path-checks are compiled once, returning a function to be run often.
+  (let [compiled-path-checks (map compile-path-check t)]
     (fn [object-to-check]
-      (reduce (fn [all-errors [original-path compiled-path run-path-preds]]
-                (into all-errors
-                      (e/either [x (run-select compiled-path object-to-check)]
-                                (oopsies-for-bad-path object-to-check original-path)
-                                (oopsies-for-one-path object-to-check
-                                                      x
-                                                      original-path
-                                                      run-path-preds))))
+      (reduce (fn [all-errors path-check]
+                (into all-errors (run-path-check object-to-check path-check)))
               []
-              processed-triples))))
+              compiled-path-checks))))
