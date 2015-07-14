@@ -1,7 +1,7 @@
 (ns ^:no-doc structural-typing.mechanics.m-paths
   (:require [structural-typing.frob :as frob]
-            [clojure.math.numeric-tower :as tower]))
-  
+            [such.function-makers :as mkfn]
+            [com.rpl.specter :as specter]))
 
 (def type-finder-key ::type-finder)
 
@@ -24,6 +24,21 @@
         :else
         true))
 
+(defn element-will-match-many? [elt]
+  (boolean (#{specter/ALL} elt)))
+
+(defn path-will-match-many? [path]
+  (boolean (some element-will-match-many? path)))
+
+(defn replacement-points [path]
+  (->> path
+       (map vector (range))
+       (filter (comp element-will-match-many? second))
+       (map first)))
+
+(def tag-many-matchers
+  (mkfn/lazyseq:x->abc (fn [elt] [specter/VAL elt]) element-will-match-many?))
+
 
 ;; Todo: this is certainly a hackish way to do it.
 (defn break-down-leaf-index
@@ -40,3 +55,13 @@
                   (- remainder (* next-result multiplier)))))))
   ([lengths index offsets]
      (map + (break-down-leaf-index lengths index) offsets)))
+
+
+(defn replace-with-indices [path replacement-points indices]
+  (assert (= (count replacement-points) (count indices)))
+  (loop [result path
+         [r & rs] replacement-points
+         [i & is] indices]
+    (if r 
+      (recur (assoc result r i) rs is)
+      result)))
