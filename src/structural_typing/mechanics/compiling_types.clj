@@ -2,6 +2,7 @@
   (:require [blancas.morph.monads :as e]
             [com.rpl.specter :as specter]
             [structural-typing.api.custom :as custom]
+            [structural-typing.mechanics.m-paths :as path]
             [structural-typing.mechanics.lifting-predicates :refer [lift]]))
 
 (defn compile-predicates [preds]
@@ -13,6 +14,7 @@
 
 (defn oopsies-for-bad-path [whole-value original-path]
   (let [base-oopsie {:whole-value whole-value
+                     :original-path original-path
                      :path original-path
                      :leaf-value nil}]
     (-> base-oopsie
@@ -27,21 +29,31 @@
   (e/make-either (specter/compiled-select compiled-path object-to-check)))
 
 (defn compile-path [path]
-  [(apply specter/comp-paths path) identity (fn [selected-value]
-                                              path)])
+  (if (path/path-will-match-many? path)
+      (vector (apply specter/comp-paths (path/force-collection-of-indices path))
+              last
+              (let [replacement-points (path/replacement-points path)]
+                #(path/replace-with-indices path
+                                            replacement-points
+                                            (butlast %))))
+      (vector (apply specter/comp-paths path) identity (constantly path))))
+
+;; Previous and following functions are factored wrong.
 
 (defn compile-path-check [[original-path preds]]
   (let [compiled-preds (compile-predicates preds)
         [compiled-path leaf-value-selector specific-path-maker] (compile-path original-path)]
-    (letfn [(oopsies-for-selected [whole-value selected]
+    (letfn [(oopsies-for-leaf [whole-value leaf]
               (let [value-context {:whole-value whole-value
-                                   :path original-path
-                                   :leaf-value selected}]
-                (compiled-preds value-context)))]
+                                   :original-path original-path
+                                   :leaf-value (leaf-value-selector leaf)}
+                    oopsies (compiled-preds value-context)]
+                (map #(assoc % :path (specific-path-maker leaf)) oopsies)))]
       (fn [object-to-check]
-        (e/either [selected (run-select compiled-path object-to-check)]
+        (e/either [leafs-to-check (run-select compiled-path object-to-check)]
                      (oopsies-for-bad-path object-to-check original-path)
-                     (mapcat #(oopsies-for-selected object-to-check %) selected))))))
+                     (mapcat #(oopsies-for-leaf object-to-check %1)
+                             leafs-to-check))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.

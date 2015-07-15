@@ -128,8 +128,8 @@
 
   (let [result (with-out-str (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]}))]
     result => #":color must exist"
-    result =future=> #"\[:points 0 :x\] must exist"
-    result =future=> #"\[:points 1 :y\] should be `integer\?`"
+    result => #"\[:points 0 :x\] must exist"
+    result => #"\[:points 1 :y\] should be `integer\?`"
     (future-fact "check sort order")))
 
 (fact "an ugly result"

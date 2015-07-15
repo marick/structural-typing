@@ -13,6 +13,17 @@
   (subject/default-predicate-explainer {:predicate-string "even?"
                                         :path [:x path/ALL :y]
                                         :leaf-value 3})
-  =future=> "[:x 0 :y] should be `even?`; it is `3`")
+  => "[:x ALL :y] should be `even?`; it is `3`"
+
+
+  (subject/default-predicate-explainer {:predicate-string "even?"
+                                        :path [:x 0 :y]
+                                        :leaf-value 3})
+  => "[:x 0 :y] should be `even?`; it is `3`"
+
+  (subject/default-predicate-explainer {:predicate-string "even?"
+                                        :path [:x odd? :y]
+                                        :leaf-value 3})
+  => "[:x odd? :y] should be `even?`; it is `3`")
 
 

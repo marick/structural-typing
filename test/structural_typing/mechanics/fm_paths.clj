@@ -1,6 +1,6 @@
 (ns structural-typing.mechanics.fm-paths
   (:require [structural-typing.mechanics.m-paths :as subject])
-  (:require [com.rpl.specter :refer [ALL VAL]])
+  (:require [com.rpl.specter :refer [ALL] :as specter])
   (:use midje.sweet))
 
 (fact ends-in-map?
@@ -22,38 +22,28 @@
 (fact replacement-points
   (subject/replacement-points [:a ALL :b ALL ALL]) => [1 3 4])
 
-(fact break-down-leaf-index
-  (subject/break-down-leaf-index [3] 0) => [0]
-  (subject/break-down-leaf-index [3] 1) => [1]
-  (subject/break-down-leaf-index [3] 2) => [2]
 
-  (subject/break-down-leaf-index [3 2] 0) => [0 0]
-  (subject/break-down-leaf-index [3 2] 1) => [0 1]
-  (subject/break-down-leaf-index [3 2] 2) => [1 0]
-  (subject/break-down-leaf-index [3 2] 3) => [1 1]
-  (subject/break-down-leaf-index [3 2] 4) => [2 0]
-  (subject/break-down-leaf-index [3 2] 5) => [2 1]
 
-  (subject/break-down-leaf-index [5 3 2] 0) => [0 0 0]
-  (subject/break-down-leaf-index [5 3 2] 1) => [0 0 1]
-  (subject/break-down-leaf-index [5 3 2] 2) => [0 1 0]
-  (subject/break-down-leaf-index [5 3 2] 5) => [0 2 1]
-  (subject/break-down-leaf-index [5 3 2] 6) => [1 0 0]
-  (subject/break-down-leaf-index [5 3 2] 11) => [1 2 1]
-  (subject/break-down-leaf-index [5 3 2] 12) => [2 0 0]
-  (subject/break-down-leaf-index [5 3 2] 29) => [4 2 1]
-
-  (fact "can take offsets"
-    (subject/break-down-leaf-index [5 3 2] 12) => [2 0 0]
-    (subject/break-down-leaf-index [5 3 2] 12
-                                   [10 20 30]) => [12 20 30]))
 
 (fact replace-with-indices
   (subject/replace-with-indices [ALL ALL] [0 1] [17 3]) => [17 3]
   (subject/replace-with-indices [:a ALL :b ALL] [1 3] [17 3]) => [:a 17 :b 3])
 
 
-(fact tag-many-matchers
-  (subject/tag-many-matchers [:a :b]) => [:a :b]
-  (subject/tag-many-matchers [ALL :a ALL]) => [VAL ALL :a VAL ALL]
-  (subject/tag-many-matchers [:a ALL :b]) => [:a VAL ALL :b])
+(fact index-collecting-splice
+  (specter/select (subject/index-collecting-splice ALL) [:a :b :c]) => (just [0 :a]
+                                                                             [1 :b]
+                                                                             [2 :c])
+  
+  (let [path (concat [:a]
+                     (subject/index-collecting-splice ALL)
+                     [:b]
+                     (subject/index-collecting-splice  ALL))]
+
+    (specter/select path {:a [{:b      [:one      :two]} {:b [:three]} {:b []} {:b [:four]}]})  
+    =>                          [ [0 0 :one] [0 1 :two]  [1 0 :three]          [3 0 :four]]
+
+
+    (specter/select path {:a [{} {:c 1} {:b [:one       :two]}]})
+    =>                                [ [2 0 :one] [2 1 :two]]))
+

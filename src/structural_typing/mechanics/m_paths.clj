@@ -36,26 +36,16 @@
        (filter (comp element-will-match-many? second))
        (map first)))
 
-(def tag-many-matchers
-  (mkfn/lazyseq:x->abc (fn [elt] [specter/VAL elt]) element-will-match-many?))
+(def indexed (partial map-indexed vector))
 
+(defn index-collecting-splice [elt]
+  (vector (specter/view indexed)
+          elt
+          (specter/collect-one specter/FIRST)
+          specter/LAST))
 
-;; Todo: this is certainly a hackish way to do it.
-(defn break-down-leaf-index
-  ([lengths index]
-     (loop [multipliers (reverse (rest (butlast (reductions * 1 (reverse lengths))))) ; whee!
-            result []
-            remainder index]
-       (if (empty? multipliers)
-         (conj result remainder)
-         (let [multiplier (first multipliers)
-               next-result (long (/ remainder multiplier))]
-           (recur (rest multipliers)
-                  (conj result next-result)
-                  (- remainder (* next-result multiplier)))))))
-  ([lengths index offsets]
-     (map + (break-down-leaf-index lengths index) offsets)))
-
+(def force-collection-of-indices
+  (mkfn/lazyseq:x->abc index-collecting-splice element-will-match-many?))
 
 (defn replace-with-indices [path replacement-points indices]
   (assert (= (count replacement-points) (count indices)))

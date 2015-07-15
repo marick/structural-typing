@@ -1,4 +1,5 @@
 (ns structural-typing.mechanics.f-compiling-types
+  (:require [com.rpl.specter :as specter])
   (:require [structural-typing.mechanics.compiling-types :as subject]
             [structural-typing.api.predicates :as pred]
             [structural-typing.api.path :as path]
@@ -30,6 +31,23 @@
     (custom/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 
+(fact "compiling a path returns functions that select values and add to paths"
+  (fact "functions without collection descriptions"
+    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a :b])
+          only-expected-leaf 1]
+      (specter/compiled-select selector {:a {:b 1}}) => [only-expected-leaf]
+      (leaf-selector only-expected-leaf) => 1
+      (unique-path-maker only-expected-leaf 0) => [:a :b]))
+
+  (fact "with an ALL collection description"
+    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a path/ALL :b])
+          only-expected-leaf [0 1]]
+      (specter/compiled-select selector {:a [{:b 1}]}) => [only-expected-leaf]
+      (leaf-selector only-expected-leaf) => 1
+      (unique-path-maker only-expected-leaf) => [:a 0 :b]))
+)
+    
+  
 
 (fact "compiling a whole type"
   (fact "Simple case"
@@ -62,7 +80,7 @@
       (custom/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
       (custom/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
-  (future-fact "a path with multiple values (ALL)"
+  (fact "a path with multiple values (ALL)"
     (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
                                                    {[:points path/ALL :x] even?}))]
       (custom/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
@@ -95,12 +113,12 @@
       (custom/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
 
       (fact "these are fine, though"
-        (custom/explanations (type {:x [1]})) => (just "[:x ALL :y] must exist and be non-nil")
+        (custom/explanations (type {:x [0]})) => (just "[:x 0 :y] must exist and be non-nil")
         (type {:x []}) => empty?)
 
       (fact "A path containing an array complains if prefix doesn't exist"
         (custom/explanations (type {})) => (just #":x must exist"))
 
-      (future-fact "an unfortunate side effect of strings being collections"
+      (fact "an unfortunate side effect of strings being collections"
         (custom/explanations (type {:x "string"}))
         => (contains "[:x 0 :y] must exist and be non-nil")))))

@@ -82,7 +82,7 @@
   )
 
 (type! :A-has-evens {[:a ALL] even?})
-(future-fact 
+(fact 
   (with-out-str (checked :A-has-evens {:a [1 2]}))
   => #"\[:a 0\] should be `even")
 
@@ -94,18 +94,18 @@
 
   (with-out-str (checked :Middle {})) => #":a must exist"
   (checked :Middle {:a []}) => {:a []}
-  (with-out-str (checked :Middle {:a [{:c 1}]})) => #"\[:a ALL :b\] must exist"
+  (with-out-str (checked :Middle {:a [{:c 1}]})) => #"\[:a 0 :b\] must exist"
 
   (with-out-str (checked :Double {})) => #":a must exist"
   (checked :Double {:a []}) => {:a []}
-  (with-out-str (checked :Double {:a [{:c 1}]})) => #"\[:a ALL :b\] must exist"
+  (with-out-str (checked :Double {:a [{:c 1}]})) => #"\[:a 0 :b\] must exist"
   (checked :Double {:a [{:b []}]}) => {:a [{:b []}]}
-  (with-out-str (checked :Double {:a [{:b [1]}]})) => #"\[:a ALL :b ALL\] should be `even"
+  (with-out-str (checked :Double {:a [{:b [1]}]})) => #"\[:a 0 :b 0\] should be `even"
   (checked :Double {:a [{:b [2 4]}]}) => {:a [{:b [2 4]}]})
 
 
 (type! :DoubleNested {[:a ALL :b ALL] even?})
-(future-fact 
+(fact 
   (with-out-str (checked :DoubleNested {:a [{:b [4 8]} {:b [0 2]} {:b [1 2 4]}]}))
   => #"\[:a 2 :b 0\] should be `even\?")
 
@@ -113,8 +113,8 @@
 (type! :Figure {[:points ALL [:x :y]] [required-key integer?]})
 (fact 
   (let [result (with-out-str (checked :Figure {:points [{:x "1"}]}))]
-    result => #"\[:points ALL :y\] must exist"
-    result => #"\[:points ALL :x\] should be `integer"))
+    result => #"\[:points 0 :y\] must exist"
+    result => #"\[:points 0 :x\] should be `integer"))
 
 
 (type! :Point {:x integer? :y integer?})
@@ -126,7 +126,7 @@
     (checked ?version {:x 2}) => {:x 2}
     
     (with-out-str (checked ?version {:points [{:x "1" :y 1}]}))
-    => #"\[:points ALL :x\] should be `integer")
+    => #"\[:points 0 :x\] should be `integer")
   ?version
   :V1
   :V2)
@@ -218,7 +218,7 @@
   (fact
     (let [result (with-out-str (checked ?version {:points [{:x 1 :y "2"}]}))]
       result => #":color must exist"
-      result => #"\[:points ALL :y\] should be `integer"))
+      result => #"\[:points 0 :y\] should be `integer"))
   ?version
   :Figure1
   :Figure2)
