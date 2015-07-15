@@ -132,11 +132,17 @@
     result => #"\[:points 1 :y\] should be `integer\?`"
     (future-fact "check sort order")))
 
-(fact "an ugly result"
+(fact "a sorted result"
   (let [result (with-out-str (checked :Figure {:points {:x 1 :y 2}}))]
-    (count (str/split result #"\n")) => 5))
+    result =>
+":color must exist and be non-nil
+[:points 0 :x] must exist and be non-nil
+[:points 0 :y] must exist and be non-nil
+[:points 1 :x] must exist and be non-nil
+[:points 1 :y] must exist and be non-nil
+"))
     
-(fact "better"
+(fact "bad paths"
   (let [result (with-out-str (checked :Figure {:points 3}))]
     result => #":color must exist"
     result => #"\[:points ALL :x\] is not a path into `\{:points 3\}`"

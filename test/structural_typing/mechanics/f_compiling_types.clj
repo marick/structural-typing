@@ -19,8 +19,9 @@
         oopsies ((subject/compile-predicates [pos? #'even?]) input)]
     oopsies => (just (contains (assoc input :predicate (exactly pos?)))
                     (contains (assoc input :predicate (exactly #'even?))))
-    (custom/explanations oopsies) => ["[:x :y] should be `pos?`; it is `-3`"
-                          "[:x :y] should be `even?`; it is `-3`"])
+    ;; Note they are sorted.
+    (custom/explanations oopsies) => ["[:x :y] should be `even?`; it is `-3`"
+                                      "[:x :y] should be `pos?`; it is `-3`"])
 
   (let [input {:leaf-value -3 :whole-value {[:x :y] -3} :path [:x :y]}
         oopsies ((subject/compile-predicates [(->> pos? (pred/show-as "POS!"))]) input)]

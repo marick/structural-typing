@@ -44,7 +44,7 @@
   "Convert a collection of [[oopsies]] into a lazy sequence of explanatory strings.
    See [[explanation]]."
   [oopsies]
-  (map explanation oopsies))
+  (sort (map explanation oopsies)))
 
 (defn mkfn:apply-to-each-explanation
   "Checking a single candidate may result in multiple errors ([[oopsies]]). 
