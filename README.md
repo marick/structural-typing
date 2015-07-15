@@ -291,32 +291,31 @@ The `ok-figure` matches that type:
 
 ```clojure
 user=> (checked :Figure ok-figure)
-=> {:color "red", :points [{:y 1, :x 1} {:y 3, :x 2}]}
+=> {:color "red", :points [{:x 1, :y 1} {:x 2, :y 3}]}
 ```
 
 Type mismatches are detected as you'd expect:
 
 ```clojure
 user=> (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]})
-[:points ALL :x][0] must exist and be non-nil
 :color must exist and be non-nil
-[:points ALL :y][1] should be `integer?`; it is `"2"`
+[:points 0 :x] must exist and be non-nil
+[:points 1 :y] should be `integer?`; it is `"2"`
 => nil
 ```
 
-Notice that the paths appear in the output, and that they
-are suffixed with an index to help you identify which value
-was in error.
+Notice that the paths appear in the output, and that `ALL` is replaced
+with a specific index to help you identify which value was in error.
 
 Here's an example of the output for a figure that has a point instead of an array of points:
 
 ```clojure
 user=> (checked :Figure {:points {:x 1 :y 2}})
-[:points ALL :x][0] must exist and be non-nil
-[:points ALL :y][0] must exist and be non-nil
 :color must exist and be non-nil
-[:points ALL :x][1] must exist and be non-nil
-[:points ALL :y][1] must exist and be non-nil
+[:points 0 :x] must exist and be non-nil
+[:points 0 :y] must exist and be non-nil
+[:points 1 :x] must exist and be non-nil
+[:points 1 :y] must exist and be non-nil
 => nil
 ```
 
@@ -350,7 +349,6 @@ See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended
 * Predicates that apply to the whole input
 * Implement Midje collection checkers with this library
 * Use for collection checking in Midje 2
-* Accurate (multi-level) indexes for multiple uses of ALL (etc.)
 
 ## Credits
 
@@ -360,7 +358,10 @@ I first used type checking of this sort at
 [GetSet](http://getset.com), though this version is way
 better. (Sorry, GetSet!)
 
-[Specter](https://github.com/nathanmarz/specter) does the work of traversing structures. [Potemkin](https://github.com/ztellman/potemkin) gave me a function I couldn't write correctly myself.
+[Specter](https://github.com/nathanmarz/specter) does the work of
+traversing structures, and Nathan Marz provided invaluable help with
+Specter subtleties. [Potemkin](https://github.com/ztellman/potemkin)
+gave me a function I couldn't write correctly myself.
 
 ## Contributing
 
