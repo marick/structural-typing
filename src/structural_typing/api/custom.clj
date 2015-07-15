@@ -21,7 +21,8 @@
 
 
 (defn- path-string [components]
-  (if (= 1 (count components))
+  (if (and (= 1 (count components))
+           (keyword? (first components)))
     (str (first components))
     (cl-format nil "[~{~A~^ ~}]" components)))
 

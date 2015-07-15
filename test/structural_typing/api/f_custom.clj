@@ -18,10 +18,13 @@
 
 
 
-(future-fact "friendly paths"
-  (subject/friendly-path [:a]) => ":a"
-  (subject/friendly-path [:a :b]) => "[:a :b]"
-  (subject/friendly-path [:a path/ALL :b]) => "[:a ALL :b]")
+(fact "friendly paths"
+  (subject/friendly-path {:path [:a]}) => ":a"
+  (subject/friendly-path {:path [1]}) => "[1]"
+  (subject/friendly-path {:path [:a :b]}) => "[:a :b]"
+  (subject/friendly-path {:path [:a path/ALL :b]}) => "[:a ALL :b]"
+  (subject/friendly-path {:path [:a even? :b]}) => "[:a even? :b]"
+  (subject/friendly-path {:path [:a 0 :b]}) => "[:a 0 :b]")
 
 (future-fact "handle other specter path components, including plain functions and vars")
 
