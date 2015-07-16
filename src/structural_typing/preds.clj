@@ -1,12 +1,12 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.mechanics.m-preds :as pred]
-            [structural-typing.mechanics.frob :as frob]
-            [structural-typing.api.oopsie :as oopsie]
+  (:require [structural-typing.guts.mechanics.m-preds :as pred]
+            [structural-typing.guts.frob :as frob]
+            [structural-typing.surface.oopsie :as oopsie]
             [such.immigration :as ns]))
 
 ;; Add required-key for completeness (also in types.clj).
-(ns/import-vars [structural-typing.mechanics.m-preds required-key])
+(ns/import-vars [structural-typing.guts.mechanics.m-preds required-key])
 
 (defn- should-be [format-string expected]
   #(format format-string,

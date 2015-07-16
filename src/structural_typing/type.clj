@@ -1,26 +1,25 @@
 (ns structural-typing.type
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
-
-  Most of the work is done by `structural-typing.api` functions, which are re-exported here."
-  (:require [structural-typing.api.type-repo :as repo]
+"
+  (:require [structural-typing.surface.type-repo :as repo]
             [structural-typing.global-type :as global-type]
             [such.immigration :as ns]))
 
-(ns/import-vars [structural-typing.mechanics.m-preds
+(ns/import-vars [structural-typing.guts.mechanics.m-preds
                  show-as
                  explain-with
                  required-key])
 
-(ns/import-vars [structural-typing.api.type-repo
+(ns/import-vars [structural-typing.surface.type-repo
                  empty-type-repo
                  replace-error-handler
                  replace-success-handler])
       
-(ns/import-vars [structural-typing.paths.elements ALL]
-                [structural-typing.paths.substituting includes]
-                [structural-typing.paths.readable requires forks])
+(ns/import-vars [structural-typing.guts.paths.elements ALL]
+                [structural-typing.guts.paths.substituting includes]
+                [structural-typing.guts.paths.readable requires forks])
 
-(ns/import-vars [structural-typing.api.defaults
+(ns/import-vars [structural-typing.surface.defaults
                  throwing-error-handler
                  default-error-handler
                  default-success-handler])
