@@ -3,7 +3,6 @@
   ppps have paths that can be used to generate other ppps."
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.frob :as frob]
-            [structural-typing.api.path :as path]
             [structural-typing.mechanics.deriving-paths :as derive]
             [structural-typing.api.predicates :as pred]
             [clojure.set :as set]))

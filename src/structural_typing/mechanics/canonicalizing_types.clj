@@ -5,8 +5,7 @@
             [structural-typing.mechanics.m-paths :as path]
             [structural-typing.mechanics.m-maps :as map]
             [structural-typing.api.predicates :as pred]
-            [com.rpl.specter :as specter]
-            [clojure.set :as set]))
+            [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 

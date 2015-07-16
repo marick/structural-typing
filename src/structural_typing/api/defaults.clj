@@ -3,10 +3,8 @@
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [clojure.pprint :refer [cl-format]]
-            [clojure.string :as str]
-            [clojure.repl :as repl])
-  (:require [structural-typing.api.path :as path]
-            [structural-typing.api.custom :as custom]))
+            [clojure.string :as str])
+  (:require [structural-typing.api.custom :as custom]))
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
