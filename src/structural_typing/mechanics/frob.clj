@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.frob
+(ns ^:no-doc structural-typing.mechanics.frob
   "General-purpose functions."
   (:require [such.immigration :as immigrate]))
 

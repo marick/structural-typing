@@ -4,7 +4,7 @@
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [structural-typing.mechanics.lifting-predicates :as lift]
-            [structural-typing.frob :as frob]
+            [structural-typing.mechanics.frob :as frob]
             [structural-typing.api.custom :as custom]))
 
 ;; Utilities

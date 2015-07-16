@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.mechanics.canonicalizing-types
   (:require [such.function-makers :as mkfn])
-  (:require [structural-typing.frob :as frob]
+  (:require [structural-typing.mechanics.frob :as frob]
             [structural-typing.mechanics.m-ppps :as ppp]
             [structural-typing.mechanics.m-paths :as path]
             [structural-typing.mechanics.m-maps :as map]

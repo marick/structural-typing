@@ -1,5 +1,5 @@
 (ns ^:no-doc structural-typing.mechanics.m-paths
-  (:require [structural-typing.frob :as frob]
+  (:require [structural-typing.mechanics.frob :as frob]
             [such.function-makers :as mkfn]
             [com.rpl.specter :as specter]))
 

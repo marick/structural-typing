@@ -3,7 +3,7 @@
   (:require [structural-typing.mechanics.canonicalizing-types :as canon]
             [structural-typing.mechanics.compiling-types :as compile]
             [structural-typing.api.defaults :as default]
-            [structural-typing.frob :as frob]))
+            [structural-typing.mechanics.frob :as frob]))
 
 (defprotocol TypeRepoLike
   (hold-type [type-repo type-signifier type-descriptions])

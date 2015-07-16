@@ -1,5 +1,5 @@
 (ns ^:no-doc structural-typing.mechanics.m-maps
-  (:require [structural-typing.frob :as frob]))
+  (:require [structural-typing.mechanics.frob :as frob]))
 
 
 (defn flatten-map

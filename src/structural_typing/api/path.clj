@@ -5,7 +5,7 @@
   (:require [structural-typing.mechanics.m-paths :as path]
             [com.rpl.specter :as specter]
             [clojure.pprint :refer [cl-format]]
-            [structural-typing.frob :as frob]))
+            [structural-typing.mechanics.frob :as frob]))
 
 
 
