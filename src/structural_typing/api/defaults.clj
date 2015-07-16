@@ -41,6 +41,3 @@
 "
   [oopsies]
   (throw (new Exception (str/join "\n" (custom/explanations oopsies)))))
-
-
-

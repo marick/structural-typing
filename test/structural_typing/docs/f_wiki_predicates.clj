@@ -18,7 +18,7 @@
 (type! :Account {:password good-password?})
 (fact
   (with-out-str (checked :Account {:password "fool"}))
-  => #":password should be `your custom predicate`; it is `\"fool\"`")
+  => #":password should be `<custom-predicate>`; it is `\"fool\"`")
 
 (def good-password? (->> (partial re-find #"\d")
                          (explain-with 

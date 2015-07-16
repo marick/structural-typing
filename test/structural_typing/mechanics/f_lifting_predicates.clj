@@ -1,6 +1,6 @@
 (ns structural-typing.mechanics.f-lifting-predicates
   (:require [structural-typing.mechanics.lifting-predicates :as subject]
-            [structural-typing.api.predicates :as pred]
+            [structural-typing.mechanics.m-preds :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as default])
   (:require [com.rpl.specter :refer [ALL]])
@@ -31,7 +31,7 @@
     
   (fact "an anonymous lambda prints as something innocuous"
     (lift-and-run #(> 1 %) 3)
-    => (contains {:predicate-string "your custom predicate"
+    => (contains {:predicate-string "<custom-predicate>"
                   :leaf-value 3
                   :predicate-explainer default/default-predicate-explainer}))
 

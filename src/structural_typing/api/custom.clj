@@ -1,13 +1,14 @@
 (ns structural-typing.api.custom
-  "Functions useful when overriding default behavior."
+  "Functions useful when overriding default behavior. Look here first."
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [clojure.repl :as repl])
   (:require [structural-typing.api.path :as path]
             [such.readable :as readable]))
 
+;; These define the way special path elements are displayed.
 (readable/instead-of path/ALL 'ALL)
-(readable/set-function-elaborations! {:anonymous-name "your custom predicate" :surroundings ""})
+(readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 
 (defn friendly-function-name 
   "The argument should be a function or multimethod. Produce a string that will help a

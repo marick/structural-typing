@@ -1,5 +1,6 @@
 (ns structural-typing.f-type
-  (:require [structural-typing.type :as type])
+  (:require [structural-typing.type :as type]
+            [structural-typing.preds :as pred])
   (:use midje.sweet))
 
 (fact "about checking"
@@ -36,8 +37,8 @@
 
 (fact "imported preds"
   (let [repo (-> type/empty-type-repo
-                 (type/named :Member {:a (type/member [1 2 3])})
-                 (type/named :Exactly {:a (type/exactly even?)}))]
+                 (type/named :Member {:a (pred/member [1 2 3])})
+                 (type/named :Exactly {:a (pred/exactly even?)}))]
     (type/checked repo :Member {:a 3}) => {:a 3}
     (type/checked repo :Exactly {:a even?}) => {:a even?}))
 

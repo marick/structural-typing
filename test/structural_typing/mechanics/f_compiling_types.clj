@@ -1,7 +1,7 @@
 (ns structural-typing.mechanics.f-compiling-types
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.mechanics.compiling-types :as subject]
-            [structural-typing.api.predicates :as pred]
+            [structural-typing.mechanics.m-preds :as pred]
             [structural-typing.api.path :as path]
             [structural-typing.api.custom :as custom]
             [structural-typing.mechanics.canonicalizing-types :refer [canonicalize]])

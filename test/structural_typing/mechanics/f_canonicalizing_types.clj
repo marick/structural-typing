@@ -4,7 +4,7 @@
             [structural-typing.mechanics.m-paths :as m-path]
             [structural-typing.mechanics.m-maps :as m-map]
             [structural-typing.api.path :as path]
-            [structural-typing.api.predicates :as pred])
+            [structural-typing.mechanics.m-preds :as pred])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 

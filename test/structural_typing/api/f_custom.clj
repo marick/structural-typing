@@ -5,12 +5,12 @@
 
 (fact "friendly-function-name"
   (subject/friendly-function-name even?) => "even?"
-  (subject/friendly-function-name (fn [])) => "your custom predicate"
+  (subject/friendly-function-name (fn [])) => "<custom-predicate>"
   (subject/friendly-function-name :key) => ":key"
   (subject/friendly-function-name #'even?) => "even?"
 
   (let [f ( ( (fn [a] (fn [b] (fn [c] (+ a b c)))) 1) 2)]
-    (subject/friendly-function-name f) => "your custom predicate")
+    (subject/friendly-function-name f) => "<custom-predicate>")
 
   (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
     (subject/friendly-function-name f) => "my:tweedle-dum"))

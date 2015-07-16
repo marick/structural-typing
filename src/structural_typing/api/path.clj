@@ -8,7 +8,6 @@
             [structural-typing.mechanics.frob :as frob]))
 
 
-
 (def ALL 
   "Use this in a path to select all values of a 
    collection.

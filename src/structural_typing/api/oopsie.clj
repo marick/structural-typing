@@ -1,4 +1,4 @@
-(ns structural-typing.oopsie
+(ns structural-typing.api.oopsie
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails."
 )

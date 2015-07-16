@@ -4,7 +4,7 @@
             [structural-typing.mechanics.m-ppps :as ppp]
             [structural-typing.mechanics.m-paths :as path]
             [structural-typing.mechanics.m-maps :as map]
-            [structural-typing.api.predicates :as pred]
+            [structural-typing.mechanics.m-preds :as pred]
             [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.

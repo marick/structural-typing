@@ -6,12 +6,10 @@
             [structural-typing.global-type :as global-type]
             [such.immigration :as ns]))
 
-(ns/import-vars [structural-typing.api.predicates
+(ns/import-vars [structural-typing.mechanics.m-preds
                  show-as
                  explain-with
-                 required-key
-                 exactly
-                 member])
+                 required-key])
 
 (ns/import-vars [structural-typing.api.type-repo
                  empty-type-repo
