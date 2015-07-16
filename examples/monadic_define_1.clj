@@ -1,7 +1,7 @@
 (ns monadic-define-1
   "Using an Either monad to separate mistyped from valid values"
   (:require [structural-typing.type :as type]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [blancas.morph.monads :as m])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
   (:use [structural-typing.type :exclude [checked]]))
@@ -16,7 +16,7 @@
       (named :FormsTriangle
              {:x (complement zero?) :y (complement zero?)})
       (replace-success-handler m/right)
-      (replace-error-handler (custom/mkfn:apply-to-explanation-collection m/left))))
+      (replace-error-handler (oopsie/mkfn:apply-to-explanation-collection m/left))))
 
 (def checked (partial type/checked type-repo))
 

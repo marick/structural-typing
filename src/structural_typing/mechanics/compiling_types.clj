@@ -1,7 +1,7 @@
 (ns ^:no-doc structural-typing.mechanics.compiling-types
   (:require [blancas.morph.monads :as e]
             [com.rpl.specter :as specter]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [structural-typing.paths.substituting :as path]
             [structural-typing.mechanics.lifting-predicates :refer [lift]]))
 
@@ -21,7 +21,7 @@
     (assoc :predicate-explainer (constantly 
                                  (format "%s is not a path into `%s`"
                                          ;; ick.
-                                         (custom/friendly-path base-oopsie)
+                                         (oopsie/friendly-path base-oopsie)
                                          (pr-str whole-value))))
     vector)))
 

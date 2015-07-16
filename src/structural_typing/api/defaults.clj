@@ -3,14 +3,17 @@
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [clojure.pprint :refer [cl-format]]
-            [clojure.string :as str])
-  (:require [structural-typing.api.custom :as custom]))
+            [clojure.string :as str]
+            [such.readable :as readable])
+  (:require [structural-typing.api.oopsie :as oopsie]))
+
+(readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
   [{:keys [predicate-string leaf-value] :as oopsie}]
   (format "%s should be `%s`; it is `%s`"
-          (custom/friendly-path oopsie)
+          (oopsie/friendly-path oopsie)
           predicate-string
           (pr-str leaf-value)))
 
@@ -27,7 +30,7 @@
                 (assoc :goodness true)
                 ...)
 "
-  (custom/mkfn:apply-to-each-explanation println))
+  (oopsie/mkfn:apply-to-each-explanation println))
 
 (defn throwing-error-handler 
   "In contrast to the default error handler, this one throws a
@@ -40,4 +43,4 @@
           (type/replace-error-handler type-repo type/throwing-failure-handler) ; local repo
 "
   [oopsies]
-  (throw (new Exception (str/join "\n" (custom/explanations oopsies)))))
+  (throw (new Exception (str/join "\n" (oopsie/explanations oopsies)))))

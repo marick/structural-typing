@@ -1,14 +1,14 @@
 (ns monadic-define-2
   "Logging to Timbre"
   (:require [structural-typing.type :as type]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [blancas.morph.monads :as m])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
   (:use [structural-typing.type :exclude [checked]]))
 
 (defn add-whole-value [oopsies]
   (cons (:whole-value (first oopsies))
-        (custom/explanations oopsies)))
+        (oopsie/explanations oopsies)))
 
 (def type-repo (-> empty-type-repo
                    (named :Point

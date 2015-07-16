@@ -1,8 +1,9 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [structural-typing.mechanics.lifting-predicates :refer [lift]])
-  (:require [blancas.morph.monads :as e])
+  (:require [blancas.morph.monads :as e]
+            [such.readable :as readable])
   (:use midje.sweet))
 
 (fact member
@@ -12,12 +13,12 @@
 
   (let [lifted (lift (subject/member [1 2 3]))]
     (future-fact "a nice name"
-      (custom/friendly-function-name (subject/member [1 2 3])) => "(member [1 2 3])"
-      (custom/friendly-function-name (subject/member [even? odd?])) => "(member [even? odd?])"
-      (custom/friendly-function-name lifted) => "(member [1 2 3])")
+      (readable/fn-string (subject/member [1 2 3])) => "(member [1 2 3])"
+      (readable/fn-string (subject/member [even? odd?])) => "(member [even? odd?])"
+      (readable/fn-string lifted) => "(member [1 2 3])")
 
     (fact "nice error messages"
-      (custom/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
+      (oopsie/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
       => ":x should be a member of `[1 2 3]`; it is `8`")))
 
 (fact exactly
@@ -27,9 +28,9 @@
 
   (let [lifted (lift (subject/exactly 3))]
     (future-fact "a nice name"
-      (custom/friendly-function-name (subject/exactly [even? odd?])) => "(exactly [even? odd?])"
-      (custom/friendly-function-name lifted) => "(member [1 2 3])")
+      (readable/fn-string (subject/exactly [even? odd?])) => "(exactly [even? odd?])"
+      (readable/fn-string lifted) => "(member [1 2 3])")
 
     (fact "nice error messages"
-      (custom/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
+      (oopsie/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
       => ":x should be exactly `3`; it is `8`")))

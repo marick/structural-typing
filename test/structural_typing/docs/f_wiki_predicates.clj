@@ -1,7 +1,7 @@
 (ns structural-typing.docs.f-wiki-predicates
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
-           [structural-typing.api.custom :as custom]
+           [structural-typing.api.oopsie :as oopsie]
            [clojure.string :as str])
  (:use [midje.sweet :exclude [exactly]]))
 
@@ -24,7 +24,7 @@
                          (explain-with 
                           (fn [oopsie] 
                             (format "%s should contain a digit" 
-                                    (custom/friendly-path oopsie))))))
+                                    (oopsie/friendly-path oopsie))))))
 
 (type! :Account {:password good-password?})
 (fact

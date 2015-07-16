@@ -1,7 +1,6 @@
 (ns structural-typing.docs.f-wiki-condensed-type-descriptions
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
-           [structural-typing.api.custom :as custom]
            [clojure.string :as str])
  (:use [midje.sweet :exclude [exactly]]))
 

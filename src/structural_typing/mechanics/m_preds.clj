@@ -1,7 +1,7 @@
 (ns ^:no-doc structural-typing.mechanics.m-preds
   (:require [structural-typing.mechanics.lifting-predicates :as lift]
             [structural-typing.mechanics.frob :as frob]
-            [structural-typing.api.custom :as custom]))
+            [structural-typing.api.oopsie :as oopsie]))
 
 
 (defn show-as 
@@ -37,7 +37,7 @@
 
   (-> (compose-predicate "required-key"
                          (comp not nil?)
-                         #(format "%s must exist and be non-nil" (custom/friendly-path %)))
+                         #(format "%s must exist and be non-nil" (oopsie/friendly-path %)))
       (lift/lift* false)))
 
 

@@ -1,5 +1,6 @@
 (ns structural-typing.paths.elements
-  (:require [structural-typing.mechanics.frob :as frob])
+  (:require [structural-typing.mechanics.frob :as frob]
+            [such.readable :as readable])
   (:require [com.rpl.specter :as specter]))
 
 (def ALL 
@@ -12,4 +13,7 @@
 
 (defn will-match-many? [elt]
   (boolean (#{ALL} elt)))
+
+;; These define the way special path elements are displayed.
+(readable/instead-of ALL 'ALL)
 

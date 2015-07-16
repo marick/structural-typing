@@ -2,7 +2,7 @@
   "All of the predefined predicates."
   (:require [structural-typing.mechanics.m-preds :as pred]
             [structural-typing.mechanics.frob :as frob]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [such.immigration :as ns]))
 
 ;; Add required-key for completeness (also in types.clj).
@@ -10,7 +10,7 @@
 
 (defn- should-be [format-string expected]
   #(format format-string,
-           (custom/friendly-path %)
+           (oopsie/friendly-path %)
            (pr-str expected)
            (pr-str (:leaf-value %))))
 

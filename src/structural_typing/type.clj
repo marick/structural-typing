@@ -18,7 +18,7 @@
       
 (ns/import-vars [structural-typing.paths.elements ALL]
                 [structural-typing.paths.substituting includes]
-                [structural-typing.paths.readability requires forks])
+                [structural-typing.paths.readable requires forks])
 
 (ns/import-vars [structural-typing.api.defaults
                  throwing-error-handler

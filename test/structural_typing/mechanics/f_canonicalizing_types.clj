@@ -5,7 +5,7 @@
             [structural-typing.mechanics.m-preds :as pred])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [structural-typing.paths.substituting :refer [includes]]
-            [structural-typing.paths.readability :refer :all])
+            [structural-typing.paths.readable :refer :all])
   (:use midje.sweet))
 
 

@@ -1,7 +1,7 @@
 (ns timbre-define-2
   "Using an Either monad to separate mistyped from valid values"
   (:require [structural-typing.type :as type]
-            [structural-typing.api.custom :as custom]
+            [structural-typing.api.oopsie :as oopsie]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]
             [taoensso.timbre :as timbre])
@@ -21,7 +21,7 @@
       pprint-to-string
       str/trimr       ; be tidy by getting rid of pprint's trailing newline
       timbre/info)
-  (doseq [e (custom/explanations oopsies)] (timbre/info e))
+  (doseq [e (oopsie/explanations oopsies)] (timbre/info e))
   (timbre/error "Boundary type check failed"))
 
 (def type-repo

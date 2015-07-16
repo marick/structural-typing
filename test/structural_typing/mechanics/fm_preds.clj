@@ -1,6 +1,5 @@
 (ns structural-typing.mechanics.fm-preds
   (:require [structural-typing.mechanics.m-preds :as subject]
-            [structural-typing.api.custom :as custom]
             [structural-typing.mechanics.lifting-predicates :refer [lift]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
