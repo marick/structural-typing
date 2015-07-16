@@ -13,7 +13,7 @@
   "Use this in a path to select all values of a 
    collection.
       
-       (type! :Figure {:points ALL (type/include :Point)})
+       (type! :Figure {[:points ALL] (type/include :Point)})
 "
   specter/ALL)
 
