@@ -16,11 +16,9 @@
                  replace-error-handler
                  replace-success-handler])
       
-(ns/import-vars [structural-typing.api.path
-                 includes
-                 requires
-                 forks
-                 ALL])
+(ns/import-vars [structural-typing.paths.elements ALL]
+                [structural-typing.paths.substituting includes]
+                [structural-typing.paths.readability requires forks])
 
 (ns/import-vars [structural-typing.api.defaults
                  throwing-error-handler

@@ -1,6 +1,7 @@
-(ns structural-typing.mechanics.fm-paths
-  (:require [structural-typing.mechanics.m-paths :as subject])
-  (:require [com.rpl.specter :refer [ALL] :as specter])
+(ns structural-typing.paths.f-substituting
+  (:require [com.rpl.specter :as specter])
+  (:require [structural-typing.paths.substituting :as subject])
+  (:require [structural-typing.paths.elements :refer [ALL]])
   (:use midje.sweet))
 
 (fact ends-in-map?
@@ -14,6 +15,9 @@
 
     (subject/ends-in-map? [:a {:a even?} :a])
     => (throws #"Nothing may follow a map within a path")))
+
+
+
 
 (fact path-will-match-many?
   (subject/path-will-match-many? [:a :b]) => false

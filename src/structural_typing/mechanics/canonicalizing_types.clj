@@ -2,16 +2,16 @@
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.mechanics.frob :as frob]
             [structural-typing.mechanics.m-ppps :as ppp]
-            [structural-typing.mechanics.m-paths :as path]
             [structural-typing.mechanics.m-maps :as map]
             [structural-typing.mechanics.m-preds :as pred]
             [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
+;;; Decompressors written elsewhere are imported here so that tests can easily show how they
+;;; play together.
 
-(defn dc:expand-type-signifiers [type-map form]
-  (let [do-one #(if (path/type-finder? %) (% type-map) %)]
-    (specter/transform (specter/walker path/type-finder?) do-one form)))
+(frob/import-vars [structural-typing.paths.substituting
+                      dc:expand-type-signifiers dc:split-paths-ending-in-maps])
 
 (def dc:validate-starting-descriptions
   (mkfn/lazyseq:criticize-deviationism
@@ -22,12 +22,6 @@
 (def dc:spread-collections-of-required-paths
   (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
 
-(def dc:split-paths-ending-in-maps
-
-  (mkfn/lazyseq:x->abc #(let [prefix-path (pop %)]
-                       (vector prefix-path (hash-map prefix-path (last %))))
-                    path/ends-in-map?))
-                    
 (def dc:required-paths->maps 
   (mkfn/lazyseq:x->y #(hash-map % [pred/required-key]) (complement map?)))
 

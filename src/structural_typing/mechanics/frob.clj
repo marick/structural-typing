@@ -8,7 +8,8 @@
                        [such.wrongness
                          boom!]
                        [such.types
-                         extended-fn?])
+                         extended-fn?]
+                       [such.immigration import-vars])
 
 (defn force-vector [v]
   (cond (vector? v) v

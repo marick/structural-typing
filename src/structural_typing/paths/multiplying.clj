@@ -1,11 +1,16 @@
-(ns ^:no-doc structural-typing.mechanics.deriving-paths
-  (:require [structural-typing.mechanics.frob :as frob]))
+(ns structural-typing.paths.multiplying
+    (:require [structural-typing.mechanics.frob :as frob]
+              [structural-typing.mechanics.m-preds :as pred])
 
-(defn from-forked-paths
+)
+
+(def forking? (partial some sequential?))
+
+(defn forked-paths
   "Expand a vector containing path elements + shorthand for forks into 
    a vector of paths"
   ([path]
-     (from-forked-paths path [[]]))
+     (forked-paths path [[]]))
        
   ([[x & xs :as path] parent-paths]
      (cond (empty? path)
@@ -14,16 +19,19 @@
            (sequential? x)
            (let [extended (for [pp parent-paths, elt x]
                             (conj pp elt))]
-             (from-forked-paths xs (vec extended)))
+             (forked-paths xs (vec extended)))
            
            (map? x)
            (frob/boom! "Program error: Path contains a map: %s." path)
            
            :else
            (let [extended (for [pp parent-paths] (conj pp x))]
-             (from-forked-paths xs (frob/force-vector extended))))))
+             (forked-paths xs (frob/force-vector extended))))))
 
-(defn from-paths-with-collection-selectors [path]
+
+(def required? #(contains? % pred/required-key))
+
+(defn required-prefix-paths [path]
   (reduce (fn [so-far [prefix current]]
             (cond (keyword? current)
                   so-far

@@ -1,6 +1,6 @@
 (ns structural-typing.api.f-custom
   (:require [structural-typing.api.custom :as subject]
-            [structural-typing.api.path :as path])
+            [structural-typing.paths.elements :refer [ALL]])
   (:use midje.sweet))
 
 (fact "friendly-function-name"
@@ -22,7 +22,7 @@
   (subject/friendly-path {:path [:a]}) => ":a"
   (subject/friendly-path {:path [1]}) => "[1]"
   (subject/friendly-path {:path [:a :b]}) => "[:a :b]"
-  (subject/friendly-path {:path [:a path/ALL :b]}) => "[:a ALL :b]"
+  (subject/friendly-path {:path [:a ALL :b]}) => "[:a ALL :b]"
   (subject/friendly-path {:path [:a even? :b]}) => "[:a even? :b]"
   (subject/friendly-path {:path [:a 0 :b]}) => "[:a 0 :b]")
 

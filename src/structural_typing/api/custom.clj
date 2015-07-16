@@ -3,11 +3,13 @@
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [clojure.repl :as repl])
-  (:require [structural-typing.api.path :as path]
-            [such.readable :as readable]))
+  (:require 
+            [such.readable :as readable])
+  (:require [structural-typing.paths.elements :as path-element])
+)
 
 ;; These define the way special path elements are displayed.
-(readable/instead-of path/ALL 'ALL)
+(readable/instead-of path-element/ALL 'ALL)
 (readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 
 (defn friendly-function-name 

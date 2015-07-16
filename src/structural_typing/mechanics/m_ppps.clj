@@ -3,7 +3,7 @@
   ppps have paths that can be used to generate other ppps."
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.mechanics.frob :as frob]
-            [structural-typing.mechanics.deriving-paths :as derive]
+            [structural-typing.paths.multiplying :as multiply]
             [structural-typing.mechanics.m-preds :as pred]
             [clojure.set :as set]))
 
@@ -16,9 +16,6 @@
 
 (def path-is? (mkfn:x-is? path-part))
 (def preds-is? (mkfn:x-is? preds-part))
-
-(def forking? (path-is? (partial some sequential?)))
-(def required? (preds-is? #(contains? % pred/required-key)))
 
 
 (defn mkfn:apply-to [ppp-part]
@@ -48,12 +45,12 @@
   (mkfn/lazyseq:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
 
 (def dc:fix-forked-paths 
-  (mkfn/lazyseq:x->abc (spread-path derive/from-forked-paths)
-                       forking?))
+  (mkfn/lazyseq:x->abc (spread-path multiply/forked-paths)
+                       (path-is? multiply/forking?)))
 
 (def dc:fix-required-paths-with-collection-selectors
-  (mkfn/lazyseq:x->xabc (spread-path-into-required-ppps derive/from-paths-with-collection-selectors)
-                        required?))
+  (mkfn/lazyseq:x->xabc (spread-path-into-required-ppps multiply/required-prefix-paths)
+                        (preds-is? multiply/required?)))
 
 
 ;;; And the final result

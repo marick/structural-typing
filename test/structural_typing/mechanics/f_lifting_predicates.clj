@@ -1,7 +1,6 @@
 (ns structural-typing.mechanics.f-lifting-predicates
   (:require [structural-typing.mechanics.lifting-predicates :as subject]
             [structural-typing.mechanics.m-preds :as pred]
-            [structural-typing.api.path :as path]
             [structural-typing.api.defaults :as default])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [blancas.morph.monads :as e])

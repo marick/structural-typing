@@ -2,9 +2,9 @@
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.mechanics.compiling-types :as subject]
             [structural-typing.mechanics.m-preds :as pred]
-            [structural-typing.api.path :as path]
             [structural-typing.api.custom :as custom]
-            [structural-typing.mechanics.canonicalizing-types :refer [canonicalize]])
+            [structural-typing.mechanics.canonicalizing-types :refer [canonicalize]]
+            [structural-typing.paths.elements :refer [ALL]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
 
@@ -41,7 +41,7 @@
       (unique-path-maker only-expected-leaf 0) => [:a :b]))
 
   (fact "with an ALL collection description"
-    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a path/ALL :b])
+    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a ALL :b])
           only-expected-leaf [0 1]]
       (specter/compiled-select selector {:a [{:b 1}]}) => [only-expected-leaf]
       (leaf-selector only-expected-leaf) => 1
@@ -82,8 +82,8 @@
       (custom/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
   (fact "a path with multiple values (ALL)"
-    (let [type (subject/compile-type (canonicalize {} [[:points path/ALL :x]]
-                                                   {[:points path/ALL :x] even?}))]
+    (let [type (subject/compile-type (canonicalize {} [[:points ALL :x]]
+                                                   {[:points ALL :x] even?}))]
       (custom/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
       => (just "[:points 0 :x] should be `even?`; it is `1`"
                "[:points 2 :x] should be `even?`; it is `3`"
@@ -106,9 +106,9 @@
                :in-any-order)))
 
   (fact "a path that can't be applied produces an error"
-    (let [type (subject/compile-type (canonicalize {} [[:x path/ALL :y]]))]
+    (let [type (subject/compile-type (canonicalize {} [[:x ALL :y]]))]
       (type {:x 1}) => (just (contains {:leaf-value nil
-                                        :path [:x path/ALL :y]
+                                        :path [:x ALL :y]
                                         :whole-value {:x 1}}))
       (custom/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
       (custom/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")

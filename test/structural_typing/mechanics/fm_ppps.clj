@@ -1,6 +1,5 @@
 (ns structural-typing.mechanics.fm-ppps
   (:require [structural-typing.mechanics.m-ppps :as subject :refer [->ppp]]
-            [structural-typing.api.path :as path]
             [structural-typing.mechanics.m-preds :as pred])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))

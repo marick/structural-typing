@@ -2,7 +2,7 @@
   (:require [blancas.morph.monads :as e]
             [com.rpl.specter :as specter]
             [structural-typing.api.custom :as custom]
-            [structural-typing.mechanics.m-paths :as path]
+            [structural-typing.paths.substituting :as path]
             [structural-typing.mechanics.lifting-predicates :refer [lift]]))
 
 (defn compile-predicates [preds]
