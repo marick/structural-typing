@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "0.9.0"
+(defproject marick/structural-typing "0.10.0"
   :description "Structural typing for Clojure. Generally useful when you want to define predicates to apply in bulk to parts of structures. The top-level namespaces contain what you need to use the library. The .surface namespaces help you tweak its behavior."
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn

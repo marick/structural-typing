@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7  
-For lein: [marick/structural-typing "0.9.0"]    
+For lein: [marick/structural-typing "0.10.0"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
@@ -92,13 +92,13 @@ user=> (on-error! throwing-error-handler)
 user=> (checked :Point {:x "one" :y "two"})
 
 Exception :y should be `integer?`; it is `"two"`
-:x should be `integer?`; it is `"one"`  structural-typing.api.defaults/throwing-error-handler (defaults.clj:94)
+:x should be `integer?`; it is `"one"`  structural-typing.surface.defaults/throwing-error-handler (defaults.clj:94)
 
 user=> (pst)
 Exception :y should be `integer?`; it is `"two"`
 :x should be `integer?`; it is `"one"`
-	structural-typing.api.defaults/throwing-error-handler (defaults.clj:94)
-	structural-typing.api.type-repo.TypeRepo (type_repo.clj:30)
+	structural-typing.surface.defaults/throwing-error-handler (defaults.clj:94)
+	structural-typing.surface.type-repo.TypeRepo (type_repo.clj:30)
 ```
 
 Not all that pretty, but I hope you didn't come to Clojure expecting pretty stack traces.
@@ -157,6 +157,8 @@ user=> (checked :Point {:x "string" :y 2})
 ```
 
 If a predicate would throw an error (as `pos?` does on a string), that's considered `false`.
+
+In addition to predicates defined by Clojure or your program, you can use [predefined predicates](http://marick.github.io/structural-typing/structural-typing.preds.html).
 
 
 ## Optional and required values
@@ -336,7 +338,7 @@ user=> (checked :Figure {:points 3})
 
 ## For more details
 
-See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended setup, use with logging libraries and monads, and details on semantics. 
+See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended setup, use with logging libraries and monads, and details on semantics. There is [API](http://marick.github.io/structural-typing/) documentation. It includes descriptions of [predefined predicates](http://marick.github.io/structural-typing/structural-typing.preds.html).
 
 -------------------
 
