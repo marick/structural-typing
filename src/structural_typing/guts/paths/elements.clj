@@ -1,4 +1,4 @@
-(ns structural-typing.guts.paths.elements
+(ns ^:no-doc structural-typing.guts.paths.elements
   (:require [structural-typing.guts.frob :as frob]
             [such.readable :as readable])
   (:require [com.rpl.specter :as specter]))

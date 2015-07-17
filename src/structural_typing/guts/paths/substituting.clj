@@ -1,4 +1,4 @@
-(ns structural-typing.guts.paths.substituting
+(ns ^:no-doc structural-typing.guts.paths.substituting
   (:require [com.rpl.specter :as specter]
             [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]

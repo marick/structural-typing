@@ -1,4 +1,4 @@
-(ns structural-typing.guts.preds.annotated
+(ns ^:no-doc structural-typing.guts.preds.annotated
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.defaults :as defaults]
