@@ -5,7 +5,7 @@
             [structural-typing.global-type :as global-type]
             [such.immigration :as ns]))
 
-(ns/import-vars [structural-typing.guts.mechanics.m-preds
+(ns/import-vars [structural-typing.guts.preds.required-key
                  required-key])
 
 (ns/import-vars [structural-typing.guts.preds.annotated

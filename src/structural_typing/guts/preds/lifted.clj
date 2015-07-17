@@ -19,7 +19,7 @@
             :predicate-string (annotated/get-predicate-string pred)
             :predicate (annotated/get-predicate pred)))
 
-(defn- ->oopsie [& abouts]
+(defn ->oopsie [& abouts]
   (apply merge abouts))
 
 (defn- oopsie->either [{:keys [predicate leaf-value] :as oopsie}]
@@ -27,21 +27,27 @@
                  (mkfn/pred:exception->false predicate)
                  leaf-value))
 
+;; even the lifted function should print nicely
+(def name-lifted-predicate annotated/replace-predicate-string)
 
-(defn lift* [pred count-nil-as-right]
+(defn- optional-evaluation [{:keys [predicate leaf-value] :as oopsie}]
+  (cond (nil? leaf-value)
+        (e/right :missing-optional-leaf-ignored) ; Note: cannot *be* nil - that will turn into a Left
+
+        ((mkfn/pred:exception->false predicate) leaf-value)
+        (e/right leaf-value)
+
+        :else
+        (e/left oopsie)))
+
+(defn lift* [pred]
   (-> (fn [about-call]
-        (let [oopsie (->oopsie (pred->about-pred pred) about-call)]
-          ;; Blancas make-either objects to an INPUT of nil, not a predicate result of falsey.
-          ;; This produces convolution.
-          (if (and (nil? (:leaf-value oopsie)) count-nil-as-right)
-            (e/right "was nil") ; Note: cannot *be* nil - that will turn into a Left.
-            (oopsie->either oopsie))))
+        (optional-evaluation (->oopsie (pred->about-pred pred) about-call)))
       mark-as-lifted
-      ;; even the lifted function prints nicely
-      (annotated/replace-predicate-string (annotated/get-predicate-string pred))))
+      (name-lifted-predicate (annotated/get-predicate-string pred))))
 
 (defn lift [pred]
   (if (already-lifted? pred)
     pred
-    (lift* pred :count-nil-as-right)))
+    (lift* pred)))
 

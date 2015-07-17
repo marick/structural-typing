@@ -1,8 +1,6 @@
 (ns structural-typing.guts.paths.multiplying
     (:require [structural-typing.guts.frob :as frob]
-              [structural-typing.guts.mechanics.m-preds :as pred])
-
-)
+              [structural-typing.guts.preds.required-key :refer [required-key]]))
 
 (def forking? (partial some sequential?))
 
@@ -29,7 +27,7 @@
              (forked-paths xs (frob/force-vector extended))))))
 
 
-(def required? #(contains? % pred/required-key))
+(def required? #(contains? % required-key))
 
 (defn required-prefix-paths [path]
   (reduce (fn [so-far [prefix current]]

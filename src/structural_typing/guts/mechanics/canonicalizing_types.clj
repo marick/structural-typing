@@ -1,9 +1,9 @@
 (ns ^:no-doc structural-typing.guts.mechanics.canonicalizing-types
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]
+            [structural-typing.guts.preds.required-key :refer [required-key]]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
-            [structural-typing.guts.mechanics.m-preds :as pred]
             [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
@@ -23,7 +23,7 @@
   (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
 
 (def dc:required-paths->maps 
-  (mkfn/lazyseq:x->y #(hash-map % [pred/required-key]) (complement map?)))
+  (mkfn/lazyseq:x->y #(hash-map % [required-key]) (complement map?)))
 
 (def dc:flatten-maps
   (mkfn/lazyseq:x->y map/flatten-map map?))

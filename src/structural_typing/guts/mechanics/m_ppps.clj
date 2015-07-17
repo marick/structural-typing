@@ -4,7 +4,7 @@
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]
             [structural-typing.guts.paths.multiplying :as multiply]
-            [structural-typing.guts.mechanics.m-preds :as pred]
+            [structural-typing.guts.preds.required-key :refer [required-key]]
             [clojure.set :as set]))
 
 (def ->ppp vector)
@@ -29,7 +29,7 @@
          (apply-to-path spreader ppp))))
   
 (defn spread-path-into-required-ppps [spreader]
-  (spread-path-and-x spreader (constantly #{pred/required-key})))
+  (spread-path-and-x spreader (constantly #{required-key})))
 
 (defn spread-path [spreader]
   (spread-path-and-x spreader preds-part))
@@ -63,9 +63,9 @@
                     stream))
           (vectorize-preds [kvs]
             (frob/update-each-value kvs
-                                    #(if (contains? % pred/required-key)
-                                       (into [pred/required-key]
-                                             (set/difference % #{pred/required-key}))
+                                    #(if (contains? % required-key)
+                                       (into [required-key]
+                                             (set/difference % #{required-key}))
                                        (vec %))))]
     (-> stream make-map vectorize-preds)))
 

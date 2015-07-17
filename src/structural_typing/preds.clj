@@ -6,9 +6,6 @@
             [such.readable :as readable]
             [such.immigration :as ns]))
 
-;; Add required-key for completeness (also in types.clj).
-(ns/import-vars [structural-typing.guts.mechanics.m-preds required-key])
-
 (defn- should-be [format-string expected]
   #(format format-string,
            (oopsie/friendly-path %)

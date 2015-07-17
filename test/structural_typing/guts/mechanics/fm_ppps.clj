@@ -1,6 +1,6 @@
 (ns structural-typing.guts.mechanics.fm-ppps
   (:require [structural-typing.guts.mechanics.m-ppps :as subject :refer [->ppp]]
-            [structural-typing.guts.mechanics.m-preds :as pred])
+            [structural-typing.guts.preds.required-key :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
@@ -13,7 +13,7 @@
                                                        :in-any-order)
 
   (fact "you must have only predicates in the predicate list"
-    (subject/dc:flatmaps->ppps [ {[:points ALL] [pred/required-key 5]} ])
+    (subject/dc:flatmaps->ppps [ {[:points ALL] [required-key 5]} ])
     => (throws #"`5` is not a predicate.")))
 
                               
@@ -37,25 +37,25 @@
     (let [in [ (->ppp [:a ALL] #{even?}) ]]
       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
   (fact "leaves paths with only keys alone"
-    (let [in [ (->ppp [:a :b] #{pred/required-key}) ]]
+    (let [in [ (->ppp [:a :b] #{required-key}) ]]
       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
 
   (tabular 
     (fact "adds new ppps for subpaths of required paths"
-      (let [original (->ppp ?path #{even? pred/required-key})]
+      (let [original (->ppp ?path #{even? required-key})]
         (subject/dc:fix-required-paths-with-collection-selectors [original])
         => (cons original ?additions)))
     ?path                ?additions
-    [:a ALL]             [(->ppp [:a] #{pred/required-key})]
-    [:a ALL :b]          [(->ppp [:a] #{pred/required-key})]
-    [:a ALL :b ALL]      [(->ppp [:a] #{pred/required-key})
-                          (->ppp [:a ALL :b] #{pred/required-key})]
-    [:a ALL :b ALL :c]   [(->ppp [:a] #{pred/required-key})
-                          (->ppp [:a ALL :b] #{pred/required-key})]
-    [:a :b ALL :c]       [(->ppp [:a :b] #{pred/required-key})]
-    [:a :b ALL :c :d]    [(->ppp [:a :b] #{pred/required-key})]
-    [:a :b ALL ALL]      [(->ppp [:a :b] #{pred/required-key})]
-    [:a :b ALL ALL :c]   [(->ppp [:a :b] #{pred/required-key})]))
+    [:a ALL]             [(->ppp [:a] #{required-key})]
+    [:a ALL :b]          [(->ppp [:a] #{required-key})]
+    [:a ALL :b ALL]      [(->ppp [:a] #{required-key})
+                          (->ppp [:a ALL :b] #{required-key})]
+    [:a ALL :b ALL :c]   [(->ppp [:a] #{required-key})
+                          (->ppp [:a ALL :b] #{required-key})]
+    [:a :b ALL :c]       [(->ppp [:a :b] #{required-key})]
+    [:a :b ALL :c :d]    [(->ppp [:a :b] #{required-key})]
+    [:a :b ALL ALL]      [(->ppp [:a :b] #{required-key})]
+    [:a :b ALL ALL :c]   [(->ppp [:a :b] #{required-key})]))
 
 
 
@@ -82,8 +82,8 @@
   (fact "the predicate list is a vector with required-key first (if present)"
     (let [result (subject/->type-description [ (->ppp [:x] #{even?})
                                                (->ppp [:x] #{odd?})
-                                               (->ppp [:x] #{pred/required-key})
+                                               (->ppp [:x] #{required-key})
                                                (->ppp [:x] #{integer?})
                                                (->ppp [:x] #{pos?})])]
-      (first (get result [:x])) => (exactly pred/required-key))))
+      (first (get result [:x])) => (exactly required-key))))
 

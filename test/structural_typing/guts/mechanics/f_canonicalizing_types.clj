@@ -2,7 +2,7 @@
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as subject]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as m-map]
-            [structural-typing.guts.mechanics.m-preds :as pred])
+            [structural-typing.guts.preds.required-key :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [structural-typing.guts.paths.substituting :refer [includes]]
             [structural-typing.guts.paths.readable :refer :all])
@@ -76,12 +76,12 @@
       (subject/dc:required-paths->maps (ps {:a 1} )) => (just {:a 1}))
 
     (fact "produces one map for each incoming vector"
-      (subject/dc:required-paths->maps (ps [:a] [:b :c])) => (just {[:a] [pred/required-key]}
-                                                                   {[:b :c] [pred/required-key]} ))
+      (subject/dc:required-paths->maps (ps [:a] [:b :c])) => (just {[:a] [required-key]}
+                                                                   {[:b :c] [required-key]} ))
 
     (fact "forking paths are not processed yet"
       (subject/dc:required-paths->maps (ps [:a [:b :c] :d]))
-      => (just {[:a [:b :c] :d] [pred/required-key]})))
+      => (just {[:a [:b :c] :d] [required-key]})))
 
 
   (fact dc:flatten-maps
@@ -99,22 +99,22 @@
 (facts "Part 2: examples of use in canonicalization"
   (fact dc:expand-type-signifiers
     (let [type-map {:Type (subject/canonicalize ..t.. [:a] {:a odd? :b even?})}]
-      (subject/canonicalize type-map (includes :Type)) => {[:a] [pred/required-key odd?]
+      (subject/canonicalize type-map (includes :Type)) => {[:a] [required-key odd?]
                                                                 [:b] [even?]}
       
       (subject/canonicalize type-map (requires [:a (includes :Type) ]))
-      => {[:a] [pred/required-key]
-          [:a :a] [pred/required-key odd?]
+      => {[:a] [required-key]
+          [:a :a] [required-key odd?]
           [:a :b] [even?]}
       
       (subject/canonicalize type-map
                             {:a (includes :Type) }
                             {:a {:c pos?}}
                             [:c])
-      => {[:a :a] [pred/required-key odd?]
+      => {[:a :a] [required-key odd?]
           [:a :b] [even?]
           [:a :c] [pos?]
-          [:c] [pred/required-key]}))
+          [:c] [required-key]}))
 
   (fact dc:spread-collections-of-required-paths
     (subject/canonicalize ..t.. (requires :a :b :c [:d :e]))
@@ -128,21 +128,21 @@
     => (subject/canonicalize ..t.. (requires [:x]) {:x {:a even?, :b even?}})
 
     (subject/canonicalize ..t.. (requires [:x {:a even?, :b even?} ]))
-    => {[:x] [pred/required-key]
+    => {[:x] [required-key]
         [:x :a] [even?]
         [:x :b] [even?]}
 
     (subject/canonicalize ..t.. (requires [:a {:b {:c even?}
                                                     :d even?}] ))
-    => {[:a] [pred/required-key]
+    => {[:a] [required-key]
         [:a :b :c] [even?]
         [:a :d] [even?]})
 
   (fact dc:required-paths->maps
     (subject/canonicalize ..t.. (requires :a [:b :d]) (requires :c))
-    => {[:a] [pred/required-key]
-        [:b :d] [pred/required-key]
-        [:c] [pred/required-key]})
+    => {[:a] [required-key]
+        [:b :d] [required-key]
+        [:c] [required-key]})
   
 
   (fact "dc:flatten-maps"
@@ -162,13 +162,13 @@
 
   (fact dc:fix-forked-paths
     (subject/canonicalize ..t.. (requires :a [:b [:l1 :l2] :c] :d))
-    => {[:a] [pred/required-key]
-        [:b :l1 :c] [pred/required-key]
-        [:b :l2 :c] [pred/required-key]
-        [:d] [pred/required-key]}
+    => {[:a] [required-key]
+        [:b :l1 :c] [required-key]
+        [:b :l2 :c] [required-key]
+        [:d] [required-key]}
     
-    (subject/canonicalize ..t.. (requires [[:a :b]])) => {[:a] [pred/required-key]
-                                                               [:b] [pred/required-key]})
+    (subject/canonicalize ..t.. (requires [[:a :b]])) => {[:a] [required-key]
+                                                               [:b] [required-key]})
   
 
   (fact dc:fix-required-paths-with-collection-selectors
@@ -176,39 +176,39 @@
                                                [:b :f ALL])
                                 {:a even?}
                                 {[:b :f ALL] even?})
-    => {[:a ALL :c] [pred/required-key]
-        [:b :f ALL] [pred/required-key even?] ; Note that this order is enforced
-        [:a]        [pred/required-key even?]
-        [:b :f]     [pred/required-key]}))
+    => {[:a ALL :c] [required-key]
+        [:b :f ALL] [required-key even?] ; Note that this order is enforced
+        [:a]        [required-key even?]
+        [:b :f]     [required-key]}))
 
 
 
 (facts "About type-map and path merging"
 
   (fact "multiple arguments are allowed"
-    (subject/canonicalize ..t.. {:a pred/required-key} {:b pred/required-key})
-    => {[:a] [pred/required-key]
-        [:b] [pred/required-key]})
+    (subject/canonicalize ..t.. {:a required-key} {:b required-key})
+    => {[:a] [required-key]
+        [:b] [required-key]})
   
   (fact "arguments with the same keys have their values merged"
-    (subject/canonicalize ..t.. {:a pred/required-key} {:a even?})
-    => {[:a] [pred/required-key even?]}
+    (subject/canonicalize ..t.. {:a required-key} {:a even?})
+    => {[:a] [required-key even?]}
     (subject/canonicalize ..t..
-                          {:a {:b pred/required-key}}
+                          {:a {:b required-key}}
                           {:a map?}
                           {:a {:b even?}})
     => {[:a] [map?]
-        [:a :b] [pred/required-key even?]})
+        [:a :b] [required-key even?]})
 
   (fact "maps and vectors can be merged"
     (subject/canonicalize ..t.. [ :a :b ] {:a even?})
-    => {[:a] [pred/required-key even?]
-        [:b] [pred/required-key]})
+    => {[:a] [required-key even?]
+        [:b] [required-key]})
 
   (fact "nested and unnested elements can be combined"
-    (subject/canonicalize ..t.. (requires :a [:b :c] :d)) => {[:a] [pred/required-key]
-                                                              [:b :c] [pred/required-key]
-                                                              [:d] [pred/required-key]})
+    (subject/canonicalize ..t.. (requires :a [:b :c] :d)) => {[:a] [required-key]
+                                                              [:b :c] [required-key]
+                                                              [:d] [required-key]})
   (fact "note that forks allow the possibility of duplicate paths"
     (subject/canonicalize ..t.. {[:a :b1] pos?
                                  [:a [:b1 :b2]] even?})
@@ -231,69 +231,69 @@
     (fact "merging types"
       (fact "making a colored point by addition"
         (subject/canonicalize type-map (includes :Point) [:color] {:color string?})
-        => {[:color] [pred/required-key string?]
-            [:x] [pred/required-key integer?]
-            [:y] [pred/required-key integer?]})
+        => {[:color] [required-key string?]
+            [:x] [required-key integer?]
+            [:y] [required-key integer?]})
       
       (fact "or you can just merge types"
         (subject/canonicalize type-map (includes :Point) (includes :Colored))
-        => {[:color] [pred/required-key string?]
-            [:x] [pred/required-key integer?]
-            [:y] [pred/required-key integer?]})
+        => {[:color] [required-key string?]
+            [:x] [required-key integer?]
+            [:y] [required-key integer?]})
       
       (fact "note that merging an optional type doesn't make it required"
         (subject/canonicalize type-map (includes :Point) (includes :OptionalColored))
         => {[:color] [string?]
-            [:x] [pred/required-key integer?]
-            [:y] [pred/required-key integer?]}))
+            [:x] [required-key integer?]
+            [:y] [required-key integer?]}))
     
     (fact "subtypes"
       (fact "making a colored point by addition"
         (subject/canonicalize type-map (includes :Point) [:color] {:color string?})
-        => {[:color] [pred/required-key string?]
-            [:x] [pred/required-key integer?]
-            [:y] [pred/required-key integer?]}
+        => {[:color] [required-key string?]
+            [:x] [required-key integer?]
+            [:y] [required-key integer?]}
         
         (fact "or you can just merge types"
           (subject/canonicalize type-map (includes :Point) (includes :Colored))
-          => {[:color] [pred/required-key string?]
-              [:x] [pred/required-key integer?]
-              [:y] [pred/required-key integer?]})
+          => {[:color] [required-key string?]
+              [:x] [required-key integer?]
+              [:y] [required-key integer?]})
         
         (fact "note that merging an optional type doesn't make it required"
           (subject/canonicalize type-map (includes :Point) (includes :OptionalColored))
           => {[:color] [string?]
-              [:x] [pred/required-key integer?]
-              [:y] [pred/required-key integer?]}))
+              [:x] [required-key integer?]
+              [:y] [required-key integer?]}))
       
       (fact "a line has a start and an end, which are points"
         (subject/canonicalize type-map [:start :end]
                               {:start (includes :Point)
                                :end (includes :Point)})
-        => {[:start] [pred/required-key]
-            [:end] [pred/required-key]
-            [:start :x] [pred/required-key integer?]
-            [:start :y] [pred/required-key integer?]
-            [:end :x] [pred/required-key integer?]
-            [:end :y] [pred/required-key integer?]})
+        => {[:start] [required-key]
+            [:end] [required-key]
+            [:start :x] [required-key integer?]
+            [:start :y] [required-key integer?]
+            [:end :x] [required-key integer?]
+            [:end :y] [required-key integer?]})
       
     (fact "a figure has a color and a set of points"
       (subject/canonicalize type-map [:points]
                             {[:points ALL] (includes :Point)}
                             (includes :Colored))
-      => {[:color] [pred/required-key string?]
-          [:points] [pred/required-key]
-          [:points ALL :x] [pred/required-key integer?]
-          [:points ALL :y] [pred/required-key integer?]})
+      => {[:color] [required-key string?]
+          [:points] [required-key]
+          [:points ALL :x] [required-key integer?]
+          [:points ALL :y] [required-key integer?]})
     
     (fact "noting that a figure has colored points"
       (subject/canonicalize type-map [:points]
                             {[:points ALL] (includes :Point)}
                             {[:points ALL] (includes :Colored)})
-      => {[:points] [pred/required-key]
-          [:points ALL :color] [pred/required-key string?]
-          [:points ALL :x] [pred/required-key integer?]
-          [:points ALL :y] [pred/required-key integer?]}))))
+      => {[:points] [required-key]
+          [:points ALL :color] [required-key string?]
+          [:points ALL :x] [required-key integer?]
+          [:points ALL :y] [required-key integer?]}))))
   
   
 (fact "let us not forget the simple cases"
@@ -304,8 +304,8 @@
         [:b] [even?]})
   
   (fact "simple vectors"
-    (subject/canonicalize ..t.. [:a :b]) => {[:a] [pred/required-key]
-                                             [:b] [pred/required-key]}))
+    (subject/canonicalize ..t.. [:a :b]) => {[:a] [required-key]
+                                             [:b] [required-key]}))
   
 ;;;; Canonicalize - random examples, probably redundant
 

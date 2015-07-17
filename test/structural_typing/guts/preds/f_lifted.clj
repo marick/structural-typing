@@ -1,6 +1,6 @@
 (ns structural-typing.guts.preds.lifted
   (:require [structural-typing.guts.mechanics.lifted :as subject]
-            [structural-typing.guts.mechanics.m-preds :as pred]
+            [structural-typing.guts.preds.annotated :refer [show-as explain-with]]
             [structural-typing.surface.defaults :as default])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [blancas.morph.monads :as e])
@@ -51,7 +51,7 @@
                                  path
                                  leaf-value]}]
                       (format "%s - %s - %s" path predicate-string leaf-value))]
-      (lift-and-run (pred/explain-with explainer even?) 3)
+      (lift-and-run (explain-with explainer even?) 3)
       => (contains {:predicate (exactly even?) ; original predicate
                     :predicate-string "even?"  
                     :leaf-value 3
