@@ -3,28 +3,29 @@
 "
   (:require [structural-typing.surface.type-repo :as repo]
             [structural-typing.global-type :as global-type]
-            [such.immigration :as ns]))
+            [such.readable :as readable]
+            [such.immigration :as immigrate]))
 
-(ns/import-vars [structural-typing.guts.preds.required-key
-                 required-key])
+(immigrate/import-vars [structural-typing.guts.preds.required-key
+                        required-key])
 
-(ns/import-vars [structural-typing.guts.preds.annotated
-                 show-as
-                 explain-with])
+(immigrate/import-vars [structural-typing.guts.preds.annotated
+                        show-as
+                        explain-with])
 
-(ns/import-vars [structural-typing.surface.type-repo
-                 empty-type-repo
-                 replace-error-handler
-                 replace-success-handler])
-      
-(ns/import-vars [structural-typing.guts.paths.elements ALL]
-                [structural-typing.guts.paths.substituting includes]
-                [structural-typing.guts.paths.readable requires forks])
+(immigrate/import-vars [structural-typing.surface.type-repo
+                        empty-type-repo
+                        replace-error-handler
+                        replace-success-handler])
 
-(ns/import-vars [structural-typing.surface.defaults
-                 throwing-error-handler
-                 default-error-handler
-                 default-success-handler])
+(immigrate/import-vars [structural-typing.guts.paths.elements ALL]
+                       [structural-typing.guts.paths.substituting includes]
+                       [structural-typing.guts.paths.readable requires forks])
+
+(immigrate/import-vars [structural-typing.surface.defaults
+                        throwing-error-handler
+                        default-error-handler
+                        default-success-handler])
 
 
 ;;;; 
@@ -95,11 +96,16 @@
 
 (defn description
   "Returns the canonical (expanded) description of the `type-signifier`.
-   Uses the global type repo if none is given."
+   Uses the global type repo if none is given. 
+   
+   The result is not a string, but rather a structure tweaked to
+   look nice either at the repl or as the output from `pprint`. However,
+   that means it's not a real type description; you can't feed it back
+   to [[named]] or [[type!]]."
   ([type-repo type-signifier]
-     (repo/description type-repo type-signifier))
+     (readable/value (repo/description type-repo type-signifier)))
   ([type-signifier]
-     (repo/description @global-type/repo type-signifier)))
+     (description @global-type/repo type-signifier)))
 
 
 
