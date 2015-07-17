@@ -3,7 +3,8 @@
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]
             [structural-typing.surface.defaults :as default]
-            [structural-typing.guts.frob :as frob]))
+            [structural-typing.guts.frob :as frob]
+            [clojure.string :as str]))
 
 (defprotocol TypeRepoLike
   (hold-type [type-repo type-signifier type-descriptions])
@@ -42,6 +43,12 @@
 
     (the-error-handler [type-repo] (:error-handler type-repo))
     (the-success-handler [type-repo] (:success-handler type-repo)))
+
+(defmethod clojure.core/print-method TypeRepo [o, ^java.io.Writer w]
+  (.write w "#TypeRepo[")
+  (.write w (->> o :original-type-descriptions keys (str/join ", ")))
+  (.write w "]"))
+          
 
 (def empty-type-repo
   "A type repo that contains no types and uses the default success and error handlers."
