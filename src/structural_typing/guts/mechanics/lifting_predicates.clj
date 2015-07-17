@@ -12,25 +12,34 @@
 (defn- already-lifted? [pred]
   (lifted-mark (meta pred)))
 
+(defn- pred->about-pred [pred]
+  (hash-map :predicate-explainer (annotated/get-explainer pred)
+            :predicate-string (annotated/get-predicate-string pred)
+            :predicate (annotated/get-predicate pred)))
+
+(defn- ->oopsie [& abouts]
+  (apply merge abouts))
+
+(defn- oopsie->either [{:keys [predicate leaf-value] :as oopsie}]
+  (e/make-either oopsie
+                 (mkfn/pred:exception->false predicate)
+                 leaf-value))
+
+
 (defn lift* [pred count-nil-as-right]
-  (let [pred-name (annotated/get-predicate-string pred)
-        diagnostics {:predicate-explainer (annotated/get-explainer pred)
-                     :predicate-string pred-name
-                     :predicate (annotated/get-predicate pred)}]
-    (-> (fn [{:keys [leaf-value] :as leaf-value-context}]
-          (let [oopsie (merge diagnostics leaf-value-context)]
-            ;; Blancas make-either objects to an INPUT of nil, not a predicate result of falsey.
-            ;; This produces convolution.
-            (if (and (nil? leaf-value) count-nil-as-right)
-              (e/right "was nil") ; Note: cannot *be* nil - that will turn into a Left.
-              (e/make-either oopsie
-                             (mkfn/pred:exception->false pred)
-                             leaf-value))))
-        mark-as-lifted
-        ;; even the lifted function prints nicely
-        (annotated/replace-predicate-string pred-name))))
+  (-> (fn [about-call]
+        (let [oopsie (->oopsie (pred->about-pred pred) about-call)]
+          ;; Blancas make-either objects to an INPUT of nil, not a predicate result of falsey.
+          ;; This produces convolution.
+          (if (and (nil? (:leaf-value oopsie)) count-nil-as-right)
+            (e/right "was nil") ; Note: cannot *be* nil - that will turn into a Left.
+            (oopsie->either oopsie))))
+      mark-as-lifted
+      ;; even the lifted function prints nicely
+      (annotated/replace-predicate-string (annotated/get-predicate-string pred))))
 
 (defn lift [pred]
   (if (already-lifted? pred)
     pred
     (lift* pred :count-nil-as-right)))
+
