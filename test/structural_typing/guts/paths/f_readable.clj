@@ -11,5 +11,5 @@
   (subject/friendly [:a even? :b]) => "[:a even? :b]"
   (subject/friendly [:a 0 :b]) => "[:a 0 :b]")
 
-(future-fact "handle other specter path components, including plain functions and vars")
+(future-fact "handle Specter's srange")
 
