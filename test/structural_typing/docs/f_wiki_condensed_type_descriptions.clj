@@ -2,7 +2,7 @@
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
            [clojure.string :as str])
- (:use [midje.sweet :exclude [exactly]]))
+ (:use midje.sweet))
 
 (start-over!)
 

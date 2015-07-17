@@ -29,11 +29,16 @@
     ( (subject/exactly 1) 1) => true
     ( (subject/exactly 3) 5) => false)
 
-  (let [lifted (lift (subject/exactly 3))]
-    (future-fact "a nice name"
-      (readable/fn-string (subject/exactly [even? odd?])) => "(exactly [even? odd?])"
-      (readable/fn-string lifted) => "(member [1 2 3])")
+  (let [simple (subject/exactly 3)
+        with-fn (subject/exactly even?)]
 
+    (fact "a nice name"
+      (readable/fn-string simple) => "(exactly 3)"
+      (readable/fn-string (lift simple)) => "(exactly 3)"
+
+      (readable/fn-string with-fn) => "(exactly even?)"
+      (readable/fn-string (lift with-fn)) => "(exactly even?)")
+      
     (fact "nice error messages"
-      (oopsie/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
+      (oopsie/explanation (e/run-left ((lift simple) {:leaf-value 8 :path [:x]})))
       => ":x should be exactly `3`; it is `8`")))

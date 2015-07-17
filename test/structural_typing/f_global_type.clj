@@ -1,6 +1,7 @@
 (ns structural-typing.f-global-type
   (:use [structural-typing type global-type])
-  (:use [midje.sweet :exclude [exactly]]))
+  (:use midje.sweet))
+
 
 
 (start-over!)

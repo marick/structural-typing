@@ -2,7 +2,8 @@
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
            [clojure.string :as str])
- (:use [midje.sweet :exclude [exactly]]))
+ (:use midje.sweet))
+
 
 (start-over!)
 
@@ -129,8 +130,7 @@
   (let [result (with-out-str (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]}))]
     result => #":color must exist"
     result => #"\[:points 0 :x\] must exist"
-    result => #"\[:points 1 :y\] should be `integer\?`"
-    (future-fact "check sort order")))
+    result => #"\[:points 1 :y\] should be `integer\?`"))
 
 (fact "a sorted result"
   (let [result (with-out-str (checked :Figure {:points {:x 1 :y 2}}))]
