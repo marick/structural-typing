@@ -1,6 +1,8 @@
-(ns ^:no-doc structural-typing.guts.mechanics.lifting-predicates
+(ns ^:no-doc structural-typing.guts.preds.lifted
+  "A `lifted` predicate is one that takes an oopsie containing a value, 
+   rather than the value directly. Failure is a Left containing the oopsie.
+   Success is a Right containing the value."
   (:require [blancas.morph.monads :as e]
-            [such.readable :as readable]
             [such.function-makers :as mkfn]
             [structural-typing.guts.preds.annotated :as annotated]
             ))

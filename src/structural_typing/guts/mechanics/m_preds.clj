@@ -1,5 +1,5 @@
 (ns ^:no-doc structural-typing.guts.mechanics.m-preds
-  (:require [structural-typing.guts.mechanics.lifting-predicates :as lift]
+  (:require [structural-typing.guts.preds.lifted :as lift]
             [structural-typing.guts.frob :as frob]
             [structural-typing.guts.preds.annotated :as annotated]
             [structural-typing.surface.oopsie :as oopsie]))

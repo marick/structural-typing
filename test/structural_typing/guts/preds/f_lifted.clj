@@ -1,5 +1,5 @@
-(ns structural-typing.guts.mechanics.f-lifting-predicates
-  (:require [structural-typing.guts.mechanics.lifting-predicates :as subject]
+(ns structural-typing.guts.preds.lifted
+  (:require [structural-typing.guts.mechanics.lifted :as subject]
             [structural-typing.guts.mechanics.m-preds :as pred]
             [structural-typing.surface.defaults :as default])
   (:require [com.rpl.specter :refer [ALL]])

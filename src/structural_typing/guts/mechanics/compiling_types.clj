@@ -3,7 +3,7 @@
             [com.rpl.specter :as specter]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
-            [structural-typing.guts.mechanics.lifting-predicates :refer [lift]]))
+            [structural-typing.guts.preds.lifted :refer [lift]]))
 
 (defn compile-predicates [preds]
   (let [lifted (map lift preds)

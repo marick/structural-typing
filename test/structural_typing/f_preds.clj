@@ -1,7 +1,7 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
             [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.guts.mechanics.lifting-predicates :refer [lift]])
+            [structural-typing.guts.preds.lifted :refer [lift]])
   (:require [blancas.morph.monads :as e]
             [such.readable :as readable])
   (:use midje.sweet))
