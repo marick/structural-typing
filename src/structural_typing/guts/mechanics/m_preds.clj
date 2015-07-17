@@ -1,34 +1,16 @@
 (ns ^:no-doc structural-typing.guts.mechanics.m-preds
   (:require [structural-typing.guts.mechanics.lifting-predicates :as lift]
             [structural-typing.guts.frob :as frob]
+            [structural-typing.guts.preds.annotated :as annotated]
             [structural-typing.surface.oopsie :as oopsie]))
 
 
-(defn show-as 
-  "Associate the given `name` string with the predicate for use when predicate failures
-   are explained.
-     
-         (->> (partial >= 3) (show-as \"less than 3\"))
-"
-  [name predicate]
-  (when (fn? name) (frob/boom! "First arg is a function. You probably got your args reversed."))
-  (when-not (string? name) (frob/boom! "First arg must be a string: %s %s" name predicate))
-  (-> predicate
-      lift/stash-defaults
-      (lift/replace-predicate-string name)))
-
-(defn explain-with
-  "After the `predicate` fails, the failure will need to be explained. Arrange for
-   the `explainer` function to be called with the [[oopsie]] that results from the
-   failure."
-  [explainer predicate]
-  (-> predicate
-      lift/stash-defaults
-      (lift/replace-explainer explainer)))
+(def show-as annotated/show-as)
+(def explain-with annotated/explain-with)
 
 (defn compose-predicate [name pred fmt-fn]
   (->> pred
-       (show-as name)
+       (annotated/show-as name)
        (explain-with fmt-fn)))
 
 (def required-key

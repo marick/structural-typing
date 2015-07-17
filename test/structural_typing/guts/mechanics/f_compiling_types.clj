@@ -1,7 +1,7 @@
 (ns structural-typing.guts.mechanics.f-compiling-types
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.mechanics.compiling-types :as subject]
-            [structural-typing.guts.mechanics.m-preds :as pred]
+            [structural-typing.guts.preds.annotated :refer [show-as]]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
             [structural-typing.guts.paths.elements :refer [ALL]])
@@ -24,7 +24,7 @@
                                       "[:x :y] should be `pos?`; it is `-3`"])
 
   (let [input {:leaf-value -3 :whole-value {[:x :y] -3} :path [:x :y]}
-        oopsies ((subject/compile-predicates [(->> pos? (pred/show-as "POS!"))]) input)]
+        oopsies ((subject/compile-predicates [(->> pos? (show-as "POS!"))]) input)]
     (oopsie/explanations oopsies) => ["[:x :y] should be `POS!`; it is `-3`"])
 
   (let [input {:leaf-value "string" :whole-value {[:x] "string"} :path [:x]}

@@ -11,14 +11,17 @@
     ( (subject/member [1 2 3]) 2) => true
     ( (subject/member [1 2 3]) 5) => false)
 
-  (let [lifted (lift (subject/member [1 2 3]))]
-    (future-fact "a nice name"
-      (readable/fn-string (subject/member [1 2 3])) => "(member [1 2 3])"
-      (readable/fn-string (subject/member [even? odd?])) => "(member [even? odd?])"
-      (readable/fn-string lifted) => "(member [1 2 3])")
+  (let [simple (subject/member [1 2 3])
+        with-fn (subject/member [even? odd?])]
+    (fact "a nice name"
+      (readable/fn-string simple) => "(member [1 2 3])"
+      (readable/fn-string (lift simple)) => "(member [1 2 3])"
 
-    (fact "nice error messages"
-      (oopsie/explanation (e/run-left (lifted {:leaf-value 8 :path [:x]})))
+      (readable/fn-string with-fn) => "(member [even? odd?])"
+      (readable/fn-string (lift with-fn)) => "(member [even? odd?])")
+      
+     (fact "nice error messages"
+      (oopsie/explanation (e/run-left ((lift simple) {:leaf-value 8 :path [:x]})))
       => ":x should be a member of `[1 2 3]`; it is `8`")))
 
 (fact exactly

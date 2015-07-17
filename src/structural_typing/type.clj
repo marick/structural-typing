@@ -6,9 +6,11 @@
             [such.immigration :as ns]))
 
 (ns/import-vars [structural-typing.guts.mechanics.m-preds
-                 show-as
-                 explain-with
                  required-key])
+
+(ns/import-vars [structural-typing.guts.preds.annotated
+                 show-as
+                 explain-with])
 
 (ns/import-vars [structural-typing.surface.type-repo
                  empty-type-repo

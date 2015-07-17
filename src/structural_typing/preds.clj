@@ -3,6 +3,7 @@
   (:require [structural-typing.guts.mechanics.m-preds :as pred]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.oopsie :as oopsie]
+            [such.readable :as readable]
             [such.immigration :as ns]))
 
 ;; Add required-key for completeness (also in types.clj).
@@ -23,7 +24,7 @@
 "
   [coll]
   (pred/compose-predicate
-   (format "(member %s)" coll)
+   (format "(member %s)" (readable/value-string coll))
    #(boolean ((set coll) %))
    (should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
@@ -35,6 +36,6 @@
 "
   [x]
   (pred/compose-predicate
-   (format "(exactly %s)" x)
+   (format "(exactly %s)" (readable/value-string x))
    (partial = x)
    (should-be "%s should be exactly `%s`; it is `%s`" x)))
