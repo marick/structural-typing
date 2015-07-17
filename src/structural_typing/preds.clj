@@ -33,10 +33,11 @@
    (should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
 (defn exactly
-  "Produce a predicate that's true iff the value it's applied to is `=` to `x`.
-    
-        ( (exactly 5) 4) => false
-        (type! :V5 {:version (exactly 5)})
+  "Produce a predicate that's true iff the value it's applied to
+   is `=` to `x`.
+     
+         ( (exactly 5) 4) => false
+         (type! :V5 {:version (exactly 5)})
 "
   [x]
   (compose-predicate
