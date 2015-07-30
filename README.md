@@ -14,7 +14,7 @@ between [duck typing](http://en.wikipedia.org/wiki/Duck_typing) and
 
 As implemented here, it's particularly useful for checking data
 flowing across module or system boundaries: you check data as it
-arrives (possibly coercing or migrating it), then the rest of your
+arrives, then the rest of your
 code can assume correctness.
 
 Note that this fits particularly well with a coding style where
@@ -269,7 +269,7 @@ relationship to other types. One consequence is that if you redefine
 
 ## Nesting types and key paths
 
-Nested structures are described by nested types. Here's a 
+Here's a 
 colorful figure composed of a set of points.
 
 ```clojure
