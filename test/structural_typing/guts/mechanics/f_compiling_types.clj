@@ -32,24 +32,6 @@
     (oopsie/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 
-(fact "compiling a path returns functions that select values and add to paths"
-  (fact "functions without collection descriptions"
-    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a :b])
-          only-expected-leaf 1]
-      (specter/compiled-select selector {:a {:b 1}}) => [only-expected-leaf]
-      (leaf-selector only-expected-leaf) => 1
-      (unique-path-maker only-expected-leaf 0) => [:a :b]))
-
-  (fact "with an ALL collection description"
-    (let [[selector leaf-selector unique-path-maker] (subject/compile-path [:a ALL :b])
-          only-expected-leaf [0 1]]
-      (specter/compiled-select selector {:a [{:b 1}]}) => [only-expected-leaf]
-      (leaf-selector only-expected-leaf) => 1
-      (unique-path-maker only-expected-leaf) => [:a 0 :b]))
-)
-    
-  
-
 (fact "compiling a whole type"
   (fact "Simple case"
     (oopsie/explanations ((subject/compile-type (canonicalize {} [:a])) {}))
@@ -66,13 +48,6 @@
         (oopsie/explanations (odd-and-exists {})) => (just ":a must exist and be non-nil")
         (oopsie/explanations (odd-and-exists {:a 2})) => (just ":a should be `odd?`; it is `2`")
         (oopsie/explanations (odd-and-exists {:a 3})) => empty?)))
-
-  (fact "a path"
-    (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
-      (oopsie/explanations (odd-and-exists {})) => (just "[:a :b] must exist and be non-nil")
-      (oopsie/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
-      (oopsie/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
-      (oopsie/explanations (odd-and-exists {:a {:b 3}})) => empty?))
 
   (fact "a path"
     (let [odd-and-exists (subject/compile-type (canonicalize {} [[:a :b]] {:a {:b odd?}}))]
