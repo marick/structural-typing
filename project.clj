@@ -7,7 +7,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "3.3.0"]
+                 [marick/suchwow "3.4.0"]
                  [com.rpl/specter "0.6.2" :exclusions [org.clojure/clojure]]]
 
   :profiles {:dev {:dependencies [[midje "1.7.0" :exclusions [org.clojure/clojure]]
