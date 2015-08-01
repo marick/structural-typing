@@ -41,10 +41,21 @@
   (boolean (some element/will-match-many? path)))
 
 (defn index-collecting-splice [elt]
-  (vector (specter/view (partial map-indexed vector))
-          (element/specter elt)
-          (specter/collect-one specter/FIRST)
-          specter/LAST))
+  (let [note-index (specter/view (partial map-indexed vector)) ; value [x y] -> [ [0 x] [1 y] ]
+                                                               ; for next step
+        specific (element/specter-equivalent elt)  ; most often, this will splice in `ALL`
+        prepend-index (specter/collect-one specter/FIRST)  ; stash the index (0 or 1 above) so that
+                                                           ; Specter will prepend to final result.
+        intermediate-value specter/LAST]  ; Further selectors apply to the original val (x and y)
+    ;; Typical example:
+    ;;    Path: [:x ALL even?]
+    ;;    Input: [ {:x 100} {:x 101} {:x 102} ]
+    ;;    Result [ [0 100]           [2 102] ]
+
+    (-> [note-index]
+        (into specific)
+        (conj prepend-index)
+        (conj intermediate-value))))
 
 (def force-collection-of-indices
   (mkfn/lazyseq:x->abc index-collecting-splice element/will-match-many?))
