@@ -23,15 +23,9 @@
   (subject/path-will-match-many? [:a :b]) => false
   (subject/path-will-match-many? [:a ALL :b]) => true)
 
-(fact replacement-points
-  (subject/replacement-points [:a ALL :b ALL ALL]) => [1 3 4])
-
-
-
-
 (fact replace-with-indices
-  (subject/replace-with-indices [ALL ALL] [0 1] [17 3]) => [17 3]
-  (subject/replace-with-indices [:a ALL :b ALL] [1 3] [17 3]) => [:a 17 :b 3])
+  (subject/replace-with-indices [ALL ALL] [17 3]) => [17 3]
+  (subject/replace-with-indices [:a ALL :b ALL] [17 3]) => [:a 17 :b 3])
 
 
 (fact index-collecting-splice

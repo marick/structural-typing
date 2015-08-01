@@ -57,16 +57,13 @@
   CompiledPath
   (compile [this]
     (assoc this
-           :selecter (apply specter/comp-paths (path/force-collection-of-indices original-path))
-           :indices-for-path-elements-that-match-many (path/replacement-points original-path)))
+           :selecter (apply specter/comp-paths (path/force-collection-of-indices original-path))))
   (run-preds [this preds specter-result]
     (preds {:leaf-value (last specter-result)}))
   (assoc-path [this kvs specter-result]
     (let [indices-of-checked-element (butlast specter-result)]
       (assoc kvs
-             :path (path/replace-with-indices original-path
-                                              (:indices-for-path-elements-that-match-many this)
-                                              indices-of-checked-element))))
+             :path (path/replace-with-indices original-path indices-of-checked-element))))
 )
 
 (defn ->CompiledPath [original-path]

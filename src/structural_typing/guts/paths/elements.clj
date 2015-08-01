@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.paths.elements
   (:require [structural-typing.guts.frob :as frob]
-            [such.readable :as readable])
+            [such.readable :as readable]
+            [such.metadata :as meta])
   (:require [com.rpl.specter :as specter]))
 
 (def ALL 
@@ -9,11 +10,12 @@
       
        (type! :Figure {[:points ALL] (type/include :Point)})
 "
-  specter/ALL)
+  (meta/assoc 'ALL :specter specter/ALL :offset 0 :will-match-many? true))
 
-(defn will-match-many? [elt]
-  (boolean (#{ALL} elt)))
+(defn mkfn:meta-getter [key]
+  (fn [elt] (meta/get elt key)))
 
-;; These define the way special path elements are displayed.
-(readable/instead-of ALL 'ALL)
+(def offset (mkfn:meta-getter :offset))
+(def specter (mkfn:meta-getter :specter))
+(def will-match-many? (comp boolean (mkfn:meta-getter :will-match-many?)))
 

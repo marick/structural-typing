@@ -40,33 +40,31 @@
 (defn path-will-match-many? [path]
   (boolean (some element/will-match-many? path)))
 
-(defn replacement-points [path]
-  (->> path
-       (map vector (range))
-       (filter (comp element/will-match-many? second))
-       (map first)))
-
-(def indexed (partial map-indexed vector))
-
 (defn index-collecting-splice [elt]
-  (vector (specter/view indexed)
-          elt
+  (vector (specter/view (partial map-indexed vector))
+          (element/specter elt)
           (specter/collect-one specter/FIRST)
           specter/LAST))
 
 (def force-collection-of-indices
   (mkfn/lazyseq:x->abc index-collecting-splice element/will-match-many?))
 
-(defn replace-with-indices [path replacement-points indices]
-  (assert (= (count replacement-points) (count indices)))
-  (loop [result path
-         [r & rs] replacement-points
-         [i & is] indices]
-    (if r 
-      (recur (assoc result r i) rs is)
-      result)))
+(defn replace-with-indices [path indices]
+  (loop [result []
+         [p & ps] path
+         indices indices]
+    (cond (nil? p)
+          result
 
+          (element/will-match-many? p)
+          (recur (conj result (+ (first indices) (element/offset p)))
+                 ps
+                 (rest indices))
 
+          :else
+          (recur (conj result p)
+                 ps
+                 indices))))
 
 
 ;;;                     The unadvertised required-path-ending-in-map mechanism
