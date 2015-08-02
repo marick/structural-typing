@@ -4,7 +4,7 @@
             [structural-typing.guts.preds.annotated :refer [show-as]]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
-            [structural-typing.guts.paths.elements :refer [ALL]])
+            [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:require [blancas.morph.monads :as e])
   (:use midje.sweet))
 
@@ -32,6 +32,67 @@
     (oopsie/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 
+(fact "handling ALL"
+  (let [type-checker (subject/compile-type (canonicalize {} [[:points ALL :x]]
+                                                         {[:points ALL :x] even?}))]
+    (oopsie/explanations (type-checker {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
+    => (just "[:points 0 :x] should be `even?`; it is `1`"
+             "[:points 2 :x] should be `even?`; it is `3`"
+             "[:points 3 :x] must exist and be non-nil"
+             :in-any-order)))
+
+  (fact "a path with multiple values (RANGE)"
+    (fact "simple case"
+      (let [type-checker (subject/compile-type (canonicalize {} 
+                                                             {[(RANGE 2 4)] even?}))]
+        (fact "a range avoids broken values"
+          (oopsie/explanations (type-checker [:wrong :wrong 2 4 :wrong])) => empty?)
+        
+        (fact "... but allows processing of values within the range"
+          (oopsie/explanations (type-checker [:wrong :wrong 0 41 :wrong]))
+          => (just "[3] should be `even?`; it is `41`"))))
+    
+    (fact "multiple ranges"
+      (let [type-checker (subject/compile-type (canonicalize {} 
+                                                             {[(RANGE 2 4) (RANGE 1 2)] even?}))]
+        (fact "a range avoids broken values"
+          (oopsie/explanations (type-checker [:wrong :wrong [:wrong 2 :wrong] [:wrong 4] :wrong])) => empty?)
+        
+        (fact "... but allows processing of values within the range"
+          (oopsie/explanations (type-checker [:wrong :wrong [:wrong 1 :wrong] [:wrong 3]]))
+          => (just "[2 1] should be `even?`; it is `1`"
+                   "[3 1] should be `even?`; it is `3`"))))
+    
+    (fact "combination of RANGE and ALL"
+      (let [type-checker (subject/compile-type (canonicalize {} 
+                                                             {[(RANGE 2 4) ALL] even?}))]
+        (fact "a range avoids broken values"
+          (oopsie/explanations (type-checker [:wrong :wrong [2 4 6] [4] :wrong])) => empty?)
+        
+        (fact "... but allows processing of values within the range"
+          (oopsie/explanations (type-checker [:wrong :wrong [0 1 2] [2 3]]))
+          => (just "[2 1] should be `even?`; it is `1`"
+                   "[3 1] should be `even?`; it is `3`"))))
+    
+    (fact "including other path elements"
+      (let [type-checker (subject/compile-type
+                          (canonicalize {} 
+                                        {[:a (RANGE 1 3) :b (RANGE 1 5) pos?] even?}))]
+        (fact "a range avoids broken values"
+          (oopsie/explanations (type-checker {:a [:wrong 
+                                                  {:b [1  2  2  2  2 1]}
+                                                  {:b [1 -1 -1 -1 -1 1]}
+                                                  :wrong]})) => empty?)
+        
+        (fact "... but allows processing of values within the range"
+          (oopsie/explanations (type-checker {:a [:wrong
+                                                  {:b [1  2  2  2  3 1]}
+                                                  {:b [1 -1 -1  5 -1 1]}
+                                                  :wrong]}))
+          => (just "[:a 1 :b 4 pos?] should be `even?`; it is `3`"
+                   "[:a 2 :b 3 pos?] should be `even?`; it is `5`")))))
+
+
 (fact "compiling a whole type"
   (fact "Simple case"
     (oopsie/explanations ((subject/compile-type (canonicalize {} [:a])) {}))
@@ -55,46 +116,54 @@
       (oopsie/explanations (odd-and-exists {:a "hi"})) => (just "[:a :b] must exist and be non-nil")
       (oopsie/explanations (odd-and-exists {:a {:b 2}})) => (just "[:a :b] should be `odd?`; it is `2`")
       (oopsie/explanations (odd-and-exists {:a {:b 3}})) => empty?))
-
-  (fact "a path with multiple values (ALL)"
-    (let [type (subject/compile-type (canonicalize {} [[:points ALL :x]]
-                                                   {[:points ALL :x] even?}))]
-      (oopsie/explanations (type {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
-      => (just "[:points 0 :x] should be `even?`; it is `1`"
-               "[:points 2 :x] should be `even?`; it is `3`"
-               "[:points 3 :x] must exist and be non-nil"
-               :in-any-order)))
-
   
   (fact "multiple paths in the type"
-    (let [type (subject/compile-type (canonicalize {} {:color string?
+    (let [type-checker (subject/compile-type (canonicalize {} {:color string?
                                                        :point {:x integer?
                                                                :y integer?}}))]
-      (oopsie/explanations (type {})) => empty? ; all optional
-      (oopsie/explanations (type {:color "green"})) => empty?
-      (oopsie/explanations (type {:color 1})) => (just ":color should be `string?`; it is `1`")
-      (oopsie/explanations (type {:color "green"
+      (oopsie/explanations (type-checker {})) => empty? ; all optional
+      (oopsie/explanations (type-checker {:color "green"})) => empty?
+      (oopsie/explanations (type-checker {:color 1})) => (just ":color should be `string?`; it is `1`")
+      (oopsie/explanations (type-checker {:color "green"
                            :point {:x "1"
                                    :y "2"}}))
       => (just "[:point :x] should be `integer?`; it is `\"1\"`"
                "[:point :y] should be `integer?`; it is `\"2\"`"
-               :in-any-order)))
+               :in-any-order))))
 
-  (fact "a path that can't be applied produces an error"
-    (let [type (subject/compile-type (canonicalize {} [[:x ALL :y]]))]
-      (type {:x 1}) => (just (contains {:leaf-value nil
-                                        :path [:x ALL :y]
-                                        :whole-value {:x 1}}))
-      (oopsie/explanations (type {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
-      (oopsie/explanations (type {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
 
+
+
+(fact "a path that can't be applied produces an error"
+  (fact "ALL"
+    (let [type-checker (subject/compile-type (canonicalize {} [[:x ALL :y]]))]
+      (type-checker {:x 1}) => (just (contains {:leaf-value nil
+                                                :path [:x ALL :y]
+                                                :whole-value {:x 1}}))
+      (oopsie/explanations (type-checker {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
+      (oopsie/explanations (type-checker {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
+      
       (fact "these are fine, though"
-        (oopsie/explanations (type {:x [0]})) => (just "[:x 0 :y] must exist and be non-nil")
-        (type {:x []}) => empty?)
-
+        (oopsie/explanations (type-checker {:x [0]})) => (just "[:x 0 :y] must exist and be non-nil")
+        (type-checker {:x []}) => empty?)
+      
       (fact "A path containing an array complains if prefix doesn't exist"
-        (oopsie/explanations (type {})) => (just #":x must exist"))
-
+        (oopsie/explanations (type-checker {})) => (just #":x must exist"))
+      
       (fact "an unfortunate side effect of strings being collections"
-        (oopsie/explanations (type {:x "string"}))
-        => (contains "[:x 0 :y] must exist and be non-nil")))))
+        (oopsie/explanations (type-checker {:x "string"}))
+        => (contains "[:x 0 :y] must exist and be non-nil"))))
+
+  (future-fact "RANGE"
+    (let [type-checker (subject/compile-type
+                        (canonicalize {} 
+                                      {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?}))]
+      (oopsie/explanations (type-checker {:a [:wrong :wrong
+                                              {:b [1  2  2  2  2 1]}
+                                              {:b [1 -1 -1 -1 -1 1]}
+                                              :wrong]})) => empty?)))
+
+    
+
+
+    
