@@ -30,6 +30,27 @@
   (let [result (with-out-str (checked :Nesty {:x [1]}))]
     result => #"\[:x ALL ALL :y\] is not a path"))
 
+(fact "RANGE"
+  (type! :ALL {[ALL] even?})
+  (let [result (with-out-str (checked :ALL [:wrong 4 2 :wrong]))]
+    result => #"\[0\] should be `even\?`; it is `:wrong`"
+    result => #"\[3\] should be `even\?`; it is `:wrong`")
+
+  (type! :R {[(RANGE 1 3)] even?})
+  (checked :R [:wrong 4 2 :wrong]) => [:wrong 4 2 :wrong]
+
+  (type! :R {[ALL :x (RANGE 1 3)] even?})
+  (let [result (with-out-str (checked :R [ {:x [:ignored 4 2]} 
+                                           {:x [:ignored 1 2 :ignored]}]))]
+    result => #"\[1 :x 1\] should be `even\?`; it is `1`")
+
+  (type! :SECOND-AND-THIRD {[(RANGE 1 3)] pos?})
+  (checked :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
+  (let [result (with-out-str (checked :SECOND-AND-THIRD [:ignored 1]))]
+    result => #"\[\(RANGE 1 3\)\] is not a path into `\[:ignored 1\]`"))
+  
+  
+
 (fact "predicates"
   (type! :Odder {[ALL even?] neg?, [ALL odd?] pos?})
   (let [result (with-out-str (checked :Odder [4 -3 2 -1]))]
