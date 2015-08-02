@@ -21,7 +21,7 @@
 ;; TODO: In suchwow 3, have to use `instead-of`, which is lame, because it has global
 ;; state. such.readable needs fixing.
 (defn RANGE [inclusive-start exclusive-end]
-  (let [r (meta/assoc 'RANGE
+  (let [r (meta/assoc (gensym (format "RANGE-%s-%s" inclusive-start exclusive-end))
                       :specter-equivalent [(specter/srange inclusive-start exclusive-end) specter/ALL]
                       :will-match-many? true)]
     (readable/instead-of r (list 'RANGE inclusive-start exclusive-end))

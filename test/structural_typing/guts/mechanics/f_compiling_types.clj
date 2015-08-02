@@ -154,16 +154,34 @@
         (oopsie/explanations (type-checker {:x "string"}))
         => (contains "[:x 0 :y] must exist and be non-nil"))))
 
-  (future-fact "RANGE"
-    (let [type-checker (subject/compile-type
-                        (canonicalize {} 
-                                      {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?}))]
-      (oopsie/explanations (type-checker {:a [:wrong :wrong
-                                              {:b [1  2  2  2  2 1]}
-                                              {:b [1 -1 -1 -1 -1 1]}
-                                              :wrong]})) => empty?)))
+  (fact "RANGE"
+    (fact "ending index just fits"
+      (let [type-checker (subject/compile-type (canonicalize {}
+                                                             {[(RANGE 1 3)] even?}))]
+        (oopsie/explanations (type-checker [0 2 4])) => empty?))
 
-    
+    (fact "ending index comes too soon"
+      (let [type-checker (subject/compile-type (canonicalize {}
+                                                             {[(RANGE 1 3)] even?}))]
 
+        (oopsie/explanations (type-checker [0 2]))
+        => (just "[(RANGE 1 3)] is not a path into `[0 2]`")))
+
+    (fact "starting index comes too soon"
+      (let [type-checker (subject/compile-type (canonicalize {}
+                                                             {[(RANGE 2 5)] even?}))]
+
+        (oopsie/explanations (type-checker [0 2]))
+        => (just "[(RANGE 2 5)] is not a path into `[0 2]`")))
+
+    (fact "in a previous bug, multiple range expressions all printed with same value"
+      (let [type-checker (subject/compile-type
+                          (canonicalize {} 
+                                        {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?}))]
+        (oopsie/explanations (type-checker {:a [:wrong :wrong
+                                                {:b [1  2  2  2  2 1]}
+                                                {:b [1 -1 -1 -1 -1 1]}
+                                                :wrong]}))
+        => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path")))))
 
     
