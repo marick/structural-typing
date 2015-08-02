@@ -1,7 +1,7 @@
 (ns structural-typing.guts.paths.f-substituting
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.paths.substituting :as subject])
-  (:require [structural-typing.guts.paths.elements :refer [ALL]])
+  (:require [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
 (fact ends-in-map?
@@ -24,8 +24,14 @@
   (subject/path-will-match-many? [:a ALL :b]) => true)
 
 (fact replace-with-indices
-  (subject/replace-with-indices [ALL ALL] [17 3]) => [17 3]
-  (subject/replace-with-indices [:a ALL :b ALL] [17 3]) => [:a 17 :b 3])
+  (fact "ALL needn't worry about offsets"
+    (subject/replace-with-indices [ALL ALL] [17 3]) => [17 3]
+    (subject/replace-with-indices [:a ALL :b ALL] [17 3]) => [:a 17 :b 3])
+  (fact "... and, as it happens, RANGE needn't either"
+    (subject/replace-with-indices [(RANGE 3 100) ALL] [17 3]) => [17 3]
+    (subject/replace-with-indices [:a ALL :b (RANGE 1 100)] [17 3]) => [:a 17 :b 3]))
+    
+    
 
 
 (fact index-collecting-splice

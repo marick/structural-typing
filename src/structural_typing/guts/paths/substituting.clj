@@ -68,7 +68,7 @@
           result
 
           (element/will-match-many? p)
-          (recur (conj result (+ (first indices) (element/offset p)))
+          (recur (conj result (first indices))
                  ps
                  (rest indices))
 
