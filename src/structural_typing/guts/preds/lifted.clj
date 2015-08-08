@@ -11,10 +11,10 @@
 (def lifted-mark ::lifted)
 (defn mark-as-lifted [pred]
   (vary-meta pred assoc lifted-mark true))
-(defn- already-lifted? [pred]
+(defn already-lifted? [pred]
   (lifted-mark (meta pred)))
 
-(defn- pred->about-pred [pred]
+(defn pred->about-pred [pred]
   (hash-map :predicate-explainer (annotated/get-explainer pred)
             :predicate-string (annotated/get-predicate-string pred)
             :predicate (annotated/get-predicate pred)))
@@ -22,14 +22,10 @@
 (defn ->oopsie [& abouts]
   (apply merge abouts))
 
-(defn- oopsie->either [{:keys [predicate leaf-value] :as oopsie}]
-  (e/make-either oopsie
-                 (mkfn/pred:exception->false predicate)
-                 leaf-value))
-
 ;; even the lifted function should print nicely
 (def name-lifted-predicate annotated/replace-predicate-string)
 
+;; TODO: defunct
 (defn- optional-evaluation [{:keys [predicate leaf-value] :as oopsie}]
   (cond (nil? leaf-value)
         (e/right :missing-optional-leaf-ignored) ; Note: cannot *be* nil - that will turn into a Left
@@ -40,12 +36,16 @@
         :else
         (e/left oopsie)))
 
+
+
+;; TODO: defunct
 (defn lift* [pred]
   (-> (fn [about-call]
         (optional-evaluation (->oopsie (pred->about-pred pred) about-call)))
       mark-as-lifted
       (name-lifted-predicate (annotated/get-predicate-string pred))))
 
+;; TODO: defunct
 (defn lift [pred]
   (if (already-lifted? pred)
     pred
