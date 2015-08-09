@@ -4,7 +4,7 @@
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]
             [structural-typing.guts.paths.multiplying :as multiply]
-            [structural-typing.guts.preds.required-key :refer [required-key]]
+            [structural-typing.preds :refer [required-key]]
             [clojure.set :as set]))
 
 (def ->ppp vector)

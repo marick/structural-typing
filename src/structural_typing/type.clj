@@ -6,7 +6,7 @@
             [such.readable :as readable]
             [such.immigration :as immigrate]))
 
-(immigrate/import-vars [structural-typing.guts.preds.required-key
+(immigrate/import-vars [structural-typing.preds
                         required-key])
 
 (immigrate/import-vars [structural-typing.guts.preds.annotated

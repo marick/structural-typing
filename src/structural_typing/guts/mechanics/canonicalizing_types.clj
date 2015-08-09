@@ -1,7 +1,7 @@
 (ns ^:no-doc structural-typing.guts.mechanics.canonicalizing-types
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]
-            [structural-typing.guts.preds.required-key :refer [required-key]]
+            [structural-typing.preds :refer [required-key]]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
             [com.rpl.specter :as specter]))
