@@ -7,11 +7,24 @@
             [structural-typing.guts.preds.annotated :as annotated])
   (:use such.shorthand))
 
-(defn- mkfn:optional [lifted-pred]
-  (fn [{:keys [leaf-value] :as oopsie}]
+(defn- mkfn:optional [pred]
+  (fn [leaf-value]
     (if (nil? leaf-value)
       []
-      (lifted-pred oopsie))))
+      (pred leaf-value))))
+
+(defn lift-pred-map [about-pred & additions]
+  (when-not (empty? (remove #{:catching :optional} additions))
+    (throw additions))
+  (let [pred-with-additions (do (-> (:predicate about-pred)
+                                    (cond-> (any? #{:catching} additions) mkfn/pred:exception->false
+                                            (any? #{:optional} additions) mkfn:optional)))]
+    (-> (fn [kvs-about-call]
+          (if (pred-with-additions (:leaf-value kvs-about-call))
+            []
+            (vector (lifted/->oopsie about-pred kvs-about-call))))
+        lifted/mark-as-lifted
+        (lifted/name-lifted-predicate (:predicate-string about-pred)))))
 
 (defn lift
   "Convert a predicate into a function that produces either an empty
@@ -31,11 +44,4 @@
   [pred & additions]
   (if (lifted/already-lifted? pred)
     pred
-    (-> (fn [kvs-about-call]
-          (if (pred (:leaf-value kvs-about-call))
-            []
-            (vector (lifted/->oopsie (lifted/pred->about-pred pred) kvs-about-call))))
-        (cond-> (any? #{:catching} additions) mkfn/pred:exception->false
-                (any? #{:optional} additions) mkfn:optional)
-        lifted/mark-as-lifted
-        (lifted/name-lifted-predicate (annotated/get-predicate-string pred)))))
+    (apply lift-pred-map (lifted/pred->about-pred pred) additions)))

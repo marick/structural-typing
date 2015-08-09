@@ -1,15 +1,17 @@
 (ns ^:no-doc structural-typing.guts.mechanics.compiling-types
   (:refer-clojure :exclude [compile])
-  (:require [blancas.morph.monads :as e]
-            [com.rpl.specter :as specter]
+  (:require [com.rpl.specter :as specter]
+            [blancas.morph.monads :as e] ; for Either monad
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
-            [structural-typing.guts.preds.lifted :refer [lift]]))
+            [structural-typing.surface.mechanics :as mechanics]))
 
 (defn compile-predicates [preds]
-  (let [lifted (map lift preds)
-        combined (apply juxt lifted)]
-    (comp e/lefts combined)))
+  (let [lifted (map #(mechanics/lift % :catching :optional) preds)]
+    (fn [value-holder]
+      (reduce #(into %1 (%2 value-holder))
+              []
+              lifted))))
 
 ;; TODO: This code could be made tenser. It cries out for transients.
 
@@ -35,6 +37,10 @@
   )
 
 (defn select [compiled-path object-to-check]
+  ;; This is just a convenient way to trap exceptions Specter throws
+  ;; It would also produce a Left for a nil result, which Specter never
+  ;; returns. If I'm wrong about that, I'd rather see an error than have
+  ;; it be treated as an empty array.
   (e/make-either (specter/compiled-select (:selecter compiled-path) object-to-check)))
 
 (defn mkfn:oopsies-for-one-specter-result [compiled-path compiled-preds]

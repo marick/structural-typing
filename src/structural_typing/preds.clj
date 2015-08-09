@@ -1,9 +1,11 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
   (:require [structural-typing.guts.preds.annotated :refer [show-as explain-with]]
+            [structural-typing.surface.mechanics :as mechanics]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.oopsie :as oopsie]
             [such.readable :as readable]
+            [such.types :as types]
             [such.immigration :as ns]))
 
 (defn- should-be [format-string expected]
@@ -39,8 +41,37 @@
          ( (exactly 5) 4) => false
          (type! :V5 {:version (exactly 5)})
 "
-  [x]
+  [expected]
   (compose-predicate
-   (format "(exactly %s)" (readable/value-string x))
-   (partial = x)
-   (should-be "%s should be exactly `%s`; it is `%s`" x)))
+   (format "(exactly %s)" (readable/value-string expected))
+   (partial = expected)
+   (should-be "%s should be exactly `%s`; it is `%s`" expected)))
+
+
+(defn ^:no-doc matches
+  "Doc"
+  [expected]
+  (compose-predicate
+   (format "(matches %s)" (readable/value-string expected))
+   (fn [actual]
+     (cond (every? types/regex? [actual expected])
+           (= (str actual) (str expected))
+           
+           (types/regex? expected)
+           (boolean (re-find expected actual))
+
+           :else
+           (= actual expected)))
+   (should-be "%s should match `%s`; it is `%s`" expected)))
+
+
+;;; More exotic predicate creation.
+
+(def required-key
+  "False iff a key/path does not exist or has value `nil`. This is the only
+   predefined predicate that is not considered optional."
+  (mechanics/lift-pred-map {:predicate-explainer #(format "%s must exist and be non-nil"
+                                                          (oopsie/friendly-path %))
+                            :predicate-string "required-key"
+                            :predicate #(not (nil? %))}))
+

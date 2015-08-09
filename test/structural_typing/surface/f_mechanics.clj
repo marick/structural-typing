@@ -6,6 +6,21 @@
             [structural-typing.guts.preds.annotated :as annotated])
   (:use midje.sweet))
 
+(fact "predicates are typically wrapped with handlers for nils and exceptions"
+  (fact "exceptions"
+    (even? "string") => (throws)
+    ( (subject/lift-pred-map {:predicate even?}          ) {:leaf-value "string"}) => (throws)
+    ( (subject/lift-pred-map {:predicate even?} :catching) {:leaf-value "string"})
+    => (just (contains {:leaf-value "string"})))
+    ( (subject/lift-pred-map {:predicate even?} :catching :optional) {:leaf-value "string"})
+    => (just (contains {:leaf-value "string"}))
+
+  (fact "exceptions"
+    (even? "string") => (throws)
+    ( (subject/lift-pred-map {:predicate even?}          ) {:leaf-value nil}) => (throws)
+    ( (subject/lift-pred-map {:predicate even?} :optional) {:leaf-value nil}) => []
+    ( (subject/lift-pred-map {:predicate even?} :catching :optional) {:leaf-value nil}) => []))
+
 
 (defn lift-and-run [pred value]
   ( (subject/lift pred) {:leaf-value 3}))

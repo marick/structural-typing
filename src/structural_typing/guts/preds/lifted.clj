@@ -2,8 +2,7 @@
   "A `lifted` predicate is one that takes an oopsie containing a value, 
    rather than the value directly. Failure is a Left containing the oopsie.
    Success is a Right containing the value."
-  (:require [blancas.morph.monads :as e]
-            [such.function-makers :as mkfn]
+  (:require [such.function-makers :as mkfn]
             [structural-typing.guts.preds.annotated :as annotated]
             ))
 
@@ -14,6 +13,7 @@
 (defn already-lifted? [pred]
   (lifted-mark (meta pred)))
 
+(prn "Todo: move some functions in lifted.")
 (defn pred->about-pred [pred]
   (hash-map :predicate-explainer (annotated/get-explainer pred)
             :predicate-string (annotated/get-predicate-string pred)
@@ -24,30 +24,4 @@
 
 ;; even the lifted function should print nicely
 (def name-lifted-predicate annotated/replace-predicate-string)
-
-;; TODO: defunct
-(defn- optional-evaluation [{:keys [predicate leaf-value] :as oopsie}]
-  (cond (nil? leaf-value)
-        (e/right :missing-optional-leaf-ignored) ; Note: cannot *be* nil - that will turn into a Left
-
-        ((mkfn/pred:exception->false predicate) leaf-value)
-        (e/right leaf-value)
-
-        :else
-        (e/left oopsie)))
-
-
-
-;; TODO: defunct
-(defn lift* [pred]
-  (-> (fn [about-call]
-        (optional-evaluation (->oopsie (pred->about-pred pred) about-call)))
-      mark-as-lifted
-      (name-lifted-predicate (annotated/get-predicate-string pred))))
-
-;; TODO: defunct
-(defn lift [pred]
-  (if (already-lifted? pred)
-    pred
-    (lift* pred)))
 
