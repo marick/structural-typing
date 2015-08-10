@@ -41,7 +41,7 @@
   (fact "a named function is shown in a friendly way"
     (lift-and-run even? 3) => (just (contains {:predicate-string "even?"
                                                :leaf-value 3
-                                               :predicate-explainer default/default-predicate-explainer})))
+                                               :explainer default/default-predicate-explainer})))
 
   (fact "Lifting depends on clever predicate name extraction"
     (let [any-old-predicate (constantly false)]
@@ -53,7 +53,7 @@
   (lift-and-run #'even? 3)
   => (just (contains {:predicate #'even?
                       :predicate-string "even?"
-                      :predicate-explainer default/default-predicate-explainer})))
+                      :explainer default/default-predicate-explainer})))
 
 (fact "lifting can be told convert nil values to success"
   ( (subject/lift (complement nil?)) {:leaf-value nil}) =not=> empty?

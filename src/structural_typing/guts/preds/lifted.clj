@@ -15,7 +15,7 @@
 
 (prn "Todo: move some functions in lifted.")
 (defn pred->about-pred [pred]
-  (hash-map :predicate-explainer (annotated/get-explainer pred)
+  (hash-map :explainer (annotated/get-explainer pred)
             :predicate-string (annotated/get-predicate-string pred)
             :predicate (annotated/get-predicate pred)))
 

@@ -71,7 +71,7 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predefined predicate that is not considered optional."
-  (mechanics/lift-pred-map {:predicate-explainer #(format "%s must exist and be non-nil"
+  (mechanics/lift-pred-map {:explainer #(format "%s must exist and be non-nil"
                                                           (oopsie/friendly-path %))
                             :predicate-string "required-key"
                             :predicate #(not (nil? %))}))
