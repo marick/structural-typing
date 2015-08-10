@@ -22,6 +22,3 @@
 (defn ->oopsie [& abouts]
   (apply merge abouts))
 
-;; even the lifted function should print nicely
-(def name-lifted-predicate annotated/replace-predicate-string)
-

@@ -15,6 +15,9 @@
       (pred leaf-value))))
 
 
+(defn give-lifted-predicate-a-nice-string [pred expred]
+  (annotated/replace-predicate-string pred (:predicate-string expred)))
+
 (defn protect-pred [pred subtractions]
   (-> pred
       (cond-> (not (any? #{:allow-exceptions} subtractions)) mkfn/pred:exception->false
@@ -30,7 +33,7 @@
             []
             (vector (lifted/->oopsie about-pred kvs-about-call))))
         lifted/mark-as-lifted
-        (lifted/name-lifted-predicate (:predicate-string about-pred)))))
+        (give-lifted-predicate-a-nice-string about-pred))))
 
 (defn lift
   "Convert a predicate into a function that produces either an empty
