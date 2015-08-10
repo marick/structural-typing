@@ -3,6 +3,8 @@
    predicate is applied to a value and fails. Also utility functions."
   (:require [structural-typing.guts.paths.readable :as readable-path]))
 
+;; TODO: should make this a record.
+
 (def oopsie
    "An oopsie contains these fields, all potentially relevant when dealing with
    the failure of a predicate.
@@ -64,5 +66,3 @@ nil)
   [handler]
   (fn [oopsies]
     (handler (explanations oopsies))))
-
-;;; TODO: unravel dependencies enough to use `checked` on this project's code.
