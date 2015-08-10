@@ -15,19 +15,12 @@
 
 ;; TODO: This code could be made tenser. It cries out for transients.
 
-(defn oopsies-for-bad-path [whole-value original-path]
-  (let [base-oopsie {:whole-value whole-value
-                     :original-path original-path
-                     :path original-path
-                     :leaf-value nil}]
-    (-> base-oopsie
-        (assoc :predicate-explainer (constantly 
-                                     (format "%s is not a path into `%s`"
-                                             ;; ick.
-                                             (oopsie/friendly-path base-oopsie)
-                                             (pr-str whole-value))))
-        vector)))
-
+(defn oopsies-for-bad-path [exval]
+  (let [expred (oopsie/->ExPred :unused :unused
+                                (constantly (format "%s is not a path into `%s`"
+                                                    (oopsie/friendly-path exval)
+                                                    (pr-str (:whole-value exval)))))]
+    (vector (oopsie/->oopsie exval expred))))
 
 (defprotocol CompiledPath
   ;; TODO: is there a way to override the constructor?
@@ -85,9 +78,10 @@
         compiled-path (->CompiledPath original-path)
         ->oopsies (mkfn:oopsies-for-one-specter-result compiled-path compiled-preds)]
     (fn [whole-value]
-      (e/either [specter-results-to-check (select compiled-path whole-value)]
-                (oopsies-for-bad-path whole-value original-path)
-                (mapcat #(->oopsies whole-value %1) specter-results-to-check)))))
+      (let [exval (oopsie/->ExVal original-path whole-value :unfilled)]
+        (e/either [specter-results-to-check (select compiled-path whole-value)]
+                  (oopsies-for-bad-path exval)
+                  (mapcat #(->oopsies whole-value %1) specter-results-to-check))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.

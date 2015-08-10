@@ -5,6 +5,9 @@
 
 ;; TODO: should make this a record.
 
+(defrecord ExVal [path whole-value leaf-value])
+(defrecord ExPred [predicate predicate-string predicate-explainer])
+
 (def oopsie
    "An oopsie contains these fields, all potentially relevant when dealing with
    the failure of a predicate.
@@ -26,6 +29,9 @@ nil)
 (def oopsies
   "See above."
   nil)
+
+(defn ->oopsie [& recs]
+  (apply merge recs))
 
 (defn friendly-path
   "Convert the oopsie's path into a string, with predicates and function components printed nicely."
