@@ -4,6 +4,7 @@
             [structural-typing.surface.mechanics :as mechanics]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.guts.preds.lifted :as lifted]
             [such.readable :as readable]
             [such.types :as types]
             [such.immigration :as ns]))
@@ -75,3 +76,43 @@
                             :predicate-string "required-key"
                             :predicate #(not (nil? %))}))
 
+(defn implies
+  "Each `if-pred` is evaluated in turn. When the `if-pred` is
+   truthy, the corresponding `then-pred` is evaluated. Checking
+   will produce all of the errors from all of the `then-preds`
+   that were tried.
+   
+       (type! :Sep {:a (pred/implies neg? even?
+                                     neg? (show-as \"=3\" (partial = 3))
+                                     string? empty?)})
+
+       user=> (checked :Sep {:a 1}) ; Neither `neg?` nor `string?`
+       => {:a 1}
+       
+       user=> (checked :Sep {:a -1}) ; Two clauses check
+       :a should be `=3`; it is `-1`
+       :a should be `even?`; it is `-1`
+       => nil
+       
+       user=> (checked :Sep {:a \"long\"}) ; Final clause checks
+       :a should be `empty?`; it is `\"long\"`
+       => nil
+   
+   Note that, unlike most predicates in this namespace, 
+   `implies` cannot be used as an ordinary predicate. It
+   doesn't return a truthy/falsey value but rather a sequence
+   of [[oopsies]].
+"
+  {:arglists '([if-pred then-pred...])}
+  [& args]
+  (let [implications (->> args
+                          (map #(mechanics/lift % :catching :optional))
+                          (partition 2))
+        f (fn [call-info]
+            (reduce (fn [so-far [antecedent consequent]]
+                      (if (empty? (antecedent call-info))
+                        (into so-far (consequent call-info))
+                        so-far))
+                    []
+                    implications))]
+    (->> f lifted/mark-as-lifted (show-as "implies"))))

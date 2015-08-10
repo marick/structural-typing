@@ -7,11 +7,13 @@
             [structural-typing.guts.preds.annotated :as annotated])
   (:use such.shorthand))
 
-(defn- mkfn:optional [pred]
+(defn mkfn:optional [pred]
   (fn [leaf-value]
     (if (nil? leaf-value)
       []
       (pred leaf-value))))
+
+
 
 (defn lift-pred-map [about-pred & additions]
   (when-not (empty? (remove #{:catching :optional} additions))

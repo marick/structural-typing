@@ -1,7 +1,8 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
             [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.surface.mechanics :as mechanics])
+            [structural-typing.surface.mechanics :as mechanics]
+            [structural-typing.guts.preds.annotated :refer [show-as]])
   (:require [such.readable :as readable])
   (:use midje.sweet))
 
@@ -68,3 +69,43 @@
     ( (subject/matches #"str+") #"str+") => true
     ( (subject/matches #"str+") #"strr*") => false)
   )
+
+(defn implies-error [actual]
+  (contains {:leaf-value actual}))
+
+(fact "implies - starts out lifted"
+  (fact "nothing is OK"
+    ( (subject/implies) {:leaf-value 5}) => empty?)
+
+  (fact "a single pair will return oopsies (if any) for truthy lhs"
+    (let [r (subject/implies odd? neg?)]
+      (r {:leaf-value 2}) => empty?
+      (r {:leaf-value -1}) => empty?
+      (r {:leaf-value 1}) => (just (implies-error 1))))
+
+  (fact "n pairs"
+    (let [r (subject/implies odd? neg?
+                             even? pos?)]
+      (r {:leaf-value 2}) => empty?
+      (r {:leaf-value -2}) => (just (implies-error -2))
+      (r {:leaf-value -1}) => empty?
+      (r {:leaf-value 1}) => (just (implies-error 1))))
+
+  (fact "implies refuses nils, handles exceptions"
+    (let [r (subject/implies odd? neg?)]
+     (r nil) => empty?
+     (r "string") => empty?))
+    
+  (fact "explanations"
+    (let [r (subject/implies odd? neg?)]
+      (oopsie/explanations (r {:leaf-value 1 :path [:a]}))
+      => (just #":a should be `neg\?`; it is `1`"))
+
+
+    (let [r (subject/implies odd? neg?
+                             integer? (->> #(> (count (str %)) 33)
+                                           (show-as "really big")))]
+      (oopsie/explanations (r {:leaf-value 1 :path [:a]}))
+      => (just #":a should be `neg\?`; it is `1`"
+               #":a should be `really big`"
+               :in-any-order))))
