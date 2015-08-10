@@ -7,7 +7,7 @@
             [structural-typing.surface.mechanics :as mechanics]))
 
 (defn compile-predicates [preds]
-  (let [lifted (map #(mechanics/lift % :catching :optional) preds)]
+  (let [lifted (map #(mechanics/lift %) preds)]
     (fn [value-holder]
       (reduce #(into %1 (%2 value-holder))
               []

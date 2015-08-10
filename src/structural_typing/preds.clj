@@ -74,7 +74,8 @@
   (mechanics/lift-pred-map {:explainer #(format "%s must exist and be non-nil"
                                                           (oopsie/friendly-path %))
                             :predicate-string "required-key"
-                            :predicate #(not (nil? %))}))
+                            :predicate #(not (nil? %))}
+                           :check-nil))
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
@@ -106,7 +107,7 @@
   {:arglists '([if-pred then-pred...])}
   [& args]
   (let [implications (->> args
-                          (map #(mechanics/lift % :catching :optional))
+                          (map mechanics/lift)
                           (partition 2))
         f (fn [call-info]
             (reduce (fn [so-far [antecedent consequent]]

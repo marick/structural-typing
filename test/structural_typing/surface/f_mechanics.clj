@@ -9,17 +9,20 @@
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
   (fact "exceptions"
     (even? "string") => (throws)
-    ( (subject/lift-pred-map {:predicate even?}          ) {:leaf-value "string"}) => (throws)
-    ( (subject/lift-pred-map {:predicate even?} :catching) {:leaf-value "string"})
-    => (just (contains {:leaf-value "string"})))
-    ( (subject/lift-pred-map {:predicate even?} :catching :optional) {:leaf-value "string"})
+    ( (subject/lift-pred-map {:predicate even?} :allow-exceptions) {:leaf-value "string"})
+    => (throws)
+    ( (subject/lift-pred-map {:predicate even?}                  ) {:leaf-value "string"})
     => (just (contains {:leaf-value "string"}))
+    ( (subject/lift-pred-map {:predicate even?} :allow-exceptions :check-nil) {:leaf-value "string"})
+    => (throws))
 
-  (fact "exceptions"
-    (even? "string") => (throws)
-    ( (subject/lift-pred-map {:predicate even?}          ) {:leaf-value nil}) => (throws)
-    ( (subject/lift-pred-map {:predicate even?} :optional) {:leaf-value nil}) => []
-    ( (subject/lift-pred-map {:predicate even?} :catching :optional) {:leaf-value nil}) => []))
+  (fact "nil values"
+    (let [f (complement nil?)]
+      (f nil) => false
+      ( (subject/lift-pred-map {:predicate f}           ) {:leaf-value nil}) => empty?
+      ( (subject/lift-pred-map {:predicate f} :check-nil) {:leaf-value nil}) =not=> empty?
+      ( (subject/lift-pred-map {:predicate f} :allow-exceptions :check-nil) {:leaf-value nil})
+      =not=> empty?)))
 
 
 (defn lift-and-run [pred value]
@@ -55,14 +58,14 @@
                       :predicate-string "even?"
                       :explainer default/default-predicate-explainer})))
 
-(fact "lifting can be told convert nil values to success"
-  ( (subject/lift (complement nil?)) {:leaf-value nil}) =not=> empty?
-  ( (subject/lift (complement nil?) :optional) {:leaf-value nil}) => empty?)
+(fact "lifting normally converts nil values to success"
+  ( (subject/lift (complement nil?)) {:leaf-value nil}) => empty?
+  ( (subject/lift (complement nil?) :check-nils) {:leaf-value nil}) =not=> empty?)
 
-(fact "lifting can be told to convert exceptions into an oopsie"
-  (even? nil?) => (throws Exception)
-  ( (subject/lift even?) {:leaf-value nil}) => (throws Exception)
-  ( (subject/lift even? :catches) {:leaf-value nil}) =not=> empty?)
+(fact "lifting normally converts exceptions into an oopsie"
+  (even? 'derp) => (throws)
+  ( (subject/lift even?) {:leaf-value 'derp}) =not=> empty? 
+  ( (subject/lift even? :allow-exceptions) {:leaf-value 'derp}) => (throws))
 
     
 
@@ -73,5 +76,5 @@
 
   (fact "note that means that additions cannot be changed"
     (let [once (subject/lift even?)
-          twice (subject/lift once :catching)]
+          twice (subject/lift once :allow-exceptions)]
       (identical? once twice) => true)))
