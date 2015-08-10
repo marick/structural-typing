@@ -10,7 +10,7 @@
 (defn mkfn:optional [pred]
   (fn [leaf-value]
     (if (nil? leaf-value)
-      []
+      true
       (pred leaf-value))))
 
 
