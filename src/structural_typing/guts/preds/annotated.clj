@@ -47,3 +47,12 @@
       stash-defaults
       (replace-explainer explainer)))
 
+
+
+
+(def ^:private lifted-mark ::lifted)
+(defn mark-as-lifted [pred]
+  (vary-meta pred assoc lifted-mark true))
+(defn already-lifted? [pred]
+  (lifted-mark (meta pred)))
+

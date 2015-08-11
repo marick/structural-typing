@@ -3,7 +3,8 @@
    and used. For advanced use: writing complicated purposes, checking without
    the use of a type repo (as in Midje). A WORK IN PROGRESS.
 "
-  (:require [structural-typing.guts.preds.lifted :as lifted]
+  (:require [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.guts.expred :as expred]
             [such.function-makers :as mkfn]
             [structural-typing.guts.preds.annotated :as annotated])
   (:use such.shorthand))
@@ -23,7 +24,7 @@
       (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) mkfn/pred:exception->false
               (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
 
-(defn lift-pred-map
+(defn lift-expred
   [about-pred & protection-subtractions]
   (when-not (empty? (remove #{:allow-exceptions :check-nil} protection-subtractions))
     (throw protection-subtractions))
@@ -31,8 +32,8 @@
     (-> (fn [kvs-about-call]
           (if (protected (:leaf-value kvs-about-call))
             []
-            (vector (lifted/->oopsie about-pred kvs-about-call))))
-        lifted/mark-as-lifted
+            (vector (oopsie/parts->oopsie about-pred kvs-about-call))))
+        annotated/mark-as-lifted
         (give-lifted-predicate-a-nice-string about-pred))))
 
 (defn lift
@@ -49,6 +50,6 @@
    `:leaf-value`.
 "
   [pred & protection-subtractions]
-  (if (lifted/already-lifted? pred)
+  (if (annotated/already-lifted? pred)
     pred
-    (apply lift-pred-map (lifted/pred->about-pred pred) protection-subtractions)))
+    (apply lift-expred (expred/from-pred pred) protection-subtractions)))

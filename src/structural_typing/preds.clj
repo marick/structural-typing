@@ -1,10 +1,9 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.guts.preds.annotated :refer [show-as explain-with]]
+  (:require [structural-typing.guts.preds.annotated :as annotated :refer [show-as explain-with]]
             [structural-typing.surface.mechanics :as mechanics]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.guts.preds.lifted :as lifted]
             [such.readable :as readable]
             [such.types :as types]
             [such.immigration :as ns]))
@@ -71,7 +70,7 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predefined predicate that is not considered optional."
-  (mechanics/lift-pred-map {:explainer #(format "%s must exist and be non-nil"
+  (mechanics/lift-expred {:explainer #(format "%s must exist and be non-nil"
                                                           (oopsie/friendly-path %))
                             :predicate-string "required-key"
                             :predicate #(not (nil? %))}
@@ -116,4 +115,4 @@
                         so-far))
                     []
                     implications))]
-    (->> f lifted/mark-as-lifted (show-as "implies"))))
+    (->> f annotated/mark-as-lifted (show-as "implies"))))

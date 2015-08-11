@@ -9,19 +9,19 @@
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
   (fact "exceptions"
     (even? "string") => (throws)
-    ( (subject/lift-pred-map {:predicate even?} :allow-exceptions) {:leaf-value "string"})
+    ( (subject/lift-expred {:predicate even?} :allow-exceptions) {:leaf-value "string"})
     => (throws)
-    ( (subject/lift-pred-map {:predicate even?}                  ) {:leaf-value "string"})
+    ( (subject/lift-expred {:predicate even?}                  ) {:leaf-value "string"})
     => (just (contains {:leaf-value "string"}))
-    ( (subject/lift-pred-map {:predicate even?} :allow-exceptions :check-nil) {:leaf-value "string"})
+    ( (subject/lift-expred {:predicate even?} :allow-exceptions :check-nil) {:leaf-value "string"})
     => (throws))
 
   (fact "nil values"
     (let [f (complement nil?)]
       (f nil) => false
-      ( (subject/lift-pred-map {:predicate f}           ) {:leaf-value nil}) => empty?
-      ( (subject/lift-pred-map {:predicate f} :check-nil) {:leaf-value nil}) =not=> empty?
-      ( (subject/lift-pred-map {:predicate f} :allow-exceptions :check-nil) {:leaf-value nil})
+      ( (subject/lift-expred {:predicate f}           ) {:leaf-value nil}) => empty?
+      ( (subject/lift-expred {:predicate f} :check-nil) {:leaf-value nil}) =not=> empty?
+      ( (subject/lift-expred {:predicate f} :allow-exceptions :check-nil) {:leaf-value nil})
       =not=> empty?)))
 
 

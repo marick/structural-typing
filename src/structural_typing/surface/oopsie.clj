@@ -27,7 +27,7 @@ nil)
   "See above."
   nil)
 
-(defn ->oopsie [& recs]
+(defn parts->oopsie [& recs]
   (apply merge recs))
 
 (defn friendly-path

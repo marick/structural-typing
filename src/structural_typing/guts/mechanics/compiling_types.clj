@@ -22,7 +22,7 @@
                                 (constantly (format "%s is not a path into `%s`"
                                                     (oopsie/friendly-path exval)
                                                     (pr-str (:whole-value exval)))))]
-    (vector (oopsie/->oopsie exval expred))))
+    (vector (oopsie/parts->oopsie exval expred))))
 
 (defprotocol CompiledPath
   ;; TODO: is there a way to override the constructor?
