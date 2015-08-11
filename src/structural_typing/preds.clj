@@ -1,12 +1,11 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.guts.shapes.pred :as pred]
-            [structural-typing.surface.mechanics :as mechanics]
-            [structural-typing.guts.frob :as frob]
+  (:require [structural-typing.surface.mechanics :as mechanics]
             [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.guts.shapes.pred :as pred]
+            [structural-typing.guts.shapes.expred :as expred]
             [such.readable :as readable]
-            [such.types :as types]
-            [such.immigration :as ns]))
+            [such.types :as types]))
 
 (defn- should-be [format-string expected]
   #(format format-string,
@@ -19,11 +18,12 @@
        (pred/show-as name)
        (pred/explain-with fmt-fn)))
 
-
+;;;                      THE ACTUAL PREDICATES
 
 (defn member
-  "Produce a predicate that's false when applied to a value not a member of `coll`. The explainer
-   associated with `member` prints those `colls`.
+  "Produce a predicate that's false when applied to a value not a
+   member of `coll`. The explainer associated with `member` prints
+   those `colls`.
      
          ( (member [2 3 5 7]) 4) => false
          (type! :small-primes {:n (member [2 3 5 7])})
@@ -70,11 +70,11 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predefined predicate that is not considered optional."
-  (mechanics/lift-expred {:explainer #(format "%s must exist and be non-nil"
-                                                          (oopsie/friendly-path %))
-                            :predicate-string "required-key"
-                            :predicate #(not (nil? %))}
-                           :check-nil))
+  (mechanics/lift-expred (expred/->ExPred (comp not nil?)
+                                          "required-key"
+                                          #(format "%s must exist and be non-nil"
+                                                   (oopsie/friendly-path %)))
+                         :check-nil))
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
