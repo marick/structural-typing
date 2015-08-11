@@ -15,8 +15,6 @@
               []
               lifted))))
 
-;; TODO: This code could be made tenser. It cries out for transients.
-
 (defn oopsies-for-bad-path [exval]
   (let [expred (expred/->ExPred :unused :unused
                                 (constantly (format "%s is not a path into `%s`"
@@ -31,14 +29,14 @@
   (assoc-path [this kvs specter-result])
   )
 
-(defn select [compiled-path object-to-check]
+(defn leafs [compiled-path whole-value]
   ;; This is just a convenient way to trap exceptions Specter throws
   ;; It would also produce a Left for a nil result, which Specter never
   ;; returns. If I'm wrong about that, I'd rather see an error than have
   ;; it be treated as an empty array.
-  (e/make-either (specter/compiled-select (:selecter compiled-path) object-to-check)))
+  (e/make-either (specter/compiled-select (:selecter compiled-path) whole-value)))
 
-(defn mkfn:oopsies-for-one-specter-result [compiled-path compiled-preds]
+(defn mkfn:exval->oopsies [compiled-path compiled-preds]
   (fn [whole-value specter-result]
     (->> (run-preds compiled-path compiled-preds specter-result)
          (map #(assoc % :whole-value whole-value))
@@ -78,18 +76,18 @@
 (defn compile-path-check [[original-path preds]]
   (let [compiled-preds (compile-predicates preds)
         compiled-path (->CompiledPath original-path)
-        run-check (mkfn:oopsies-for-one-specter-result compiled-path compiled-preds)]
+        run-check (mkfn:exval->oopsies compiled-path compiled-preds)]
     (fn [whole-value]
       (let [exval (exval/->ExVal original-path whole-value :unfilled)]
-        (e/either [specter-results-to-check (select compiled-path whole-value)]
+        (e/either [leafs-to-check (leafs compiled-path whole-value)]
                   (oopsies-for-bad-path exval)
-                  (mapcat #(run-check whole-value %1) specter-results-to-check))))))
+                  (mapcat #(run-check whole-value %1) leafs-to-check))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.
   (let [compiled-path-checks (map compile-path-check t)]
-    (fn [object-to-check]
+    (fn [whole-value]
       (reduce (fn [all-errors path-check]
-                (into all-errors (path-check object-to-check)))
+                (into all-errors (path-check whole-value)))
               []
               compiled-path-checks))))
