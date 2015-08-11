@@ -3,6 +3,8 @@
   (:require [com.rpl.specter :as specter]
             [blancas.morph.monads :as e] ; for Either monad
             [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.guts.expred :as expred]
+            [structural-typing.guts.exval :as exval]
             [structural-typing.guts.paths.substituting :as path]
             [structural-typing.surface.mechanics :as mechanics]))
 
@@ -16,7 +18,7 @@
 ;; TODO: This code could be made tenser. It cries out for transients.
 
 (defn oopsies-for-bad-path [exval]
-  (let [expred (oopsie/->ExPred :unused :unused
+  (let [expred (expred/->ExPred :unused :unused
                                 (constantly (format "%s is not a path into `%s`"
                                                     (oopsie/friendly-path exval)
                                                     (pr-str (:whole-value exval)))))]
@@ -78,7 +80,7 @@
         compiled-path (->CompiledPath original-path)
         run-check (mkfn:oopsies-for-one-specter-result compiled-path compiled-preds)]
     (fn [whole-value]
-      (let [exval (oopsie/->ExVal original-path whole-value :unfilled)]
+      (let [exval (exval/->ExVal original-path whole-value :unfilled)]
         (e/either [specter-results-to-check (select compiled-path whole-value)]
                   (oopsies-for-bad-path exval)
                   (mapcat #(run-check whole-value %1) specter-results-to-check))))))

@@ -5,9 +5,6 @@
 
 ;; TODO: should make this a record.
 
-(defrecord ExVal [path whole-value leaf-value])
-(defrecord ExPred [predicate predicate-string explainer])
-
 (def oopsie
    "An oopsie contains these fields, all potentially relevant when dealing with
    the failure of a predicate.
