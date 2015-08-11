@@ -4,9 +4,9 @@
    the use of a type repo (as in Midje). A WORK IN PROGRESS.
 "
   (:require [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.guts.expred :as expred]
-            [such.function-makers :as mkfn]
-            [structural-typing.guts.preds.annotated :as annotated])
+            [structural-typing.guts.shapes.expred :as expred]
+            [structural-typing.guts.shapes.pred :as pred]
+            [such.function-makers :as mkfn])
   (:use such.shorthand))
 
 (defn mkfn:optional [pred]
@@ -17,7 +17,7 @@
 
 
 (defn give-lifted-predicate-a-nice-string [pred expred]
-  (annotated/replace-predicate-string pred (:predicate-string expred)))
+  (pred/replace-predicate-string pred (:predicate-string expred)))
 
 (defn protect-pred [pred protection-subtractions]
   (-> pred
@@ -33,7 +33,7 @@
           (if (protected (:leaf-value kvs-about-call))
             []
             (vector (oopsie/parts->oopsie about-pred kvs-about-call))))
-        annotated/mark-as-lifted
+        pred/mark-as-lifted
         (give-lifted-predicate-a-nice-string about-pred))))
 
 (defn lift
@@ -50,6 +50,6 @@
    `:leaf-value`.
 "
   [pred & protection-subtractions]
-  (if (annotated/already-lifted? pred)
+  (if (pred/already-lifted? pred)
     pred
     (apply lift-expred (expred/from-pred pred) protection-subtractions)))

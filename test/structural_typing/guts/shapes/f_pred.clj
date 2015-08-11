@@ -1,5 +1,5 @@
-(ns structural-typing.guts.preds.f_annotated
-  (:require [structural-typing.guts.preds.annotated :as subject]
+(ns structural-typing.guts.shapes.f_pred
+  (:require [structural-typing.guts.shapes.pred :as subject]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.surface.defaults :as default]
             [structural-typing.surface.mechanics :as mechanics])

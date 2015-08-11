@@ -3,8 +3,8 @@
   (:require [com.rpl.specter :as specter]
             [blancas.morph.monads :as e] ; for Either monad
             [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.guts.expred :as expred]
-            [structural-typing.guts.exval :as exval]
+            [structural-typing.guts.shapes.expred :as expred]
+            [structural-typing.guts.shapes.exval :as exval]
             [structural-typing.guts.paths.substituting :as path]
             [structural-typing.surface.mechanics :as mechanics]))
 

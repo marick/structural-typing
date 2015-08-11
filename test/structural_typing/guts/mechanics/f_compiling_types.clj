@@ -1,7 +1,7 @@
 (ns structural-typing.guts.mechanics.f-compiling-types
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.mechanics.compiling-types :as subject]
-            [structural-typing.guts.preds.annotated :refer [show-as]]
+            [structural-typing.guts.shapes.pred :refer [show-as]]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
             [structural-typing.guts.paths.elements :refer [ALL RANGE]])

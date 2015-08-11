@@ -9,7 +9,7 @@
 (immigrate/import-vars [structural-typing.preds
                         required-key])
 
-(immigrate/import-vars [structural-typing.guts.preds.annotated
+(immigrate/import-vars [structural-typing.guts.shapes.pred
                         show-as
                         explain-with])
 

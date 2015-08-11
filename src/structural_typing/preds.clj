@@ -1,6 +1,6 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.guts.preds.annotated :as annotated :refer [show-as explain-with]]
+  (:require [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.surface.mechanics :as mechanics]
             [structural-typing.guts.frob :as frob]
             [structural-typing.surface.oopsie :as oopsie]
@@ -16,8 +16,8 @@
 
 (defn- compose-predicate [name pred fmt-fn]
   (->> pred
-       (show-as name)
-       (explain-with fmt-fn)))
+       (pred/show-as name)
+       (pred/explain-with fmt-fn)))
 
 
 
@@ -115,4 +115,4 @@
                         so-far))
                     []
                     implications))]
-    (->> f annotated/mark-as-lifted (show-as "implies"))))
+    (->> f pred/mark-as-lifted (pred/show-as "implies"))))

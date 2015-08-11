@@ -3,7 +3,7 @@
             [such.readable :as readable]
             [structural-typing.surface.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]
-            [structural-typing.guts.preds.annotated :as annotated])
+            [structural-typing.guts.shapes.pred :as pred])
   (:use midje.sweet))
 
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
@@ -50,7 +50,7 @@
     (let [any-old-predicate (constantly false)]
       (lift-and-run any-old-predicate 3) => (just (contains {:predicate-string ..name..}))
       (provided
-        (annotated/get-predicate-string any-old-predicate) => ..name..))))
+        (pred/get-predicate-string any-old-predicate) => ..name..))))
   
 (fact "lifting a var is like lifting a function"
   (lift-and-run #'even? 3)

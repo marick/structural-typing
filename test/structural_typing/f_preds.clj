@@ -2,7 +2,7 @@
   (:require [structural-typing.preds :as subject]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.surface.mechanics :as mechanics]
-            [structural-typing.guts.preds.annotated :refer [show-as]])
+            [structural-typing.guts.shapes.pred :refer [show-as]])
   (:require [such.readable :as readable])
   (:use midje.sweet))
 
