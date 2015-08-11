@@ -9,25 +9,25 @@
   (:use such.shorthand))
 
 (defn mkfn:optional [pred]
-  (fn [leaf-value]
-    (if (nil? leaf-value)
+  (fn [value]
+    (if (nil? value)
       true
-      (pred leaf-value))))
+      (pred value))))
 
 
 (defn give-lifted-predicate-a-nice-string [pred expred]
   (annotated/replace-predicate-string pred (:predicate-string expred)))
 
-(defn protect-pred [pred subtractions]
+(defn protect-pred [pred protection-subtractions]
   (-> pred
-      (cond-> (not (any? #{:allow-exceptions} subtractions)) mkfn/pred:exception->false
-              (not (any? #{:check-nil} subtractions)) mkfn:optional)))
+      (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) mkfn/pred:exception->false
+              (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
 
 (defn lift-pred-map
-  [about-pred & subtractions]
-  (when-not (empty? (remove #{:allow-exceptions :check-nil} subtractions))
-    (throw subtractions))
-  (let [protected (protect-pred (:predicate about-pred) subtractions)]
+  [about-pred & protection-subtractions]
+  (when-not (empty? (remove #{:allow-exceptions :check-nil} protection-subtractions))
+    (throw protection-subtractions))
+  (let [protected (protect-pred (:predicate about-pred) protection-subtractions)]
     (-> (fn [kvs-about-call]
           (if (protected (:leaf-value kvs-about-call))
             []
@@ -43,12 +43,12 @@
 
    Normally, the predicate is wrapped so that (1) a `nil` value is considered
    `true`, and (2) an exception during evaluation is considered `false`. These
-   can be omitted with the `:check-nil` and `:allow-exceptions` subtractions.
+   can be omitted with the `:check-nil` and `:allow-exceptions` protection-subtractions.
 
    The lifted predicate takes a map that must contain at least
    `:leaf-value`.
 "
-  [pred & subtractions]
+  [pred & protection-subtractions]
   (if (lifted/already-lifted? pred)
     pred
-    (apply lift-pred-map (lifted/pred->about-pred pred) subtractions)))
+    (apply lift-pred-map (lifted/pred->about-pred pred) protection-subtractions)))

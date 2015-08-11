@@ -76,12 +76,12 @@
 (defn compile-path-check [[original-path preds]]
   (let [compiled-preds (compile-predicates preds)
         compiled-path (->CompiledPath original-path)
-        ->oopsies (mkfn:oopsies-for-one-specter-result compiled-path compiled-preds)]
+        run-check (mkfn:oopsies-for-one-specter-result compiled-path compiled-preds)]
     (fn [whole-value]
       (let [exval (oopsie/->ExVal original-path whole-value :unfilled)]
         (e/either [specter-results-to-check (select compiled-path whole-value)]
                   (oopsies-for-bad-path exval)
-                  (mapcat #(->oopsies whole-value %1) specter-results-to-check))))))
+                  (mapcat #(run-check whole-value %1) specter-results-to-check))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.
