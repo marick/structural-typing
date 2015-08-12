@@ -1,12 +1,44 @@
 (ns ^:no-doc structural-typing.guts.mechanics.compiling-types
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
-            [blancas.morph.monads :as e] ; for Either monad
             [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.guts.shapes.expred :as expred]
-            [structural-typing.guts.shapes.exval :as exval]
             [structural-typing.guts.paths.substituting :as path]
             [structural-typing.surface.mechanics :as mechanics]))
+
+(defprotocol PathVariation
+  (process-specter-results [this building-results])
+  (spread-leaf-values [this building-results])
+  (adjust-path [this oopsie-superset])
+  )
+
+(defrecord AllSingleSelectorVariation [original-path compiled-path compiled-preds]
+  PathVariation
+  (process-specter-results [this building-results]
+    (assoc building-results :leaf-values (:specter-results building-results)))
+
+  (spread-leaf-values [variation building-results]
+    (map #(assoc building-results :leaf-value %) (:leaf-values building-results)))
+
+  (adjust-path [this oopsie-superset]
+    oopsie-superset))
+
+(defrecord WildcardVariation [original-path compiled-path compiled-preds]
+  PathVariation
+  (process-specter-results [this building-results]
+    (assoc building-results
+           :leaf-values (map last (:specter-results building-results))
+           :path-adjustments (map butlast (:specter-results building-results))))
+
+  (spread-leaf-values [variation building-results]
+    (map #(assoc building-results :leaf-value %1 :path-adjustment %2)
+         (:leaf-values building-results) (:path-adjustments building-results)))
+       
+  (adjust-path [this {:keys [:path :path-adjustment] :as oopsie-superset}]
+    (assoc oopsie-superset
+           :path (path/replace-with-indices path path-adjustment)
+           :specter-path path))
+           
+)
 
 (defn compile-predicates [preds]
   (let [lifted (map #(mechanics/lift %) preds)]
@@ -15,73 +47,42 @@
               []
               lifted))))
 
-(defn oopsies-for-bad-path [exval]
-  (let [expred (expred/->ExPred :unused :unused
-                                (constantly (format "%s is not a path into `%s`"
-                                                    (oopsie/friendly-path exval)
-                                                    (pr-str (:whole-value exval)))))]
-    (vector (oopsie/parts->oopsie exval expred))))
+(defn run-preds [variation building-values]
+  (->> building-values
+       (mapcat (:compiled-preds variation))
+       (map #(adjust-path variation %))))
 
-(defprotocol CompiledPath
-  ;; TODO: is there a way to override the constructor?
-  (compile [this])
-  (run-preds [this preds specter-result])
-  (assoc-path [this kvs specter-result])
-  )
+(defn run-specter [variation whole-value]
+  (->> {:path (:original-path variation)
+        :whole-value whole-value
+        :specter-results (specter/compiled-select (:compiled-path variation) whole-value)}
+       (process-specter-results variation)))
 
-(defn leafs [compiled-path whole-value]
-  ;; This is just a convenient way to trap exceptions Specter throws
-  ;; It would also produce a Left for a nil result, which Specter never
-  ;; returns. If I'm wrong about that, I'd rather see an error than have
-  ;; it be treated as an empty array.
-  (e/make-either (specter/compiled-select (:selecter compiled-path) whole-value)))
 
-(defn mkfn:exval->oopsies [compiled-path compiled-preds]
-  (fn [whole-value specter-result]
-    (->> (run-preds compiled-path compiled-preds specter-result)
-         (map #(assoc % :whole-value whole-value))
-         (map #(assoc-path compiled-path % specter-result)))))
-
-(defrecord SingleValueCompiledPath [original-path]
-  CompiledPath
-  (compile [this]
-    (assoc this :selecter (apply specter/comp-paths original-path)))
-  (run-preds [this preds specter-result]
-    (preds {:leaf-value specter-result}))
-  (assoc-path [this kvs specter-result]
-    (assoc kvs :path original-path))
-  )
-
-(defrecord MultipleValueCompiledPath [original-path]
-  CompiledPath
-  (compile [this]
-    (assoc this
-           :selecter (apply specter/comp-paths (path/force-collection-of-indices original-path))))
-  (run-preds [this preds specter-result]
-    (preds {:leaf-value (last specter-result)}))
-  (assoc-path [this kvs specter-result]
-    (let [indices-of-checked-element (butlast specter-result)]
-      (assoc kvs
-             :path (path/replace-with-indices original-path indices-of-checked-element))))
-)
-
-(defn ->CompiledPath [original-path]
-  (let [constructor (if (path/path-will-match-many? original-path)
-                      ->MultipleValueCompiledPath
-                      ->SingleValueCompiledPath)]
-    (-> (constructor original-path) compile)))
-
-;; Previous and following functions are factored wrong.
+(defn capture-path-variation [original-path preds]
+  (let [match-many? (path/path-will-match-many? original-path)
+        path-adjustment (if match-many? path/force-collection-of-indices identity)
+        compiled-path (apply specter/comp-paths (path-adjustment original-path))
+        compiled-preds (compile-predicates preds)
+        constructor (if match-many? ->WildcardVariation ->AllSingleSelectorVariation)]
+    (constructor original-path compiled-path compiled-preds)))
 
 (defn compile-path-check [[original-path preds]]
-  (let [compiled-preds (compile-predicates preds)
-        compiled-path (->CompiledPath original-path)
-        run-check (mkfn:exval->oopsies compiled-path compiled-preds)]
+  (let [variation (capture-path-variation original-path preds)]
     (fn [whole-value]
-      (let [exval (exval/->ExVal original-path whole-value :unfilled)]
-        (e/either [leafs-to-check (leafs compiled-path whole-value)]
-                  (oopsies-for-bad-path exval)
-                  (mapcat #(run-check whole-value %1) leafs-to-check))))))
+      (try 
+        (->> whole-value
+             (run-specter variation)
+             (process-specter-results variation)
+             (spread-leaf-values variation)
+             (run-preds variation))
+        (catch Exception ex
+          (vector {:explainer (constantly (format "%s is not a path into `%s`"
+                                                  (oopsie/friendly-path {:path original-path})
+                                                  (pr-str whole-value)))
+                   ;; These are just for debugging should it be needed.
+                   :whole-value whole-value
+                   :path original-path}))))))
 
 (defn compile-type [t]
   ;; Note that the path-checks are compiled once, returning a function to be run often.

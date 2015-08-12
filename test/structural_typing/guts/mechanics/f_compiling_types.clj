@@ -7,6 +7,73 @@
             [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
+(fact "variations in path processing - in the path given to specter"
+  (fact "wildcard paths"
+    (let [variation (subject/capture-path-variation [ALL :x] [even?])]
+      (subject/run-specter variation [{:x 111} {:x 222}])
+      => (contains {:path [ALL :x]
+                    :whole-value [{:x 111} {:x 222}]
+                    :leaf-values [ 111 222 ]
+                    :path-adjustments [ [0] [1] ]})))
+
+  (fact "single result paths"
+    (let [variation (subject/capture-path-variation [:x] [even?])]
+      (subject/run-specter variation {:x 111})
+      => (contains {:path [:x]
+                    :whole-value {:x 111}
+                    :leaf-values [ 111 ]}))))
+
+(fact "spreading leaf values into many entities with a leaf value"
+  (fact "wildcard paths"
+    (let [variation (subject/capture-path-variation [ALL :x] [even?])
+          in {:leaf-values [..one.. ..two..] :path-adjustments [..p1.. ..p2..] :extra ..extra..}]
+      (subject/spread-leaf-values variation in)
+      => [(assoc in :leaf-value ..one.. :path-adjustment ..p1..)
+          (assoc in :leaf-value ..two.. :path-adjustment ..p2..)]))
+
+  (fact "single result paths"
+    (let [variation (subject/capture-path-variation [:x] [even?])
+          in {:leaf-values [..one.. ..two..] :extra ..extra..}]
+      (subject/spread-leaf-values variation in)
+      => [(assoc in :leaf-value ..one..)
+          (assoc in :leaf-value ..two..)])))
+
+(fact "running predicates"
+  (fact "wildcard paths"
+    (let [variation (subject/capture-path-variation [ALL :x] [even? pos?])
+          whole-value [{:x 1} {:x 2} {:x -1}]]
+      (->> (subject/run-specter variation whole-value)
+           (subject/process-specter-results variation)
+           (subject/spread-leaf-values variation)
+           (subject/run-preds variation))
+      => (just (contains {:whole-value whole-value
+                          :leaf-value 1
+                          :path [0 :x]
+                          :predicate-string "even?"})
+               ;; Note that element 1 is missing
+               (contains {:whole-value whole-value
+                          :leaf-value -1
+                          :path [2 :x]
+                          :predicate-string "even?"})
+               (contains {:whole-value whole-value
+                          :leaf-value -1
+                          :path [2 :x]
+                          :predicate-string "pos?"}))))
+
+  (fact "single result paths"
+    (let [variation (subject/capture-path-variation [:x] [even?])]
+      (->> (subject/run-specter variation {:x 1})
+           (subject/process-specter-results variation)
+           (subject/spread-leaf-values variation)
+           (subject/run-preds variation))
+      => (just (contains {:whole-value {:x 1}
+                          :leaf-value 1
+                          :path [:x]
+                          :predicate-string "even?"})))))
+    
+
+
+
 (fact "compile multiple predicates into a function that checks each of them"
   (let [input {:leaf-value 1 :whole-value {:x 1} :path [:x]}
         oopsies ((subject/compile-predicates [even? odd?]) input)]
@@ -33,14 +100,14 @@
 (fact "handling ALL"
   (let [type-checker (subject/compile-type (canonicalize {} [[:points ALL :x]]
                                                          {[:points ALL :x] even?}))]
-    (oopsie/explanations (type-checker {:points [{:x 1} {:x 2} {:x 3} {:y 1}]}))
-    => (just "[:points 0 :x] should be `even?`; it is `1`"
-             "[:points 2 :x] should be `even?`; it is `3`"
+    (oopsie/explanations (type-checker {:points [{:x 11} {:x 22} {:x 33} {:y 111}]}))
+    => (just "[:points 0 :x] should be `even?`; it is `11`"
+             "[:points 2 :x] should be `even?`; it is `33`"
              "[:points 3 :x] must exist and be non-nil"
              :in-any-order)))
 
   (fact "a path with multiple values (RANGE)"
-    (fact "simple case"
+    (future-fact "simple case"
       (let [type-checker (subject/compile-type (canonicalize {} 
                                                              {[(RANGE 2 4)] even?}))]
         (fact "a range avoids broken values"
@@ -135,8 +202,7 @@
 (fact "a path that can't be applied produces an error"
   (fact "ALL"
     (let [type-checker (subject/compile-type (canonicalize {} [[:x ALL :y]]))]
-      (type-checker {:x 1}) => (just (contains {:leaf-value :unfilled
-                                                :path [:x ALL :y]
+      (type-checker {:x 1}) => (just (contains {:path [:x ALL :y]
                                                 :whole-value {:x 1}}))
       (oopsie/explanations (type-checker {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
       (oopsie/explanations (type-checker {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
