@@ -70,10 +70,10 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predefined predicate that is not considered optional."
-  (mechanics/lift-expred (expred/->ExPred (comp not nil?)
-                                          "required-key"
-                                          #(format "%s must exist and be non-nil"
-                                                   (oopsie/friendly-path %)))
+  (mechanics/lift-expred (expred/boa (comp not nil?)
+                                     "required-key"
+                                     #(format "%s must exist and be non-nil"
+                                              (oopsie/friendly-path %)))
                          :check-nil))
 
 (defn implies

@@ -1,13 +1,6 @@
-(ns ^:no-doc structural-typing.guts.shapes.expred
-    (:require [such.readable :as readable]
-              [structural-typing.guts.frob :as frob]
-              [structural-typing.guts.shapes.pred :as pred]))
+(ns ^:no-doc structural-typing.guts.shapes.expred)
 
+(def required-keys #{:predicate :predicate-string :explainer})
 (defrecord ExPred [predicate predicate-string explainer])
-
-(defn from-pred [pred]
-  (hash-map :explainer (pred/get-explainer pred)
-            :predicate-string (pred/get-predicate-string pred)
-            :predicate (pred/get-predicate pred)))
-
+(def boa ->ExPred)
 

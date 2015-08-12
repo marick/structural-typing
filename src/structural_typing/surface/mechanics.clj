@@ -58,4 +58,4 @@
   [pred & protection-subtractions]
   (if (pred/already-lifted? pred)
     pred
-    (apply lift-expred (expred/from-pred pred) protection-subtractions)))
+    (apply lift-expred (pred/->expred pred) protection-subtractions)))

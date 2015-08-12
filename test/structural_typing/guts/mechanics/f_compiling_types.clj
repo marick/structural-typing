@@ -107,7 +107,7 @@
              :in-any-order)))
 
   (fact "a path with multiple values (RANGE)"
-    (future-fact "simple case"
+    (fact "simple case"
       (let [type-checker (subject/compile-type (canonicalize {} 
                                                              {[(RANGE 2 4)] even?}))]
         (fact "a range avoids broken values"

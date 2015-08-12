@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.shapes.pred
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
+            [structural-typing.guts.shapes.expred :as expred]
             [structural-typing.surface.defaults :as defaults]
 ))
 
@@ -55,4 +56,10 @@
   (vary-meta pred assoc lifted-mark true))
 (defn already-lifted? [pred]
   (lifted-mark (meta pred)))
+
+
+(defn ->expred [pred]
+  (expred/boa (get-predicate pred)
+              (get-predicate-string pred)
+              (get-explainer pred)))
 

@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.mechanics.compiling-types
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
+            [structural-typing.guts.shapes.self-check :as self :refer [returns-many]]
             [structural-typing.surface.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
             [structural-typing.surface.mechanics :as mechanics]))
@@ -43,9 +44,9 @@
 (defn compile-predicates [preds]
   (let [lifted (map #(mechanics/lift %) preds)]
     (fn [value-holder]
-      (reduce #(into %1 (%2 value-holder))
-              []
-              lifted))))
+      (->> (reduce #(into %1 (%2 value-holder)) [] lifted)
+           (returns-many :expred)))))
+
 
 (defn run-preds [variation building-values]
   (->> building-values
@@ -74,8 +75,8 @@
         (->> whole-value
              (run-specter variation)
              (process-specter-results variation)
-             (spread-leaf-values variation)
-             (run-preds variation))
+             (spread-leaf-values variation)        (returns-many :exval)
+             (run-preds variation)                 (returns-many :oopsie))
         (catch Exception ex
           (vector {:explainer (constantly (format "%s is not a path into `%s`"
                                                   (oopsie/friendly-path {:path original-path})
