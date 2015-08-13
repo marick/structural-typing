@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.shapes.exval)
 
-(def required-keys #{:path :whole-value :leaf-value})
-(defrecord ExVal [path whole-value leaf-value])
+(def required-keys #{:leaf-value :path :whole-value})
+(defrecord ExVal [leaf-value path whole-value])
 
-(def boa ->ExVal)
+(def boa ->ExVal) ; Common Lisp joke: a "By Order of Arguments" constructor.

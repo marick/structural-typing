@@ -2,8 +2,7 @@
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails. Also utility functions."
   (:require [structural-typing.guts.paths.readable :as readable-path]
-            [structural-typing.guts.shapes.expred :as expred]
-            [structural-typing.guts.shapes.exval :as exval]))
+            [structural-typing.guts.shapes.self-check :refer [returns]]))
 
 (def oopsie
    "An oopsie contains these fields, all potentially relevant when dealing with
@@ -27,8 +26,8 @@ nil)
   "See above."
   nil)
 
-(defn parts->oopsie [& recs]
-  (apply merge recs))
+(defn parts->oopsie [& parts]
+  (apply merge parts))
 
 (defn friendly-path
   "Convert the oopsie's path into a string, with predicates and function components printed nicely."

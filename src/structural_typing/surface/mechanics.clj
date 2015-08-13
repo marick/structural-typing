@@ -53,7 +53,7 @@
    `true`, and (2) an exception during evaluation is considered `false`. These
    can be omitted with the `:check-nil` and `:allow-exceptions` protection-subtractions.
 
-   The lifted predicate takes an [[ExVal]] as its argument.
+   The lifted predicate takes an [[exval]] as its argument.
 "
   [pred & protection-subtractions]
   (if (pred/already-lifted? pred)

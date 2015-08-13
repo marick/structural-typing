@@ -19,5 +19,7 @@
 (defn checked [type candidate]
   (checked* type (types type) candidate))
 
+(def returns checked)
+  
 (defn returns-many [type candidates]
   (map #(checked type %1) candidates))
