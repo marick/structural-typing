@@ -1,7 +1,7 @@
 (ns timbre-define-2
   "Using an Either monad to separate mistyped from valid values"
   (:require [structural-typing.type :as type]
-            [structural-typing.pred-writing.oopsie :as oopsie]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]
             [taoensso.timbre :as timbre])

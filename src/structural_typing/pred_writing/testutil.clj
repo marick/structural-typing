@@ -1,6 +1,6 @@
 (ns structural-typing.pred-writing.testutil
-  (:require [structural-typing.guts.shapes.exval :as exval]
-            [structural-typing.pred-writing.oopsie :as oopsie]
+  (:require [structural-typing.pred-writing.shapes.exval :as exval]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.lifting :as lifting]
             [such.readable :as readable]))
 

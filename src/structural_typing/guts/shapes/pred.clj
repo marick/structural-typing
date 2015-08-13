@@ -1,7 +1,7 @@
 (ns ^:no-doc structural-typing.guts.shapes.pred
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
-            [structural-typing.guts.shapes.expred :as expred]
+            [structural-typing.pred-writing.shapes.expred :as expred]
             [structural-typing.pred-writing.defaults :as defaults]
 ))
 

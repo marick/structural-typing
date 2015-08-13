@@ -1,6 +1,6 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
-            [structural-typing.pred-writing.oopsie :as oopsie]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.lifting :as lifting]
             [structural-typing.guts.shapes.pred :refer [show-as]])
 

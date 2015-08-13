@@ -1,6 +1,6 @@
-(ns structural-typing.pred-writing.f-type-repo
+(ns structural-typing.guts.f-type-repo
   (:require [structural-typing.guts.type-repo :as subject]
-            [structural-typing.pred-writing.oopsie :as oopsie])
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie])
   (:require [structural-typing.guts.paths.substituting :refer [includes]])
   (:use midje.sweet))
 

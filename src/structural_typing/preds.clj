@@ -1,9 +1,9 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
   (:require [structural-typing.pred-writing.lifting :as lifting]
-            [structural-typing.pred-writing.oopsie :as oopsie]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
-            [structural-typing.guts.shapes.expred :as expred]
+            [structural-typing.pred-writing.shapes.expred :as expred]
             [such.readable :as readable]
             [such.types :as types]))
 

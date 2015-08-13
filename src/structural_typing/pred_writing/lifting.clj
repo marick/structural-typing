@@ -3,8 +3,8 @@
    and used. For advanced use: writing complicated purposes, checking without
    the use of a type repo (as in Midje). A WORK IN PROGRESS.
 "
-  (:require [structural-typing.pred-writing.oopsie :as oopsie]
-            [structural-typing.guts.shapes.expred :as expred]
+  (:require [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.pred-writing.shapes.expred :as expred]
             [structural-typing.guts.shapes.pred :as pred]
             [such.function-makers :as mkfn])
   (:use such.shorthand))

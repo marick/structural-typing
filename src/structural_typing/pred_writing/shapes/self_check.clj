@@ -1,8 +1,8 @@
-(ns ^:no-doc structural-typing.guts.shapes.self-check
+(ns ^:no-doc structural-typing.pred-writing.shapes.self-check
     (:require [structural-typing.guts.frob :as frob]
               [clojure.set :as set]
-              [structural-typing.guts.shapes.expred :as expred]
-              [structural-typing.guts.shapes.exval :as exval])
+              [structural-typing.pred-writing.shapes.expred :as expred]
+              [structural-typing.pred-writing.shapes.exval :as exval])
     (:require [such.wide-domains :refer :all]))
 
 (def types {:expred expred/required-keys

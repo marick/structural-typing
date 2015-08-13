@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.shapes.exval)
+(ns ^:no-doc structural-typing.pred-writing.shapes.exval)
 
 (def required-keys #{:leaf-value :path :whole-value})
 (defrecord ExVal [leaf-value path whole-value])
