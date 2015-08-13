@@ -1,5 +1,5 @@
 (ns structural-typing.pred-writing.f-defaults
-  (:require [structural-typing.pred-writing.defaults :as subject]
+  (:require [structural-typing.defaults :as subject]
             [such.readable :as readable]
             [structural-typing.guts.paths.elements :refer [ALL]])
   (:use midje.sweet))

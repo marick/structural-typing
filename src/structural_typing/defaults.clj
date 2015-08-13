@@ -1,4 +1,4 @@
-(ns structural-typing.pred-writing.defaults
+(ns structural-typing.defaults
   "User-visible default behaviors.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."

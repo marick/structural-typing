@@ -92,13 +92,13 @@ user=> (on-error! throwing-error-handler)
 user=> (checked :Point {:x "one" :y "two"})
 
 Exception :y should be `integer?`; it is `"two"`
-:x should be `integer?`; it is `"one"`  structural-typing.surface.defaults/throwing-error-handler (defaults.clj:94)
+:x should be `integer?`; it is `"one"`  structural-typing.defaults/throwing-error-handler (defaults.clj:94)
 
 user=> (pst)
 Exception :y should be `integer?`; it is `"two"`
 :x should be `integer?`; it is `"one"`
-	structural-typing.surface.defaults/throwing-error-handler (defaults.clj:94)
-	structural-typing.surface.type-repo.TypeRepo (type_repo.clj:30)
+	structural-typing.defaults/throwing-error-handler (defaults.clj:94)
+	structural-typing.type-repo.TypeRepo (type_repo.clj:30)
 ```
 
 Not all that pretty, but I hope you didn't come to Clojure expecting pretty stack traces.

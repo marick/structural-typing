@@ -2,7 +2,7 @@
   "The `TypeRepo` structure and its functions."
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]
-            [structural-typing.pred-writing.defaults :as default]
+            [structural-typing.defaults :as default]
             [structural-typing.guts.frob :as frob]
             [clojure.string :as str]))
 

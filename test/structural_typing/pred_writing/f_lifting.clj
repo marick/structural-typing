@@ -1,7 +1,7 @@
 (ns structural-typing.pred-writing.f-lifting
   (:require [structural-typing.pred-writing.lifting :as subject]
             [such.readable :as readable]
-            [structural-typing.pred-writing.defaults :as default]
+            [structural-typing.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]
             [structural-typing.guts.shapes.pred :as pred])
   (:use midje.sweet))
