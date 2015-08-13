@@ -10,8 +10,8 @@
 (defn- should-be [format-string expected]
   #(format format-string,
            (oopsie/friendly-path %)
-           (pr-str expected)
-           (pr-str (:leaf-value %))))
+           (readable/value-string expected)
+           (readable/value-string (:leaf-value %))))
 
 (defn- compose-predicate [name pred fmt-fn]
   (->> pred
