@@ -1,4 +1,4 @@
-(ns structural-typing.surface.type-repo
+(ns structural-typing.guts.type-repo
   "The `TypeRepo` structure and its functions."
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]

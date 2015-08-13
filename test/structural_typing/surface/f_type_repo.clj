@@ -1,5 +1,5 @@
 (ns structural-typing.surface.f-type-repo
-  (:require [structural-typing.surface.type-repo :as subject]
+  (:require [structural-typing.guts.type-repo :as subject]
             [structural-typing.surface.oopsie :as oopsie])
   (:require [structural-typing.guts.paths.substituting :refer [includes]])
   (:use midje.sweet))

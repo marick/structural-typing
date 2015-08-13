@@ -1,7 +1,7 @@
 (ns structural-typing.type
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
 "
-  (:require [structural-typing.surface.type-repo :as repo]
+  (:require [structural-typing.guts.type-repo :as repo]
             [structural-typing.global-type :as global-type]
             [such.readable :as readable]
             [such.immigration :as immigrate]))
@@ -13,7 +13,7 @@
                         show-as
                         explain-with])
 
-(immigrate/import-vars [structural-typing.surface.type-repo
+(immigrate/import-vars [structural-typing.guts.type-repo
                         empty-type-repo
                         replace-error-handler
                         replace-success-handler])
