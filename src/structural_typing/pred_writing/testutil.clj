@@ -12,6 +12,21 @@
   ([leaf-value]
      (exval leaf-value [:x])))
 
-(defn explain-lifted [pred exval]
+(defn explain-lifted
+  "Note that it's safe to use this on an already-lifted predicate"
+  [pred exval]
   (oopsie/explanations ((lifting/lift pred) exval)))
 
+;; Don't use Midje checkers to avoid dragging in all of its dependencies
+
+(defn oopsie-for [leaf-value & {:as kvs}]
+  (let [expected (assoc kvs :leaf-value leaf-value)]
+    (fn [actual]
+      (= (select-keys actual (keys expected)) expected))))
+
+(defn both-names [pred]
+  (let [plain (readable/fn-string pred)
+        lifted (readable/fn-string (lifting/lift pred))]
+    (if (= plain lifted)
+      plain
+      (format "`%s` mismatches `%s`" plain lifted))))
