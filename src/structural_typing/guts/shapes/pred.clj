@@ -2,7 +2,7 @@
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
             [structural-typing.guts.shapes.expred :as expred]
-            [structural-typing.surface.defaults :as defaults]
+            [structural-typing.pred-writing.defaults :as defaults]
 ))
 
 ;; TODO: make readable have the "ensure-meta" behavior)

@@ -2,9 +2,9 @@
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
             [structural-typing.guts.shapes.self-check :as self :refer [returns-many]]
-            [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.pred-writing.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
-            [structural-typing.surface.mechanics :as mechanics]))
+            [structural-typing.pred-writing.mechanics :as mechanics]))
 
 (defprotocol PathVariation
   (process-specter-results [this building-results])

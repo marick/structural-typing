@@ -1,7 +1,7 @@
 (ns structural-typing.testutil.shapes
   (:require [structural-typing.guts.shapes.exval :as exval]
-            [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.surface.mechanics :as mechanics]
+            [structural-typing.pred-writing.oopsie :as oopsie]
+            [structural-typing.pred-writing.mechanics :as mechanics]
             [such.readable :as readable]))
 
 (defn exval

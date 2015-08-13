@@ -1,11 +1,11 @@
-(ns structural-typing.surface.defaults
+(ns structural-typing.pred-writing.defaults
   "User-visible default behaviors.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [such.readable :as readable])
-  (:require [structural-typing.surface.oopsie :as oopsie]))
+  (:require [structural-typing.pred-writing.oopsie :as oopsie]))
 
 (readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 

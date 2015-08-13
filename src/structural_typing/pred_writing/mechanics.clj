@@ -1,9 +1,9 @@
-(ns structural-typing.surface.mechanics
+(ns structural-typing.pred-writing.mechanics
   "An interface to the main mechanisms by which parts of a type are assembled
    and used. For advanced use: writing complicated purposes, checking without
    the use of a type repo (as in Midje). A WORK IN PROGRESS.
 "
-  (:require [structural-typing.surface.oopsie :as oopsie]
+  (:require [structural-typing.pred-writing.oopsie :as oopsie]
             [structural-typing.guts.shapes.expred :as expred]
             [structural-typing.guts.shapes.pred :as pred]
             [such.function-makers :as mkfn])

@@ -1,4 +1,4 @@
-(ns structural-typing.surface.oopsie
+(ns structural-typing.pred-writing.oopsie
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails. Also utility functions."
   (:require [structural-typing.guts.paths.readable :as readable-path]

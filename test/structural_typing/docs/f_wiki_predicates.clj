@@ -1,7 +1,7 @@
 (ns structural-typing.docs.f-wiki-predicates
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
-           [structural-typing.surface.oopsie :as oopsie]
+           [structural-typing.pred-writing.oopsie :as oopsie]
            [clojure.string :as str])
  (:use midje.sweet))
 

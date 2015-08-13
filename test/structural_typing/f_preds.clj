@@ -1,7 +1,7 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
-            [structural-typing.surface.oopsie :as oopsie]
-            [structural-typing.surface.mechanics :as mechanics]
+            [structural-typing.pred-writing.oopsie :as oopsie]
+            [structural-typing.pred-writing.mechanics :as mechanics]
             [structural-typing.guts.shapes.pred :refer [show-as]])
 
   (:require [such.readable :as readable])

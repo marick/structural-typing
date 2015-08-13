@@ -2,7 +2,7 @@
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.mechanics.compiling-types :as subject]
             [structural-typing.guts.shapes.pred :refer [show-as]]
-            [structural-typing.surface.oopsie :as oopsie]
+            [structural-typing.pred-writing.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
             [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:use midje.sweet))

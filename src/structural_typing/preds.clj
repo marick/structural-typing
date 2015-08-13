@@ -1,7 +1,7 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.surface.mechanics :as mechanics]
-            [structural-typing.surface.oopsie :as oopsie]
+  (:require [structural-typing.pred-writing.mechanics :as mechanics]
+            [structural-typing.pred-writing.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.guts.shapes.expred :as expred]
             [such.readable :as readable]
