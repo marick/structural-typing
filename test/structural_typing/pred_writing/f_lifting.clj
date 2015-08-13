@@ -1,5 +1,5 @@
-(ns structural-typing.pred-writing.f-mechanics
-  (:require [structural-typing.pred-writing.mechanics :as subject]
+(ns structural-typing.pred-writing.f-lifting
+  (:require [structural-typing.pred-writing.lifting :as subject]
             [such.readable :as readable]
             [structural-typing.pred-writing.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]

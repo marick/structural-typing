@@ -1,4 +1,4 @@
-(ns structural-typing.pred-writing.mechanics
+(ns structural-typing.pred-writing.lifting
   "An interface to the main mechanisms by which parts of a type are assembled
    and used. For advanced use: writing complicated purposes, checking without
    the use of a type repo (as in Midje). A WORK IN PROGRESS.

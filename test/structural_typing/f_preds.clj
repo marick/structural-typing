@@ -1,11 +1,11 @@
 (ns structural-typing.f-preds
   (:require [structural-typing.preds :as subject]
             [structural-typing.pred-writing.oopsie :as oopsie]
-            [structural-typing.pred-writing.mechanics :as mechanics]
+            [structural-typing.pred-writing.lifting :as lifting]
             [structural-typing.guts.shapes.pred :refer [show-as]])
 
   (:require [such.readable :as readable])
-  (:use midje.sweet structural-typing.testutil.shapes))
+  (:use midje.sweet structural-typing.pred-writing.testutil))
 
 (facts "required-key starts out lifted"
   (subject/required-key (exval 5)) => []
@@ -23,10 +23,10 @@
         with-fn (subject/member [even? odd?])]
     (fact "a nice name"
       (readable/fn-string simple) => "(member [1 2 3])"
-      (readable/fn-string (mechanics/lift simple)) => "(member [1 2 3])"
+      (readable/fn-string (lifting/lift simple)) => "(member [1 2 3])"
 
       (readable/fn-string with-fn) => "(member [even? odd?])"
-      (readable/fn-string (mechanics/lift with-fn)) => "(member [even? odd?])")
+      (readable/fn-string (lifting/lift with-fn)) => "(member [even? odd?])")
       
     (fact "nice error messages"
       (explain-lifted simple (exval 8 [:x]))
@@ -42,10 +42,10 @@
 
     (fact "a nice name"
       (readable/fn-string simple) => "(exactly 3)"
-      (readable/fn-string (mechanics/lift simple)) => "(exactly 3)"
+      (readable/fn-string (lifting/lift simple)) => "(exactly 3)"
 
       (readable/fn-string with-fn) => "(exactly even?)"
-      (readable/fn-string (mechanics/lift with-fn)) => "(exactly even?)")
+      (readable/fn-string (lifting/lift with-fn)) => "(exactly even?)")
       
     (fact "nice error messages"
       (explain-lifted simple (exval 8 [:x]))

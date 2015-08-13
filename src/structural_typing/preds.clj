@@ -1,6 +1,6 @@
 (ns structural-typing.preds
   "All of the predefined predicates."
-  (:require [structural-typing.pred-writing.mechanics :as mechanics]
+  (:require [structural-typing.pred-writing.lifting :as lifting]
             [structural-typing.pred-writing.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.guts.shapes.expred :as expred]
@@ -70,7 +70,7 @@
 (def required-key
   "False iff a key/path does not exist or has value `nil`. This is the only
    predefined predicate that is not considered optional."
-  (mechanics/lift-expred (expred/boa (comp not nil?)
+  (lifting/lift-expred (expred/boa (comp not nil?)
                                      "required-key"
                                      #(format "%s must exist and be non-nil"
                                               (oopsie/friendly-path %)))
@@ -106,7 +106,7 @@
   {:arglists '([if-pred then-pred...])}
   [& args]
   (let [implications (->> args
-                          (map mechanics/lift)
+                          (map lifting/lift)
                           (partition 2))
         f (fn [call-info]
             (reduce (fn [so-far [antecedent consequent]]

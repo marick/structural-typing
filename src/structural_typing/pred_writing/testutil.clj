@@ -1,7 +1,7 @@
-(ns structural-typing.testutil.shapes
+(ns structural-typing.pred-writing.testutil
   (:require [structural-typing.guts.shapes.exval :as exval]
             [structural-typing.pred-writing.oopsie :as oopsie]
-            [structural-typing.pred-writing.mechanics :as mechanics]
+            [structural-typing.pred-writing.lifting :as lifting]
             [such.readable :as readable]))
 
 (defn exval
@@ -13,5 +13,5 @@
      (exval leaf-value [:x])))
 
 (defn explain-lifted [pred exval]
-  (oopsie/explanations ((mechanics/lift pred) exval)))
+  (oopsie/explanations ((lifting/lift pred) exval)))
 
