@@ -7,4 +7,9 @@ See [here](http://keepachangelog.com/) for the change log format.
 ### Added
 
 - `implies` to `structural-typing.preds`.
-- the `structural-typing.surface.mechanics` namespace is intended to help people writing odd predicates
+- `doc` namespace.
+
+### Changed
+
+- Namespaces reshuffled so all the pieces needed for writing custom predicates
+  are in one subdirectory, `pred-writing`.

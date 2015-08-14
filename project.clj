@@ -7,8 +7,11 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "3.4.0"]
+                 [marick/suchwow "4.0.0"]
                  [com.rpl/specter "0.6.2" :exclusions [org.clojure/clojure]]]
+
+  :repl-options {:init (do (require 'structural-typing.doc)
+                           (such.doc/apis))}
 
   :profiles {:dev {:dependencies [[midje "1.8-alpha1" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
