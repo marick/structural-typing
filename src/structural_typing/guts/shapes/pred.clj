@@ -42,7 +42,10 @@
 (defn explain-with
   "After the `predicate` fails, the failure will need to be explained. Arrange for
    the `explainer` function to be called with the [[oopsie]] that results from the
-   failure."
+   failure.
+   
+        (explain-with \"too small\" #(< (count %) 54))
+"
   [explainer predicate]
   (-> predicate
       stash-defaults
