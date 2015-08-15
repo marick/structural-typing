@@ -4,6 +4,7 @@
   (:use midje.sweet))
 
 (fact "friendly paths"
+  (subject/friendly []) => "[]"
   (subject/friendly [:a]) => ":a"
   (subject/friendly [1]) => "[1]"
   (subject/friendly [:a :b]) => "[:a :b]"
