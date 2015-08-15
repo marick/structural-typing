@@ -15,9 +15,12 @@
 
 (def dc:validate-starting-descriptions
   (mkfn/lazyseq:criticize-deviationism
-   (mkfn/pred:none-of? map? sequential?)
-   #(frob/boom! "Types are described with maps or vectors: `%s` has `%s`"
-           %1 %2)))
+   (mkfn/pred:none-of? frob/extended-fn? map? sequential?)
+   #(frob/boom! "Types are described with maps, functions, or vectors: `%s` has `%s`"
+                %1 %2)))
+
+(def dc:preds->maps
+  (mkfn/lazyseq:x->y #(hash-map [] [%]) frob/extended-fn?))
 
 (def dc:spread-collections-of-required-paths
   (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
@@ -36,6 +39,9 @@
   (->> condensed-type-descriptions
        (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level
        dc:validate-starting-descriptions
+
+       ;; predicates
+       dc:preds->maps
 
        ;; Let's work with the vectors of required paths, ending up with maps
        dc:spread-collections-of-required-paths      

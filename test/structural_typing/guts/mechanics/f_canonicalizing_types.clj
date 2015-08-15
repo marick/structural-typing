@@ -41,8 +41,8 @@
                {[:a [:b :c]] point}))))
 
   (fact dc:validate-starting-descriptions
-    (subject/dc:validate-starting-descriptions (ps {} [] )) => (ps {} [])
-    (subject/dc:validate-starting-descriptions (ps :a)) => (throws #"maps or vectors"))
+    (subject/dc:validate-starting-descriptions (ps {} [] even?)) => (ps {} [] even?)
+    (subject/dc:validate-starting-descriptions (ps :a)) => (throws #"maps, functions, or vectors"))
 
   (fact dc:spread-collections-of-required-paths
     (fact "passes maps through unchanged"
@@ -83,6 +83,10 @@
       (subject/dc:required-paths->maps (ps [:a [:b :c] :d]))
       => (just {[:a [:b :c] :d] [required-key]})))
 
+  (fact dc:preds->maps
+    (subject/dc:preds->maps [even?]) => (just {[] [even?]})
+    (subject/dc:preds->maps [[:a [:b]] {:a odd?} even?])
+    =>                      [[:a [:b]] {:a odd?} {[] [even?]}]) 
 
   (fact dc:flatten-maps
     (subject/dc:flatten-maps []) => []

@@ -32,9 +32,10 @@ nil)
 (defn friendly-path
   "Convert the oopsie's path into a string, with predicates and function components printed nicely."
   [oopsie]
-  (->> oopsie
-       :path
-       readable-path/friendly))
+  (let [path (:path oopsie)]
+    (if (empty? path)
+      "Value"
+      (readable-path/friendly path))))
 
 
 (defn explanation
