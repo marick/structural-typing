@@ -20,3 +20,9 @@
   (into coll (force-vector maybe-vector)))
 
 
+(defn alternately [evenf oddf & colls]
+  (apply map
+         (fn [f & args] (apply f args))
+         (cycle [evenf oddf])
+         colls))
+
