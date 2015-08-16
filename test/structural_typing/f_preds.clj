@@ -54,14 +54,6 @@
 ;;; Predicates that start out lifted
 
 
-(facts "required-key starts out lifted"
-  (subject/required-key (exval 5)) => []
-  (readable/fn-string subject/required-key) => "required-key"
-  (let [result (subject/required-key (exval nil [:x]))]
-    result => (just (oopsie-for nil :predicate-string "required-key"))
-    (oopsie/explanations result) => (just ":x must exist and be non-nil")))
-
-
 (fact "implies - starts out lifted"
   (fact "nothing is OK"
     ( (subject/implies) (exval 5)) => empty?)

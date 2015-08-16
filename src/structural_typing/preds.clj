@@ -67,15 +67,6 @@
 
 ;;; More exotic predicate creation.
 
-(def required-key
-  "False iff a key/path does not exist or has value `nil`. This is the only
-   predefined predicate that is not considered optional."
-  (lifting/lift-expred (expred/boa (comp not nil?)
-                                     "required-key"
-                                     #(format "%s must exist and be non-nil"
-                                              (oopsie/friendly-path %)))
-                         :check-nil))
-
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
    truthy, the corresponding `then-pred` is evaluated. Checking

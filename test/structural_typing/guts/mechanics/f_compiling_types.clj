@@ -5,6 +5,7 @@
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
             [structural-typing.preds :as preds]
+            [structural-typing.pred-writing.required-key :refer [required-key]]
             [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
@@ -204,7 +205,7 @@
       (oopsie/explanations (checker {:a 1})) => (just "Value should be `evencount`; it is `{:a 1}`"))
     
     (let [checker (->checker (show-as "evencount" (comp even? count))
-                             {:a [preds/required-key even?]})]
+                             {:a [required-key even?]})]
       (oopsie/explanations (checker {:a 1}))
       => (just ":a should be `even?`; it is `1`"
                "Value should be `evencount`; it is `{:a 1}`"))

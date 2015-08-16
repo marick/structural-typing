@@ -1,9 +1,9 @@
 (ns ^:no-doc structural-typing.guts.mechanics.canonicalizing-types
   (:require [such.function-makers :as mkfn])
   (:require [structural-typing.guts.frob :as frob]
-            [structural-typing.preds :refer [required-key]]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
+            [structural-typing.pred-writing.required-key :refer [required-key]]
             [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
