@@ -3,8 +3,9 @@
             [such.readable :as readable]
             [structural-typing.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred])
-  (:use midje.sweet))
+  (:use midje.sweet structural-typing.pred-writing.testutil))
 
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
   (fact "exceptions"
@@ -78,3 +79,16 @@
     (let [once (subject/lift even?)
           twice (subject/lift once :allow-exceptions)]
       (identical? once twice) => true)))
+
+
+
+(fact "lifting a nested type into an oopsie-producing predicate"
+  (let [r (subject/nested-type->val-checker [even?])]
+    (r 2) => empty?
+    (oopsie/explanations (r 1)) => (just "Value should be `even?`; it is `1`"))
+
+  (let [r (subject/nested-type->val-checker [ [:a :b] {:c even?}])]
+    (r {:a 1, :b 2}) => empty?
+    (oopsie/explanations (r {:c 1, :b 2})) => (just ":a must exist and be non-nil"
+                                                    ":c should be `even?`; it is `1`")))
+                                                    

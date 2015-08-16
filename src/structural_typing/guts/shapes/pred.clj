@@ -85,7 +85,7 @@
       (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) mkfn/pred:exception->false
               (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
 
-(defn lift-expred [expred protection-subtractions]  
+(defn lift-expred [expred protection-subtractions]
   (let [protected (protect-pred (:predicate expred) protection-subtractions)]
     (-> (fn [exval]
           (if (protected (:leaf-value exval))
@@ -93,3 +93,12 @@
             (vector (oopsie/parts->oopsie expred exval))))
         mark-as-lifted
         (give-lifted-predicate-a-nice-string expred))))
+
+(defn lift
+  ([pred protection-subtractions]
+     (if (already-lifted? pred)
+       pred
+       (lift-expred (->expred pred) protection-subtractions)))
+  ([pred]
+     (lift pred [])))
+  

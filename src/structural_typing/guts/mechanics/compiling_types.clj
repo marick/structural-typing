@@ -4,7 +4,7 @@
             [structural-typing.pred-writing.shapes.self-check :as self :refer [returns-many]]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
-            [structural-typing.pred-writing.lifting :as lifting]))
+            [structural-typing.guts.shapes.pred :as pred]))
 
 (defprotocol PathVariation
   (process-specter-results [this building-results])
@@ -42,7 +42,7 @@
 )
 
 (defn compile-predicates [preds]
-  (let [lifted (map #(lifting/lift %) preds)]
+  (let [lifted (map pred/lift preds)]
     (fn [value-holder]
       (->> (reduce #(into %1 (%2 value-holder)) [] lifted)
            (returns-many :expred)))))
