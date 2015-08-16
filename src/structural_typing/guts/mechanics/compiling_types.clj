@@ -85,9 +85,9 @@
                    :whole-value whole-value
                    :path original-path}))))))
 
-(defn compile-type [t]
+(defn compile-type [type-map]
   ;; Note that the path-checks are compiled once, returning a function to be run often.
-  (let [compiled-path-checks (map compile-path-check t)]
+  (let [compiled-path-checks (map compile-path-check type-map)]
     (fn [whole-value]
       (reduce (fn [all-errors path-check]
                 (into all-errors (path-check whole-value)))
