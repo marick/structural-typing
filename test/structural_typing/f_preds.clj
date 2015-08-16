@@ -87,4 +87,15 @@
                     (exval 1 [:a]))
     => (just #":a should be `neg\?`; it is `1`"
              #":a should be `really big`"
-             :in-any-order)))
+             :in-any-order))
+
+  (fact "use with substructures"
+    (let [r (subject/implies #(do (prn :antecedent %) (even? (:a %))) [[:c :b]])]
+      (r (exval {})) => empty?
+      (r (exval {:a 1} [:x])) => empty?
+      (oopsie/explanations (r (exval {:a 2})))
+      => (just "[:x :b] must exist and be non-nil"
+               "[:x :c] must exist and be non-nil")))
+)
+  
+  

@@ -4,7 +4,9 @@
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.pred-writing.shapes.expred :as expred]
+            [structural-typing.guts.frob :as frob]
             [such.readable :as readable]
+            [such.function-makers :as mkfn]
             [such.types :as types]))
 
 (defn- should-be [format-string expected]
@@ -96,14 +98,21 @@
 "
   {:arglists '([if-pred then-pred...])}
   [& args]
-  (let [implications (->> args
-                          (map lifting/lift)
-                          (partition 2))
-        f (fn [call-info]
-            (reduce (fn [so-far [antecedent consequent]]
-                      (if (empty? (antecedent call-info))
-                        (into so-far (consequent call-info))
-                        so-far))
-                    []
-                    implications))]
-    (->> f pred/mark-as-lifted (pred/show-as "implies"))))
+  (let [make-antecedent mkfn/pred:exception->false
+        make-consequent (comp lifting/nested-type->val-checker frob/force-vector)
+        adjusted-pairs (->> args
+                            (frob/alternately make-antecedent make-consequent)
+                            (partition 2))]
+    (->> (fn [exval]
+           (letfn [(adjust-path [oopsie]
+                     (prn :update exval oopsie)
+                     (update oopsie :path #(into (:path exval) %)))]
+             (prn exval)
+             (reduce (fn [so-far [antecedent consequent]]
+                       (if (antecedent (:leaf-value exval))
+                         (into so-far (map adjust-path (consequent (:leaf-value exval))))
+                         so-far))
+                     []
+                     adjusted-pairs)))
+         pred/mark-as-lifted
+         (pred/show-as "implies"))))

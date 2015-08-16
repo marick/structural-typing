@@ -6,6 +6,7 @@
   (:require [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.shapes.expred :as expred]
             [structural-typing.guts.mechanics.canonicalizing-types :as canon]
+            [structural-typing.guts.mechanics.compiling-types :as compile]
             [structural-typing.guts.shapes.pred :as pred]
             [such.function-makers :as mkfn])
   (:use such.shorthand))
@@ -30,9 +31,9 @@
    The lifted predicate takes an [[exval]] as its argument.
 "
   [pred & protection-subtractions]
-  (if (pred/already-lifted? pred)
-    pred
-    (apply lift-expred (pred/->expred pred) protection-subtractions)))
+  (pred/lift pred protection-subtractions))
 
-(defn nested-type->lifted-pred [type-signifiers]
-  )
+(defn nested-type->val-checker [type-signifiers]
+  (->> type-signifiers
+       (apply canon/canonicalize {})
+       compile/compile-type))
