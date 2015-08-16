@@ -208,17 +208,6 @@
       (oopsie/explanations (checker {:a 1}))
       => (just ":a should be `even?`; it is `1`"
                "Value should be `evencount`; it is `{:a 1}`"))
-
-    (fact "intended to be typically used with `implies`"
-      (let [checker (->checker {:a even?}
-                               (preds/implies :a :b))]
-        (checker {}) => empty?
-        (checker {:a 2 :b 1}) => empty?
-        (oopsie/explanations (checker {:a 1 :b 1})) => (just ":a should be `even?`; it is `1`")
-        (oopsie/explanations (checker {:a 2})) =future=> (just "some message")))
-
-
-    (future-fact "implies like (preds/implies :a (about :b required-key)")
 ))
         
 
