@@ -2,8 +2,10 @@
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
             [structural-typing.pred-writing.shapes.expred :as expred]
+            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.defaults :as defaults]
-))
+            [such.function-makers :as mkfn])
+    (:use such.shorthand))
 
 ;; TODO: make readable have the "ensure-meta" behavior)
 
@@ -66,3 +68,28 @@
               (get-predicate-string pred)
               (get-explainer pred)))
 
+
+(defn- mkfn:optional [pred]
+  (fn [value]
+    (if (nil? value)
+      true
+      (pred value))))
+
+(defn give-lifted-predicate-a-nice-string [pred expred]
+  (replace-predicate-string pred (:predicate-string expred)))
+
+(defn protect-pred [pred protection-subtractions]
+  (when-not (empty? (remove #{:allow-exceptions :check-nil} protection-subtractions))
+    (throw (new Exception (str protection-subtractions))))
+  (-> pred
+      (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) mkfn/pred:exception->false
+              (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
+
+(defn lift-expred [expred protection-subtractions]  
+  (let [protected (protect-pred (:predicate expred) protection-subtractions)]
+    (-> (fn [exval]
+          (if (protected (:leaf-value exval))
+            []
+            (vector (oopsie/parts->oopsie expred exval))))
+        mark-as-lifted
+        (give-lifted-predicate-a-nice-string expred))))
