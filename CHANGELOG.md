@@ -8,6 +8,7 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 - `implies` to `structural-typing.preds`.
 - `doc` namespace.
+- Predicates can be applied to the whole structure.
 
 ### Changed
 
