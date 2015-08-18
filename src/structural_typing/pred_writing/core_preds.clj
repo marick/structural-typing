@@ -1,4 +1,4 @@
-(ns structural-typing.pred-writing.required-key
+(ns structural-typing.pred-writing.core-preds
   "All of the predefined predicates."
   (:require [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]

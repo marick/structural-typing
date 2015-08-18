@@ -90,7 +90,7 @@
              :in-any-order))
 
   (fact "use with substructures"
-    (let [r (subject/implies #(do (prn :antecedent %) (even? (:a %))) [[:c :b]])]
+    (let [r (subject/implies #(even? (:a %)) [[:c :b]])]
       (r (exval {})) => empty?
       (r (exval {:a 1} [:x])) => empty?
       (oopsie/explanations (r (exval {:a 2})))

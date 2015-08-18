@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.frob :as frob]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
-            [structural-typing.pred-writing.required-key :refer [required-key]]
+            [structural-typing.pred-writing.core-preds :refer [required-key]]
             [com.rpl.specter :as specter]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.

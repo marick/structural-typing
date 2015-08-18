@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.paths.multiplying
     (:require [structural-typing.guts.frob :as frob]
-              [structural-typing.pred-writing.required-key :refer [required-key]]))
+              [structural-typing.pred-writing.core-preds :refer [required-key]]))
 
 (def forking? (partial some sequential?))
 

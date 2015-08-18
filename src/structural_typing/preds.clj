@@ -105,9 +105,7 @@
                             (partition 2))]
     (->> (fn [exval]
            (letfn [(adjust-path [oopsie]
-                     (prn :update exval oopsie)
                      (update oopsie :path #(into (:path exval) %)))]
-             (prn exval)
              (reduce (fn [so-far [antecedent consequent]]
                        (if (antecedent (:leaf-value exval))
                          (into so-far (map adjust-path (consequent (:leaf-value exval))))
