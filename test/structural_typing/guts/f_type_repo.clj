@@ -26,5 +26,11 @@
     (subject/check-type repo :AB {:b "s"}) => empty?
     (subject/check-type repo :AB {:a 1 :b "s"}) => empty?
     (subject/check-type repo :AB {:a "s"}) => (just (contains {:path [:a]})
-                                                 (contains {:path [:b]})
-                                                 :in-any-order)))
+                                                    (contains {:path [:b]})
+                                                    :in-any-order)))
+
+(fact "values of types are not allowed to be nil"
+  (let [repo (-> subject/empty-type-repo
+                 (subject/hold-type :Unused [ {:b string?} ])
+                 (subject/replace-error-handler oopsie/explanations))]
+    (subject/check-type repo :Unused nil) => (just (contains {:path []}))))

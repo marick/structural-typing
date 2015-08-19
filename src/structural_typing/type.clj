@@ -7,7 +7,7 @@
             [such.immigration :as immigrate]))
 
 (immigrate/import-vars [structural-typing.pred-writing.core-preds
-                        required-key])
+                        required-key not-nil])
 
 (immigrate/import-vars [structural-typing.guts.shapes.pred
                         show-as

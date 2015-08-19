@@ -3,8 +3,17 @@
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]
             [structural-typing.defaults :as default]
+            [structural-typing.pred-writing.core-preds :as pred]
             [structural-typing.guts.frob :as frob]
             [clojure.string :as str]))
+
+
+;; This is used to check if an argument to `checked` is nil. If so, it's not further
+;; checked. Another approach would be to inject the following map into all types when
+;; they're compiled. However, that would mean that the `T1` in:
+;;     (type! :T2 {:a (includes :T1)})
+;; ... would not be optional, which would make it different from all other pred-like values.
+(def whole-type-checker (compile/compile-type {[] [pred/not-nil]}))
 
 (defprotocol TypeRepoLike
   (hold-type [type-repo type-signifier type-descriptions])
@@ -32,7 +41,10 @@
 
     (check-type [type-repo type-signifier candidate]
       (if-let [checker (get-in type-repo [:compiled-types type-signifier])]
-        (checker candidate)
+        (let [oopsies (whole-type-checker candidate)]
+          (if (empty? oopsies)
+            (checker candidate)
+            oopsies))
         (frob/boom! "There is no type `%s`" type-signifier)))
     
     (replace-error-handler [type-repo f]
