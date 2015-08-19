@@ -7,7 +7,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "4.0.1"]
+                 [marick/suchwow "4.1.0"]
                  [com.rpl/specter "0.6.2" :exclusions [org.clojure/clojure]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
