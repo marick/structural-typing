@@ -13,3 +13,9 @@
                                          (oopsie/friendly-path %)))
                     [:check-nil]))
 
+(def ^:no-doc not-nil
+  (pred/lift-expred (expred/boa (comp not nil?)
+                                "not-nil"
+                                #(format "%s is nil, and that makes Sir Tony Hoare sad"
+                                         (oopsie/friendly-path %)))
+                    [:check-nil]))
