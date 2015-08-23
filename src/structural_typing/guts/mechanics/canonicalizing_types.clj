@@ -45,7 +45,7 @@
 
        ;; Let's work with the vectors of required paths, ending up with maps
        dc:spread-collections-of-required-paths      
-       dc:split-paths-ending-in-maps   ; can preoduce a new map
+       dc:split-paths-ending-in-maps   ; can produce a new map
        dc:required-paths->maps         ; path may still contain forks
 
        dc:flatten-maps
