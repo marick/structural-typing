@@ -34,7 +34,7 @@ loosely-coupled systems.
 	- [Multiple checks for a key](#multiple-checks-for-a-key)
 	- [Optional and required values](#optional-and-required-values)
 	- [Combining types](#combining-types)
-	- [Nesting types and key paths](#nesting-types-and-key-paths)
+	- [Nested types and key paths](#nesting-types-and-key-paths)
 	- [For more details](#for-more-details)
 - [Back Matter](#back-matter)
 	- [Todo list](#todo-list)
@@ -267,7 +267,7 @@ a structure of keys and predicates, and do not have any intrinsic
 relationship to other types. One consequence is that if you redefine
 `:Colorful`, that will not affect `:ColorfulPoint`.
 
-## Nesting types and key paths
+## Nested types and key paths
 
 Here's a 
 colorful figure composed of a set of points.
