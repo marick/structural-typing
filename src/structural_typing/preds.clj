@@ -75,7 +75,12 @@
 ;; a function that's just an alias for `vector`).
 
 (defrecord AllOf [type-descriptions])
-(defn all-of [& type-descriptions] (->AllOf type-descriptions))
+(defn all-of
+  "This is used with [[implies]] to group a collection of `type-descriptions`
+   into one. Unlike [[type!]] and [[named]], `all-of` doesn't support a final
+   \"& rest\" argument."
+  [& type-descriptions]
+  (->AllOf type-descriptions))
 (defn force-all-of [x]
   (if (instance? AllOf x)
     x
@@ -83,9 +88,10 @@
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
-   truthy, the corresponding `then-pred` is evaluated. Checking
+   truthy, the corresponding `type-description` is applied. Checking
    will produce all of the errors from all of the `then-preds`
-   that were tried.
+   that were tried. Use []all-of]] when you want more than one
+   type-description.
    
        (type! :Sep {:a (pred/implies neg? even?
                                      neg? (show-as \"=3\" (partial = 3))
@@ -94,12 +100,12 @@
        user=> (checked :Sep {:a 1}) ; Neither `neg?` nor `string?`
        => {:a 1}
        
-       user=> (checked :Sep {:a -1}) ; Two clauses check
+       user=> (checked :Sep {:a -1}) ; Two checked, two fail.
        :a should be `=3`; it is `-1`
        :a should be `even?`; it is `-1`
        => nil
        
-       user=> (checked :Sep {:a \"long\"}) ; Final clause checks
+       user=> (checked :Sep {:a \"long\"}) ; String check fails
        :a should be `empty?`; it is `\"long\"`
        => nil
    
