@@ -2,7 +2,11 @@
   (:require [structural-typing.pred-writing.shapes.exval :as exval]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.lifting :as lifting]
-            [such.readable :as readable]))
+            [structural-typing.type :as type]
+            [such.readable :as readable]
+            [clojure.string :as str])
+  (:use [such.imperfection :only [val-and-output]]))
+
 
 (defn exval
   ([leaf-value path whole-value]
@@ -30,3 +34,9 @@
     (if (= plain lifted)
       plain
       (format "`%s` mismatches `%s`" plain lifted))))
+
+(defn check-for-explanations [type candidate]
+  (let [[retval output] (val-and-output (type/checked type candidate))]
+    (if (nil? retval)
+      (str/split output #"\n") ; too lazy to hanlde windows.
+      "Actual return result was not `nil`")))
