@@ -53,6 +53,10 @@
 
 ;;; Predicates that start out lifted
 
+(fact "utility for implies: all-of"
+  (:type-descriptions (subject/force-all-of odd?)) => [odd?]
+  (:type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
+  
 
 (fact "implies - starts out lifted"
   (fact "nothing is OK"
@@ -74,8 +78,8 @@
 
   (fact "implies refuses nils, handles exceptions"
     (let [r (subject/implies odd? neg?)]
-     (r nil) => empty?
-     (r "string") => empty?))
+     (r (exval nil)) => empty?
+     (r (exval "string")) => empty?))
     
   (fact "explanations"
     (explain-lifted (subject/implies odd? neg?) (exval 1 [:a]))
@@ -90,12 +94,21 @@
              :in-any-order))
 
   (fact "use with substructures"
-    (let [r (subject/implies #(even? (:a %)) [[:c :b]])]
+    (let [r (subject/implies #(even? (:a %)) [:c :b])]
       (r (exval {})) => empty?
       (r (exval {:a 1} [:x])) => empty?
       (oopsie/explanations (r (exval {:a 2})))
       => (just "[:x :b] must exist and be non-nil"
                "[:x :c] must exist and be non-nil")))
+
+  (fact one-of
+    (let [bigger #(> (count (str %)) 3)
+          smaller #(< (count (str %)) 6)
+          r (subject/implies odd? (subject/all-of bigger smaller))]
+      (oopsie/explanations (r (exval 111 [:x]))) => (just ":x should be `bigger`; it is `111`")
+      (r (exval 1111)) => empty?
+      (r (exval 11111)) => empty?
+      (oopsie/explanations (r (exval 111111 [:x]))) =>  (just ":x should be `smaller`; it is `111111`")
+      (r (exval 2)) => empty?))
 )
-  
   

@@ -69,6 +69,18 @@
 
 ;;; More exotic predicate creation.
 
+
+;; Too many places accept vectors or single arguments. This is an experiment
+;; to disallow vectors in favor of a function (rather than having, as elsewhere,
+;; a function that's just an alias for `vector`).
+
+(defrecord AllOf [type-descriptions])
+(defn all-of [& type-descriptions] (->AllOf type-descriptions))
+(defn force-all-of [x]
+  (if (instance? AllOf x)
+    x
+    (all-of x)))
+
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
    truthy, the corresponding `then-pred` is evaluated. Checking
@@ -96,10 +108,11 @@
    doesn't return a truthy/falsey value but rather a sequence
    of [[oopsies]].
 "
-  {:arglists '([if-pred then-pred...])}
+  {:arglists '([if-pred type-description if-pred type-description...])}
   [& args]
+
   (let [make-antecedent mkfn/pred:exception->false
-        make-consequent (comp lifting/nested-type->val-checker frob/force-vector)
+        make-consequent (comp lifting/nested-type->val-checker :type-descriptions force-all-of)
         adjusted-pairs (->> args
                             (frob/alternately make-antecedent make-consequent)
                             (partition 2))]
