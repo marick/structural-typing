@@ -58,7 +58,7 @@
   (:type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
   
 
-(fact "implies - starts out lifted"
+(fact "implies"
   (fact "nothing is OK"
     ( (subject/implies) (exval 5)) => empty?)
 
