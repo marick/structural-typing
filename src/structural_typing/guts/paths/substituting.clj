@@ -16,10 +16,7 @@
 
 (defn includes
   "During creation of a type by [[named]] or [[type!]], a call to
-   `includes` is replaced with the type the `type-signifier` refers
-   to.  The exact meaning of that replacement depends on whether it's used in a path, as
-   the value of a path, or as an entire argument itself. See the wiki
-   documentation."
+   `includes` is replaced with the type the `type-signifier` refers to."
   [type-signifier]
   (when-not (keyword? type-signifier) (frob/boom! "%s is supposed to be a keyword." type-signifier))
   (-> (fn [type-map]
