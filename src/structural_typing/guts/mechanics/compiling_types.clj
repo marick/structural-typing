@@ -78,7 +78,7 @@
              (spread-leaf-values variation)        (returns-many :exval)
              (run-preds variation)                 (returns-many :oopsie))
         (catch Exception ex
-          (vector {:explainer (constantly (format "%s is not a path into `%s`"
+          (vector {:explainer (constantly (format "%s is not a path into `%s` - note: this can happen if you used a `includes` inside an `implies` predicate - sorry I can't give a better error message - complain to marick@exampler.com if you see this."
                                                   (oopsie/friendly-path {:path original-path})
                                                   (pr-str whole-value)))
                    ;; These are just for debugging should it be needed.

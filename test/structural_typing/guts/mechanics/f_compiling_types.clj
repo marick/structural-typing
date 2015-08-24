@@ -218,8 +218,8 @@
     (let [checker (->checker [[:x ALL :y]])]
       (checker {:x 1}) => (just (contains {:path [:x ALL :y]
                                                 :whole-value {:x 1}}))
-      (oopsie/explanations (checker {:x 1})) => (just "[:x ALL :y] is not a path into `{:x 1}`")
-      (oopsie/explanations (checker {:x :a})) => (just "[:x ALL :y] is not a path into `{:x :a}`")
+      (oopsie/explanations (checker {:x 1})) => (just #"\[:x ALL :y\] is not a path into `\{:x 1\}`")
+      (oopsie/explanations (checker {:x :a})) => (just #"\[:x ALL :y\] is not a path into `\{:x :a\}`")
       
       (fact "these are fine, though"
         (oopsie/explanations (checker {:x [0]})) => (just "[:x 0 :y] must exist and be non-nil")
@@ -240,12 +240,12 @@
     (fact "ending index comes too soon"
       (let [checker (->checker {[(RANGE 1 3)] even?})]
         (oopsie/explanations (checker [0 2]))
-        => (just "[(RANGE 1 3)] is not a path into `[0 2]`")))
+        => (just #"\[\(RANGE 1 3\)\] is not a path into `\[0 2\]`")))
 
     (fact "starting index comes too soon"
       (let [checker (->checker {[(RANGE 2 5)] even?})]
         (oopsie/explanations (checker [0 2]))
-        => (just "[(RANGE 2 5)] is not a path into `[0 2]`")))
+        => (just #"\[\(RANGE 2 5\)\] is not a path into \`\[0 2\]\`")))
 
     (fact "in a previous bug, multiple range expressions all printed with same value"
       (let [checker (->checker {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?})]
