@@ -26,8 +26,9 @@
       (with-meta {:type type-finder-key})))
 
 (defn dc:expand-type-signifiers [type-map form]
-  (let [do-one #(if (type-finder? %) (% type-map) %)]
-    (specter/transform (specter/walker type-finder?) do-one form)))
+  (specter/transform (specter/walker type-finder?)
+                     #(% type-map)
+                     form))
 
 
 

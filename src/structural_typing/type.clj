@@ -66,10 +66,9 @@
 
   Returns the augmented `type-repo`. See also [[named!]].
 "
-  ([type-repo type-signifier & type-descriptions]
-     (repo/hold-type type-repo type-signifier type-descriptions)))
+  [type-repo type-signifier & type-descriptions]
+     (repo/hold-type type-repo type-signifier type-descriptions))
 
-  
 (defn described-by? 
   "Return `true` iff the `candidate` structure typechecks against
    the type named `type-signifier`. `type-signifier` may also be a vector
