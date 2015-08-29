@@ -1,18 +1,20 @@
 (ns ^:no-doc structural-typing.guts.paths.substituting
   (:require [com.rpl.specter :as specter]
-            [such.function-makers :as mkfn])
-  (:require [structural-typing.guts.frob :as frob]
-            [structural-typing.guts.paths.elements :as element])
-)
+            [such.function-makers :as mkfn]
+            [such.metadata :as meta]
+            [structural-typing.guts.frob :as frob]
+            [structural-typing.guts.paths.elements :as element]))
 
 
 ;;;;                             The (includes :Point) mechanism
 
-(def type-finder-key ::type-finder)
+(def type-expander-key ::type-expander)
 
-(defn type-finder? [x]
-  (= type-finder-key (type x)))
+(defn type-expander? [x]
+  (boolean (meta/get x type-expander-key)))
 
+(defn as-type-expander [x]
+  (meta/assoc x type-expander-key true))
 
 (defn includes
   "During creation of a type by [[named]] or [[type!]], a call to
@@ -23,13 +25,12 @@
         (if-let [result (get type-map type-signifier)]
           result
           (frob/boom! "%s does not name a type" type-signifier)))
-      (with-meta {:type type-finder-key})))
+      as-type-expander))
 
 (defn dc:expand-type-signifiers [type-map form]
-  (specter/transform (specter/walker type-finder?)
+  (specter/transform (specter/walker type-expander?)
                      #(% type-map)
                      form))
-
 
 
 

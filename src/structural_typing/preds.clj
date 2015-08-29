@@ -4,6 +4,7 @@
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.pred-writing.shapes.expred :as expred]
+            [structural-typing.guts.paths.substituting :as subst]
             [structural-typing.guts.frob :as frob]
             [such.readable :as readable]
             [such.function-makers :as mkfn]
@@ -86,6 +87,19 @@
     x
     (all-of x)))
 
+(defn ^:no-doc implies:mkfn:from-adjusted [adjusted-pairs]
+  (->> (fn [exval]
+         (letfn [(adjust-path [oopsie]
+                   (update oopsie :path #(into (:path exval) %)))]
+           (reduce (fn [so-far [antecedent consequent]]
+                     (if (antecedent (:leaf-value exval))
+                       (into so-far (map adjust-path (consequent (:leaf-value exval))))
+                       so-far))
+                   []
+                   adjusted-pairs)))
+       pred/mark-as-lifted
+       (pred/show-as "implies")))
+
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
    truthy, the corresponding `type-description` is applied. Checking
@@ -117,19 +131,17 @@
   {:arglists '([if-pred type-description if-pred type-description...])}
   [& args]
 
-  (let [make-antecedent mkfn/pred:exception->false
-        make-consequent (comp lifting/nested-type->val-checker :type-descriptions force-all-of)
-        adjusted-pairs (->> args
-                            (frob/alternately make-antecedent make-consequent)
+  (-> (fn [type-map]
+        (let [make-antecedent mkfn/pred:exception->false
+              make-consequent #(->> %
+                                    force-all-of
+                                    :type-descriptions
+                                    (subst/dc:expand-type-signifiers type-map)
+                                    lifting/nested-type->val-checker)
+              adjusted-pairs (->> args
+                                  (frob/alternately make-antecedent make-consequent)
                             (partition 2))]
-    (->> (fn [exval]
-           (letfn [(adjust-path [oopsie]
-                     (update oopsie :path #(into (:path exval) %)))]
-             (reduce (fn [so-far [antecedent consequent]]
-                       (if (antecedent (:leaf-value exval))
-                         (into so-far (map adjust-path (consequent (:leaf-value exval))))
-                         so-far))
-                     []
-                     adjusted-pairs)))
-         pred/mark-as-lifted
-         (pred/show-as "implies"))))
+          (implies:mkfn:from-adjusted adjusted-pairs)))
+      subst/as-type-expander))
+      
+

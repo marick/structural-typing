@@ -58,46 +58,52 @@
   (:type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
   
 
-(fact "implies"
-  (fact "nothing is OK"
-    ( (subject/implies) (exval 5)) => empty?)
+(fact "implies is a three level predicate"
+  ;; implies -> fn that replaces `includes` -> lifted fn
+  (letfn [(run
+            ([compiled leaf-value type-map]
+               ((compiled type-map) (exval leaf-value [:x])))
+            ([compiled leaf-value]
+               (run compiled leaf-value {})))]
+               
+    (fact "Can be an empty arglist"
+      (run (subject/implies) 5) => empty?)
 
-  (fact "a single pair will return oopsies (if any) for truthy lhs"
-    (let [r (subject/implies odd? neg?)]
-      (r (exval 2)) => empty?
-      (r (exval -1)) => empty?
-      (r (exval 1)) => (just (oopsie-for 1))))
+    (fact "a single pair will return oopsies (if any) for truthy lhs"
+      (let [r (subject/implies odd? neg?)]
+      (run r 2) => empty?
+      (run r -1) => empty?
+      (run r 1) => (just (oopsie-for 1))))
 
   (fact "n pairs"
     (let [r (subject/implies odd? neg?
                              even? pos?)]
-      (r (exval 2)) => empty?
-      (r (exval -2)) => (just (oopsie-for -2))
-      (r (exval -1)) => empty?
-      (r (exval 1)) => (just (oopsie-for 1))))
+      (run r 2) => empty?
+      (run r -2) => (just (oopsie-for -2))
+      (run r -1) => empty?
+      (run r 1) => (just (oopsie-for 1))))
 
   (fact "implies refuses nils, handles exceptions"
     (let [r (subject/implies odd? neg?)]
-     (r (exval nil)) => empty?
-     (r (exval "string")) => empty?))
+      (run r nil) => empty?
+      (run r "string") => empty?))
     
   (fact "explanations"
-    (explain-lifted (subject/implies odd? neg?) (exval 1 [:a]))
-    => (just #":a should be `neg\?`; it is `1`")
+    (oopsie/explanations (run (subject/implies odd? neg?) 1))
+    => (just #":x should be `neg\?`; it is `1`")
 
-    (explain-lifted (subject/implies odd? neg?
-                                     integer? (->> #(> (count (str %)) 33)
-                                                   (show-as "really big")))
-                    (exval 1 [:a]))
-    => (just #":a should be `neg\?`; it is `1`"
-             #":a should be `really big`"
-             :in-any-order))
+    (oopsie/explanations (run (subject/implies odd? neg?
+                                               integer? (->> #(> (count (str %)) 33)
+                                                             (show-as "really big")))
+                              1))
+    => (just #":x should be `neg\?`; it is `1`"
+             #":x should be `really big`"))
 
   (fact "use with substructures"
     (let [r (subject/implies #(even? (:a %)) [:c :b])]
-      (r (exval {})) => empty?
-      (r (exval {:a 1} [:x])) => empty?
-      (oopsie/explanations (r (exval {:a 2})))
+      (run r {}) => empty?
+      (run r {:a 1}) => empty?
+      (oopsie/explanations (run r {:a 2}))
       => (just "[:x :b] must exist and be non-nil"
                "[:x :c] must exist and be non-nil")))
 
@@ -105,10 +111,9 @@
     (let [bigger #(> (count (str %)) 3)
           smaller #(< (count (str %)) 6)
           r (subject/implies odd? (subject/all-of bigger smaller))]
-      (oopsie/explanations (r (exval 111 [:x]))) => (just ":x should be `bigger`; it is `111`")
-      (r (exval 1111)) => empty?
-      (r (exval 11111)) => empty?
-      (oopsie/explanations (r (exval 111111 [:x]))) =>  (just ":x should be `smaller`; it is `111111`")
-      (r (exval 2)) => empty?))
-)
+      (oopsie/explanations (run r 111)) => (just ":x should be `bigger`; it is `111`")
+      (run r 1111) => empty?
+      (run r 11111) => empty?
+      (oopsie/explanations (run r 111111)) =>  (just ":x should be `smaller`; it is `111111`")
+      (run r 2) => empty?))))
   

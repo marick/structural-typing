@@ -59,61 +59,53 @@
 (type! :Point (requires :x :y))
 (type! :S (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
 
-;;;; BUG
+
+;; `includes`
+
 (type! :Point [:x :y])
 (type! :Includer {:the-sidecar (includes :Point)})
 (type! :Direct {[:the-sidecar :x] required-key
                 [:the-sidecar :y] required-key})
 
 
-(type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
-(type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-key
-                                                       [:the-sidecar :y] required-key}))
-(fact "bug"
-  (fact "the non-implied types work"
-    (check-for-explanations :Point {}) => (just #":x must exist" #":y must exist")
-
-    (check-for-explanations :Includer {}) => (just #":the-sidecar :x] must exist" #":the-sidecar :y] must exist")
-    (check-for-explanations :Includer {:the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :Includer {:the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :Includer {:the-sidecar {:x 1}}) => (just #":the-sidecar :y] must exist")
-
-    (check-for-explanations :Direct {}) => (just #":the-sidecar :x" #":the-sidecar :y")
-    (check-for-explanations :Direct {}) => (just #":the-sidecar :x] must exist" #":the-sidecar :y] must exist")
-    (check-for-explanations :Direct {:the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :Direct {:the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :Direct {:the-sidecar {:x 1}}) => (just #":the-sidecar :y] must exist"))
-
-
-
-  (fact "the I-Direct case works"
-    (checked :I-Direct {}) => {}
-    (checked :I-Direct {:sidecar? false}) => {:sidecar? false}
-    (checked :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
-    =>                 {:sidecar? true :the-sidecar {:x 1 :y 2}}
-
-    (check-for-explanations :I-Direct {:sidecar? true}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Direct {:sidecar? true :the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {:x 1}}) => (just #":the-sidecar :y] must")
-    )
-
-  ;; There is, for the time being, a losing error message
-  (check-for-explanations :I-Includer {}) => (just #"sorry I can't give a better error message")
-  (future-fact "the I-Includer case works"
-    (checked :I-Includer {}) => {}
-    (checked :I-Includer {:sidecar? false}) =future=> {:sidecar? false}
-    (checked :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
-    =future=>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
-
-    (check-for-explanations :I-Includer {:sidecar? true}) =future=> (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3}) =future=> (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}}) =future=> (just #":the-sidecar :x] must" #":the-sidecar :y] must")
-    (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}}) =future=> (just #":the-sidecar :y] must")
-    )
-  )
-
+(fact "for reference: the basic types work"
+  (check-for-explanations :Point {}) => (just #":x must exist" #":y must exist")
   
+  (check-for-explanations :Includer {}) => (just #":the-sidecar :x] must exist" #":the-sidecar :y] must exist")
+  (check-for-explanations :Includer {:the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :Includer {:the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :Includer {:the-sidecar {:x 1}}) => (just #":the-sidecar :y] must exist")
+  
+  (check-for-explanations :Direct {}) => (just #":the-sidecar :x" #":the-sidecar :y")
+  (check-for-explanations :Direct {}) => (just #":the-sidecar :x] must exist" #":the-sidecar :y] must exist")
+  (check-for-explanations :Direct {:the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :Direct {:the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :Direct {:the-sidecar {:x 1}}) => (just #":the-sidecar :y] must exist"))
 
+
+(fact "for reference: implies without `includes` works"
+  (type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-key
+                                                         [:the-sidecar :y] required-key}))
+  (checked :I-Direct {}) => {}
+  (checked :I-Direct {:sidecar? false}) => {:sidecar? false}
+  (checked :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  =>                 {:sidecar? true :the-sidecar {:x 1 :y 2}}
+  
+  (check-for-explanations :I-Direct {:sidecar? true}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {:x 1}}) => (just #":the-sidecar :y] must"))
+
+(fact "You can use `includes` in the antecedent part of an `implies`"
+  (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
+  (checked :I-Includer {}) => {}
+  (checked :I-Includer {:sidecar? false}) => {:sidecar? false}
+  (checked :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
+
+  (check-for-explanations :I-Includer {:sidecar? true}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}}) => (just #":the-sidecar :x] must" #":the-sidecar :y] must")
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}}) => (just #":the-sidecar :y] must"))
 
 (start-over!)
