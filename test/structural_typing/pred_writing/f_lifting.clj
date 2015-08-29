@@ -4,6 +4,7 @@
             [structural-typing.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.guts.paths.substituting :as substituting]
             [structural-typing.guts.shapes.pred :as pred])
   (:use midje.sweet structural-typing.pred-writing.testutil))
 
@@ -82,13 +83,22 @@
 
 
 
-(fact "lifting a nested type into an oopsie-producing predicate"
-  (let [r (subject/nested-type->val-checker [even?])]
+(fact "lifting type-descriptions into an oopsie-producing predicate"
+  (let [r (subject/lift-type-descriptions [even?])]
     (r 2) => empty?
     (oopsie/explanations (r 1)) => (just "Value should be `even?`; it is `1`"))
 
-  (let [r (subject/nested-type->val-checker [ [:a :b] {:c even?}])]
+  (let [r (subject/lift-type-descriptions [ [:a :b] {:c even?}])]
     (r {:a 1, :b 2}) => empty?
     (oopsie/explanations (r {:c 1, :b 2})) => (just ":a must exist and be non-nil"
-                                                    ":c should be `even?`; it is `1`")))
+                                                    ":c should be `even?`; it is `1`"))
+
+  (fact "type maps can be expanded"
+    (let [r (subject/lift-type-descriptions [ [:a :b] (substituting/includes :X)]
+                                            {:X {:x even?}})]
+      (r {:a 1, :b 2}) => empty?
+      (r {:a 1, :b 2, :x 2}) => empty?
+      (oopsie/explanations (r {:b 2, :x 1})) => (just ":a must exist and be non-nil"
+                                                      ":x should be `even?`; it is `1`"))))
+    
                                                     

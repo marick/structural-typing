@@ -133,15 +133,12 @@
 
   (-> (fn [type-map]
         (let [make-antecedent mkfn/pred:exception->false
-              make-consequent #(->> %
-                                    force-all-of
-                                    :type-descriptions
-                                    (subst/dc:expand-type-signifiers type-map)
-                                    lifting/nested-type->val-checker)
+              make-consequent #(-> %
+                                   force-all-of
+                                   :type-descriptions
+                                   (lifting/lift-type-descriptions type-map))
               adjusted-pairs (->> args
                                   (frob/alternately make-antecedent make-consequent)
                             (partition 2))]
           (implies:mkfn:from-adjusted adjusted-pairs)))
       subst/as-type-expander))
-      
-

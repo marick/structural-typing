@@ -33,7 +33,10 @@
   [pred & protection-subtractions]
   (pred/lift pred protection-subtractions))
 
-(defn nested-type->val-checker [type-signifiers]
-  (->> type-signifiers
-       (apply canon/canonicalize {})
-       compile/compile-type))
+(defn lift-type-descriptions
+  ([type-descriptions type-map]
+     (->> type-descriptions
+          (apply canon/canonicalize type-map)
+          compile/compile-type))
+  ([type-descriptions]
+     (lift-type-descriptions type-descriptions {})))
