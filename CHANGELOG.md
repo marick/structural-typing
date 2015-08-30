@@ -6,9 +6,11 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ### Added
 
+- a keyword `:a` in a condensed type description is equivalent to `[:a]`.
 - `implies` to `structural-typing.preds`.
 - `doc` namespace.
 - Predicates can be applied to the whole structure.
+- `origin` and `description` let you see the definition of a type.
 
 ### Changed
 
