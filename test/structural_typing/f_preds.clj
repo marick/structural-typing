@@ -115,5 +115,12 @@
       (run r 1111) => empty?
       (run r 11111) => empty?
       (oopsie/explanations (run r 111111)) =>  (just ":x should be `smaller`; it is `111111`")
-      (run r 2) => empty?))))
+      (run r 2) => empty?))
+
+  (fact "possibly the most common case"
+    (let [r (subject/implies :a :b)]
+      (run r {}) => empty?
+      (run r {:b 1}) => empty?
+      (run r {:a 1, :b 2}) => empty?
+      (oopsie/explanations (run r {:a 1})) => (just "[:x :b] must exist and be non-nil")))))
   

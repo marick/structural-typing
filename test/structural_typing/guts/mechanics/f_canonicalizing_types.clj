@@ -41,8 +41,8 @@
                {[:a [:b :c]] point}))))
 
   (fact dc:validate-starting-descriptions
-    (subject/dc:validate-starting-descriptions (ps {} [] even?)) => (ps {} [] even?)
-    (subject/dc:validate-starting-descriptions (ps :a)) => (throws #"maps, functions, or vectors"))
+    (subject/dc:validate-starting-descriptions (ps {} [] even? :a)) => (ps {} [] even? :a)
+    (subject/dc:validate-starting-descriptions (ps 1)) => (throws #"maps, functions, vectors, or keywords"))
 
   (fact dc:spread-collections-of-required-paths
     (fact "passes maps through unchanged"
@@ -52,13 +52,11 @@
       (subject/dc:spread-collections-of-required-paths
        (ps (requires [:l1a :l2a] [:l1b :l2b])
              {:c even?}))
-      => (just [:l1a :l2a] [:l1b :l2b] {:c even?}))
+      => (just [:l1a :l2a] [:l1b :l2b] {:c even?})))
   
-    (fact "converts a single key to a singleton path"
-      (subject/dc:spread-collections-of-required-paths (ps (requires :a :b)
-                                                           {:c even?}))
-      => (just [:a] [:b] {:c even?})))
-
+  (fact "dc:keywords-to-required-maps converts a single key to a singleton path"
+    (subject/dc:keywords-to-required-maps (ps :a {:c even?}))
+    => (just [:a] {:c even?}))
 
   (fact dc:split-paths-ending-in-maps
     (fact "doesn't care about maps or most vectors"

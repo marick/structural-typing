@@ -15,8 +15,8 @@
 
 (def dc:validate-starting-descriptions
   (mkfn/lazyseq:criticize-deviationism
-   (mkfn/pred:none-of? frob/extended-fn? map? sequential?)
-   #(frob/boom! "Types are described with maps, functions, or vectors: `%s` has `%s`"
+   (mkfn/pred:none-of? frob/extended-fn? map? sequential? keyword?)
+   #(frob/boom! "Types are described with maps, functions, vectors, or keywords: `%s` has `%s`"
                 %1 %2)))
 
 (def dc:preds->maps
@@ -24,6 +24,9 @@
 
 (def dc:spread-collections-of-required-paths
   (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
+
+(def dc:keywords-to-required-maps
+  (mkfn/lazyseq:x->y vector keyword?))
 
 (def dc:required-paths->maps 
   (mkfn/lazyseq:x->y #(hash-map % [required-key]) (complement map?)))
@@ -44,6 +47,7 @@
        dc:preds->maps
 
        ;; Let's work with the vectors of required paths, ending up with maps
+       dc:keywords-to-required-maps
        dc:spread-collections-of-required-paths      
        dc:split-paths-ending-in-maps   ; can produce a new map
        dc:required-paths->maps         ; path may still contain forks
