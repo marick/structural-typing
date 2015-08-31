@@ -2,7 +2,9 @@
   (:require [structural-typing.preds :as subject]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.lifting :as lifting]
-            [structural-typing.guts.shapes.pred :refer [show-as]])
+            [structural-typing.guts.shapes.pred :refer [show-as]]
+            [structural-typing.pred-writing.core-preds :refer [required-key]]
+            [structural-typing.guts.paths.substituting :refer [includes]])
   (:require [such.readable :as readable])
   (:use midje.sweet structural-typing.pred-writing.testutil))
 
@@ -117,10 +119,25 @@
       (oopsie/explanations (run r 111111)) =>  (just ":x should be `smaller`; it is `111111`")
       (run r 2) => empty?))
 
-  (fact "possibly the most common case"
-    (let [r (subject/implies :a :b)]
-      (run r {}) => empty?
-      (run r {:b 1}) => empty?
-      (run r {:a 1, :b 2}) => empty?
-      (oopsie/explanations (run r {:a 1})) => (just "[:x :b] must exist and be non-nil")))))
-  
+  (fact "examples used in the documentation"
+    (fact "possibly the most common case"
+      (let [r (subject/implies :a :b)]
+        (run r {}) => empty?
+        (run r {:b 1}) => empty?
+        (run r {:a 1, :b 2}) => empty?
+        (oopsie/explanations (run r {:a 1})) => (just "[:x :b] must exist and be non-nil")))
+
+    (fact "expanding a condensed type description"
+      (let [r (subject/implies :a [:b :c :d])]
+        (run r {:a 1, :b 2, :c 3, :d 4}) => empty?
+        (oopsie/explanations (run r {:a 1, :b 2, :d 4}))
+        => (just "[:x :c] must exist and be non-nil")))
+
+    (fact "including preexisting type definitions"
+      (let [r (subject/implies (comp even? :a) {:b [required-key (includes :Point)]})
+            type-map {:Point {:x integer? :y integer?}}]
+        (run r {} type-map) => empty?
+        (run r {:a 1 :b 1} type-map) => empty?
+        (run r {:a 2 :b {:x 1 :y 1}} type-map) => empty?
+        (oopsie/explanations (run r {:a 2 :b {:x 1 :y 1.0}} type-map))
+        => (just #"\[:x :b :y\] should be `integer\?`; it is `1.0`"))))))

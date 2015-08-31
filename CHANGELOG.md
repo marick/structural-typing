@@ -11,6 +11,7 @@ See [here](http://keepachangelog.com/) for the change log format.
 - `doc` namespace.
 - Predicates can be applied to the whole structure.
 - `origin` and `description` let you see the definition of a type.
+- predicate sequences can include types (convenience)
 
 ### Changed
 

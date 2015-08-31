@@ -93,7 +93,23 @@
       (subject/dc:flatten-maps (ps [:a :b] [:a])) => (just [:a :b] [:a]))
 
     (fact "flattens individual maps"
-      (subject/dc:flatten-maps (ps {:a {:b even?}})) => [ { [:a :b] [even?] } ])))
+      (subject/dc:flatten-maps (ps {:a {:b even?}})) => [ { [:a :b] [even?] } ]))
+
+  (fact dc:allow-includes-in-preds
+    (subject/dc:allow-includes-in-preds [{[:x] required-key}]) => [{[:x] required-key}]
+    (subject/dc:allow-includes-in-preds [{[:x] [required-key]}]) => [{[:x] [required-key]}]
+    (subject/dc:allow-includes-in-preds [{[:x] {:a 1}}]) => [{[:x] {:a 1}}]
+    ;; The following is a bit ugly but empty maps are no-ops
+    (subject/dc:allow-includes-in-preds [{[:x] [{:a 1}]}]) => [{[:x] {:a 1}} {}]
+    (subject/dc:allow-includes-in-preds [{:x [required-key]}
+                                         {:b [required-key {:a even?} odd?]}])
+    => [{:x [required-key]}
+        {:b {:a even?}}
+        {:b [required-key odd?]}])
+)
+
+
+
 
 
 
@@ -219,8 +235,14 @@
     
     (subject/canonicalize ..t.. {[:a :b] pos?
                                  [:a] {:b even?}})
-    => (just {[:a :b] (just [(exactly pos?) (exactly even?)] :in-any-order)})))
-  
+    => (just {[:a :b] (just [(exactly pos?) (exactly even?)] :in-any-order)}))
+
+
+  (fact "predicate lists that include `include` are valid"
+    (let [type-map {:Point (subject/canonicalize ..t.. {:x integer? :y integer?})}
+          separate (subject/canonicalize type-map [:a] {:a (includes :Point)})
+          together (subject/canonicalize type-map {:a [required-key (includes :Point)]})]
+        separate => together)))
 
 (facts "Some typical uses of a type-map"
   (let [type-map (-> {}

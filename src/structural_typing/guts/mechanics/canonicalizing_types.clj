@@ -4,7 +4,8 @@
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
             [structural-typing.pred-writing.core-preds :refer [required-key]]
-            [com.rpl.specter :as specter]))
+            [com.rpl.specter :as specter]
+            [such.sequences :as seq]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 ;;; Decompressors written elsewhere are imported here so that tests can easily show how they
@@ -31,6 +32,26 @@
 (def dc:required-paths->maps 
   (mkfn/lazyseq:x->y #(hash-map % [required-key]) (complement map?)))
 
+(def dc:allow-includes-in-preds
+  (mkfn/lazyseq:x->abc
+   (fn [kvs]
+     (loop [plain-pred-map {}
+            type-valued-maps []
+            [ [path preds] & kvs] (map identity kvs)]
+       (cond (nil? path)
+             (conj type-valued-maps plain-pred-map)
+
+             (not (sequential? preds))
+             (recur (assoc plain-pred-map path preds)
+                    type-valued-maps
+                    kvs)
+       
+             :else
+             (let [[types plain] (seq/bifurcate map? preds)]
+               (recur (if (empty? plain) plain-pred-map (assoc plain-pred-map path plain))
+                      (into type-valued-maps (map #(hash-map path %) types))
+                      kvs)))))))
+
 (def dc:flatten-maps
   (mkfn/lazyseq:x->y map/flatten-map map?))
 
@@ -52,6 +73,7 @@
        dc:split-paths-ending-in-maps   ; can produce a new map
        dc:required-paths->maps         ; path may still contain forks
 
+       dc:allow-includes-in-preds
        dc:flatten-maps
 
        ppp/dc:flatmaps->ppps
