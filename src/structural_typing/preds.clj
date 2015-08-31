@@ -1,5 +1,5 @@
 (ns structural-typing.preds
-  "All of the predefined predicates."
+  "Predefined predicates that are not imported into `structural-typing.type`."
   (:require [structural-typing.pred-writing.lifting :as lifting]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
@@ -76,13 +76,16 @@
 ;; a function that's just an alias for `vector`).
 
 (defrecord AllOf [type-descriptions])
+(alter-meta! #'->AllOf assoc :private true)
+(alter-meta! #'map->AllOf assoc :private true)
+
 (defn all-of
   "This is used with [[implies]] to group a collection of `type-descriptions`
    into one. Unlike [[type!]] and [[named]], `all-of` doesn't support a final
    \"& rest\" argument."
   [& type-descriptions]
   (->AllOf type-descriptions))
-(defn force-all-of [x]
+(defn ^:no-doc force-all-of [x]
   (if (instance? AllOf x)
     x
     (all-of x)))
@@ -102,10 +105,39 @@
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
-   truthy, the corresponding `type-description` is applied. Checking
-   will produce all of the errors from all of the `then-preds`
-   that were tried. Use []all-of]] when you want more than one
-   type-description.
+   truthy, the corresponding `then-part` is applied. The `then-part`
+   is either a single condensed type description or a set of them
+   enclosed in [[all-of]].
+
+   Perhaps the most common use of `implies` is to say \"if one key
+   exists in a map, another must also exist\":
+
+       user=> (type! :X (pred/implies :a :b))
+
+       user=> (checked :X {:a 1, :b 2})
+       => {:a 1, :b 2}
+       user=> (checked :X {:a 1})
+       :b must exist and be non-nil
+       => nil
+
+   Note that the `then-part` is irrelevant if `:a` is not present:
+
+       user=> (checked :X {})
+       => {}
+       user=> (checked :X {:b 1})
+       => {:b 1}
+   
+   The `then-part` can be any *single* condensed type description. For
+   example, the following requires three keys to exist if `:a` does.
+
+       (type! :X (pred/implies :a [:b :c :d]))
+
+   Here, if `:a` is even, `:b` must be present and a `:Point`:
+
+       (type! :X (pred/implies (comp even? :a)
+                               {:b [required-key (includes :Point)]}))
+
+   There can be more than one if/then pair:   
    
        (type! :Sep {:a (pred/implies neg? even?
                                      neg? (show-as \"=3\" (partial = 3))
@@ -125,10 +157,10 @@
    
    Note that, unlike most predicates in this namespace, 
    `implies` cannot be used as an ordinary predicate. It
-   doesn't return a truthy/falsey value but rather a sequence
-   of [[oopsies]].
+   doesn't return a truthy/falsey value but rather a function that
+   returns a function.
 "
-  {:arglists '([if-pred type-description if-pred type-description...])}
+  {:arglists '([if-pred condensed-type-description if-pred condensed-type-description...])}
   [& args]
 
   (-> (fn [type-map]

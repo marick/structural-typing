@@ -39,4 +39,4 @@
   (let [[retval output] (val-and-output (type/checked type candidate))]
     (if (nil? retval)
       (str/split output #"\n") ; too lazy to hanlde windows.
-      "Actual return result was not `nil`")))
+      ["Actual return result was not `nil`"])))

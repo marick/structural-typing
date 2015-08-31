@@ -122,8 +122,10 @@
   (check-for-explanations :Points2 3) => (just #"\[ALL :x] is not a path into `3`"
                                                #"\[ALL :y] is not a path into `3`")
 
-  (check-for-explanations :Points [1 2 3]) =future=> (just #"\[ALL :x] is not a path into `3`"
-                                                           #"\[ALL :y] is not a path into `3`"))
+  (future-fact "Annoying side effect of there being no distinction between a present nil and a missing key"
+
+    (check-for-explanations :Points [1 2 3]) => (just #"\[ALL :x] is not a path into `3`"
+                                                      #"\[ALL :y] is not a path into `3`")))
 
 ;;; Nesting types and key paths
 

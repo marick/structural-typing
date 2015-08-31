@@ -3,6 +3,7 @@
 
 
 (defn flatten-map
+  "When path keys point to maps with path keys, make one-level map with concatenated paths."
   ([kvs parent-path]
      (reduce (fn [so-far [path v]]
                (when (and (sequential? path)
