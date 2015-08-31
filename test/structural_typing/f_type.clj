@@ -71,4 +71,19 @@
  [:tag] [(exactly even)]}
 ")))
 
-           
+
+(fact "degenerate cases"
+  (fact "a predicate list can be empty"
+    (let [repo (-> type/empty-type-repo
+                   (type/named :A {:a []}))]
+      (type/checked repo :A {})
+      (type/checked repo :A {:a 1})))
+
+  (fact "a whole type map can be empty"
+    (let [repo (-> type/empty-type-repo
+                   (type/named :A {}))]
+      (type/checked repo :A {})
+      (type/checked repo :A {:a 1}))))
+
+    
+
