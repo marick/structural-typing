@@ -1,8 +1,8 @@
-(ns structural-typing.pred-writing.f-core-preds
-  (:require [structural-typing.pred-writing.core-preds :as subject]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie])
+(ns structural-typing.assist.f-core-preds
+  (:require [structural-typing.assist.core-preds :as subject]
+            [structural-typing.assist.oopsie :as oopsie])
   (:require [such.readable :as readable])
-  (:use midje.sweet structural-typing.pred-writing.testutil))
+  (:use midje.sweet structural-typing.assist.testutil))
 
 (facts "required-key starts out lifted"
   (subject/required-key (exval 5)) => []

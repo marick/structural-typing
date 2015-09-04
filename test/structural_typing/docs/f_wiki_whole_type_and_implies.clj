@@ -2,7 +2,7 @@
  (:require [structural-typing.type :refer :all]
            [structural-typing.global-type :refer :all]
            [structural-typing.preds :as pred])
- (:use midje.sweet structural-typing.pred-writing.testutil))
+ (:use midje.sweet structural-typing.assist.testutil))
 
 (start-over!)
 

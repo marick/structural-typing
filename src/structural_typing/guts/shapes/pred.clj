@@ -1,8 +1,8 @@
 (ns ^:no-doc structural-typing.guts.shapes.pred
   (:require [such.readable :as readable]
             [structural-typing.guts.frob :as frob]
-            [structural-typing.pred-writing.shapes.expred :as expred]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.assist.expred :as expred]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.defaults :as defaults]
             [such.function-makers :as mkfn])
     (:use such.shorthand))

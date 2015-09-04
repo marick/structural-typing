@@ -1,9 +1,9 @@
 (ns structural-typing.preds
   "Predefined predicates that are not imported into `structural-typing.type`."
-  (:require [structural-typing.pred-writing.lifting :as lifting]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+  (:require [structural-typing.assist.lifting :as lifting]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
-            [structural-typing.pred-writing.shapes.expred :as expred]
+            [structural-typing.assist.expred :as expred]
             [structural-typing.guts.paths.substituting :as subst]
             [structural-typing.guts.frob :as frob]
             [such.readable :as readable]

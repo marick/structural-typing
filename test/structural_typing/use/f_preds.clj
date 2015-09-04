@@ -1,13 +1,13 @@
 (ns structural-typing.use.f-preds
   "Predicates available but not included in `type`"
   (:require [structural-typing.preds :as subject]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
-            [structural-typing.pred-writing.lifting :as lifting]
+            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.lifting :as lifting]
             [structural-typing.guts.shapes.pred :refer [show-as]]
-            [structural-typing.pred-writing.core-preds :refer [required-key]]
+            [structural-typing.assist.core-preds :refer [required-key]]
             [structural-typing.guts.paths.substituting :refer [includes]])
   (:require [such.readable :as readable])
-  (:use midje.sweet structural-typing.pred-writing.testutil))
+  (:use midje.sweet structural-typing.assist.testutil))
 
 
 ;;; Easy preds

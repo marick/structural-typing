@@ -1,8 +1,8 @@
-(ns structural-typing.pred-writing.core-preds
+(ns structural-typing.assist.core-preds
   "All of the predefined predicates."
   (:require [structural-typing.guts.shapes.pred :as pred]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
-            [structural-typing.pred-writing.shapes.expred :as expred]))
+            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.expred :as expred]))
 
 (def required-key
   "False iff a key/path does not exist or has value `nil`. 

@@ -1,4 +1,4 @@
-(ns structural-typing.pred-writing.f-defaults
+(ns structural-typing.use.f-defaults
   (:require [structural-typing.defaults :as subject]
             [such.readable :as readable]
             [structural-typing.guts.paths.elements :refer [ALL]])

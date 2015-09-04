@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]
             [structural-typing.defaults :as default]
-            [structural-typing.pred-writing.core-preds :as pred]
+            [structural-typing.assist.core-preds :as pred]
             [structural-typing.guts.frob :as frob]
             [clojure.string :as str]))
 

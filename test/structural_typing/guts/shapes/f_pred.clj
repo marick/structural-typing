@@ -1,8 +1,8 @@
 (ns structural-typing.guts.shapes.f_pred
   (:require [structural-typing.guts.shapes.pred :as subject]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.defaults :as default]
-            [structural-typing.pred-writing.lifting :as lifting])
+            [structural-typing.assist.lifting :as lifting])
   (:use midje.sweet))
 
 

@@ -1,7 +1,7 @@
-(ns structural-typing.pred-writing.testutil
-  (:require [structural-typing.pred-writing.shapes.exval :as exval]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
-            [structural-typing.pred-writing.lifting :as lifting]
+(ns structural-typing.assist.testutil
+  (:require [structural-typing.assist.exval :as exval]
+            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.lifting :as lifting]
             [structural-typing.type :as type]
             [such.readable :as readable]
             [clojure.string :as str])

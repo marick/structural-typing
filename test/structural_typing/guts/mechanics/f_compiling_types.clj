@@ -2,10 +2,10 @@
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.mechanics.compiling-types :as subject]
             [structural-typing.guts.shapes.pred :refer [show-as]]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
             [structural-typing.preds :as preds]
-            [structural-typing.pred-writing.core-preds :refer [required-key]]
+            [structural-typing.assist.core-preds :refer [required-key]]
             [structural-typing.guts.paths.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 

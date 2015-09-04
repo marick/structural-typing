@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.frob :as frob]
             [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
-            [structural-typing.pred-writing.core-preds :refer [required-key]]
+            [structural-typing.assist.core-preds :refer [required-key]]
             [com.rpl.specter :as specter]
             [such.sequences :as seq]))
 

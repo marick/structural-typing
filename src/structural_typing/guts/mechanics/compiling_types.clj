@@ -1,8 +1,8 @@
 (ns ^:no-doc structural-typing.guts.mechanics.compiling-types
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
-            [structural-typing.pred-writing.shapes.self-check :as self :refer [returns-many]]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.assist.self-check :as self :refer [returns-many]]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
             [structural-typing.guts.shapes.pred :as pred]))
 

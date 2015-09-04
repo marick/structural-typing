@@ -1,7 +1,7 @@
 (ns structural-typing.type-variants.f-whole-structure
   (:use structural-typing.type
         structural-typing.global-type)
-  (:use midje.sweet structural-typing.pred-writing.testutil))
+  (:use midje.sweet structural-typing.assist.testutil))
 
 (start-over!)
 

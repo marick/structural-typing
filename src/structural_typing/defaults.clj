@@ -5,7 +5,7 @@
   (:require [clojure.pprint :refer [cl-format]]
             [clojure.string :as str]
             [such.readable :as readable])
-  (:require [structural-typing.pred-writing.shapes.oopsie :as oopsie]))
+  (:require [structural-typing.assist.oopsie :as oopsie]))
 
 (readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 

@@ -1,12 +1,12 @@
-(ns structural-typing.pred-writing.f-lifting
-  (:require [structural-typing.pred-writing.lifting :as subject]
+(ns structural-typing.assist.f-lifting
+  (:require [structural-typing.assist.lifting :as subject]
             [such.readable :as readable]
             [structural-typing.defaults :as default]
             [structural-typing.guts.paths.elements :refer [ALL]]
-            [structural-typing.pred-writing.shapes.oopsie :as oopsie]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as substituting]
             [structural-typing.guts.shapes.pred :as pred])
-  (:use midje.sweet structural-typing.pred-writing.testutil))
+  (:use midje.sweet structural-typing.assist.testutil))
 
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
   (fact "exceptions"

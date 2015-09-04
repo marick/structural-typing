@@ -1,5 +1,5 @@
-(ns structural-typing.pred-writing.shapes.f-oopsie
-  (:require [structural-typing.pred-writing.shapes.oopsie :as subject])
+(ns structural-typing.assist.f-oopsie
+  (:require [structural-typing.assist.oopsie :as subject])
   (:use midje.sweet))
 
 
