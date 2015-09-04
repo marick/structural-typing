@@ -38,5 +38,5 @@
 (defn check-for-explanations [type candidate]
   (let [[retval output] (val-and-output (type/checked type candidate))]
     (if (nil? retval)
-      (str/split output #"\n") ; too lazy to hanlde windows.
+      (str/split output #"\n") ; too lazy to handle windows.
       ["Actual return result was not `nil`"])))

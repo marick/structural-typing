@@ -1,7 +1,7 @@
-(ns structural-typing.f-global-type
+(ns structural-typing.use.f-global-type
+  "Some basic tests of global-types code"
   (:use [structural-typing type global-type])
   (:use midje.sweet))
-
 
 
 (start-over!)

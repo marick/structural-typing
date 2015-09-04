@@ -1,4 +1,4 @@
-(ns structural-typing.f-type
+(ns structural-typing.use.f-type
   (:require [structural-typing.type :as type]
             [structural-typing.preds :as pred])
   (:use midje.sweet))
@@ -18,15 +18,6 @@
       (type/checked repo [:A :B] {:a 1}) => (just :error (contains {:path [:b]}))
       (type/checked repo [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
       (type/checked repo [:A :B] {:a 1, :b 1}) => "yay")))
-
-(fact "can check the whole structure"
-  (fact "unsugared form"
-    (let [repo (-> type/empty-type-repo
-                   (type/named :S {[] string?}))]
-      (type/checked repo :S "string") => "string"
-      (with-out-str (type/checked repo :S 1)) => #"Value should be `string\?`; it is `1`")))
-                   
-        
 
 (fact "about `described-by?`"
   (let [repo (-> type/empty-type-repo

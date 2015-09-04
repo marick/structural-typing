@@ -1,4 +1,5 @@
-(ns structural-typing.f-preds
+(ns structural-typing.use.f-preds
+  "Predicates available but not included in `type`"
   (:require [structural-typing.preds :as subject]
             [structural-typing.pred-writing.shapes.oopsie :as oopsie]
             [structural-typing.pred-writing.lifting :as lifting]
