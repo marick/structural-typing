@@ -9,7 +9,7 @@
   (fact
     (type! ?signifier ?body)
     (checked ?signifier "string") => "string"
-    (check-for-explanations ?signifier 1) => (just #"Value should be `string\?`; it is `1`"))
+    (check-for-explanations ?signifier 1) => (just (err:shouldbe "Value" "string?" "1")))
   ?signifier   ?body
   :Sugared     string?
   :Unsugared   {[] string?})

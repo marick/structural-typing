@@ -40,3 +40,13 @@
     (if (nil? retval)
       (str/split output #"\n") ; too lazy to handle windows.
       ["Actual return result was not `nil`"])))
+
+
+(defn err:required [what]
+  (format "%s must exist and be non-nil" what))
+
+(defn err:shouldbe [what should-be is]
+  (format "%s should be `%s`; it is `%s`" what should-be is))
+
+(defn is-checked [type value]
+  (= (type/checked type value) value))
