@@ -1,39 +1,38 @@
 (ns ^:no-doc structural-typing.guts.mechanics.canonicalizing-types
-  (:require [such.function-makers :as mkfn])
-  (:require [structural-typing.guts.frob :as frob]
-            [structural-typing.guts.mechanics.m-ppps :as ppp]
+  (:use structural-typing.clojure.core)
+  (:require [such.sequences :as seq]
+            [com.rpl.specter :as specter])
+  (:require [structural-typing.guts.mechanics.m-ppps :as ppp]
             [structural-typing.guts.mechanics.m-maps :as map]
-            [structural-typing.assist.core-preds :refer [required-key]]
-            [com.rpl.specter :as specter]
-            [such.sequences :as seq]))
+            [structural-typing.assist.core-preds :refer [required-key]]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 ;;; Decompressors written elsewhere are imported here so that tests can easily show how they
 ;;; play together.
 
-(frob/import-vars [structural-typing.guts.paths.substituting
-                      dc:expand-type-signifiers dc:split-paths-ending-in-maps])
+(import-vars [structural-typing.guts.paths.substituting
+              dc:expand-type-signifiers dc:split-paths-ending-in-maps])
 
 (def dc:validate-starting-descriptions
-  (mkfn/lazyseq:criticize-deviationism
-   (mkfn/pred:none-of? frob/extended-fn? map? sequential? keyword?)
-   #(frob/boom! "Types are described with maps, functions, vectors, or keywords: `%s` has `%s`"
-                %1 %2)))
+  (lazyseq:criticize-deviationism
+   (pred:none-of? extended-fn? map? sequential? keyword?)
+   #(boom! "Types are described with maps, functions, vectors, or keywords: `%s` has `%s`"
+           %1 %2)))
 
 (def dc:preds->maps
-  (mkfn/lazyseq:x->y #(hash-map [] [%]) frob/extended-fn?))
+  (lazyseq:x->y #(hash-map [] [%]) extended-fn?))
 
 (def dc:spread-collections-of-required-paths
-  (mkfn/lazyseq:x->abc (partial map frob/force-vector) (complement map?)))
+  (lazyseq:x->abc (partial map force-vector) (complement map?)))
 
 (def dc:keywords-to-required-maps
-  (mkfn/lazyseq:x->y vector keyword?))
+  (lazyseq:x->y vector keyword?))
 
 (def dc:required-paths->maps 
-  (mkfn/lazyseq:x->y #(hash-map % [required-key]) (complement map?)))
+  (lazyseq:x->y #(hash-map % [required-key]) (complement map?)))
 
 (def dc:allow-includes-in-preds
-  (mkfn/lazyseq:x->abc
+  (lazyseq:x->abc
    (fn [kvs]
      (loop [plain-pred-map {}
             type-valued-maps []
@@ -53,12 +52,12 @@
                       kvs)))))))
 
 (def dc:flatten-maps
-  (mkfn/lazyseq:x->y map/flatten-map map?))
+  (lazyseq:x->y map/flatten-map map?))
 
 
 (defn canonicalize [type-map & condensed-type-descriptions]
   (when (empty? condensed-type-descriptions)
-    (frob/boom! "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
+    (boom! "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
 
   (->> condensed-type-descriptions
        (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level

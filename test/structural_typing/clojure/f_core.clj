@@ -1,5 +1,5 @@
-(ns structural-typing.guts.f-frob
-  (:require [structural-typing.guts.frob :as subject])
+(ns structural-typing.clojure.f-core
+  (:require [structural-typing.clojure.core :as subject])
   (:use midje.sweet))
 
 (fact force-vector

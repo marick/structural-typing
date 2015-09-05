@@ -1,8 +1,6 @@
 (ns ^:no-doc structural-typing.guts.paths.readable
-    (:require [structural-typing.guts.frob :as frob]
-              [such.readable :as readable]
-              [clojure.pprint :refer [cl-format]])
-)
+  (:use structural-typing.clojure.core)
+  (:require [such.readable :as readable]))
 
 ;;; what you type
 

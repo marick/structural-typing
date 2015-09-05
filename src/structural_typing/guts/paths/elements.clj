@@ -1,8 +1,8 @@
 (ns ^:no-doc structural-typing.guts.paths.elements
-  (:require [structural-typing.guts.frob :as frob]
-            [such.readable :as readable]
-            [such.metadata :as meta])
-  (:require [com.rpl.specter :as specter]))
+  (:use structural-typing.clojure.core)
+  (:require [such.readable :as readable]
+            [such.metadata :as meta]
+            [com.rpl.specter :as specter]))
 
 (defn mkfn:meta-getter [key]
   (fn [elt] (meta/get elt key)))

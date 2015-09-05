@@ -1,14 +1,12 @@
 (ns structural-typing.preds
   "Predefined predicates that are not imported into `structural-typing.type`."
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.shapes.pred :as pred]
             [structural-typing.assist.expred :as expred]
             [structural-typing.guts.paths.substituting :as subst]
-            [structural-typing.guts.frob :as frob]
-            [such.readable :as readable]
-            [such.function-makers :as mkfn]
-            [such.types :as types]))
+            [such.readable :as readable]))
 
 (defn- should-be [format-string expected]
   #(format format-string,
@@ -57,10 +55,10 @@
   (compose-predicate
    (format "(matches %s)" (readable/value-string expected))
    (fn [actual]
-     (cond (every? types/regex? [actual expected])
+     (cond (every? regex? [actual expected])
            (= (str actual) (str expected))
            
-           (types/regex? expected)
+           (regex? expected)
            (boolean (re-find expected actual))
 
            :else
@@ -164,13 +162,13 @@
   [& args]
 
   (-> (fn [type-map]
-        (let [make-antecedent mkfn/pred:exception->false
+        (let [make-antecedent pred:exception->false
               make-consequent #(-> %
                                    force-all-of
                                    :type-descriptions
                                    (lifting/lift-type-descriptions type-map))
               adjusted-pairs (->> args
-                                  (frob/alternately make-antecedent make-consequent)
+                                  (alternately make-antecedent make-consequent)
                             (partition 2))]
           (implies:mkfn:from-adjusted adjusted-pairs)))
       subst/as-type-expander))

@@ -1,8 +1,7 @@
 (ns ^:no-doc structural-typing.guts.paths.substituting
+  (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
-            [such.function-makers :as mkfn]
             [such.metadata :as meta]
-            [structural-typing.guts.frob :as frob]
             [structural-typing.guts.paths.elements :as element]))
 
 
@@ -20,11 +19,11 @@
   "During creation of a type by [[named]] or [[type!]], a call to
    `includes` is replaced with the type the `type-signifier` refers to."
   [type-signifier]
-  (when-not (keyword? type-signifier) (frob/boom! "%s is supposed to be a keyword." type-signifier))
+  (when-not (keyword? type-signifier) (boom! "%s is supposed to be a keyword." type-signifier))
   (-> (fn [type-map]
         (if-let [result (get type-map type-signifier)]
           result
-          (frob/boom! "%s does not name a type" type-signifier)))
+          (boom! "%s does not name a type" type-signifier)))
       as-type-expander))
 
 (defn dc:expand-type-signifiers [type-map form]
@@ -57,7 +56,7 @@
         (conj intermediate-value))))
 
 (def force-collection-of-indices
-  (mkfn/lazyseq:x->abc index-collecting-splice element/will-match-many?))
+  (lazyseq:x->abc index-collecting-splice element/will-match-many?))
 
 (defn replace-with-indices [path indices]
   (loop [result []
@@ -88,17 +87,17 @@
         false
         
         (map? (first x))
-        (frob/boom! "A map cannot be the first element of a path: `%s`" x)
+        (boom! "A map cannot be the first element of a path: `%s`" x)
         
         (not (map? (last x)))
-        (frob/boom! "Nothing may follow a map within a path: `%s`" x)
+        (boom! "Nothing may follow a map within a path: `%s`" x)
         
         :else
         true))
 
 
 (def dc:split-paths-ending-in-maps
-  (mkfn/lazyseq:x->abc #(let [prefix-path (pop %)]
-                       (vector prefix-path (hash-map prefix-path (last %))))
-                    ends-in-map?))
+  (lazyseq:x->abc #(let [prefix-path (pop %)]
+                     (vector prefix-path (hash-map prefix-path (last %))))
+                  ends-in-map?))
                     

@@ -2,5 +2,5 @@
 
 (def required-keys #{:predicate :predicate-string :explainer})
 (defrecord ExPred [predicate predicate-string explainer])
-(def boa ->ExPred)
+(def boa ->ExPred) ; Common Lisp joke: a "By Order of Arguments" constructor.
 

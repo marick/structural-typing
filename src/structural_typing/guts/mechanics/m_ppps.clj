@@ -1,11 +1,9 @@
 (ns ^:no-doc structural-typing.guts.mechanics.m-ppps
   "PPP is short for 'path-predicate pair': a vector + a set. Condensed
   ppps have paths that can be used to generate other ppps."
-  (:require [such.function-makers :as mkfn])
-  (:require [structural-typing.guts.frob :as frob]
-            [structural-typing.guts.paths.multiplying :as multiply]
-            [structural-typing.assist.core-preds :refer [required-key]]
-            [clojure.set :as set]))
+  (:use structural-typing.clojure.core)
+  (:require [structural-typing.guts.paths.multiplying :as multiply]
+            [structural-typing.assist.core-preds :refer [required-key]]))
 
 (def ->ppp vector)
 (def path-part first)
@@ -35,22 +33,22 @@
   (spread-path-and-x spreader preds-part))
 
 (def validated-preds 
-  (partial map #(if (frob/extended-fn? %)
+  (partial map #(if (extended-fn? %)
                   %
-                  (frob/boom! "`%s` is not a predicate." %))))
+                  (boom! "`%s` is not a predicate." %))))
 
 ;;; description decompressors
 
 (def dc:flatmaps->ppps 
-  (mkfn/lazyseq:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
+  (lazyseq:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
 
 (def dc:fix-forked-paths 
-  (mkfn/lazyseq:x->abc (spread-path multiply/forked-paths)
-                       (path-is? multiply/forking?)))
+  (lazyseq:x->abc (spread-path multiply/forked-paths)
+                  (path-is? multiply/forking?)))
 
 (def dc:fix-required-paths-with-collection-selectors
-  (mkfn/lazyseq:x->xabc (spread-path-into-required-ppps multiply/required-prefix-paths)
-                        (preds-is? multiply/required?)))
+  (lazyseq:x->xabc (spread-path-into-required-ppps multiply/required-prefix-paths)
+                   (preds-is? multiply/required?)))
 
 
 ;;; And the final result
@@ -58,14 +56,14 @@
 (defn ->type-description [stream]
   (letfn [(make-map [stream]
             (reduce (fn [so-far [path preds]]
-                      (update-in so-far [path] set/union preds))
+                      (update-in so-far [path] set-union preds))
                     {}
                     stream))
           (vectorize-preds [kvs]
-            (frob/update-each-value kvs
-                                    #(if (contains? % required-key)
-                                       (into [required-key]
-                                             (set/difference % #{required-key}))
-                                       (vec %))))]
+            (update-each-value kvs
+                               #(if (contains? % required-key)
+                                  (into [required-key]
+                                        (set-difference % #{required-key}))
+                                  (vec %))))]
     (-> stream make-map vectorize-preds)))
 

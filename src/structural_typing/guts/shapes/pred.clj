@@ -1,11 +1,9 @@
 (ns ^:no-doc structural-typing.guts.shapes.pred
+  (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
-            [structural-typing.guts.frob :as frob]
             [structural-typing.assist.expred :as expred]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.defaults :as defaults]
-            [such.function-makers :as mkfn])
-    (:use such.shorthand))
+            [structural-typing.defaults :as defaults]))
 
 ;; TODO: make readable have the "ensure-meta" behavior)
 
@@ -35,8 +33,8 @@
          (->> (partial >= 3) (show-as \"less than 3\"))
 "
   [name predicate]
-  (when (fn? name) (frob/boom! "First arg is a function. You probably got your args reversed."))
-  (when-not (string? name) (frob/boom! "First arg must be a string: %s %s" name predicate))
+  (when (fn? name) (boom! "First arg is a function. You probably got your args reversed."))
+  (when-not (string? name) (boom! "First arg must be a string: %s %s" name predicate))
   (-> predicate
       stash-defaults
       (replace-predicate-string name)))
@@ -82,7 +80,7 @@
   (when-not (empty? (remove #{:allow-exceptions :check-nil} protection-subtractions))
     (throw (new Exception (str protection-subtractions))))
   (-> pred
-      (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) mkfn/pred:exception->false
+      (cond-> (not (any? #{:allow-exceptions} protection-subtractions)) pred:exception->false
               (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
 
 (defn lift-expred [expred protection-subtractions]

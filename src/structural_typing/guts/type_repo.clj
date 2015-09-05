@@ -1,11 +1,10 @@
 (ns structural-typing.guts.type-repo
   "The `TypeRepo` structure and its functions."
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.mechanics.canonicalizing-types :as canon]
             [structural-typing.guts.mechanics.compiling-types :as compile]
             [structural-typing.defaults :as default]
-            [structural-typing.assist.core-preds :as pred]
-            [structural-typing.guts.frob :as frob]
-            [clojure.string :as str]))
+            [structural-typing.assist.core-preds :as pred]))
 
 
 ;; This is used to check if an argument to `checked` is nil. If so, it's not further
@@ -45,7 +44,7 @@
           (if (empty? oopsies)
             (checker candidate)
             oopsies))
-        (frob/boom! "There is no type `%s`" type-signifier)))
+        (boom! "There is no type `%s`" type-signifier)))
     
     (replace-error-handler [type-repo f]
       (assoc type-repo :error-handler f))
@@ -58,7 +57,7 @@
 
 (defmethod clojure.core/print-method TypeRepo [o, ^java.io.Writer w]
   (.write w "#TypeRepo[")
-  (.write w (->> o :original-type-descriptions keys (str/join ", ")))
+  (.write w (->> o :original-type-descriptions keys (str-join ", ")))
   (.write w "]"))
           
 

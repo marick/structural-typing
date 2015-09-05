@@ -1,5 +1,5 @@
 (ns ^:no-doc structural-typing.guts.mechanics.m-maps
-  (:require [structural-typing.guts.frob :as frob]))
+  (:use structural-typing.clojure.core))
 
 
 (defn flatten-map
@@ -8,12 +8,12 @@
      (reduce (fn [so-far [path v]]
                (when (and (sequential? path)
                           (some map? path))
-                 (frob/boom! "A path used as a map key may not itself contain a map: `%s`" path))
-               (let [extended-path (frob/adding-on parent-path path)]
+                 (boom! "A path used as a map key may not itself contain a map: `%s`" path))
+               (let [extended-path (adding-on parent-path path)]
                  (merge-with into so-far
                              (if (map? v)
                                (flatten-map v extended-path)
-                               (hash-map extended-path (frob/force-vector v))))))
+                               (hash-map extended-path (force-vector v))))))
              {}
              kvs))
   ([kvs]

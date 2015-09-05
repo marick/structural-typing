@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.paths.multiplying
-    (:require [structural-typing.guts.frob :as frob]
-              [structural-typing.assist.core-preds :refer [required-key]]))
+  (:use structural-typing.clojure.core)
+  (:require [structural-typing.assist.core-preds :refer [required-key]]))
 
 (def forking? (partial some sequential?))
 
@@ -20,11 +20,11 @@
              (forked-paths xs (vec extended)))
            
            (map? x)
-           (frob/boom! "Program error: Path contains a map: %s." path)
+           (boom! "Program error: Path contains a map: %s." path)
            
            :else
            (let [extended (for [pp parent-paths] (conj pp x))]
-             (forked-paths xs (frob/force-vector extended))))))
+             (forked-paths xs (force-vector extended))))))
 
 
 (def required? #(contains? % required-key))
