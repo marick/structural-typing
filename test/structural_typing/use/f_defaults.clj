@@ -1,7 +1,6 @@
 (ns structural-typing.use.f-defaults
   (:require [structural-typing.defaults :as subject]
-            [such.readable :as readable]
-            [structural-typing.guts.type-descriptions.elements :refer [ALL]])
+            [such.readable :as readable])
   (:use midje.sweet))
 
 
@@ -16,29 +15,4 @@
 
   (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
     (readable/fn-string f) => "my:tweedle-dum"))
-
-
-(fact "default error explainer"
-  (subject/default-predicate-explainer {:predicate-string "even?"
-                                        :path [:x]
-                                        :leaf-value 3
-                                        })
-  => ":x should be `even?`; it is `3`"
-
-  (subject/default-predicate-explainer {:predicate-string "even?"
-                                        :path [:x ALL :y]
-                                        :leaf-value 3})
-  => "[:x ALL :y] should be `even?`; it is `3`"
-
-
-  (subject/default-predicate-explainer {:predicate-string "even?"
-                                        :path [:x 0 :y]
-                                        :leaf-value 3})
-  => "[:x 0 :y] should be `even?`; it is `3`"
-
-  (subject/default-predicate-explainer {:predicate-string "even?"
-                                        :path [:x odd? :y]
-                                        :leaf-value 3})
-  => "[:x odd? :y] should be `even?`; it is `3`")
-
 

@@ -8,13 +8,7 @@
 
 (readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
 
-(defn default-predicate-explainer
-  "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
-  [{:keys [predicate-string leaf-value] :as oopsie}]
-  (format "%s should be `%s`; it is `%s`"
-          (oopsie/friendly-path oopsie)
-          predicate-string
-          (pr-str leaf-value)))
+(import-vars [structural-typing.guts.expred default-predicate-explainer])
 
 (def default-success-handler 
   "The default success handler just returns the original candidate structure passed to `checked`."

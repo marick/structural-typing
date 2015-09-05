@@ -1,9 +1,7 @@
 (ns structural-typing.assist.oopsie
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails. Also utility functions."
-  (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.readable :as readable-path]
-            [structural-typing.guts.self-check :refer [returns]]))
+  (:use structural-typing.clojure.core))
 
 (def oopsie
    "An oopsie contains these fields, all potentially relevant when dealing with

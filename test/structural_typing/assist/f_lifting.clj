@@ -1,7 +1,7 @@
 (ns structural-typing.assist.f-lifting
   (:require [structural-typing.assist.lifting :as subject]
             [such.readable :as readable]
-            [structural-typing.defaults :as default]
+            [structural-typing.guts.expred :as expred]
             [structural-typing.guts.type-descriptions.elements :refer [ALL]]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.type-descriptions.substituting :as substituting]
@@ -46,7 +46,7 @@
   (fact "a named function is shown in a friendly way"
     (lift-and-run even? 3) => (just (contains {:predicate-string "even?"
                                                :leaf-value 3
-                                               :explainer default/default-predicate-explainer})))
+                                               :explainer expred/default-predicate-explainer})))
 
   (fact "Lifting depends on clever predicate name extraction"
     (let [any-old-predicate (constantly false)]
@@ -58,7 +58,7 @@
   (lift-and-run #'even? 3)
   => (just (contains {:predicate #'even?
                       :predicate-string "even?"
-                      :explainer default/default-predicate-explainer})))
+                      :explainer expred/default-predicate-explainer})))
 
 (fact "lifting normally converts nil values to success"
   ( (subject/lift (complement nil?)) {:leaf-value nil}) => empty?

@@ -2,8 +2,7 @@
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [structural-typing.guts.expred :as expred]
-            [structural-typing.guts.oopsie :as oopsie]
-            [structural-typing.defaults :as defaults]))
+            [structural-typing.guts.oopsie :as oopsie]))
 
 ;; TODO: make readable have the "ensure-meta" behavior)
 
@@ -15,7 +14,7 @@
 
 (defn get-predicate-string [f] (readable/fn-string f))
 (defn get-predicate [f]        (gm f ::original-predicate f))
-(defn get-explainer [f]        (gm f ::predicate-explainer defaults/default-predicate-explainer))
+(defn get-explainer [f]        (gm f ::predicate-explainer expred/default-predicate-explainer))
 
 
 (defn stash-defaults [f]

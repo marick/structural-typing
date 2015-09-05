@@ -14,3 +14,11 @@
       "Value"
       (readable-path/friendly path))))
 
+(defn default-predicate-explainer
+  "Converts an [[oopsie]] into a string of the form \"%s should be %s; it is %s\"."
+  [{:keys [predicate-string leaf-value] :as expred}]
+  (format "%s should be `%s`; it is `%s`"
+          (friendly-path expred)
+          predicate-string
+          (pr-str leaf-value)))
+
