@@ -1,4 +1,4 @@
-(ns structural-typing.guts.type-repo
+(ns structural-typing.assist.type-repo
   "The `TypeRepo` structure and its functions."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.canonicalizing :as canon]

@@ -1,5 +1,5 @@
-(ns structural-typing.guts.f-type-repo
-  (:require [structural-typing.guts.type-repo :as subject]
+(ns structural-typing.assist.f-type-repo
+  (:require [structural-typing.assist.type-repo :as subject]
             [structural-typing.type :as type]
             [structural-typing.assist.oopsie :as oopsie])
   (:require [structural-typing.guts.type-descriptions.substituting :refer [includes]])

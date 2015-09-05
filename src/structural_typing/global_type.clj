@@ -1,6 +1,6 @@
 (ns structural-typing.global-type
   "If you want to mutate the state of a single global type repo, these functions support that."
-  (:require [structural-typing.guts.type-repo :as repo]))
+  (:require [structural-typing.assist.type-repo :as repo]))
 
 
 (def ^:no-doc repo (atom :no-value-yet))

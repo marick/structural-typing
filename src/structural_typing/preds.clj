@@ -4,7 +4,6 @@
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.preds.wrap :as wrap]
-            [structural-typing.assist.expred :as expred]
             [structural-typing.guts.type-descriptions.substituting :as subst]
             [such.readable :as readable]))
 
