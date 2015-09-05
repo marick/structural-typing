@@ -1,7 +1,7 @@
-(ns structural-typing.guts.paths.f-substituting
+(ns structural-typing.guts.type-descriptions.f-substituting
   (:require [com.rpl.specter :as specter])
-  (:require [structural-typing.guts.paths.substituting :as subject])
-  (:require [structural-typing.guts.paths.elements :refer [ALL RANGE]])
+  (:require [structural-typing.guts.type-descriptions.substituting :as subject])
+  (:require [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
 (fact ends-in-map?

@@ -1,7 +1,7 @@
-(ns structural-typing.guts.paths.f-multiplying
-  (:require [structural-typing.guts.paths.multiplying :as subject])
+(ns structural-typing.guts.type-descriptions.f-multiplying
+  (:require [structural-typing.guts.type-descriptions.multiplying :as subject])
   (:require [com.rpl.specter :refer [ALL]])
-  (:require [structural-typing.guts.paths.readable :refer [forks]])
+  (:require [structural-typing.guts.type-descriptions.readable :refer [forks]])
   (:use midje.sweet))
 
 

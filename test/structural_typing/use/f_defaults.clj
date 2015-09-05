@@ -1,7 +1,7 @@
 (ns structural-typing.use.f-defaults
   (:require [structural-typing.defaults :as subject]
             [such.readable :as readable]
-            [structural-typing.guts.paths.elements :refer [ALL]])
+            [structural-typing.guts.type-descriptions.elements :refer [ALL]])
   (:use midje.sweet))
 
 

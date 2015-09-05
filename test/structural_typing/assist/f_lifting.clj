@@ -2,9 +2,9 @@
   (:require [structural-typing.assist.lifting :as subject]
             [such.readable :as readable]
             [structural-typing.defaults :as default]
-            [structural-typing.guts.paths.elements :refer [ALL]]
+            [structural-typing.guts.type-descriptions.elements :refer [ALL]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.paths.substituting :as substituting]
+            [structural-typing.guts.type-descriptions.substituting :as substituting]
             [structural-typing.guts.preds.wrap :as wrap])
   (:use midje.sweet structural-typing.assist.testutil))
 

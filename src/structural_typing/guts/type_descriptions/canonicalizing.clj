@@ -1,16 +1,16 @@
-(ns ^:no-doc structural-typing.guts.mechanics.canonicalizing-types
+(ns ^:no-doc structural-typing.guts.type-descriptions.canonicalizing
   (:use structural-typing.clojure.core)
   (:require [such.sequences :as seq]
             [com.rpl.specter :as specter])
-  (:require [structural-typing.guts.mechanics.m-ppps :as ppp]
-            [structural-typing.guts.mechanics.m-maps :as map]
+  (:require [structural-typing.guts.type-descriptions.m-ppps :as ppp]
+            [structural-typing.guts.type-descriptions.m-maps :as map]
             [structural-typing.assist.core-preds :refer [required-key]]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 ;;; Decompressors written elsewhere are imported here so that tests can easily show how they
 ;;; play together.
 
-(import-vars [structural-typing.guts.paths.substituting
+(import-vars [structural-typing.guts.type-descriptions.substituting
               dc:expand-type-signifiers dc:split-paths-ending-in-maps])
 
 (def dc:validate-starting-descriptions

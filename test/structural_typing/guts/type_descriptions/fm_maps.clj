@@ -1,5 +1,5 @@
-(ns structural-typing.guts.mechanics.fm-maps
-  (:require [structural-typing.guts.mechanics.m-maps :as subject])
+(ns structural-typing.guts.type-descriptions.fm-maps
+  (:require [structural-typing.guts.type-descriptions.m-maps :as subject])
   (:use midje.sweet))
 
 (fact flatten-maps

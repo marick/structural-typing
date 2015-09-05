@@ -18,9 +18,9 @@
                         replace-error-handler
                         replace-success-handler])
 
-(immigrate/import-vars [structural-typing.guts.paths.elements ALL RANGE]
-                       [structural-typing.guts.paths.substituting includes]
-                       [structural-typing.guts.paths.readable requires forks])
+(immigrate/import-vars [structural-typing.guts.type-descriptions.elements ALL RANGE]
+                       [structural-typing.guts.type-descriptions.substituting includes]
+                       [structural-typing.guts.type-descriptions.readable requires forks])
 
 (immigrate/import-vars [structural-typing.defaults
                         throwing-error-handler

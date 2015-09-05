@@ -1,11 +1,11 @@
-(ns structural-typing.guts.mechanics.f-canonicalizing-types
-  (:require [structural-typing.guts.mechanics.canonicalizing-types :as subject]
-            [structural-typing.guts.mechanics.m-ppps :as ppp]
-            [structural-typing.guts.mechanics.m-maps :as m-map]
+(ns structural-typing.guts.type-descriptions.f-canonicalizing
+  (:require [structural-typing.guts.type-descriptions.canonicalizing :as subject]
+            [structural-typing.guts.type-descriptions.m-ppps :as ppp]
+            [structural-typing.guts.type-descriptions.m-maps :as m-map]
             [structural-typing.assist.core-preds :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
-  (:require [structural-typing.guts.paths.substituting :refer [includes]]
-            [structural-typing.guts.paths.readable :refer :all])
+  (:require [structural-typing.guts.type-descriptions.substituting :refer [includes]]
+            [structural-typing.guts.type-descriptions.readable :refer :all])
   (:use midje.sweet))
 
 

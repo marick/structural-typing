@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.paths.multiplying
+(ns ^:no-doc structural-typing.guts.type-descriptions.multiplying
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.core-preds :refer [required-key]]))
 

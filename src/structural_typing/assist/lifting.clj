@@ -5,7 +5,7 @@
 "
   (:require [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.expred :as expred]
-            [structural-typing.guts.mechanics.canonicalizing-types :as canon]
+            [structural-typing.guts.type-descriptions.canonicalizing :as canon]
             [structural-typing.guts.preds.from-type-descriptions :as compile]
             [structural-typing.guts.preds.wrap :as wrap]
             [such.function-makers :as mkfn])

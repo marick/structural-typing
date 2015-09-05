@@ -5,7 +5,7 @@
             [structural-typing.assist.lifting :as lifting]
             [structural-typing.guts.preds.wrap :refer [show-as]]
             [structural-typing.assist.core-preds :refer [required-key]]
-            [structural-typing.guts.paths.substituting :refer [includes]])
+            [structural-typing.guts.type-descriptions.substituting :refer [includes]])
   (:require [such.readable :as readable])
   (:use midje.sweet structural-typing.assist.testutil))
 

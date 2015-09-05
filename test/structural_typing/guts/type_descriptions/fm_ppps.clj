@@ -1,5 +1,5 @@
-(ns structural-typing.guts.mechanics.fm-ppps
-  (:require [structural-typing.guts.mechanics.m-ppps :as subject :refer [->ppp]]
+(ns structural-typing.guts.type-descriptions.fm-ppps
+  (:require [structural-typing.guts.type-descriptions.m-ppps :as subject :refer [->ppp]]
             [structural-typing.assist.core-preds :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))

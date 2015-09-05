@@ -3,7 +3,7 @@
   (:require [com.rpl.specter :as specter]
             [structural-typing.assist.self-check :as self :refer [returns-many]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.paths.substituting :as path]
+            [structural-typing.guts.type-descriptions.substituting :as path]
             [structural-typing.guts.preds.wrap :as wrap]))
 
 (defprotocol PathVariation

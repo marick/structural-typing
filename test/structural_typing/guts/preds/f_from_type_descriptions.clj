@@ -3,10 +3,10 @@
   (:require [structural-typing.guts.preds.from-type-descriptions :as subject]
             [structural-typing.guts.preds.wrap :refer [show-as]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.mechanics.canonicalizing-types :refer [canonicalize]]
+            [structural-typing.guts.type-descriptions.canonicalizing :refer [canonicalize]]
             [structural-typing.preds :as preds]
             [structural-typing.assist.core-preds :refer [required-key]]
-            [structural-typing.guts.paths.elements :refer [ALL RANGE]])
+            [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
 (fact "variations in path processing - in the path given to specter"

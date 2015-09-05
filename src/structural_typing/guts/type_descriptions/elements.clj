@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.paths.elements
+(ns ^:no-doc structural-typing.guts.type-descriptions.elements
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [such.metadata :as meta]

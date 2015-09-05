@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.mechanics.m-maps
+(ns ^:no-doc structural-typing.guts.type-descriptions.m-maps
   (:use structural-typing.clojure.core))
 
 

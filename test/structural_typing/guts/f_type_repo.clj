@@ -2,7 +2,7 @@
   (:require [structural-typing.guts.type-repo :as subject]
             [structural-typing.type :as type]
             [structural-typing.assist.oopsie :as oopsie])
-  (:require [structural-typing.guts.paths.substituting :refer [includes]])
+  (:require [structural-typing.guts.type-descriptions.substituting :refer [includes]])
   (:use midje.sweet))
 
 (fact "an example case (most are in the examples dir"

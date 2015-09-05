@@ -1,6 +1,6 @@
-(ns structural-typing.guts.paths.f-elements
-  (:require [structural-typing.guts.paths.elements :as subject]
-            [structural-typing.guts.paths.readable :as readable])
+(ns structural-typing.guts.type-descriptions.f-elements
+  (:require [structural-typing.guts.type-descriptions.elements :as subject]
+            [structural-typing.guts.type-descriptions.readable :as readable])
   (:use midje.sweet))
 
 (facts "ALL"

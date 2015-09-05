@@ -1,8 +1,8 @@
-(ns ^:no-doc structural-typing.guts.paths.substituting
+(ns ^:no-doc structural-typing.guts.type-descriptions.substituting
   (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
             [such.metadata :as meta]
-            [structural-typing.guts.paths.elements :as element]))
+            [structural-typing.guts.type-descriptions.elements :as element]))
 
 
 ;;;;                             The (includes :Point) mechanism
