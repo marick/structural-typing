@@ -5,7 +5,7 @@
             [structural-typing.guts.paths.elements :refer [ALL]]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as substituting]
-            [structural-typing.guts.shapes.pred :as pred])
+            [structural-typing.guts.preds.wrap :as wrap])
   (:use midje.sweet structural-typing.assist.testutil))
 
 (fact "predicates are typically wrapped with handlers for nils and exceptions"
@@ -52,7 +52,7 @@
     (let [any-old-predicate (constantly false)]
       (lift-and-run any-old-predicate 3) => (just (contains {:predicate-string ..name..}))
       (provided
-        (pred/get-predicate-string any-old-predicate) => ..name..))))
+        (wrap/get-predicate-string any-old-predicate) => ..name..))))
   
 (fact "lifting a var is like lifting a function"
   (lift-and-run #'even? 3)

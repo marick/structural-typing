@@ -6,8 +6,8 @@
   (:require [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.expred :as expred]
             [structural-typing.guts.mechanics.canonicalizing-types :as canon]
-            [structural-typing.guts.mechanics.compiling-types :as compile]
-            [structural-typing.guts.shapes.pred :as pred]
+            [structural-typing.guts.preds.from-type-descriptions :as compile]
+            [structural-typing.guts.preds.wrap :as wrap]
             [such.function-makers :as mkfn])
   (:use such.shorthand))
 
@@ -16,7 +16,7 @@
    an error, and (2) the argument is an [[ExPred]] instead of an actual
    predicate."
   [expred & protection-subtractions]
-  (pred/lift-expred expred protection-subtractions))
+  (wrap/lift-expred expred protection-subtractions))
 
 (defn lift
   "Convert a predicate into a function that produces either an empty
@@ -31,7 +31,7 @@
    The lifted predicate takes an [[exval]] as its argument.
 "
   [pred & protection-subtractions]
-  (pred/lift pred protection-subtractions))
+  (wrap/lift pred protection-subtractions))
 
 (defn lift-type-descriptions
   ([type-descriptions type-map]

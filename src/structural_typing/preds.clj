@@ -3,7 +3,7 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.shapes.pred :as pred]
+            [structural-typing.guts.preds.wrap :as wrap]
             [structural-typing.assist.expred :as expred]
             [structural-typing.guts.paths.substituting :as subst]
             [such.readable :as readable]))
@@ -16,8 +16,8 @@
 
 (defn- compose-predicate [name pred fmt-fn]
   (->> pred
-       (pred/show-as name)
-       (pred/explain-with fmt-fn)))
+       (wrap/show-as name)
+       (wrap/explain-with fmt-fn)))
 
 ;;;                      THE ACTUAL PREDICATES
 
@@ -98,8 +98,8 @@
                        so-far))
                    []
                    adjusted-pairs)))
-       pred/mark-as-lifted
-       (pred/show-as "implies")))
+       wrap/mark-as-lifted
+       (wrap/show-as "implies")))
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is

@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.shapes.pred
+(ns ^:no-doc structural-typing.guts.preds.wrap
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [structural-typing.assist.expred :as expred]

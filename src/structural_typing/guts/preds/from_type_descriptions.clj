@@ -1,10 +1,10 @@
-(ns ^:no-doc structural-typing.guts.mechanics.compiling-types
+(ns ^:no-doc structural-typing.guts.preds.from-type-descriptions
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
             [structural-typing.assist.self-check :as self :refer [returns-many]]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.paths.substituting :as path]
-            [structural-typing.guts.shapes.pred :as pred]))
+            [structural-typing.guts.preds.wrap :as wrap]))
 
 (defprotocol PathVariation
   (process-specter-results [this building-results])
@@ -42,7 +42,7 @@
 )
 
 (defn compile-predicates [preds]
-  (let [lifted (map pred/lift preds)]
+  (let [lifted (map wrap/lift preds)]
     (fn [value-holder]
       (->> (reduce #(into %1 (%2 value-holder)) [] lifted)
            (returns-many :expred)))))

@@ -1,5 +1,5 @@
-(ns structural-typing.guts.shapes.f_pred
-  (:require [structural-typing.guts.shapes.pred :as subject]
+(ns structural-typing.guts.preds.f_wrap
+  (:require [structural-typing.guts.preds.wrap :as subject]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.defaults :as default]
             [structural-typing.assist.lifting :as lifting])
