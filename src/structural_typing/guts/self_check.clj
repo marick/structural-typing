@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.assist.self-check
+(ns ^:no-doc structural-typing.guts.self-check
     (:use structural-typing.clojure.core)
     (:require [structural-typing.assist.expred :as expred]
               [structural-typing.assist.exval :as exval]))
