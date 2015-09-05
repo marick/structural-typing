@@ -1,8 +1,8 @@
 (ns ^:no-doc structural-typing.guts.preds.wrap
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
-            [structural-typing.assist.expred :as expred]
-            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.guts.expred :as expred]
+            [structural-typing.guts.oopsie :as oopsie]
             [structural-typing.defaults :as defaults]))
 
 ;; TODO: make readable have the "ensure-meta" behavior)

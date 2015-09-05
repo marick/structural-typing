@@ -1,5 +1,5 @@
 (ns structural-typing.assist.testutil
-  (:require [structural-typing.assist.exval :as exval]
+  (:require [structural-typing.guts.exval :as exval]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.lifting :as lifting]
             [structural-typing.type :as type]

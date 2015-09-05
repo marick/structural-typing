@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
-            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.guts.oopsie :as oopsie]
             [structural-typing.guts.type-descriptions.substituting :as path]
             [structural-typing.guts.preds.wrap :as wrap]))
 

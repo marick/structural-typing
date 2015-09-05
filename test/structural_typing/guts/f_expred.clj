@@ -1,5 +1,5 @@
-(ns structural-typing.assist.f-oopsie
-  (:require [structural-typing.assist.oopsie :as subject])
+(ns structural-typing.guts.f-expred
+  (:require [structural-typing.guts.expred :as subject])
   (:use midje.sweet))
 
 

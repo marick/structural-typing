@@ -2,7 +2,7 @@
   "All of the predefined predicates."
   (:require [structural-typing.guts.preds.wrap :as wrap]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.assist.expred :as expred]))
+            [structural-typing.guts.expred :as expred]))
 
 (def required-key
   "False iff a key/path does not exist or has value `nil`. 

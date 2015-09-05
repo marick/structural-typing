@@ -2,9 +2,8 @@
   "User-visible default behaviors.
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
-  (:require [clojure.pprint :refer [cl-format]]
-            [clojure.string :as str]
-            [such.readable :as readable])
+  (:use structural-typing.clojure.core)  ; yes: `use`. Glorious, skimmable, terse `use`.
+  (:require [such.readable :as readable])
   (:require [structural-typing.assist.oopsie :as oopsie]))
 
 (readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
@@ -43,4 +42,4 @@
           (type/replace-error-handler type-repo type/throwing-failure-handler) ; local repo
 "
   [oopsies]
-  (throw (new Exception (str/join "\n" (oopsie/explanations oopsies)))))
+  (throw (new Exception (str-join "\n" (oopsie/explanations oopsies)))))
