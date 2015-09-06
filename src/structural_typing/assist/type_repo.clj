@@ -1,7 +1,7 @@
 (ns structural-typing.assist.type-repo
   "The `TypeRepo` structure and its functions."
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.canonicalizing :as canon]
+  (:require [structural-typing.guts.type-descriptions :as type-descriptions]
             [structural-typing.guts.preds.from-type-descriptions :as compile]
             [structural-typing.assist.defaults :as defaults]
             [structural-typing.guts.preds.core :as pred]))
@@ -28,13 +28,12 @@
 
 (defrecord TypeRepo [success-handler error-handler]
     TypeRepoLike
-    (hold-type [type-repo type-signifier type-descriptions]
-      (let [canonicalized (apply canon/canonicalize
-                                 (:canonicalized-type-descriptions type-repo)
-                                 type-descriptions)
+    (hold-type [type-repo type-signifier condensed-type-descriptions]
+      (let [canonicalized (type-descriptions/canonicalize condensed-type-descriptions
+                                                          (:canonicalized-type-descriptions type-repo))
             compiled (compile/compile-type canonicalized)]
         (-> type-repo 
-            (assoc-in [:original-type-descriptions type-signifier] type-descriptions)
+            (assoc-in [:original-type-descriptions type-signifier] condensed-type-descriptions)
             (assoc-in [:canonicalized-type-descriptions type-signifier] canonicalized)
             (assoc-in [:compiled-types type-signifier] compiled))))
 

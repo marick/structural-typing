@@ -1,18 +1,16 @@
 (ns structural-typing.assist.lifting
-  "An interface to the main mechanisms by which parts of a type are assembled
-   and used. For advanced use: writing complicated purposes, checking without
-   the use of a type repo (as in Midje). A WORK IN PROGRESS.
+  "*Lifting* is a core concept. A predicate begins as something that takes a value and
+   returns a truthy/falsey value. It is lifted into something that takes an [[exval]]
+   (extended value) and returns a (possibly empty) sequence of [[oopsies]]. Condensed
+   type descriptions are similarly converted into single functions that return oopsies.
 "
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.expred :as expred]
-            [structural-typing.guts.type-descriptions.canonicalizing :as canon]
-            [structural-typing.guts.preds.from-type-descriptions :as compile]
+  (:require [structural-typing.guts.type-descriptions :as type-descriptions]
             [structural-typing.guts.preds.wrap :as wrap]))
 
-(defn lift
+(defn lift-pred
   "Convert a predicate into a function that produces either an empty
-   sequence or a singleton vector containing an [[oopsie]] describing
+   sequence or a vector containing an [[oopsie]] describing
    the failure of the predicate. However, nothing is done to an 
    already-lifted predicate.
 
@@ -25,10 +23,10 @@
   [pred & protection-subtractions]
   (wrap/lift pred protection-subtractions))
 
-(defn lift-type-descriptions
-  ([type-descriptions type-map]
-     (->> type-descriptions
-          (apply canon/canonicalize type-map)
-          compile/compile-type))
-  ([type-descriptions]
-     (lift-type-descriptions type-descriptions {})))
+(defn lift-type
+  "Take a collection of condensed type descriptions. Canonicalize them.
+   Convert the result into a function that returns [[oopsies]]."
+  ([condensed-type-descriptions type-map]
+     (type-descriptions/lift condensed-type-descriptions type-map))
+  ([condensed-type-descriptions]
+     (lift-type condensed-type-descriptions {})))

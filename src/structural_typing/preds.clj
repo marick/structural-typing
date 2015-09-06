@@ -165,7 +165,7 @@
               make-consequent #(-> %
                                    force-all-of
                                    :type-descriptions
-                                   (lifting/lift-type-descriptions type-map))
+                                   (lifting/lift-type type-map))
               adjusted-pairs (->> args
                                   (alternately make-antecedent make-consequent)
                             (partition 2))]

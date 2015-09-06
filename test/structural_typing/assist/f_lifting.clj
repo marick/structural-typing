@@ -9,11 +9,11 @@
   (:use midje.sweet structural-typing.assist.testutil))
 
 (defn lift-and-run [pred value]
-  ( (subject/lift pred) {:leaf-value 3}))
+  ( (subject/lift-pred pred) {:leaf-value 3}))
 
 
 (fact "lifted predicates are given the value to test in a map and return oopsies"
-  (let [lifted (subject/lift even?)]
+  (let [lifted (subject/lift-pred even?)]
     (lifted {:leaf-value 3}) => (just (contains {:leaf-value 3}))
     (lifted {:leaf-value 4}) => empty?
 
@@ -42,41 +42,41 @@
                       :explainer expred/default-predicate-explainer})))
 
 (fact "lifting normally converts nil values to success"
-  ( (subject/lift (complement nil?)) {:leaf-value nil}) => empty?
-  ( (subject/lift (complement nil?) :check-nils) {:leaf-value nil}) =not=> empty?)
+  ( (subject/lift-pred (complement nil?)) {:leaf-value nil}) => empty?
+  ( (subject/lift-pred (complement nil?) :check-nils) {:leaf-value nil}) =not=> empty?)
 
 (fact "lifting normally converts exceptions into an oopsie"
   (even? 'derp) => (throws)
-  ( (subject/lift even?) {:leaf-value 'derp}) =not=> empty? 
-  ( (subject/lift even? :allow-exceptions) {:leaf-value 'derp}) => (throws))
+  ( (subject/lift-pred even?) {:leaf-value 'derp}) =not=> empty? 
+  ( (subject/lift-pred even? :allow-exceptions) {:leaf-value 'derp}) => (throws))
 
     
 
 (fact "an already-lifted predicate is left unchanged"
-  (let [once (subject/lift even?)
-        twice (subject/lift once)]
+  (let [once (subject/lift-pred even?)
+        twice (subject/lift-pred once)]
     (identical? once twice) => true)
 
   (fact "note that means that additions cannot be changed"
-    (let [once (subject/lift even?)
-          twice (subject/lift once :allow-exceptions)]
+    (let [once (subject/lift-pred even?)
+          twice (subject/lift-pred once :allow-exceptions)]
       (identical? once twice) => true)))
 
 
 
 (fact "lifting type-descriptions into an oopsie-producing predicate"
-  (let [r (subject/lift-type-descriptions [even?])]
+  (let [r (subject/lift-type [even?])]
     (r 2) => empty?
     (oopsie/explanations (r 1)) => (just "Value should be `even?`; it is `1`"))
 
-  (let [r (subject/lift-type-descriptions [ [:a :b] {:c even?}])]
+  (let [r (subject/lift-type [ [:a :b] {:c even?}])]
     (r {:a 1, :b 2}) => empty?
     (oopsie/explanations (r {:c 1, :b 2})) => (just ":a must exist and be non-nil"
                                                     ":c should be `even?`; it is `1`"))
 
   (fact "type maps can be expanded"
-    (let [r (subject/lift-type-descriptions [ [:a :b] (substituting/includes :X)]
-                                            {:X {:x even?}})]
+    (let [r (subject/lift-type [ [:a :b] (substituting/includes :X)]
+                               {:X {:x even?}})]
       (r {:a 1, :b 2}) => empty?
       (r {:a 1, :b 2, :x 2}) => empty?
       (oopsie/explanations (r {:b 2, :x 1})) => (just ":a must exist and be non-nil"

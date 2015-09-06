@@ -7,7 +7,7 @@
 
 
 (defn lift-and-run [pred value]
-  ( (lifting/lift pred) {:leaf-value 3}))
+  ( (lifting/lift-pred pred) {:leaf-value 3}))
 
 
 (fact "show-as and explain-with"
@@ -19,7 +19,7 @@
       (pred 1) => false
 
       (oopsie/explanations (lift-and-run pred 1)) => ["name"]
-      ( (lifting/lift pred) {:leaf-value 2}) => []))
+      ( (lifting/lift-pred pred) {:leaf-value 2}) => []))
     
   (fact "an anonymous lambda prints as something innocuous"
     (lift-and-run #(> 1 %) 3)
