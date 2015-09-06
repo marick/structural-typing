@@ -16,10 +16,14 @@
   ([leaf-value]
      (exval leaf-value [:x])))
 
+(defn lift-and-run [pred exval]
+  ( (lifting/lift-pred pred) exval))
+
 (defn explain-lifted
   "Note that it's safe to use this on an already-lifted predicate"
   [pred exval]
   (oopsie/explanations ((lifting/lift-pred pred) exval)))
+
 
 ;; Don't use Midje checkers to avoid dragging in all of its dependencies
 

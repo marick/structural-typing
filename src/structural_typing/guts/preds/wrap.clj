@@ -4,7 +4,9 @@
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.oopsie :as oopsie]))
 
-;; TODO: make readable have the "ensure-meta" behavior)
+;; TODO: make readable have the "ensure-meta" behavior
+
+;; TODO: This should really be two files: one for lifting behavior and one for annotating-via-metadata
 
 
 (defn gm [f k default] (get (meta f) k default))
@@ -25,37 +27,14 @@
 (defn replace-predicate-string [f name] (readable/rename f name))
 (defn replace-explainer [f explainer] (vm f ::predicate-explainer explainer))
   
-(defn show-as 
-  "Associate the given `name` string with the predicate for use when predicate failures
-   are explained.
-     
-         (->> (partial >= 3) (show-as \"less than 3\"))
-"
-  [name predicate]
-  (when (fn? name) (boom! "First arg is a function. You probably got your args reversed."))
-  (when-not (string? name) (boom! "First arg must be a string: %s %s" name predicate))
-  (-> predicate
-      stash-defaults
-      (replace-predicate-string name)))
-
-(defn explain-with
-  "After the `predicate` fails, the failure will need to be explained. Arrange for
-   the `explainer` function to be called with the [[oopsie]] that results from the
-   failure.
-   
-        (explain-with \"too small\" #(< (count %) 54))
-"
-  [explainer predicate]
-  (-> predicate
-      stash-defaults
-      (replace-explainer explainer)))
-
-
 
 
 (def ^:private lifted-mark ::lifted)
-(defn mark-as-lifted [pred]
+(defn mark-as-lifted
+  "A pred so marked is not lifted again. You can call [[lift-pred]] safely many times."
+  [pred]
   (vary-meta pred assoc lifted-mark true))
+
 (defn already-lifted? [pred]
   (lifted-mark (meta pred)))
 

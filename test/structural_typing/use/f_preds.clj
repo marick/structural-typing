@@ -3,7 +3,7 @@
   (:require [structural-typing.preds :as subject]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.lifting :as lifting]
-            [structural-typing.guts.preds.wrap :refer [show-as]]
+            [structural-typing.assist.annotating :refer [show-as]]
             [structural-typing.guts.preds.core :refer [required-key]]
             [structural-typing.guts.type-descriptions.substituting :refer [includes]])
   (:require [such.readable :as readable])

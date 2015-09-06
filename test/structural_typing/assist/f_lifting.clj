@@ -8,10 +8,6 @@
             [structural-typing.guts.preds.wrap :as wrap])
   (:use midje.sweet structural-typing.assist.testutil))
 
-(defn lift-and-run [pred value]
-  ( (subject/lift-pred pred) {:leaf-value 3}))
-
-
 (fact "lifted predicates are given the value to test in a map and return oopsies"
   (let [lifted (subject/lift-pred even?)]
     (lifted {:leaf-value 3}) => (just (contains {:leaf-value 3}))
@@ -25,18 +21,18 @@
 
 (facts "The oopsie contains gives the information needed to produce an error string"
   (fact "a named function is shown in a friendly way"
-    (lift-and-run even? 3) => (just (contains {:predicate-string "even?"
-                                               :leaf-value 3
-                                               :explainer expred/default-predicate-explainer})))
+    (lift-and-run even? (exval 3)) => (just (contains {:predicate-string "even?"
+                                                       :leaf-value 3
+                                                       :explainer expred/default-predicate-explainer})))
 
   (fact "Lifting depends on clever predicate name extraction"
     (let [any-old-predicate (constantly false)]
-      (lift-and-run any-old-predicate 3) => (just (contains {:predicate-string ..name..}))
+      (lift-and-run any-old-predicate (exval 3)) => (just (contains {:predicate-string ..name..}))
       (provided
         (wrap/get-predicate-string any-old-predicate) => ..name..))))
   
 (fact "lifting a var is like lifting a function"
-  (lift-and-run #'even? 3)
+  (lift-and-run #'even? (exval 3))
   => (just (contains {:predicate #'even?
                       :predicate-string "even?"
                       :explainer expred/default-predicate-explainer})))

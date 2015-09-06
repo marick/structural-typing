@@ -1,7 +1,7 @@
 (ns structural-typing.guts.preds.from-type-descriptions
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.preds.from-type-descriptions :as subject]
-            [structural-typing.guts.preds.wrap :refer [show-as]]
+            [structural-typing.assist.annotating :refer [show-as]]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.type-descriptions.canonicalizing :refer [canonicalize]]
             [structural-typing.preds :as preds]
