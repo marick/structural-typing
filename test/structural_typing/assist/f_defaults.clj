@@ -1,5 +1,5 @@
-(ns structural-typing.use.f-defaults
-  (:require [structural-typing.defaults :as subject]
+(ns structural-typing.assist.f-defaults
+  (:require [structural-typing.assist.defaults :as subject]
             [such.readable :as readable])
   (:use midje.sweet))
 

@@ -1,10 +1,10 @@
 (ns structural-typing.assist.testutil
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.exval :as exval]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.lifting :as lifting]
             [structural-typing.type :as type]
-            [such.readable :as readable]
-            [clojure.string :as str])
+            [such.readable :as readable])
   (:use [such.imperfection :only [val-and-output]]))
 
 
@@ -38,7 +38,7 @@
 (defn check-for-explanations [type candidate]
   (let [[retval output] (val-and-output (type/checked type candidate))]
     (if (nil? retval)
-      (str/split output #"\n") ; too lazy to handle windows.
+      (str-split output #"\n") ; too lazy to handle windows.
       ["Actual return result was not `nil`"])))
 
 

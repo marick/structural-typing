@@ -22,7 +22,7 @@
                        [structural-typing.guts.type-descriptions.substituting includes]
                        [structural-typing.guts.type-descriptions.readable requires forks])
 
-(immigrate/import-vars [structural-typing.defaults
+(immigrate/import-vars [structural-typing.assist.defaults
                         throwing-error-handler
                         default-error-handler
                         default-success-handler])

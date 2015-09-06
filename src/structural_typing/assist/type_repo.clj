@@ -3,7 +3,7 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.canonicalizing :as canon]
             [structural-typing.guts.preds.from-type-descriptions :as compile]
-            [structural-typing.defaults :as default]
+            [structural-typing.assist.defaults :as defaults]
             [structural-typing.guts.preds.core :as pred]))
 
 
@@ -63,7 +63,7 @@
 
 (def empty-type-repo
   "A type repo that contains no types and uses the default success and error handlers."
-  (->TypeRepo default/default-success-handler default/default-error-handler))
+  (->TypeRepo defaults/default-success-handler defaults/default-error-handler))
 
 (defn origin
   "Returns the original description of the `type-signifier` (a sequence of vectors and maps)"

@@ -3,13 +3,12 @@
    and used. For advanced use: writing complicated purposes, checking without
    the use of a type repo (as in Midje). A WORK IN PROGRESS.
 "
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.type-descriptions.canonicalizing :as canon]
             [structural-typing.guts.preds.from-type-descriptions :as compile]
-            [structural-typing.guts.preds.wrap :as wrap]
-            [such.function-makers :as mkfn])
-  (:use such.shorthand))
+            [structural-typing.guts.preds.wrap :as wrap]))
 
 (defn lift-expred
   "Like [[lift]], except that (1) using an already-lifted predicate is
