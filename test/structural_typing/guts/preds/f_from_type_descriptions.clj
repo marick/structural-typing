@@ -5,7 +5,7 @@
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.type-descriptions.canonicalizing :refer [canonicalize]]
             [structural-typing.preds :as preds]
-            [structural-typing.assist.core-preds :refer [required-key]]
+            [structural-typing.guts.preds.core :refer [required-key]]
             [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 

@@ -4,7 +4,7 @@
   (:require [structural-typing.guts.type-descriptions.canonicalizing :as canon]
             [structural-typing.guts.preds.from-type-descriptions :as compile]
             [structural-typing.defaults :as default]
-            [structural-typing.assist.core-preds :as pred]))
+            [structural-typing.guts.preds.core :as pred]))
 
 
 ;; This is used to check if an argument to `checked` is nil. If so, it's not further

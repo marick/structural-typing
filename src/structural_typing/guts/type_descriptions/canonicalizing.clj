@@ -4,7 +4,7 @@
             [com.rpl.specter :as specter])
   (:require [structural-typing.guts.type-descriptions.m-ppps :as ppp]
             [structural-typing.guts.type-descriptions.m-maps :as map]
-            [structural-typing.assist.core-preds :refer [required-key]]))
+            [structural-typing.guts.preds.core :refer [required-key]]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
 ;;; Decompressors written elsewhere are imported here so that tests can easily show how they

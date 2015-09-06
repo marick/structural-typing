@@ -3,7 +3,7 @@
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.multiplying :as multiply]
-            [structural-typing.assist.core-preds :refer [required-key]]))
+            [structural-typing.guts.preds.core :refer [required-key]]))
 
 (def ->ppp vector)
 (def path-part first)

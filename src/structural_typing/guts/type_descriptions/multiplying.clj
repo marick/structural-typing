@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.multiplying
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.assist.core-preds :refer [required-key]]))
+  (:require [structural-typing.guts.preds.core :refer [required-key]]))
 
 (def forking? (partial some sequential?))
 

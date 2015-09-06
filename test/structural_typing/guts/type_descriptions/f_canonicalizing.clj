@@ -2,7 +2,7 @@
   (:require [structural-typing.guts.type-descriptions.canonicalizing :as subject]
             [structural-typing.guts.type-descriptions.m-ppps :as ppp]
             [structural-typing.guts.type-descriptions.m-maps :as m-map]
-            [structural-typing.assist.core-preds :refer [required-key]])
+            [structural-typing.guts.preds.core :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:require [structural-typing.guts.type-descriptions.substituting :refer [includes]]
             [structural-typing.guts.type-descriptions.readable :refer :all])

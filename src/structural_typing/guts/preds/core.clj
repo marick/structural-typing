@@ -1,7 +1,6 @@
-(ns structural-typing.assist.core-preds
-  "All of the predefined predicates."
+(ns structural-typing.guts.preds.core
+  "Preds that are used througout"
   (:require [structural-typing.guts.preds.wrap :as wrap]
-            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.expred :as expred]))
 
 (def required-key
@@ -14,7 +13,7 @@
   (wrap/lift-expred (expred/boa (comp not nil?)
                                 "required-key"
                                 #(format "%s must exist and be non-nil"
-                                         (oopsie/friendly-path %)))
+                                         (expred/friendly-path %)))
                     [:check-nil]))
 
 (def not-nil
@@ -27,5 +26,5 @@
   (wrap/lift-expred (expred/boa (comp not nil?)
                                 "not-nil"
                                 #(format "%s is nil, and that makes Sir Tony Hoare sad"
-                                         (oopsie/friendly-path %)))
+                                         (expred/friendly-path %)))
                     [:check-nil]))

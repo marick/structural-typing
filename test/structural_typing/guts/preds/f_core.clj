@@ -1,5 +1,5 @@
-(ns structural-typing.assist.f-core-preds
-  (:require [structural-typing.assist.core-preds :as subject]
+(ns structural-typing.guts.preds.f-core
+  (:require [structural-typing.guts.preds.core :as subject]
             [structural-typing.assist.oopsie :as oopsie])
   (:require [such.readable :as readable])
   (:use midje.sweet structural-typing.assist.testutil))

@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.fm-ppps
   (:require [structural-typing.guts.type-descriptions.m-ppps :as subject :refer [->ppp]]
-            [structural-typing.assist.core-preds :refer [required-key]])
+            [structural-typing.guts.preds.core :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
