@@ -10,13 +10,6 @@
             [structural-typing.guts.preds.from-type-descriptions :as compile]
             [structural-typing.guts.preds.wrap :as wrap]))
 
-(defn lift-expred
-  "Like [[lift]], except that (1) using an already-lifted predicate is
-   an error, and (2) the argument is an [[ExPred]] instead of an actual
-   predicate."
-  [expred & protection-subtractions]
-  (wrap/lift-expred expred protection-subtractions))
-
 (defn lift
   "Convert a predicate into a function that produces either an empty
    sequence or a singleton vector containing an [[oopsie]] describing
