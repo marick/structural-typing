@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.preds.wrap
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
+            [such.metadata :as meta]
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.oopsie :as oopsie]))
 
@@ -9,14 +10,12 @@
 ;; TODO: This should really be two files: one for lifting behavior and one for annotating-via-metadata
 
 
-(defn gm [f k default] (get (meta f) k default))
-(defn vm [f k v] (vary-meta f assoc k v))
-(defn ensure-meta [f k v] (if (contains? (meta f) k) f (vm f k v)))
+(defn ensure-meta [f k v] (if (contains? (meta f) k) f (meta/assoc f k v)))
 
 
 (defn get-predicate-string [f] (readable/fn-string f))
-(defn get-predicate [f]        (gm f ::original-predicate f))
-(defn get-explainer [f]        (gm f ::predicate-explainer expred/default-predicate-explainer))
+(defn get-predicate [f]        (meta/get f ::original-predicate f))
+(defn get-explainer [f]        (meta/get f ::predicate-explainer expred/default-predicate-explainer))
 
 
 (defn stash-defaults [f]
@@ -25,7 +24,7 @@
       (readable/rename (readable/fn-string f))))
 
 (defn replace-predicate-string [f name] (readable/rename f name))
-(defn replace-explainer [f explainer] (vm f ::predicate-explainer explainer))
+(defn replace-explainer [f explainer] (meta/assoc f ::predicate-explainer explainer))
   
 
 
