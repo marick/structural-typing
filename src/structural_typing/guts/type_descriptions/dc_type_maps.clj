@@ -25,7 +25,6 @@
       as-type-expander))
 
 (defn substitute [type-map forms]
-;  (when-not (sequential? forms) (boom! "Can't substitute type map into non-sequential %s" forms))
   (specter/transform (specter/walker type-expander?)
                      #(% type-map)
                      forms))
