@@ -15,10 +15,10 @@
    "
 vector)
 
-(def forks
+(def through-each
   "When writing a forking path, you may end up with vectors within vectors within
-   vectors. You can use `forks` instead of a vector to mark where the path
-   forks. 
+   vectors. You can use `through-each` instead of a vector to mark where the path
+   forks. TODO: CHANGE DOC STRING
 
        (type! :Figure (type/requires [:a (forks :b1 :b2) :c]))
 

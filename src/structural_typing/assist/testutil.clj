@@ -7,7 +7,6 @@
             [such.readable :as readable])
   (:use [such.imperfection :only [val-and-output]]))
 
-
 (defn exval
   ([leaf-value path whole-value]
      (exval/boa leaf-value path whole-value))

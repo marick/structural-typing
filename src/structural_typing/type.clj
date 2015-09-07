@@ -1,28 +1,23 @@
 (ns structural-typing.type
   "Structural types, loosely inspired by Elm's way of looking at [records](http://elm-lang.org/learn/Records.elm).
 "
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.type-repo :as repo]
             [structural-typing.global-type :as global-type]
-            [such.readable :as readable]
-            [such.immigration :as immigrate]))
+            [such.readable :as readable]))
 
-(immigrate/import-vars [structural-typing.guts.preds.core
-                        required-key not-nil])
+(import-all-vars structural-typing.assist.special-words)
 
-(immigrate/import-vars [structural-typing.assist.annotating
+(import-vars [structural-typing.assist.annotating
                         show-as
                         explain-with])
 
-(immigrate/import-vars [structural-typing.assist.type-repo
+(import-vars [structural-typing.assist.type-repo
                         empty-type-repo
                         replace-error-handler
                         replace-success-handler])
 
-(immigrate/import-vars [structural-typing.guts.type-descriptions.elements ALL RANGE]
-                       [structural-typing.guts.type-descriptions.substituting includes]
-                       [structural-typing.guts.type-descriptions.readable requires forks])
-
-(immigrate/import-vars [structural-typing.assist.defaults
+(import-vars [structural-typing.assist.defaults
                         throwing-error-handler
                         default-error-handler
                         default-success-handler])

@@ -2,6 +2,7 @@
   (:use structural-typing.clojure.core)
   (:require [such.sequences :as seq]
             [com.rpl.specter :as specter])
+  (:require [structural-typing.guts.type-descriptions.whole-value-preds :refer [dc:preds->maps]])
   (:require [structural-typing.guts.type-descriptions.m-ppps :as ppp]
             [structural-typing.guts.type-descriptions.m-maps :as map]
             [structural-typing.guts.preds.core :refer [required-key]]))
@@ -11,16 +12,13 @@
 ;;; play together.
 
 (import-vars [structural-typing.guts.type-descriptions.substituting
-              dc:expand-type-signifiers dc:split-paths-ending-in-maps])
+              dc:split-paths-ending-in-maps])
 
 (def dc:validate-starting-descriptions
   (lazyseq:criticize-deviationism
    (pred:none-of? extended-fn? map? sequential? keyword?)
    #(boom! "Types are described with maps, functions, vectors, or keywords: `%s` has `%s`"
            %1 %2)))
-
-(def dc:preds->maps
-  (lazyseq:x->y #(hash-map [] [%]) extended-fn?))
 
 (def dc:spread-collections-of-required-paths
   (lazyseq:x->abc (partial map force-vector) (complement map?)))
@@ -55,28 +53,24 @@
   (lazyseq:x->y map/flatten-map map?))
 
 
-(defn canonicalize [type-map & condensed-type-descriptions]
-  (when (empty? condensed-type-descriptions)
-    (boom! "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
-
+(defn ->finished-ppps [condensed-type-descriptions]
   (->> condensed-type-descriptions
-       (dc:expand-type-signifiers type-map) ; comes first because signifiers can be top-level
        dc:validate-starting-descriptions
-
+       
        ;; predicates
        dc:preds->maps
-
+       
        ;; Let's work with the vectors of required paths, ending up with maps
        dc:keywords-to-required-maps
        dc:spread-collections-of-required-paths      
        dc:split-paths-ending-in-maps   ; can produce a new map
        dc:required-paths->maps         ; path may still contain forks
-
+       
        dc:allow-includes-in-preds
        dc:flatten-maps
-
+       
        ppp/dc:flatmaps->ppps
        ppp/dc:fix-forked-paths
-       ppp/dc:fix-required-paths-with-collection-selectors
+       ppp/dc:fix-required-paths-with-collection-selectors))
 
-       ppp/->type-description))
+

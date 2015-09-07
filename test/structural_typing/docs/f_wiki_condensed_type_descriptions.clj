@@ -64,7 +64,7 @@
   (with-out-str (checked :X {:refpoint {:y "2"}}))
   => #"\[:refpoint :y\] should be `integer\?`")
 
-(type! :X {[:refpoint (forks :x :y)] integer?})
+(type! :X {[:refpoint (through-each :x :y)] integer?})
 (fact 
   (with-out-str (checked :X {:refpoint {:y "2"}}))
   => #"\[:refpoint :y\] should be `integer\?`")
@@ -179,7 +179,7 @@
 
 (type! :Point1
        (requires :x :y :color)
-       {[(forks :x :y)] integer?})
+       {[(through-each :x :y)] integer?})
 
 (type! :Point2
        {[:x] [required-key integer?]

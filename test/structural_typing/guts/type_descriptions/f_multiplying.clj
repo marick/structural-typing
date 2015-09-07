@@ -1,7 +1,7 @@
 (ns structural-typing.guts.type-descriptions.f-multiplying
   (:require [structural-typing.guts.type-descriptions.multiplying :as subject])
   (:require [com.rpl.specter :refer [ALL]])
-  (:require [structural-typing.guts.type-descriptions.readable :refer [forks]])
+  (:require [structural-typing.guts.type-descriptions.readable :refer [through-each]])
   (:use midje.sweet))
 
 
@@ -24,8 +24,8 @@
         [:a :b :d :e :f] 
         [:a :b :d :e :g] ]
 
-    (fact "note that `forks` is a synonym"
-      (subject/forked-paths [:x (forks :y1 :y2)]) => [[:x :y1] [:x :y2]])
+    (fact "note that `through-each` is a synonym"
+      (subject/forked-paths [:x (through-each :y1 :y2)]) => [[:x :y1] [:x :y2]])
     
     (fact "maps should have been removed before this is called"
       (subject/forked-paths [{:a even? :b even?}]) => (throws)

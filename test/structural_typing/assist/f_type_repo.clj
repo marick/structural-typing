@@ -2,8 +2,9 @@
   (:require [structural-typing.assist.type-repo :as subject]
             [structural-typing.type :as type]
             [structural-typing.assist.oopsie :as oopsie])
-  (:require [structural-typing.guts.type-descriptions.substituting :refer [includes]])
-  (:use midje.sweet))
+  (:use midje.sweet
+        structural-typing.assist.testutil
+        structural-typing.assist.special-words))
 
 (fact "an example case (most are in the examples dir"
   (let [repo (-> (subject/->TypeRepo identity oopsie/explanations)

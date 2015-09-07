@@ -2,11 +2,11 @@
   (:require [structural-typing.assist.lifting :as subject]
             [such.readable :as readable]
             [structural-typing.guts.expred :as expred]
-            [structural-typing.guts.type-descriptions.elements :refer [ALL]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.type-descriptions.substituting :as substituting]
             [structural-typing.guts.preds.wrap :as wrap])
-  (:use midje.sweet structural-typing.assist.testutil))
+  (:use midje.sweet
+        structural-typing.assist.testutil
+        structural-typing.assist.special-words))
 
 (fact "lifted predicates are given the value to test in a map and return oopsies"
   (let [lifted (subject/lift-pred even?)]
@@ -71,7 +71,7 @@
                                                     ":c should be `even?`; it is `1`"))
 
   (fact "type maps can be expanded"
-    (let [r (subject/lift-type [ [:a :b] (substituting/includes :X)]
+    (let [r (subject/lift-type [ [:a :b] (includes :X)]
                                {:X {:x even?}})]
       (r {:a 1, :b 2}) => empty?
       (r {:a 1, :b 2, :x 2}) => empty?
