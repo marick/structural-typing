@@ -1,6 +1,7 @@
 (ns structural-typing.guts.type-descriptions.fm-ppps
   (:require [structural-typing.guts.type-descriptions.m-ppps :as subject :refer [->ppp]]
-            [structural-typing.guts.preds.core :refer [required-key]])
+            [structural-typing.guts.preds.core :refer [required-key]]
+            [structural-typing.guts.type-descriptions.paths :as path])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
@@ -87,3 +88,54 @@
                                                (->ppp [:x] #{pos?})])]
       (first (get result [:x])) => (exactly required-key))))
 
+;;;;;; NEW
+
+(fact (pr-str (subject/requires :a :b [:c :d])) => "(required :a :b [:c :d])")
+
+(fact "ppps from `required`"
+  (fact "solitary keywords"
+    (subject/condensed-description->ppps (subject/requires :a :b))
+    => (just (subject/->PPP [:a] [required-key])
+             (subject/->PPP [:b] [required-key])))
+  (fact "required paths"
+    (subject/condensed-description->ppps (subject/requires [:a :b] [:c :d]))
+    => (just (subject/->PPP [:a :b] [required-key])
+             (subject/->PPP [:c :d] [required-key])))
+
+  (fact "paths containing forks"
+    (subject/condensed-description->ppps
+     (subject/requires [:a (path/through-each :b1 [:b2a :b2b]) :c]))
+    => (just (subject/->PPP [:a :b1 :c] [required-key])
+             (subject/->PPP [:a :b2a :b2b :c] [required-key])))
+
+  (fact "paths containing map-paths"
+    (subject/condensed-description->ppps
+     (subject/requires [:point (path/paths-of {:x {:color string? :loc integer?} :y integer?})]))
+    => (just (subject/->PPP [:point :x :color] [required-key])
+             (subject/->PPP [:point :x :loc] [required-key])
+             (subject/->PPP [:point :y] [required-key])))
+
+  (fact "map-paths standing alone"
+    (subject/condensed-description->ppps
+     (subject/requires (path/paths-of {:x {:color string? :loc integer?} :y integer?})))
+    => (just (subject/->PPP [:x :color] [required-key])
+             (subject/->PPP [:x :loc] [required-key])
+             (subject/->PPP [:y] [required-key]))))
+
+
+(facts "ppps from maps"
+  (fact "a simple canonicalized map produces a ppp for each key"
+    (subject/condensed-description->ppps {[:a] [even?] [:b] [odd?]})
+    => (just (subject/->PPP [:a] [even?])
+             (subject/->PPP [:b] [odd?])
+             :in-any-order))
+
+  (future-fact "maps are canonicalized"
+    (subject/condensed-description->ppps {:a even? :b odd?})
+    => (just (subject/->PPP [:a] [even?])
+             (subject/->PPP [:b] [odd?])
+             :in-any-order))
+
+  (prn "STOPPED HERE: Create FLATTEN file mergining flattening maps and paths")
+  
+  )

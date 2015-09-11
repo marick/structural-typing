@@ -36,8 +36,6 @@
   (->Fork (map force-vector alternatives)))
 (def each-of through-each)
 
-;; TODO: Canonicalize right side.
-
 (defn paths-of [arg]
   (let [handle-kvs #(->Fork (keys %))]
     (if (map? arg)

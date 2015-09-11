@@ -2,12 +2,17 @@
   "PPP is short for 'path-predicate pair': a vector + a set. Condensed
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.multiplying :as multiply]
+  (:require [such.readable :as readable]
+            [structural-typing.guts.type-descriptions.paths :as path]
+            [structural-typing.guts.type-descriptions.multiplying :as multiply]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
-(def ->ppp vector)
-(def path-part first)
-(def preds-part second)
+(defrecord PPP [path preds])
+
+(def ->ppp ->PPP)
+
+(def ^:private path-part :path)
+(def ^:private preds-part :preds)
 
 (defn mkfn:x-is? [ppp-part]
   (fn [pred] (comp pred ppp-part)))
@@ -55,8 +60,8 @@
 
 (defn ->type-description [stream]
   (letfn [(make-map [stream]
-            (reduce (fn [so-far [path preds]]
-                      (update-in so-far [path] set-union preds))
+            (reduce (fn [so-far ppp]
+                      (update-in so-far [(:path ppp)] set-union (:preds ppp)))
                     {}
                     stream))
           (vectorize-preds [kvs]
@@ -67,3 +72,31 @@
                                   (vec %))))]
     (-> stream make-map vectorize-preds)))
 
+
+
+;;; NEW
+
+(defrecord Requires [args])
+(defn requires [& args] (->Requires args))
+
+(defmethod clojure.core/print-method Requires [o, ^java.io.Writer w]
+  (.write w (readable/value-string (cons 'required (:args o)))))
+          
+
+  
+
+(defprotocol DescriptionExpander
+  (condensed-description->ppps [this]))
+
+(extend-type Requires
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (->> (:args this)
+         (map force-vector)
+         (mapcat path/->paths)
+         (map #(->PPP % [required-key])))))
+
+(extend-type clojure.lang.IPersistentMap
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (map (fn [[k v]] (->PPP k v)) this)))
