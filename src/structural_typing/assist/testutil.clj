@@ -4,8 +4,7 @@
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.lifting :as lifting]
             [structural-typing.type :as type]
-            [such.readable :as readable])
-  (:use [such.imperfection :only [val-and-output]]))
+            [such.readable :as readable]))
 
 (defn exval
   ([leaf-value path whole-value]

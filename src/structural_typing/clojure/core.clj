@@ -20,7 +20,8 @@
 
 (import-all-vars such.shorthand
                  such.function-makers
-                 such.types)
+                 such.types
+                 such.imperfection)
 (import-prefixed-vars clojure.set set-)
 (import-prefixed-vars clojure.string str-)
 
