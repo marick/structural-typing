@@ -1,5 +1,5 @@
-(ns structural-typing.guts.type-descriptions.f-paths
-  (:require [structural-typing.guts.type-descriptions.paths :as subject]
+(ns structural-typing.guts.type-descriptions.f-flatten
+  (:require [structural-typing.guts.type-descriptions.flatten :as subject]
             [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map])
   (:use midje.sweet
         structural-typing.assist.testutil

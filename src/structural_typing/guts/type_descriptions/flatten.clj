@@ -1,4 +1,4 @@
-(ns structural-typing.guts.type-descriptions.paths
+(ns structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.m-maps :as m-map]
             [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]))

@@ -3,7 +3,7 @@
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
-            [structural-typing.guts.type-descriptions.paths :as path]
+            [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.type-descriptions.multiplying :as multiply]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
@@ -93,7 +93,7 @@
   (condensed-description->ppps [this]
     (->> (:args this)
          (map force-vector)
-         (mapcat path/->paths)
+         (mapcat flatten/->paths)
          (map #(->PPP % [required-key])))))
 
 (extend-type clojure.lang.IPersistentMap
