@@ -55,17 +55,36 @@
 
 ;;;; Flattening maps
 
+(defn- step1:expand-map-values [kvs parent-path]
+  (reduce (fn [so-far [path v]]
+            (let [extended-path (adding-on parent-path path)]
+              (into so-far (if (map? v)
+                             (step1:expand-map-values v extended-path)
+                             [(vector extended-path (force-vector v))]))))
+          []
+          kvs))
+
+(defn- step2:flatten-paths [pairs]
+  (reduce (fn [so-far [maybe-forked-path v]]
+            (->> (uncondense-path maybe-forked-path)
+                 (map #(vector % v))
+                 (into so-far)))
+          []
+          pairs))
+
+(defn map->pairs [kvs parent-path]
+  (-> kvs
+      (step1:expand-map-values parent-path)
+      step2:flatten-paths))
+
 (defn map->flatmap
-  "When path keys point to maps with path keys, make one-level map with concatenated paths."
   ([kvs parent-path]
-     (reduce (fn [so-far [path v]]
-               (let [extended-path (adding-on parent-path path)]
-                 (merge-with into so-far
-                             (if (map? v)
-                               (map->flatmap v extended-path)
-                               (hash-map extended-path (force-vector v))))))
+     (reduce (fn [so-far [k v]]
+               (merge-with into so-far (hash-map k v)))
              {}
-             kvs))
+             (map->pairs kvs parent-path)))
   ([kvs]
      (map->flatmap kvs [])))
+
+
 

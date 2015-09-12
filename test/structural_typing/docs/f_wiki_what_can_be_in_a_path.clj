@@ -10,7 +10,7 @@
   (type! :X {[:a :b] integer?})
   (described-by? :X {:a {:b 1}}) => true)
 
-(fact "ALL"
+(future-fact "ALL"
   (type! :IntArray {[ALL] integer?})
   (described-by? :IntArray [1 2 3 4]) => true
   (let [result (with-out-str (checked :IntArray [1 :a 2 :b]))]
@@ -30,7 +30,7 @@
   (let [result (with-out-str (checked :Nesty {:x [1]}))]
     result => #"\[:x ALL ALL :y\] is not a path"))
 
-(fact "RANGE"
+(future-fact "RANGE"
   (type! :ALL {[ALL] even?})
   (let [result (with-out-str (checked :ALL [:wrong 4 2 :wrong]))]
     result => #"\[0\] should be `even\?`; it is `:wrong`"
@@ -51,7 +51,7 @@
   
   
 
-(fact "predicates"
+(future-fact "predicates"
   (type! :Odder {[ALL even?] neg?, [ALL odd?] pos?})
   (let [result (with-out-str (checked :Odder [4 -3 2 -1]))]
     result => #"\[0 even\?\] should be `neg\?`; it is `4`"

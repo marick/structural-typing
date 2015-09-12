@@ -69,12 +69,24 @@
                                        [:a :b] {:c 3 :d 4}})]
       (keys result) => (just [:a :b :c] [:a :b :d] :in-any-order)
       (result [:a :b :c]) => (just [1 2 3] :in-any-order)
-      (result [:a :b :d]) => [4])))
+      (result [:a :b :d]) => [4]))
 
-(facts "about what flattening a map does NOT do"
-  (fact "forking paths are left alone"
-    (subject/map->flatmap {[:a [:b :c] :d] 1
-                          [ [:b :c] ] {[[:d :e]] 2}})
-    => {[:a [:b :c] :d]   [1]
-        [[:b :c] [:d :e]] [2]}))
+  (fact "internal forking is handled"
+    (subject/map->flatmap {[:a (subject/through-each :b1 :b2) :c] 1
+                           [ (subject/each-of :b1 :b2) ] {[(subject/each-of :d1 :d2)] 2}})
+    => {[:a :b1 :c] [1]
+        [:a :b2 :c] [1]
+        [:b1 :d1] [2]
+        [:b1 :d2] [2]
+        [:b2 :d1] [2]
+        [:b2 :d2] [2]}
+    (fact "resulting duplicates paths have values merged"
+      (subject/map->flatmap {[:a :b1 :c] [1]
+                             [:a (subject/through-each :b1 :b2) :c] [2]})
+      => {[:a :b1 :c] [1 2]
+          [:a :b2 :c] [2]}))
+      
+                             
+
+)
   

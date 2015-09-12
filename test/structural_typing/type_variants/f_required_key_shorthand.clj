@@ -31,7 +31,7 @@
   (check-for-explanations :X {:x 1 :a 1 :b 2}) => (just (err:required [:a :b]))
   (check-for-explanations :X {:x 1 :a {:c 2}}) => (just (err:required [:a :b])))
 
-(fact "through-each inside of paths"
+(future-fact "through-each inside of paths"
   (fact "simple case"
     (type! :X (requires [:a (through-each :b :c) :d]))
     (is-checked :X {:x 1, :a {:b {:d 1}

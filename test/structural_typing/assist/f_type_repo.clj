@@ -31,7 +31,7 @@
                                                     (contains {:path [:b]})
                                                     :in-any-order)))
 
-(fact "values of types are not allowed to be nil"
+(future-fact "values of types are not allowed to be nil"
   (let [repo (-> subject/empty-type-repo
                  (subject/hold-type :Unused [ {:b string?} ])
                  (subject/replace-error-handler oopsie/explanations))]
