@@ -4,7 +4,7 @@
             [com.rpl.specter :as specter])
   (:require [structural-typing.guts.type-descriptions.whole-value-preds :refer [dc:preds->maps]])
   (:require [structural-typing.guts.type-descriptions.m-ppps :as ppp]
-            [structural-typing.guts.type-descriptions.m-maps :as map]
+            [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
 ;;; Decompressers undo one or more types of compression allowed in compressed type descriptions.
@@ -50,7 +50,7 @@
                       kvs)))))))
 
 (def dc:flatten-maps
-  (lazyseq:x->y map/flatten-map map?))
+  (lazyseq:x->y flatten/map->flatmap map?))
 
 
 (defn ->finished-ppps [condensed-type-descriptions]

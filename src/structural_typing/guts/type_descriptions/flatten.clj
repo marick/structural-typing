@@ -1,7 +1,11 @@
 (ns structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.m-maps :as m-map]
-            [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]))
+  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]))
+
+(declare map->flatmap)
+
+;;; Flattening paths
+
 
 (defprotocol CondensedPath
   (->paths [this]))
@@ -39,7 +43,29 @@
 (defn paths-of [arg]
   (let [handle-kvs #(->Fork (keys %))]
     (if (map? arg)
-      (handle-kvs (m-map/flatten-map arg))
+      (handle-kvs (map->flatmap arg))
       (-> (fn [type-map]
             (handle-kvs ( (dc-type-map/includes arg) type-map)))
           dc-type-map/as-type-expander))))
+
+
+(defn uncondense-path [condensed-path]
+  (->paths condensed-path))
+
+
+;;;; Flattening maps
+
+(defn map->flatmap
+  "When path keys point to maps with path keys, make one-level map with concatenated paths."
+  ([kvs parent-path]
+     (reduce (fn [so-far [path v]]
+               (let [extended-path (adding-on parent-path path)]
+                 (merge-with into so-far
+                             (if (map? v)
+                               (map->flatmap v extended-path)
+                               (hash-map extended-path (force-vector v))))))
+             {}
+             kvs))
+  ([kvs]
+     (map->flatmap kvs [])))
+
