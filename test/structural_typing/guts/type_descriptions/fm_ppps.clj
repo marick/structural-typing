@@ -130,12 +130,19 @@
              (subject/->PPP [:b] [odd?])
              :in-any-order))
 
-  (future-fact "maps are canonicalized"
+  (fact "maps are canonicalized"
     (subject/condensed-description->ppps {:a even? :b odd?})
     => (just (subject/->PPP [:a] [even?])
              (subject/->PPP [:b] [odd?])
-             :in-any-order))
+             :in-any-order)))
 
-  (prn "STOPPED HERE: Create FLATTEN file mergining flattening maps and paths")
+(facts "ppps from single keywords"
+  (subject/condensed-description->ppps :a) => (just (subject/->PPP [:a] [required-key])))
+
+(facts "ppps from predicates"
+  (subject/condensed-description->ppps even?) => (just (subject/->PPP [] [even?])))
   
-  )
+(facts "ppps from multimethods"
+  (defmulti multimethod even?)
+  (subject/condensed-description->ppps multimethod) => (just (subject/->PPP [] [multimethod])))
+  

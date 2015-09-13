@@ -88,15 +88,35 @@
 (defprotocol DescriptionExpander
   (condensed-description->ppps [this]))
 
+(defn- require-helper [x]
+  (->> x
+       force-vector
+       flatten/->paths
+       (map #(->PPP % [required-key]))))
+
 (extend-type Requires
   DescriptionExpander
   (condensed-description->ppps [this]
-    (->> (:args this)
-         (map force-vector)
-         (mapcat flatten/->paths)
-         (map #(->PPP % [required-key])))))
+    (mapcat require-helper (:args this))))
 
+(extend-type clojure.lang.Keyword
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (require-helper this)))
+    
 (extend-type clojure.lang.IPersistentMap
   DescriptionExpander
   (condensed-description->ppps [this]
-    (map (fn [[k v]] (->PPP k v)) this)))
+    (map (fn [[k v]] (->PPP k v)) (flatten/map->flatmap this))))
+
+;; For an unknown reason, if I extend AFn, the PersistentMap example above fails.
+;; So multimethods are checked separately.
+(extend-type clojure.lang.Fn
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (->PPP [] [this])))
+
+(extend-type clojure.lang.MultiFn
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (->PPP [] [this])))
