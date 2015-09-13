@@ -5,6 +5,12 @@
         structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
+(defn sort-map-vals [kvs]
+  (reduce (fn [so-far [k v]]
+            (assoc so-far k (sort v)))
+          {}
+          kvs))
+
 (facts "about flattening a condensed path into N paths"
   (fact "convert a simple path into paths"
     (subject/uncondense-path []) => [[]]
@@ -81,12 +87,12 @@
         [:b2 :d1] [2]
         [:b2 :d2] [2]}
     (fact "resulting duplicates paths have values merged"
-      (subject/map->flatmap {[:a :b1 :c] [1]
-                             [:a (subject/through-each :b1 :b2) :c] [2]})
-      => {[:a :b1 :c] [1 2]
-          [:a :b2 :c] [2]}))
-      
-                             
+      (let [result (subject/map->flatmap {[:a :b1 :c] [1]
+                                          [:a (subject/through-each :b1 :b2) :c] [2]})]
+        (sort-map-vals result) => {[:a :b1 :c] [1 2]
+                                   [:a :b2 :c] [2]})))
 
-)
-  
+  (fact "paths can have maps in them"
+    (subject/map->flatmap {:a [{:b 1}]}) => {[:a :b] [1]}
+    (subject/map->flatmap {:a [1 {:b {:c 2}}]}) => {[:a] [1]
+                                                    [:a :b :c] [2]}))

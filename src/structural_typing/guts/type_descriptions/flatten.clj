@@ -1,6 +1,7 @@
 (ns structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]))
+  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]
+            [such.sequences :as seq]))
 
 (declare map->flatmap)
 
@@ -55,6 +56,8 @@
 
 ;;;; Flattening maps
 
+(declare map->flatmap map->pairs)
+
 (defn- step1:expand-map-values [kvs parent-path]
   (reduce (fn [so-far [path v]]
             (let [extended-path (adding-on parent-path path)]
@@ -72,10 +75,22 @@
           []
           pairs))
 
+(defn- step3:expand-maps-in-pred-list [pairs]
+  (reduce (fn [so-far [path preds]]
+            (let [[maps plain] (seq/bifurcate map? preds)
+                  one-plain-pair (if (empty? plain) [] [(vector path plain)])
+                  n-map-pairs (mapcat #(map->pairs % path) maps)]
+              (-> so-far
+                  (into n-map-pairs)
+                  (into one-plain-pair))))
+          []
+          pairs))
+
 (defn map->pairs [kvs parent-path]
   (-> kvs
       (step1:expand-map-values parent-path)
-      step2:flatten-paths))
+      step2:flatten-paths
+      step3:expand-maps-in-pred-list))
 
 (defn map->flatmap
   ([kvs parent-path]
@@ -85,6 +100,3 @@
              (map->pairs kvs parent-path)))
   ([kvs]
      (map->flatmap kvs [])))
-
-
-
