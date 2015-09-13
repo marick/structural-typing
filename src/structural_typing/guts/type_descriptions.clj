@@ -7,7 +7,7 @@
 
 
 (defn ->finished-ppps [condensed-type-descriptions]
-  (canon/->finished-ppps condensed-type-descriptions))
+  (mapcat ppp/condensed-description->ppps condensed-type-descriptions))
 
 (defn canonicalize [condensed-type-descriptions type-map]
   (when (empty? condensed-type-descriptions)

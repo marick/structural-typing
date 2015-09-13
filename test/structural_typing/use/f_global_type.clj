@@ -7,8 +7,8 @@
 (start-over!)
 (on-error! (partial cons :error))
 (on-success! (constantly "yay"))
-(type! :A [:a])
-(type! :B [:b])
+(type! :A (requires :a))
+(type! :B (requires :b))
   
 (fact "checking"                           
   (fact "calls the error and success function depending on the oopsies it gets back"
@@ -21,8 +21,8 @@
     (checked [:A :B] {:a 1, :b 1}) => "yay"))
 
 (start-over!)
-(type! :A [:a])
-(type! :B [:b])
+(type! :A (requires :a))
+(type! :B (requires :b))
   
 (fact "about `described-by?`"
   (fact "one signifier"

@@ -62,7 +62,7 @@
 
 ;; `includes`
 
-(type! :Point [:x :y])
+(type! :Point (requires :x :y))
 (type! :Includer {:the-sidecar (includes :Point)})
 (type! :Direct {[:the-sidecar :x] required-key
                 [:the-sidecar :y] required-key})
@@ -109,3 +109,4 @@
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}}) => (just #":the-sidecar :y] must"))
 
 (start-over!)
+

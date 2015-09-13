@@ -31,7 +31,7 @@
   (check-for-explanations :X {:x 1 :a 1 :b 2}) => (just (err:required [:a :b]))
   (check-for-explanations :X {:x 1 :a {:c 2}}) => (just (err:required [:a :b])))
 
-(future-fact "through-each inside of paths"
+(fact "through-each inside of paths"
   (fact "simple case"
     (type! :X (requires [:a (through-each :b :c) :d]))
     (is-checked :X {:x 1, :a {:b {:d 1}
@@ -41,15 +41,10 @@
                                            :c {:e 2}}}) => (just (err:required [:a :c :d]))
     (description :X) => '{[:a :b :d] [required-key], [:a :c :d] [required-key]})
 
-  (future-fact "through-each that are paths themselves"
+  (fact "through-each that are paths themselves"
     (type! :Y (requires [:a (through-each [:b1 :c1] [:b2 :c2]) :d]))
     (description :Y) => '{[:a :b1 :c1 :d] [required-key],
-                          [:a :b2 :c2 :d] [required-key]}
-    ;; todo try a few cases
-    )
-
-  (future-fact "through-each within through-each"))
-
+                          [:a :b2 :c2 :d] [required-key]}))
 
 (future-fact "paths-of"
   (type! :Point {:x integer?, :y integer?})
@@ -62,3 +57,4 @@
 
 
 (start-over!)
+

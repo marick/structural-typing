@@ -10,7 +10,9 @@
                RANGE]
              [structural-typing.guts.type-descriptions.dc-type-maps
                includes]
-             [structural-typing.guts.type-descriptions.readable
-               requires through-each])
+             [structural-typing.guts.type-descriptions.flatten
+               through-each each-of paths-of]
+             [structural-typing.guts.type-descriptions.m-ppps
+               requires])
              
 

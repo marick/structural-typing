@@ -56,22 +56,6 @@
                    (preds-is? multiply/required?)))
 
 
-;;; And the final result
-
-(defn ->type-description [stream]
-  (letfn [(make-map [stream]
-            (reduce (fn [so-far ppp]
-                      (update-in so-far [(:path ppp)] set-union (:preds ppp)))
-                    {}
-                    stream))
-          (vectorize-preds [kvs]
-            (update-each-value kvs
-                               #(if (contains? % required-key)
-                                  (into [required-key]
-                                        (set-difference % #{required-key}))
-                                  (vec %))))]
-    (-> stream make-map vectorize-preds)))
-
 
 
 ;;; NEW
@@ -109,14 +93,37 @@
   (condensed-description->ppps [this]
     (map (fn [[k v]] (->PPP k v)) (flatten/map->flatmap this))))
 
+(extend-type clojure.lang.IPersistentVector
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (boom! "%s is old style description of required keys: use `requires` instead" this)))
+
 ;; For an unknown reason, if I extend AFn, the PersistentMap example above fails.
 ;; So multimethods are checked separately.
 (extend-type clojure.lang.Fn
   DescriptionExpander
   (condensed-description->ppps [this]
-    (->PPP [] [this])))
+    (vector (->PPP [] [this]))))
 
 (extend-type clojure.lang.MultiFn
   DescriptionExpander
   (condensed-description->ppps [this]
-    (->PPP [] [this])))
+    (vector (->PPP [] [this]))))
+
+
+;;; And the final result
+
+(defn ->type-description [stream]
+  (letfn [(make-map [stream]
+            (reduce (fn [so-far ppp]
+                      (update-in so-far [(:path ppp)] set-union (set (:preds ppp))))
+                    {}
+                    stream))
+          (vectorize-preds [kvs]
+            (update-each-value kvs
+                               #(if (contains? % required-key)
+                                  (into [required-key]
+                                        (set-difference % #{required-key}))
+                                  (vec %))))]
+    (-> stream make-map vectorize-preds)))
+

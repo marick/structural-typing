@@ -103,7 +103,7 @@
              #":x should be `really big`"))
 
   (fact "use with substructures"
-    (let [r (subject/implies #(even? (:a %)) [:c :b])]
+    (let [r (subject/implies #(even? (:a %)) (requires :c :b))]
       (run r {}) => empty?
       (run r {:a 1}) => empty?
       (oopsie/explanations (run r {:a 2}))
@@ -129,7 +129,7 @@
         (oopsie/explanations (run r {:a 1})) => (just "[:x :b] must exist and be non-nil")))
 
     (fact "expanding a condensed type description"
-      (let [r (subject/implies :a [:b :c :d])]
+      (let [r (subject/implies :a (requires :b :c :d))]
         (run r {:a 1, :b 2, :c 3, :d 4}) => empty?
         (oopsie/explanations (run r {:a 1, :b 2, :d 4}))
         => (just "[:x :c] must exist and be non-nil")))

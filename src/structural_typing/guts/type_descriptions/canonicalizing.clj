@@ -53,24 +53,24 @@
   (lazyseq:x->y flatten/map->flatmap map?))
 
 
-(defn ->finished-ppps [condensed-type-descriptions]
-  (->> condensed-type-descriptions
-       dc:validate-starting-descriptions
+;; (defn ->finished-ppps [condensed-type-descriptions]
+;;   (->> condensed-type-descriptions
+;;        dc:validate-starting-descriptions
        
-       ;; predicates
-       dc:preds->maps
+;;        ;; predicates
+;;        dc:preds->maps
        
-       ;; Let's work with the vectors of required paths, ending up with maps
-       dc:keywords-to-required-maps
-       dc:spread-collections-of-required-paths      
-       dc:split-paths-ending-in-maps   ; can produce a new map
-       dc:required-paths->maps         ; path may still contain forks
+;;        ;; Let's work with the vectors of required paths, ending up with maps
+;;        dc:keywords-to-required-maps
+;;        dc:spread-collections-of-required-paths      
+;;        dc:split-paths-ending-in-maps   ; can produce a new map
+;;        dc:required-paths->maps         ; path may still contain forks
        
-       dc:allow-includes-in-preds
-       dc:flatten-maps
+;;        dc:allow-includes-in-preds
+;;        dc:flatten-maps
        
-       ppp/dc:flatmaps->ppps
-       ppp/dc:fix-forked-paths
-       ppp/dc:fix-required-paths-with-collection-selectors))
+;;        ppp/dc:flatmaps->ppps
+;;        ppp/dc:fix-forked-paths
+;;        ppp/dc:fix-required-paths-with-collection-selectors))
 
 

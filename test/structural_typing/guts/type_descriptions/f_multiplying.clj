@@ -1,12 +1,12 @@
 (ns structural-typing.guts.type-descriptions.f-multiplying
   (:require [structural-typing.guts.type-descriptions.multiplying :as subject])
   (:require [com.rpl.specter :refer [ALL]])
-  (:require [structural-typing.guts.type-descriptions.readable :refer [through-each]])
+  (:require [structural-typing.assist.special-words :refer [through-each]])
   (:use midje.sweet))
 
 
 
-(facts "`forked-paths` converts a single vector into a vector of paths."
+(future-facts "`forked-paths` converts a single vector into a vector of paths."
         
   (fact "single-argument form"
     (subject/forked-paths [:x]) => [[:x]]

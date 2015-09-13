@@ -4,6 +4,7 @@
   (:use midje.sweet structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
+(future-fact "delete"
 
 (def ps list) ; "partial type descriptions" - just to make top-level grouping easier to follow
 
@@ -77,3 +78,4 @@
 
 
 
+)

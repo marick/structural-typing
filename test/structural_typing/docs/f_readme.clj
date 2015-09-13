@@ -60,7 +60,7 @@
            #":y must exist and be non-nil"))
 
 (type! :Point
-       [:x :y]
+       (requires :x :y)
        {:x integer? :y integer?})
 
 (fact

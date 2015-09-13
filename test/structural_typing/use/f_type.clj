@@ -1,14 +1,15 @@
 (ns structural-typing.use.f-type
   (:require [structural-typing.type :as type]
             [structural-typing.preds :as pred])
-  (:use midje.sweet))
+  (:use midje.sweet
+        structural-typing.assist.special-words))
 
 (fact "about checking"
   (let [repo (-> type/empty-type-repo
                  (type/replace-error-handler #(cons :error %))
                  (type/replace-success-handler (constantly "yay"))
-                 (type/named :A [:a])
-                 (type/named :B [:b]))]
+                 (type/named :A (requires :a))
+                 (type/named :B (requires :b)))]
                              
     (fact "calls the error and success function depending on the oopsies it gets back"
       (type/checked repo :A {:a 1}) => "yay"
@@ -21,8 +22,8 @@
 
 (fact "about `described-by?`"
   (let [repo (-> type/empty-type-repo
-                 (type/named :A [:a])
-                 (type/named :B [:b]))]
+                 (type/named :A (requires :a))
+                 (type/named :B (requires :b)))]
                              
     (fact "one signifier"
       (type/described-by? repo :A {:a 1}) => true
@@ -44,7 +45,7 @@
 
 
 (fact "origin and description"
-  (let [origin (list [:x [:y :z]]
+  (let [origin (list (requires :x [:y :z])
                      {:tag (pred/exactly 'even)
                       :x integer?})
         repo (apply type/named type/empty-type-repo :X origin)]

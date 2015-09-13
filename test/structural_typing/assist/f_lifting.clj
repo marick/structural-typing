@@ -65,17 +65,15 @@
     (r 2) => empty?
     (oopsie/explanations (r 1)) => (just "Value should be `even?`; it is `1`"))
 
-  (let [r (subject/lift-type [ [:a :b] {:c even?}])]
+  (let [r (subject/lift-type [ (requires :a :b) {:c even?}])]
     (r {:a 1, :b 2}) => empty?
     (oopsie/explanations (r {:c 1, :b 2})) => (just ":a must exist and be non-nil"
                                                     ":c should be `even?`; it is `1`"))
 
   (fact "type maps can be expanded"
-    (let [r (subject/lift-type [ [:a :b] (includes :X)]
+    (let [r (subject/lift-type [ (requires :a :b) (includes :X)]
                                {:X {:x even?}})]
       (r {:a 1, :b 2}) => empty?
       (r {:a 1, :b 2, :x 2}) => empty?
       (oopsie/explanations (r {:b 2, :x 1})) => (just ":a must exist and be non-nil"
                                                       ":x should be `even?`; it is `1`"))))
-    
-                                                    

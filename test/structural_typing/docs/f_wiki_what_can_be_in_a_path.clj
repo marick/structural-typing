@@ -48,15 +48,5 @@
   (checked :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
   (let [result (with-out-str (checked :SECOND-AND-THIRD [:ignored 1]))]
     result => #"\[\(RANGE 1 3\)\] is not a path into `\[:ignored 1\]`"))
-  
-  
-
-(future-fact "predicates"
-  (type! :Odder {[ALL even?] neg?, [ALL odd?] pos?})
-  (let [result (with-out-str (checked :Odder [4 -3 2 -1]))]
-    result => #"\[0 even\?\] should be `neg\?`; it is `4`"
-    result => #"\[2 even\?\] should be `neg\?`; it is `2`"
-    result => #"\[1 odd\?\] should be `pos\?`; it is `-3`"
-    result => #"\[3 odd\?\] should be `pos\?`; it is `-1`"))
 
 (start-over!)

@@ -59,18 +59,13 @@
   => #"\[:refpoint :y\] should be `integer\?`")
 
 
-; (type! :X {[:refpoint [:x :y]] integer?})
-(future-fact 
-  (with-out-str (checked :X {:refpoint {:y "2"}}))
-  => #"\[:refpoint :y\] should be `integer\?`")
-
-; (type! :X {[:refpoint (through-each :x :y)] integer?})
-(future-fact 
+(type! :X {[:refpoint (each-of :x :y)] integer?})
+(fact 
   (with-out-str (checked :X {:refpoint {:y "2"}}))
   => #"\[:refpoint :y\] should be `integer\?`")
 
 
-(type! :Point [:x :y] {:x integer? :y integer?, :color string?})
+(type! :Point (requires :x :y) {:x integer? :y integer?, :color string?})
 (fact 
   (with-out-str (checked :Point {:y 1}))
   => #":x must exist"
@@ -130,7 +125,7 @@
   :V1
   :V2)
 
-(type! :V1 [:x [:y :z]])
+(type! :V1 (requires :x [:y :z]))
 
 (type! :V2 {[:x] [required-key]
             [:y :z] [required-key]})

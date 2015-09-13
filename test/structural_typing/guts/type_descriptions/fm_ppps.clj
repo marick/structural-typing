@@ -61,33 +61,6 @@
 
 
 
-(fact ->type-description
-  (fact "it produces a map from ppps"
-    (let [result (subject/->type-description [ (->ppp [:x] #{1 2})
-                                                       (->ppp [:y] #{3})])]
-      (get result [:x]) => vector?
-      (get result [:x]) => (just 1 2 :in-any-order)
-      (get result [:y]) => [3]))
-  
-  (fact "duplicate paths are combined"
-    (let [result (subject/->type-description [ (->ppp [:x] #{1})
-                                               (->ppp [:x] #{2})])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
-  
-  (fact "duplicate predicates appear only once"
-    (let [result (subject/->type-description [ (->ppp [:x] #{1})
-                                               (->ppp [:x] #{2})
-                                               (->ppp [:x] #{2})])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
-  
-  (fact "the predicate list is a vector with required-key first (if present)"
-    (let [result (subject/->type-description [ (->ppp [:x] #{even?})
-                                               (->ppp [:x] #{odd?})
-                                               (->ppp [:x] #{required-key})
-                                               (->ppp [:x] #{integer?})
-                                               (->ppp [:x] #{pos?})])]
-      (first (get result [:x])) => (exactly required-key))))
-
 ;;;;;; NEW
 
 (fact (pr-str (subject/requires :a :b [:c :d])) => "(required :a :b [:c :d])")
@@ -137,12 +110,45 @@
              :in-any-order)))
 
 (facts "ppps from single keywords"
-  (subject/condensed-description->ppps :a) => (just (subject/->PPP [:a] [required-key])))
+  (subject/condensed-description->ppps :a) => [(subject/->PPP [:a] [required-key])])
 
 (facts "ppps from predicates"
-  (subject/condensed-description->ppps even?) => (just (subject/->PPP [] [even?])))
+  (subject/condensed-description->ppps even?) => [(subject/->PPP [] [even?])])
   
 (facts "ppps from multimethods"
   (defmulti multimethod even?)
-  (subject/condensed-description->ppps multimethod) => (just (subject/->PPP [] [multimethod])))
+  (subject/condensed-description->ppps multimethod) => [(subject/->PPP [] [multimethod])])
   
+
+(fact ->type-description
+  (fact "it produces a map from ppps"
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [1 2])
+                                               (subject/->PPP [:y] [3])])]
+      (get result [:x]) => vector?
+      (get result [:x]) => (just 1 2 :in-any-order)
+      (get result [:y]) => [3]))
+  
+  (fact "duplicate paths are combined"
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [1])
+                                               (subject/->PPP [:x] [2])])]
+      (get result [:x]) => (just 1 2 :in-any-order)))
+  
+  (fact "duplicate predicates appear only once"
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [1])
+                                               (subject/->PPP [:x] [2])
+                                               (subject/->PPP [:x] [2])])]
+      (get result [:x]) => (just 1 2 :in-any-order)))
+  
+  (fact "the predicate list is a vector with required-key first (if present)"
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
+                                               (subject/->PPP [:x] [odd?])
+                                               (subject/->PPP [:x] [required-key])
+                                               (subject/->PPP [:x] [integer?])
+                                               (subject/->PPP [:x] [pos?])])]
+      (first (get result [:x])) => (exactly required-key)))
+
+  (fact "it allows empty paths"
+    (let [result (subject/->type-description [ (subject/->PPP [] [even?]) ])]
+      (get result []) => (just (exactly even?)))))
+
+
