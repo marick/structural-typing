@@ -5,61 +5,9 @@
   (:require [such.readable :as readable]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.type-descriptions.elements :as element]
-            [structural-typing.guts.type-descriptions.multiplying :as multiply]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
 (defrecord PPP [path preds])
-
-(def ->ppp ->PPP)
-
-(def ^:private path-part :path)
-(def ^:private preds-part :preds)
-
-(defn mkfn:x-is? [ppp-part]
-  (fn [pred] (comp pred ppp-part)))
-
-(def path-is? (mkfn:x-is? path-part))
-(def preds-is? (mkfn:x-is? preds-part))
-
-
-(defn mkfn:apply-to [ppp-part]
-  (fn [f ppp] (f (ppp-part ppp))))
-(def apply-to-path (mkfn:apply-to path-part))
-(def apply-to-preds (mkfn:apply-to preds-part))
-
-(defn spread-path-and-x [spreader pred-creator]
-  (fn [ppp]
-    (map #(->ppp % (pred-creator ppp))
-         (apply-to-path spreader ppp))))
-  
-(defn spread-path-into-required-ppps [spreader]
-  (spread-path-and-x spreader (constantly #{required-key})))
-
-(defn spread-path [spreader]
-  (spread-path-and-x spreader preds-part))
-
-(def validated-preds 
-  (partial map #(if (extended-fn? %)
-                  %
-                  (boom! "`%s` is not a predicate." %))))
-
-;;; description decompressors
-
-(def dc:flatmaps->ppps 
-  (lazyseq:x->abc (partial map (fn [[path preds]] (->ppp path (set (validated-preds preds)))))))
-
-(def dc:fix-forked-paths 
-  (lazyseq:x->abc (spread-path multiply/forked-paths)
-                  (path-is? multiply/forking?)))
-
-(def dc:fix-required-paths-with-collection-selectors
-  (lazyseq:x->xabc (spread-path-into-required-ppps multiply/required-prefix-paths)
-                   (preds-is? multiply/required?)))
-
-
-
-
-;;; NEW
 
 (defrecord Requires [args])
 (defn requires [& args] (->Requires args))

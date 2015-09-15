@@ -48,28 +48,3 @@
                  indices))))
 
 
-;;;                     The unadvertised required-path-ending-in-map mechanism
-
-
-(defn ends-in-map? [x]
-  (cond (map? x)
-        false
-        
-        (not (some map? x))
-        false
-        
-        (map? (first x))
-        (boom! "A map cannot be the first element of a path: `%s`" x)
-        
-        (not (map? (last x)))
-        (boom! "Nothing may follow a map within a path: `%s`" x)
-        
-        :else
-        true))
-
-
-(def dc:split-paths-ending-in-maps
-  (lazyseq:x->abc #(let [prefix-path (pop %)]
-                     (vector prefix-path (hash-map prefix-path (last %))))
-                  ends-in-map?))
-                    

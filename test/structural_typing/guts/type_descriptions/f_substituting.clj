@@ -4,21 +4,6 @@
   (:require [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
   (:use midje.sweet))
 
-(fact ends-in-map?
-  (fact "maps are allows in some sequences"
-    (subject/ends-in-map? [:a {:b 1}]) => true
-    (subject/ends-in-map? [:a :b]) => false)
-
-  (fact "error cases"
-    (subject/ends-in-map? [{:a 1}])
-    => (throws "A map cannot be the first element of a path: `[{:a 1}]`")
-
-    (subject/ends-in-map? [:a {:a even?} :a])
-    => (throws #"Nothing may follow a map within a path")))
-
-
-
-
 (fact path-will-match-many?
   (subject/path-will-match-many? [:a :b]) => false
   (subject/path-will-match-many? [:a ALL :b]) => true)
@@ -32,22 +17,3 @@
     (subject/replace-with-indices [:a ALL :b (RANGE 1 100)] [17 3]) => [:a 17 :b 3]))
     
     
-
-
-(fact index-collecting-splice
-  (specter/select (subject/index-collecting-splice ALL) [:a :b :c]) => (just [0 :a]
-                                                                             [1 :b]
-                                                                             [2 :c])
-  
-  (let [path (concat [:a]
-                     (subject/index-collecting-splice ALL)
-                     [:b]
-                     (subject/index-collecting-splice  ALL))]
-
-    (specter/select path {:a [{:b      [:one      :two]} {:b [:three]} {:b []} {:b [:four]}]})  
-    =>                          [ [0 0 :one] [0 1 :two]  [1 0 :three]          [3 0 :four]]
-
-
-    (specter/select path {:a [{} {:c 1} {:b [:one       :two]}]})
-    =>                                [ [2 0 :one] [2 1 :two]]))
-

@@ -3,7 +3,6 @@
   (:require [structural-typing.guts.preds.from-type-descriptions :as subject]
             [structural-typing.assist.annotating :refer [show-as]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.type-descriptions.canonicalizing :refer [canonicalize]]
             [structural-typing.preds :as preds]
             [structural-typing.guts.preds.core :refer [required-key]]
             [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
@@ -100,7 +99,7 @@
     (oopsie/explanations oopsies) => [":x should be `pos?`; it is `\"string\"`"]))
 
 (defn ->checker [& elts]
-  (subject/compile-type (apply canonicalize {} elts)))
+  (subject/lift elts {}))
 
 (fact "handling ALL"
   (let [checker (->checker [[:points ALL :x]]

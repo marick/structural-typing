@@ -1,7 +1,6 @@
 (ns structural-typing.guts.type-descriptions
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.canonicalizing :as canon]
-            [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-maps]
+  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-maps]
             [structural-typing.guts.type-descriptions.m-ppps :as ppp]
             [structural-typing.guts.preds.from-type-descriptions :as compile]))
 
