@@ -111,18 +111,18 @@
 
 ;;; Sequences of maps
 
-; (type! :Points {[ALL :x] integer?
-;                 [ALL :y] integer?})
-; (type! :Points2 {[ALL] (includes :Point)})
+(type! :Points {[ALL :x] integer?
+                [ALL :y] integer?})
+(type! :Points2 {[ALL] (includes :Point)})
 
-(future-fact "incorrect paths"
+(fact "incorrect paths"
   (check-for-explanations :Points 3) => (just #"\[ALL :x] is not a path into `3`"
                                               #"\[ALL :y] is not a path into `3`")
 
   (check-for-explanations :Points2 3) => (just #"\[ALL :x] is not a path into `3`"
                                                #"\[ALL :y] is not a path into `3`")
 
-  (future-fact "Annoying side effect of there being no distinction between a present nil and a missing key"
+  (future-fact "Failure is annoying side effect of there being no distinction between a present nil and a missing key"
 
     (check-for-explanations :Points [1 2 3]) => (just #"\[ALL :x] is not a path into `3`"
                                                       #"\[ALL :y] is not a path into `3`")))
@@ -134,12 +134,12 @@
                          {:x 2, :y 3}]})
 
 
-;(type! :Figure (includes :Colorful)
-;               {[:points ALL :x] [required-key integer?]
-;                [:points ALL :y] [required-key integer?]})
+(type! :Figure (includes :Colorful)
+              {[:points ALL :x] [required-key integer?]
+               [:points ALL :y] [required-key integer?]})
 
 
-(future-fact 
+(fact 
   (checked :Figure ok-figure) => ok-figure
 
   (check-for-explanations :Figure {:points [{:y 1} {:x 1 :y "2"}]})
@@ -147,7 +147,7 @@
            #"\[:points 0 :x\] must exist"
            #"\[:points 1 :y\] should be `integer\?`"))
 
-(future-fact "a sorted result"
+(fact "a sorted result"
   (check-for-explanations :Figure {:points {:x 1 :y 2}})
   => (just ":color must exist and be non-nil"
            "[:points 0 :x] must exist and be non-nil"
@@ -155,7 +155,7 @@
            "[:points 1 :x] must exist and be non-nil"
            "[:points 1 :y] must exist and be non-nil"))
     
-(future-fact "bad paths"
+(fact "bad paths"
   (check-for-explanations :Figure {:points 3})
    => (just #":color must exist"
             #"\[:points ALL :x\] is not a path into `\{:points 3\}`"

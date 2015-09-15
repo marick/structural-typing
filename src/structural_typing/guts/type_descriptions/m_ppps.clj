@@ -4,6 +4,7 @@
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
+            [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.type-descriptions.multiplying :as multiply]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
@@ -111,19 +112,48 @@
     (vector (->PPP [] [this]))))
 
 
+
 ;;; And the final result
 
-(defn ->type-description [stream]
-  (letfn [(make-map [stream]
-            (reduce (fn [so-far ppp]
-                      (update-in so-far [(:path ppp)] set-union (set (:preds ppp))))
-                    {}
-                    stream))
-          (vectorize-preds [kvs]
-            (update-each-value kvs
-                               #(if (contains? % required-key)
-                                  (into [required-key]
-                                        (set-difference % #{required-key}))
-                                  (vec %))))]
-    (-> stream make-map vectorize-preds)))
+(defn- ppps->mapset [ppps]
+  (reduce (fn [so-far ppp]
+            ;; Note we use set-union instead of concatenating all then converting to set
+            ;; because `(into nil [1 2 3])` is not a vector, so this is more convenient
+            (update-in so-far [(:path ppp)] set-union (set (:preds ppp))))
+          {}
+          ppps))
+
+(defn relevant-subvectors [path]
+  (->> path
+       (map-indexed vector)
+       (drop 1) ; This rules out {[ALL :x] [required]}
+       (filter #(element/will-match-many? (second %)))
+       (map first)
+       (map #(subvec path 0 %))))
+
+(defn add-implied-required-keys
+  "A form like {[:a ALL :b] [required-key]} implies that the `:a` key must be present.
+   That doesn't happen automatically, so a `[:a] [required-key]` term is added."
+  [kvs]
+  (let [candidate-paths
+        (->> kvs
+            (filter (fn [[_path_ predset]] (contains? predset required-key)))
+            (map first))
+        new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
+        ;; This prevents sequences like [:x ALL ALL]
+        new-paths (remove #(element/will-match-many? (last %)) new-paths-with-noise)]
+    (reduce (fn [so-far path]
+              (merge-with into so-far (hash-map path #{required-key})))
+            kvs
+            new-paths)))
+
+(defn- mapset->map-with-ordered-preds [kvs]
+  (update-each-value kvs
+                     #(if (contains? % required-key)
+                        (into [required-key]
+                              (set-difference % #{required-key}))
+                        (vec %))))
+
+(defn ->type-description [ppps]
+  (-> ppps ppps->mapset add-implied-required-keys mapset->map-with-ordered-preds))
 

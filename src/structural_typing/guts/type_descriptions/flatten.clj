@@ -1,6 +1,7 @@
 (ns structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]
+            [com.rpl.specter :as specter]
             [such.sequences :as seq]))
 
 (declare map->flatmap)
@@ -49,9 +50,34 @@
             (handle-kvs ( (dc-type-map/includes arg) type-map)))
           dc-type-map/as-type-expander))))
 
+(deftype ALLType []
+  CondensedPath 
+  (->paths [this] (add-on this [[]]))
+  PathComponent
+  (add-on [this paths]
+    (prn :adding this :onto paths)
+    (let [note-index (specter/view (partial map-indexed vector)) ; value [x y] -> [ [0 x] [1 y] ]
+                                                                 ; for next step
+          prepend-index (specter/collect-one specter/FIRST)  ; stash the index (0 or 1 above) so that
+                                                             ; Specter will prepend to final result.
+          intermediate-value specter/LAST]  ; Further selectors apply to the original val (x and y)
+      (for [path paths]
+        (let [x (into path [note-index specter/ALL prepend-index intermediate-value])]
+          (prn :result x)
+          x)))))
+
+;; TODO: don't know yet if this should reject objects other than Specter-equivalents,
+;; or if compilation should.
+(extend-type Object
+  PathComponent
+  (add-on [this paths]
+    (map #(conj % this) paths)))
 
 (defn uncondense-path [condensed-path]
   (->paths condensed-path))
+
+
+   
 
 
 ;;;; Flattening maps

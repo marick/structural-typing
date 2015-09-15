@@ -1,7 +1,8 @@
 (ns structural-typing.guts.type-descriptions.fm-ppps
   (:require [structural-typing.guts.type-descriptions.m-ppps :as subject :refer [->ppp]]
             [structural-typing.guts.preds.core :refer [required-key]]
-            [structural-typing.guts.type-descriptions.flatten :as flatten])
+            [structural-typing.guts.type-descriptions.flatten :as flatten]
+            [structural-typing.guts.type-descriptions.elements :as element])
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
@@ -149,6 +150,56 @@
 
   (fact "it allows empty paths"
     (let [result (subject/->type-description [ (subject/->PPP [] [even?]) ])]
-      (get result []) => (just (exactly even?)))))
+      (get result []) => (just (exactly even?))))
 
+  (fact "about adding new required paths in presence of ANY and similar selectors"
+    (fact relevant-subvectors
+      (subject/relevant-subvectors []) => []
+      (subject/relevant-subvectors [:x]) => []
+      (subject/relevant-subvectors [:x :y]) => []
+      (subject/relevant-subvectors [element/ALL]) => []
+      (subject/relevant-subvectors [element/ALL :x]) => []
+      (subject/relevant-subvectors [:x element/ALL :y]) => [[:x]]
+      (subject/relevant-subvectors [:x :y element/ALL :z]) => [[:x :y]]
+      (subject/relevant-subvectors [:x element/ALL :y element/ALL]) => [[:x] [:x element/ALL :y]]
+      (subject/relevant-subvectors [:x element/ALL :y1 :y2 element/ALL :z]) => [[:x] [:x element/ALL :y1 :y2]])
+
+
+    (tabular 
+      (fact "elements that will cause Specter to match-many can add new 'required-key' clauses"
+        ;; Easier to test this behavior of ->type-description directly
+      (subject/add-implied-required-keys {?path #{required-key}}) => ?expected)
+      ?path                              ?expected
+      [:a :b]                            {[:a :b] #{required-key}}
+      [:a element/ALL]                   {[:a element/ALL] #{required-key}
+                                          [:a]     #{required-key}}
+      [:a element/ALL :b]                {[:a element/ALL :b] #{required-key}
+                                          [:a] #{required-key}}
+      [:a element/ALL :b element/ALL]    {[:a element/ALL :b element/ALL] #{required-key}
+                                          [:a] #{required-key}
+                                          [:a element/ALL :b] #{required-key}}
+      [:a element/ALL :b element/ALL :c] {[:a element/ALL :b element/ALL :c] #{required-key}
+                                          [:a] #{required-key}
+                                          [:a element/ALL :b] #{required-key}}
+      [:a :b element/ALL :c :d]          {[:a :b element/ALL :c :d] #{required-key}
+                                          [:a :b] #{required-key}}
+
+      ;; subpaths ending in `will-match-many` don't make sense
+      [:a :b element/ALL element/ALL]    {[:a :b element/ALL element/ALL] #{required-key}
+                                          [:a :b] #{required-key}}
+      [:a :b element/ALL element/ALL :c] {[:a :b element/ALL element/ALL :c] #{required-key}
+                                                       [:a :b] #{required-key}}
+      )
+
+    (fact "such elements are not added when there is no match-many element in path"
+      (subject/add-implied-required-keys {[:a :b] #{required-key}}) => {[:a :b] #{required-key}})
+
+    (fact "such elements are not added when there are no required keys in the predicates"
+      (subject/add-implied-required-keys {[:a element/ALL] #{even?}}) => {[:a element/ALL] #{even?}})
+    
+    (fact "addition of required keys adds on to previous elements (merge-with)"
+      (subject/->type-description [(subject/->PPP [:a] [even?])
+                                   (subject/->PPP [:a element/ALL :b]  [required-key])])
+      => {[:a] [required-key even?]
+          [:a element/ALL :b] [required-key]})))
 
