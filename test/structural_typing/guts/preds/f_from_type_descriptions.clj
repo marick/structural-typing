@@ -253,3 +253,18 @@
                                                 {:b [1 -1 -1 -1 -1 1]}
                                                 :wrong]}))
         => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path")))))
+
+
+(fact path-will-match-many?
+  (subject/path-will-match-many? [:a :b]) => false
+  (subject/path-will-match-many? [:a ALL :b]) => true)
+
+(fact replace-with-indices
+  (fact "ALL needn't worry about offsets"
+    (subject/replace-with-indices [ALL ALL] [17 3]) => [17 3]
+    (subject/replace-with-indices [:a ALL :b ALL] [17 3]) => [:a 17 :b 3])
+  (fact "... and, as it happens, RANGE needn't either"
+    (subject/replace-with-indices [(RANGE 3 100) ALL] [17 3]) => [17 3]
+    (subject/replace-with-indices [:a ALL :b (RANGE 1 100)] [17 3]) => [:a 17 :b 3]))
+    
+    

@@ -3,8 +3,6 @@
             [structural-typing.guts.type-descriptions.ppps :as ppp]
             [structural-typing.guts.preds.core :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
-  (:require 
-            [structural-typing.guts.type-descriptions.readable :refer :all])
   (:use midje.sweet))
 
 ;; (facts "Part 2: examples of use in canonicalization"

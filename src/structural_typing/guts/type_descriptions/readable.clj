@@ -2,7 +2,6 @@
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]))
 
-;;; what you see
 
 (defn- stringify [components]
   (if (and (= 1 (count components))
