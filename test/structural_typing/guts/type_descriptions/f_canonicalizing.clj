@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.f-canonicalizing
   (:require 
-            [structural-typing.guts.type-descriptions.m-ppps :as ppp])
+            [structural-typing.guts.type-descriptions.ppps :as ppp])
   (:use midje.sweet structural-typing.assist.testutil
         structural-typing.assist.special-words))
 

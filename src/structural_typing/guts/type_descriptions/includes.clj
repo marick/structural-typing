@@ -1,4 +1,4 @@
-(ns structural-typing.guts.type-descriptions.dc-type-maps
+(ns structural-typing.guts.type-descriptions.includes
   (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
             [such.metadata :as meta]))

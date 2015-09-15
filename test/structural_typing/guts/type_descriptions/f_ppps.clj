@@ -1,5 +1,5 @@
-(ns structural-typing.guts.type-descriptions.fm-ppps
-  (:require [structural-typing.guts.type-descriptions.m-ppps :as subject]
+(ns structural-typing.guts.type-descriptions.f-ppps
+  (:require [structural-typing.guts.type-descriptions.ppps :as subject]
             [structural-typing.guts.preds.core :refer [required-key]]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.type-descriptions.elements :as element])

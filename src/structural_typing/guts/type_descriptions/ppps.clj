@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.type-descriptions.m-ppps
+(ns ^:no-doc structural-typing.guts.type-descriptions.ppps
   "PPP is short for 'path-predicate pair': a vector + a set. Condensed
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)

@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map]
+  (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [com.rpl.specter :as specter]
             [such.sequences :as seq]))
 
@@ -47,8 +47,8 @@
     (if (map? arg)
       (handle-kvs (map->flatmap arg))
       (-> (fn [type-map]
-            (handle-kvs ( (dc-type-map/includes arg) type-map)))
-          dc-type-map/as-type-expander))))
+            (handle-kvs ( (includes/includes arg) type-map)))
+          includes/as-type-expander))))
 
 (deftype ALLType []
   CondensedPath 

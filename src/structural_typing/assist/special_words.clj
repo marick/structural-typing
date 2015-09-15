@@ -8,11 +8,11 @@
              [structural-typing.guts.type-descriptions.elements
                ALL
                RANGE]
-             [structural-typing.guts.type-descriptions.dc-type-maps
+             [structural-typing.guts.type-descriptions.includes
                includes]
              [structural-typing.guts.type-descriptions.flatten
                through-each each-of paths-of]
-             [structural-typing.guts.type-descriptions.m-ppps
+             [structural-typing.guts.type-descriptions.ppps
                requires])
              
 

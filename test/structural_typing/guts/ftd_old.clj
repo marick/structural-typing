@@ -1,6 +1,6 @@
 (ns structural-typing.guts.ftd-old
   (:require 
-            [structural-typing.guts.type-descriptions.m-ppps :as ppp]
+            [structural-typing.guts.type-descriptions.ppps :as ppp]
             [structural-typing.guts.preds.core :refer [required-key]])
   (:require [com.rpl.specter :refer [ALL]])
   (:require 

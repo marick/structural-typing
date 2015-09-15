@@ -4,7 +4,7 @@
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.annotating :as annotating]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-maps]
+            [structural-typing.guts.type-descriptions.includes :as includes]
             [such.readable :as readable]))
 
 (defn- should-be [format-string expected]
@@ -170,4 +170,4 @@
                                   (alternately make-antecedent make-consequent)
                             (partition 2))]
           (implies:mkfn:from-adjusted adjusted-pairs)))
-      dc-type-maps/as-type-expander))
+      includes/as-type-expander))

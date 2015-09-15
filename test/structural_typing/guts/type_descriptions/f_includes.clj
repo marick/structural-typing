@@ -1,5 +1,5 @@
-(ns structural-typing.guts.type-descriptions.fdc-type-maps
-  (:require [structural-typing.guts.type-descriptions.dc-type-maps :as subject])
+(ns structural-typing.guts.type-descriptions.f-includes
+  (:require [structural-typing.guts.type-descriptions.includes :as subject])
   (:use midje.sweet
         structural-typing.assist.testutil
         structural-typing.assist.special-words))

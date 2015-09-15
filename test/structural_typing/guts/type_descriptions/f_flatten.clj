@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.f-flatten
   (:require [structural-typing.guts.type-descriptions.flatten :as subject]
-            [structural-typing.guts.type-descriptions.dc-type-maps :as dc-type-map])
+            [structural-typing.guts.type-descriptions.includes :as includes])
   (:use midje.sweet
         structural-typing.assist.testutil
         structural-typing.assist.special-words))
@@ -49,7 +49,7 @@
       (let [point {[:x] [integer?], [:y] [integer?]}
             
             as-written [:a (subject/paths-of :Point)]
-            type-substituted (dc-type-map/substitute {:Point point} as-written)]
+            type-substituted (includes/substitute {:Point point} as-written)]
         (subject/uncondense-path type-substituted) => [ [:a :x] [:a :y] ]))))
 
 
