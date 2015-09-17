@@ -1,7 +1,7 @@
 (ns structural-typing.guts.type-descriptions.f-readable
   (:require [structural-typing.guts.type-descriptions.readable :as subject])
-  (:require [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
-  (:use midje.sweet))
+  (:use midje.sweet
+        structural-typing.assist.special-words))
 
 (fact "friendly paths"
   (subject/friendly []) => "[]"

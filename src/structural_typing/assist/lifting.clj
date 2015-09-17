@@ -8,6 +8,9 @@
   (:require [structural-typing.guts.type-descriptions :as type-descriptions]
             [structural-typing.guts.preds.wrap :as wrap]))
 
+
+(import-vars [structural-typing.guts.preds.wrap mark-as-lifted])
+
 (defn lift-pred
   "Convert a predicate into a function that produces either an empty
    sequence or a vector containing an [[oopsie]] describing

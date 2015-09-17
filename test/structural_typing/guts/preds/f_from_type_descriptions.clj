@@ -1,12 +1,10 @@
 (ns structural-typing.guts.preds.from-type-descriptions
   (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.preds.from-type-descriptions :as subject]
-            [structural-typing.assist.annotating :refer [show-as]]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.preds :as preds]
-            [structural-typing.guts.preds.core :refer [required-key]]
-            [structural-typing.guts.type-descriptions.elements :refer [ALL RANGE]])
-  (:use midje.sweet))
+            [structural-typing.preds :as preds])
+  (:use midje.sweet
+        structural-typing.assist.special-words))
 
 (fact "variations in path processing - in the path given to specter"
   (fact "wildcard paths"

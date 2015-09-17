@@ -8,10 +8,6 @@
 
 (import-all-vars structural-typing.assist.special-words)
 
-(import-vars [structural-typing.assist.annotating
-                        show-as
-                        explain-with])
-
 (import-vars [structural-typing.assist.type-repo
                         empty-type-repo
                         replace-error-handler

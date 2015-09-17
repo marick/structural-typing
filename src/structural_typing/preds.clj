@@ -2,10 +2,10 @@
   "Predefined predicates that are not imported into `structural-typing.type`."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.lifting :as lifting]
-            [structural-typing.assist.annotating :as annotating]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.type-descriptions.includes :as includes]
-            [such.readable :as readable]))
+            [such.readable :as readable])
+  (:use structural-typing.assist.special-words))
 
 (defn- should-be [format-string expected]
   #(format format-string,
@@ -15,8 +15,8 @@
 
 (defn- compose-predicate [name pred fmt-fn]
   (->> pred
-       (annotating/show-as name)
-       (annotating/explain-with fmt-fn)))
+       (show-as name)
+       (explain-with fmt-fn)))
 
 ;;;                      THE ACTUAL PREDICATES
 
@@ -97,8 +97,8 @@
                        so-far))
                    []
                    adjusted-pairs)))
-       annotating/mark-as-lifted
-       (annotating/show-as "implies")))
+       lifting/mark-as-lifted
+       (show-as "implies")))
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is

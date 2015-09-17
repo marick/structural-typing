@@ -2,8 +2,7 @@
   "Predicates available but not included in `type`"
   (:require [structural-typing.preds :as subject]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.assist.lifting :as lifting]
-            [structural-typing.assist.annotating :refer [show-as]])
+            [structural-typing.assist.lifting :as lifting])
   (:require [such.readable :as readable])
   (:use midje.sweet
         structural-typing.assist.testutil

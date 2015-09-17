@@ -1,5 +1,5 @@
-(ns structural-typing.assist.f-annotating
-  (:require [structural-typing.assist.annotating :as subject]
+(ns structural-typing.guts.preds.f-annotating
+  (:require [structural-typing.guts.preds.annotating :as subject]
             [structural-typing.assist.defaults :as default])
   (:use midje.sweet structural-typing.assist.testutil))
 
