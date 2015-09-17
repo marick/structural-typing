@@ -19,18 +19,6 @@
 ;;     => (throws #"`5` is not a predicate.")))
 
                               
-;; (fact dc:fix-forked-paths
-;;   (fact "leaves flat paths alone"
-;;     (subject/dc:fix-forked-paths []) => empty?
-;;     (subject/dc:fix-forked-paths [ (->ppp [:a] ..preds..) ]) => [ (->ppp [:a] ..preds..) ])
-
-;;   (fact "produces new ppps for forking paths"
-;;     (subject/dc:fix-forked-paths [ (->ppp [:a [:b1 :b2] :c] ..preds..)
-;;                                    (->ppp [:simple] ..more-preds..)])
-;;     => (just (->ppp [:a :b1 :c] ..preds..)
-;;              (->ppp [:a :b2 :c] ..preds..)
-;;              (->ppp [:simple] ..more-preds..))))
-  
 
 ;; (fact dc:fix-required-paths-with-collection-selectors
 ;;   (subject/dc:fix-required-paths-with-collection-selectors []) => []
