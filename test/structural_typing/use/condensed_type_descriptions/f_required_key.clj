@@ -8,6 +8,23 @@
 
 (start-over!)
 
+(fact "`required-key` combines with other predicates"
+  (type! :Point {:x [required-key integer?]
+                 :y [required-key integer?]})
+  
+  (check-for-explanations :Point {:x "1"})
+  => (just (err:shouldbe :x "integer?" "\"1\"")
+           (err:required :y)))
+
+(fact "The `requires` function is shorthand for required-key"
+  (type! :Point
+       (requires :x :y)
+       {:x integer? :y integer?})
+
+  (check-for-explanations :Point {:x "1"})
+  => (just (err:shouldbe :x "integer?" "\"1\"")
+           (err:required :y)))
+
 
 (fact "use of ALL"
 

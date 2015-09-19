@@ -85,6 +85,42 @@
     :Line1
     :Line2))
 
+(fact "other variations on combining types"
+  (type! :Point
+         (requires :x :y)
+         {:x integer? :y integer?})
+  
+  (type! :ColorfulPoint
+         {:x [required-key integer?]
+          :y [required-key integer?]
+          :color [required-key string?]})
+  
+  (fact
+    (check-for-explanations :ColorfulPoint {:y 1 :color 1})
+    => (just (err:shouldbe :color "string?" 1)
+             (err:required :x)))
+  
+  (type! :ColorfulPoint
+         (includes :Point)
+         {:color string?})
+  (fact
+    (check-for-explanations :ColorfulPoint {:y 1 :color 1})
+    => (just (err:shouldbe :color "string?" 1)
+             (err:required :x)))
+  
+  (type! :Colorful {:color [required-key string?]})
+  (type! :ColorfulPoint (includes :Point) (includes :Colorful))
+  
+  (fact
+    (check-for-explanations :ColorfulPoint {:y 1 :color 1})
+    => (just (err:shouldbe :color "string?" 1)
+             (err:required :x)))
+  
+  (fact "combining types at check time"
+    (check-for-explanations [:Colorful :Point] {:y 1 :color 1})
+    => (just (err:shouldbe :color "string?" 1)
+             (err:required :x))))
+  
 
 
 
