@@ -1,18 +1,15 @@
 (ns structural-typing.assist.f-defaults
-  (:require [structural-typing.assist.defaults :as subject]
-            [such.readable :as readable])
-  (:use midje.sweet))
+  (:use midje.sweet
+        structural-typing.type
+        structural-typing.global-type
+        structural-typing.clojure.core
+        structural-typing.assist.testutil))
 
 
-(fact "the way functions print"
-  (readable/fn-string even?) => "even?"
-  (readable/fn-string (fn [])) => "<custom-predicate>"
-  (readable/fn-string :key) => ":key"
-  (readable/fn-string #'even?) => "even?"
+(fact "the way functions print by default"
+  (type! :X {:x even?
+             :y (complement even?)})
 
-  (let [f ( ( (fn [a] (fn [b] (fn [c] (+ a b c)))) 1) 2)]
-    (readable/fn-string f) => "<custom-predicate>")
-
-  (let [f ( ( (fn [a] (fn [b] (fn my:tweedle-dum [c] (+ a b c)))) 1) 2)]
-    (readable/fn-string f) => "my:tweedle-dum"))
-
+  (check-for-explanations :X {:x 1 :y 2})
+  => (just (err:shouldbe :x "even?" 1)
+           (err:shouldbe :y "<custom-predicate>" 2)))
