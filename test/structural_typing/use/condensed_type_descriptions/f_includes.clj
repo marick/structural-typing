@@ -8,6 +8,29 @@
 
 (start-over!)
 
+(fact "You can use `includes` instead of an explicit map"
+  (type! :Point {:x integer? :y integer?})
+  (type! :X {:refpoint (includes :Point)}
+            {:refpoint {:color integer?}})
+
+  (check-for-explanations :X {:refpoint {:y "2"}})
+  => [(err:shouldbe [:refpoint :y] "integer?" "\"2\"")])
+
+(fact "`includes` can be used as an entire left-hand-side"
+  (type! :Point {:x integer? :y integer?})
+  (type! :V1 {[:points ALL] (includes :Point)})
+  (type! :V2 {[:points ALL] {:x integer? :y integer?}})
+
+  (tabular
+    (fact 
+      (checked ?version {:x 2}) => {:x 2}
+      (check-for-explanations ?version {:points [{:x "1" :y 1}]})
+      => [(err:shouldbe [:points 0 :x] "integer?" "\"1\"")])
+    ?version
+    :V1
+    :V2))
+
+
 
 
 ;;; Implies

@@ -17,6 +17,14 @@
                                      (err:required [:a :b2 :c1 :d1 :e])
                                      (err:required [:a :b2 :c2 :d2 :e])])
 
+(fact "`each-of` is an alternate to `through-each`"
+  (type! :X {[:refpoint (each-of :x :y)] integer?})
+  (check-for-explanations :X {:refpoint {:y "2"}})
+  => [(err:shouldbe [:refpoint :y] "integer?" "\"2\"")])
+
+
+
+
 (fact "using a preexisting type to provide a forking path in a requires"
   (type! :Point (requires :x :y :color))
   (type! :X (requires :a (paths-of :Point)))
@@ -41,3 +49,8 @@
     (checked :X ok) => ok)
   (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
 
+(fact "A branch may follow an ALL"
+  (type! :Figure {[:points ALL (each-of :x :y)] [required-key integer?]})
+  (check-for-explanations :Figure {:points [{:x "1"}]})
+  => (just (err:shouldbe [:points 0 :x] "integer?" "\"1\"")
+           (err:required [:points 0 :y])))
