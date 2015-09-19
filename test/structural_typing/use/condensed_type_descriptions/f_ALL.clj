@@ -34,4 +34,26 @@
              #"\[:points ALL :x\] is not a path into `\{:points 3\}`"
              #"\[:points ALL :y\] is not a path into `\{:points 3\}`")))
 
+(fact "A solitary ALL"
+  (type! :IntArray {[ALL] integer?})
+  (described-by? :IntArray [1 2 3 4]) => true
+  (check-for-explanations :IntArray [1 :a 2 :b])
+  => (just (err:shouldbe [1] "integer?" :a)
+           (err:shouldbe [3] "integer?" :b)))
+
+
+(fact "ALL following ALL"
+  (type! :D2 {[ALL ALL] integer?})
+  (check-for-explanations :D2 [  [0 :elt-0-1] [:elt-1-0] [] [0 0 :elt-3-2]])
+  => (just (err:shouldbe [0 1] "integer?" :elt-0-1)
+           (err:shouldbe [1 0] "integer?" :elt-1-0)
+           (err:shouldbe [3 2] "integer?" :elt-3-2))
+
+  (type! :Nesty {[:x ALL ALL :y] integer?})
+  (check-for-explanations :Nesty {:x [ [{:y 1}] [{:y :notint}]]})
+  => [(err:shouldbe [:x 1 0 :y] "integer?" :notint)]
+
+  (check-for-explanations :Nesty {:x [1]})
+  (just #"\[:x ALL ALL :y\] is not a path"))
+
 (start-over!)
