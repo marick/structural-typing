@@ -55,7 +55,4 @@
     (check-for-explanations :Middle {:a [{:c 1}]}) => [(err:required [:a 0 :b])]
     (checked :Middle {:a []}) => {:a []}))
 
-    
-
-
 (start-over!)

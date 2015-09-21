@@ -6,54 +6,6 @@
   (:require [com.rpl.specter :refer [ALL]])
   (:use midje.sweet))
 
-;; (fact dc:flatmaps->ppps 
-;;   (subject/dc:flatmaps->ppps [{[:a] [even?]
-;;                                [:b] [odd?]}
-;;                               {[:c] [pos?]}]) => (just (->ppp [:a] #{even?})
-;;                                                        (->ppp [:b] #{odd?})
-;;                                                        (->ppp [:c] #{pos?})
-;;                                                        :in-any-order)
-
-;;   (fact "you must have only predicates in the predicate list"
-;;     (subject/dc:flatmaps->ppps [ {[:points ALL] [required-key 5]} ])
-;;     => (throws #"`5` is not a predicate.")))
-
-                              
-
-;; (fact dc:fix-required-paths-with-collection-selectors
-;;   (subject/dc:fix-required-paths-with-collection-selectors []) => []
-
-;;   (fact "leaves non-required paths alone"
-;;     (let [in [ (->ppp [:a ALL] #{even?}) ]]
-;;       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
-;;   (fact "leaves paths with only keys alone"
-;;     (let [in [ (->ppp [:a :b] #{required-key}) ]]
-;;       (subject/dc:fix-required-paths-with-collection-selectors in) => in))
-
-;;   (tabular 
-;;     (fact "adds new ppps for subpaths of required paths"
-;;       (let [original (->ppp ?path #{even? required-key})]
-;;         (subject/dc:fix-required-paths-with-collection-selectors [original])
-;;         => (cons original ?additions)))
-;;     ?path                ?additions
-;;     [:a ALL]             [(->ppp [:a] #{required-key})]
-;;     [:a ALL :b]          [(->ppp [:a] #{required-key})]
-;;     [:a ALL :b ALL]      [(->ppp [:a] #{required-key})
-;;                           (->ppp [:a ALL :b] #{required-key})]
-;;     [:a ALL :b ALL :c]   [(->ppp [:a] #{required-key})
-;;                           (->ppp [:a ALL :b] #{required-key})]
-;;     [:a :b ALL :c]       [(->ppp [:a :b] #{required-key})]
-;;     [:a :b ALL :c :d]    [(->ppp [:a :b] #{required-key})]
-;;     [:a :b ALL ALL]      [(->ppp [:a :b] #{required-key})]
-;;     [:a :b ALL ALL :c]   [(->ppp [:a :b] #{required-key})]))
-
-
-
-
-;;;;;; NEW
-
-(fact (pr-str (subject/requires :a :b [:c :d])) => "(required :a :b [:c :d])")
-
 (fact "ppps from `required`"
   (fact "solitary keywords"
     (subject/condensed-description->ppps (subject/requires :a :b))

@@ -10,7 +10,7 @@
 
 (defn canonicalize [condensed-type-descriptions type-map]
   (when (empty? condensed-type-descriptions)
-    (boom! "Canonicalize was called with no type descriptions. Type-map: %s" type-map))
+    (boom! "You must have at least one condensed type description."))
   (-> (includes/substitute type-map condensed-type-descriptions)
       ->finished-ppps
       ppp/->type-description))

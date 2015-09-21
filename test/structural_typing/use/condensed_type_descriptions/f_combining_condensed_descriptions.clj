@@ -49,8 +49,30 @@
     ?version
     :Point1
     :Point2))
-  
-  
+
+(fact "combining requires"
+  (type! :X (requires :a :b :c [:d :e]))
+  (type! :Y (requires :a) (requires :b) (requires :c) (requires [:d :e]))
+
+  (description :X) => '{[:a] [required-key], [:b] [required-key], [:c] [required-key], [:d :e] [required-key]}
+  (description :Y) => (description :X))
+
+(fact "combining descriptions containing ALL"
+  (type! :X
+         (requires [:a ALL :c] [:b :f ALL])
+         {:a even?}
+         {[:b :f ALL] even?})
+  (type! :Y {[:a ALL :c] [required-key]
+             [:b :f ALL] [required-key even?]
+             [:a] [even?]})
+  (description :Y) => (description :X))
+
+(fact "duplicates are ignored"
+  (type! :X {:a required-key :b even?} (requires :b :a) {:b even?})
+  (type! :Y {[:a] [required-key]
+             [:b] [required-key even?]})
+  (description :Y) => (description :X))
+
 
 (fact "a realistic example"
   

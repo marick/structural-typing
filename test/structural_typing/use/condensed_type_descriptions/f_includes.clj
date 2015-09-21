@@ -16,7 +16,7 @@
   (check-for-explanations :X {:refpoint {:y "2"}})
   => [(err:shouldbe [:refpoint :y] "integer?" "\"2\"")])
 
-(fact "`includes` can be used as an entire left-hand-side"
+(fact "`includes` can be used as an entire right-hand-side"
   (type! :Point {:x integer? :y integer?})
   (type! :V1 {[:points ALL] (includes :Point)})
   (type! :V2 {[:points ALL] {:x integer? :y integer?}})
@@ -29,6 +29,14 @@
     ?version
     :V1
     :V2))
+
+(fact "`include` can also be used to be part of a predicate list"
+  (type! :A {:a even?})
+  (type! :X {[:as] [required-key (includes :A)]})
+  (type! :Y {[:as] required-key
+             [:as :a] even?})
+  (description :X) => (description :Y))
+  
 
 
 

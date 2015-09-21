@@ -5,6 +5,8 @@
         structural-typing.clojure.core
         structural-typing.assist.testutil))
 
+(start-over!)
+
 (fact "forking paths in `requires`"
   (type! :X (requires [:a (through-each :b1 :b2) (each-of [:c1 :d1] [:c2 :d2]) :e]))
   (let [ok {:a {:b1 {:c1 {:d1 {:e 2}}
@@ -22,6 +24,38 @@
   (check-for-explanations :X {:refpoint {:y "2"}})
   => [(err:shouldbe [:refpoint :y] "integer?" "\"2\"")])
 
+(fact "through-each and each-of can be used as entire paths"
+  (type! :X {(through-each :b1 :b2) even?})
+  (type! :X! {(each-of :b1 :b2) even?})
+  (type! :Y {[:b1] even?
+             [:b2] even?})
+  (description :X) => (description :X!)
+  (description :X) => (description :Y)
+
+  (fact "in `requires` as well"
+    (type! :X (requires (through-each :b1 :b2)))
+    (type! :X! (requires (each-of :b1 :b2)))
+    (type! :Y {[:b1] required-key
+               [:b2] required-key})
+    (description :X) => (description :X!)
+    (description :X) => (description :Y)))
+
+(fact "paths-of can be used as an entire path"
+  (type! :Point (requires :x :y))
+  (type! :X {(paths-of :Point) integer?})
+  (type! :X! {[(paths-of :Point)] integer?})
+  (type! :Y {:x [integer?]
+             :y [integer?]})
+  (description :X) => (description :X!)
+  (description :X) => (description :Y)
+
+  (fact "in `requires` as well"
+    (type! :X (requires (paths-of :Point)))
+    (type! :X (requires (paths-of :Point)))
+    (type! :Y {:x [required-key]
+               :y [required-key]})
+    (description :X) => (description :Y)))
+    
 
 
 
@@ -54,3 +88,12 @@
   (check-for-explanations :Figure {:points [{:x "1"}]})
   => (just (err:shouldbe [:points 0 :x] "integer?" "\"1\"")
            (err:required [:points 0 :y])))
+
+
+(fact "forking paths may result in duplicates to merge"
+  (type! :X (requires [:a :b1]) {[:a (each-of :b1 :b2)] integer?})
+  (type! :Y {[:a :b1] [required-key integer?]
+             [:a :b2] integer?})
+  (description :X) => (description :Y))
+  
+(start-over!)
