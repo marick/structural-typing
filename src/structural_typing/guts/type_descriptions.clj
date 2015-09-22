@@ -2,7 +2,7 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [structural-typing.guts.type-descriptions.ppps :as ppp]
-            [structural-typing.guts.preds.from-type-descriptions :as compile]))
+            [structural-typing.guts.compile.compile :as compile]))
 
 
 (defn ->finished-ppps [condensed-type-descriptions]

@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.preds.from-type-descriptions
+(ns ^:no-doc structural-typing.guts.compile.compile
   (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
             [structural-typing.guts.self-check :as self :refer [returns-many]]

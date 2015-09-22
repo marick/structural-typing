@@ -32,3 +32,15 @@
                       :will-match-many? true)]
     (readable/instead-of r (list 'RANGE inclusive-start exclusive-end))
     r))
+
+
+(defprotocol SpecterElementAdder
+  (extend-specter-path-1 [this path])
+  (will-match-many-1? [this]))
+
+(defrecord ALL2 []
+  SpecterElementAdder
+  (extend-specter-path-1 [this path]
+    path)
+  (will-match-many-1? [this] true))
+

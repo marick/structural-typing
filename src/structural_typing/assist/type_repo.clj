@@ -2,7 +2,7 @@
   "The `TypeRepo` structure and its functions."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions :as type-descriptions]
-            [structural-typing.guts.preds.from-type-descriptions :as compile]
+            [structural-typing.guts.compile.compile :as compile]
             [structural-typing.assist.defaults :as defaults]
             [structural-typing.guts.preds.core :as pred]))
 
