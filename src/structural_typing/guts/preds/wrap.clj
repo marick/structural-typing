@@ -39,9 +39,9 @@
 
 
 (defn ->expred [pred]
-  (expred/boa (get-predicate pred)
-              (get-predicate-string pred)
-              (get-explainer pred)))
+  (expred/->ExPred (get-predicate pred)
+                   (get-predicate-string pred)
+                   (get-explainer pred)))
 
 
 (defn- mkfn:optional [pred]

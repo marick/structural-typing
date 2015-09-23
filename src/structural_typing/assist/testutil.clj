@@ -8,7 +8,7 @@
 
 (defn exval
   ([leaf-value path whole-value]
-     (exval/boa leaf-value path whole-value))
+     (exval/->ExVal leaf-value path whole-value))
   ([leaf-value path]
      (exval leaf-value path (hash-map path leaf-value)))
   ([leaf-value]

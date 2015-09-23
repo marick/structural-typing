@@ -4,7 +4,6 @@
 
 (def required-keys #{:predicate :predicate-string :explainer})
 (defrecord ExPred [predicate predicate-string explainer])
-(def boa ->ExPred) ; Common Lisp joke: a "By Order of Arguments" constructor.
 
 (defn friendly-path
   "Convert the oopsie's path into a string, with predicates and function components printed nicely."
