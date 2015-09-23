@@ -4,11 +4,14 @@
             [such.metadata :as meta]
             [com.rpl.specter :as specter]))
 
+;;; TODO: This is a rather kludgy way of handling things.
+
 (defn mkfn:meta-getter [key]
   (fn [elt] (meta/get elt key)))
 
 (def specter-equivalent (mkfn:meta-getter :specter-equivalent))
 (def will-match-many? (comp boolean (mkfn:meta-getter :will-match-many?)))
+
 
 (def ALL
   "Use this in a path to select all values of a 
@@ -32,15 +35,3 @@
                       :will-match-many? true)]
     (readable/instead-of r (list 'RANGE inclusive-start exclusive-end))
     r))
-
-
-(defprotocol SpecterElementAdder
-  (extend-specter-path-1 [this path])
-  (will-match-many-1? [this]))
-
-(defrecord ALL2 []
-  SpecterElementAdder
-  (extend-specter-path-1 [this path]
-    path)
-  (will-match-many-1? [this] true))
-

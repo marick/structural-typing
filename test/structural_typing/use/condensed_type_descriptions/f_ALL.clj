@@ -54,6 +54,7 @@
   => [(err:shouldbe [:x 1 0 :y] "integer?" :notint)]
 
   (check-for-explanations :Nesty {:x [1]})
-  (just #"\[:x ALL ALL :y\] is not a path"))
+  => (just #"\[:x ALL ALL :y\] is not a path"))
+
 
 (start-over!)
