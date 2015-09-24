@@ -1,4 +1,4 @@
-(ns structural-typing.guts.oopsie
+(ns ^:no-doc structural-typing.guts.oopsie
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.expred :as expred]))
 

@@ -1,4 +1,4 @@
-(ns structural-typing.guts.type-descriptions
+(ns ^:no-doc structural-typing.guts.type-descriptions
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [structural-typing.guts.type-descriptions.ppps :as ppp]

@@ -1,4 +1,4 @@
-(ns structural-typing.guts.type-descriptions.flatten
+(ns ^:no-doc structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [com.rpl.specter :as specter]
@@ -38,16 +38,40 @@
             addon addons]
         (into path addon)))))
 
-(defn through-each [& alternatives]
+(defn through-each
+  "Use `through-each` to describe a \"forking\" path. This is convenient when two
+   parts of a bigger data structure have the same type.
+   
+       (type! :Line {[(through-each :start :end) :location] (includes :Point)})
+   
+   [[each-of]] is a synonym. I tend to use `each-of` for the end of the path,
+   `through-each` for a fork earlier than that."
+  [& alternatives]
   (->Fork (map force-vector alternatives)))
-(def each-of through-each)
+(def each-of
+  "Use `each-of` to describe a \"forking\" path. This is convenient when two
+   parts of a bigger data structure have the same type.
+   
+       (type! :Plat {[:corners (each-of :nw :ne :sw :se)] (includes :GeoPoint)})
+   
+   [[through-each]] is a synonym. I tend to use `each-of` for the end of the path,
+   `through-each` for a fork earlier than that."
+  through-each)
 
-(defn paths-of [arg]
+(defn paths-of
+  "Include all the paths of a type (or a literal map) within a path.
+   
+        (type! :StrictX (requires (paths-of :X) (includes :X)))
+   
+   The above example constructs a stricter version of `:X` by insisting 
+   all of its paths are required.
+"
+  [type-signifier-or-map]
   (let [handle-kvs #(->Fork (keys %))]
-    (if (map? arg)
-      (handle-kvs (map->flatmap arg))
+    (if (map? type-signifier-or-map)
+      (handle-kvs (map->flatmap type-signifier-or-map))
       (-> (fn [type-map]
-            (handle-kvs ( (includes/includes arg) type-map)))
+            (handle-kvs ( (includes/includes type-signifier-or-map) type-map)))
           includes/as-type-expander))))
 
 (deftype ALLType []

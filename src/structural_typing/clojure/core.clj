@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.clojure.core
   "The general purpose functions that, for purposes of this application, I wish
-   had been included in clojure.core.")
+   had been included in clojure.core."
+  (:require such.immigration))
 
 (such.immigration/import-all-vars such.immigration)
 

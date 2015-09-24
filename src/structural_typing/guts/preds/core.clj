@@ -1,4 +1,4 @@
-(ns structural-typing.guts.preds.core
+(ns ^:no-doc structural-typing.guts.preds.core
   "Preds that are used througout"
   (:require [structural-typing.guts.preds.wrap :as wrap]
             [structural-typing.guts.expred :as expred]))

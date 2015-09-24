@@ -10,7 +10,15 @@
 (defrecord PPP [path preds])
 
 (defrecord Requires [args])
-(defn requires [& args] (->Requires args))
+(defn requires
+  "Often, all you want to say about some parts of a type is that they're required.
+   `requires` is a shorthand way to do that.
+   
+       (type! :Point (requires :x :y))
+       (type! :Line (requires [:start :x] [:start :y]))
+       (type! :Line (requires [(through-each :start :end) (:each-of :x :y)]))
+"
+  [& args] (->Requires args))
 
 (defmethod clojure.core/print-method Requires [o, ^java.io.Writer w]
   (.write w (readable/value-string (cons 'required (:args o)))))

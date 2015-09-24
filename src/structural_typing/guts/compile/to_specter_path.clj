@@ -1,4 +1,4 @@
-(ns structural-typing.guts.compile.to-specter-path
+(ns ^:no-doc structural-typing.guts.compile.to-specter-path
   (:use structural-typing.clojure.core)
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]

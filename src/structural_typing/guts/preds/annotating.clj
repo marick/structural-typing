@@ -1,4 +1,4 @@
-(ns structural-typing.guts.preds.annotating
+(ns ^:no-doc structural-typing.guts.preds.annotating
   "Good reporting depends on lifted predicates being annotated with useful information."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.preds.wrap :as wrap]))
