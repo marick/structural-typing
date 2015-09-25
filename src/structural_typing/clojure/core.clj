@@ -12,6 +12,8 @@
               boom!]
              [such.types
               extended-fn?]
+             [such.sequences
+               bifurcate]
              [such.immigration
               import-vars]
              [clojure.pprint

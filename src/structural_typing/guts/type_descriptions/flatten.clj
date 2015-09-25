@@ -1,8 +1,7 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
-            [com.rpl.specter :as specter]
-            [such.sequences :as seq]))
+            [com.rpl.specter :as specter]))
 
 (declare map->flatmap)
 
@@ -127,7 +126,7 @@
 
 (defn- step3:expand-maps-in-pred-list [pairs]
   (reduce (fn [so-far [path preds]]
-            (let [[maps plain] (seq/bifurcate map? preds)
+            (let [[maps plain] (bifurcate map? preds)
                   one-plain-pair (if (empty? plain) [] [(vector path plain)])
                   n-map-pairs (mapcat #(map->pairs % path) maps)]
               (-> so-far
