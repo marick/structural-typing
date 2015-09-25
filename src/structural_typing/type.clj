@@ -29,16 +29,19 @@
 ;; ... would not be optional, which would make it different from all other pred-like values.
 (def ^:private whole-type-checker (compile/compile-type {[] [not-nil]}))
 
-(defn- check-type [type-repo type-signifier candidate]
-  (let [checker (repo/get-type type-repo type-signifier)
-        oopsies (whole-type-checker candidate)]
-    (or (seq oopsies)
-        (checker candidate))))
-
 (defn- all-oopsies [type-repo one-or-more candidate]
   (let [[signifiers condensed-descriptions]
-        (bifurcate repo/valid-type-signifier? (force-vector one-or-more))]
-    (mapcat #(check-type type-repo % candidate) signifiers)))
+        (bifurcate repo/valid-type-signifier? (force-vector one-or-more))
+
+        compiled-named (mapv #(repo/get-compiled-type type-repo %) signifiers)
+        compiled-unnamed (->> condensed-descriptions
+                              (repo/canonicalize type-repo)
+                              compile/compile-type)]
+    (or (seq (whole-type-checker candidate))
+        (reduce (fn [so-far checker]
+                  (into so-far (checker candidate)))
+                []
+                (conj compiled-named compiled-unnamed)))))
 
 (defn checked
   "Check the `candidate` collection against the previously-defined type named by `type-signifier` in

@@ -11,7 +11,7 @@
 (defprotocol TypeRepoLike
   (canonicalize [type-repo condensed-type-descriptions])
   (hold-type [type-repo type-signifier type-descriptions])
-  (get-type [type-repo type-signifier])
+  (get-compiled-type [type-repo type-signifier])
   (replace-success-handler [type-repo handler]
     "For this `type-repo`, handle candidates that typecheck successfully by 
      passing them to `handler` as the last step in [[checked]]..")
@@ -35,7 +35,7 @@
           (assoc-in [:canonicalized-type-descriptions type-signifier] canonicalized)
           (assoc-in [:compiled-types type-signifier] compiled))))
 
-  (get-type [type-repo type-signifier]
+  (get-compiled-type [type-repo type-signifier]
     (or (get-in type-repo [:compiled-types type-signifier])
         (boom! "There is no type `%s`" type-signifier)))
 

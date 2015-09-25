@@ -9,8 +9,6 @@
   (mapcat ppp/condensed-description->ppps condensed-type-descriptions))
 
 (defn canonicalize [condensed-type-descriptions type-map]
-  (when (empty? condensed-type-descriptions)
-    (boom! "You must have at least one condensed type description."))
   (-> (includes/substitute type-map condensed-type-descriptions)
       ->finished-ppps
       ppp/->type-description))

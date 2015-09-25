@@ -7,7 +7,7 @@
         structural-typing.assist.special-words))
 
 (defn check-type [type-repo type-signifier candidate]
-  ((subject/get-type type-repo type-signifier) candidate))
+  ((subject/get-compiled-type type-repo type-signifier) candidate))
 
 (defn oopsie-with-path [path]
   (fn [actual]

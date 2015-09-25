@@ -21,12 +21,15 @@
       (type/checked repo [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
       (type/checked repo [:A :B] {:a 1, :b 1}) => "yay")
 
-    (future-fact "the vector can contain on-the-fly condensed type descriptions"
+    (fact "the vector can contain on-the-fly condensed type descriptions"
       (let [path [:A (requires :c) {:a even?}]]
-        (type/checked repo path {:a 2, :c 1}) => {:a 2, :c 1}
-        (check-for-explanations {:c 1}) => (just (err:required :a))
-        (check-for-explanations {:a 1}) => (just (err:shouldbe :a "even?" 1)
-                                                 (err:required :c)))))
+        (type/checked repo path {:a 2, :c 1}) => "yay"
+        (type/checked repo path {:c 1}) => (just :error (contains {:path [:a]}))
+        (type/checked repo path {:a 1}) => (just :error
+                                                 (contains {:path [:c]})
+                                                 (contains {:path [:a] :leaf-value 1})
+                                                 :in-any-order))))
+                                                 
 
   (fact "values of types are not allowed to be nil"
     (let [repo (-> type/empty-type-repo
@@ -88,3 +91,11 @@
   (let [repo (-> type/empty-type-repo
                  (type/named "A" {:a even?}))]
     (type/checked repo "A" {:a 2}) => {:a 2}))
+
+(fact "An empty type description always succeeds"
+  (let [repo (type/named type/empty-type-repo :X)]
+    (type/checked repo :X {:a 2}) => {:a 2}
+    
+    (fact "except that nil is still objected to"
+      (check-for-explanations repo :X nil) => (just #"Value is nil"))))
+

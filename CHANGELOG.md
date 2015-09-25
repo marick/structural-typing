@@ -11,12 +11,14 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ### Added
 
-- a keyword `:a` in a condensed type description is equivalent to `[:a]`.
+- When checking a type, you can give "on the fly" condensed type descriptions in addition
+  to type signifiers.
+- A keyword `:a` in a condensed type description is equivalent to `[:a]`.
 - `implies` to `structural-typing.preds`.
 - `doc` namespace.
 - Predicates can be applied to the whole structure.
 - `origin` and `description` let you see the definition of a type.
-- predicate sequences can include types (convenience)
+- Predicate sequences can include types (convenience)
 - You can refer to the paths within a type or map with `paths-of`.
 - You can use integers in paths `{[:a 1 :b] even?}`
 
