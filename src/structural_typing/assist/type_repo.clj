@@ -6,17 +6,12 @@
             [structural-typing.assist.defaults :as defaults]
             [structural-typing.guts.preds.core :as pred]))
 
-
-;; This is used to check if an argument to `checked` is nil. If so, it's not further
-;; checked. Another approach would be to inject the following map into all types when
-;; they're compiled. However, that would mean that the `T1` in:
-;;     (type! :T2 {:a (includes :T1)})
-;; ... would not be optional, which would make it different from all other pred-like values.
-(def whole-type-checker (compile/compile-type {[] [pred/not-nil]}))
+(def valid-type-signifier? (some-fn keyword? string?))
 
 (defprotocol TypeRepoLike
+  (canonicalize [type-repo condensed-type-descriptions])
   (hold-type [type-repo type-signifier type-descriptions])
-  (check-type [type-repo type-signifier candidate])
+  (get-type [type-repo type-signifier])
   (replace-success-handler [type-repo handler]
     "For this `type-repo`, handle candidates that typecheck successfully by 
      passing them to `handler` as the last step in [[checked]]..")
@@ -27,32 +22,31 @@
   (the-error-handler [type-repo]))
 
 (defrecord TypeRepo [success-handler error-handler]
-    TypeRepoLike
-    (hold-type [type-repo type-signifier condensed-type-descriptions]
-      (let [canonicalized (type-descriptions/canonicalize condensed-type-descriptions
-                                                          (:canonicalized-type-descriptions type-repo))
-            compiled (compile/compile-type canonicalized)]
-        (-> type-repo 
-            (assoc-in [:original-type-descriptions type-signifier] condensed-type-descriptions)
-            (assoc-in [:canonicalized-type-descriptions type-signifier] canonicalized)
-            (assoc-in [:compiled-types type-signifier] compiled))))
-
-    (check-type [type-repo type-signifier candidate]
-      (if-let [checker (get-in type-repo [:compiled-types type-signifier])]
-        (let [oopsies (whole-type-checker candidate)]
-          (if (empty? oopsies)
-            (checker candidate)
-            oopsies))
-        (boom! "There is no type `%s`" type-signifier)))
+  TypeRepoLike
+  (canonicalize [type-repo condensed-type-descriptions]
+    (type-descriptions/canonicalize condensed-type-descriptions
+                                    (:canonicalized-type-descriptions type-repo)))
     
-    (replace-error-handler [type-repo f]
-      (assoc type-repo :error-handler f))
+  (hold-type [type-repo type-signifier condensed-type-descriptions]
+    (let [canonicalized (canonicalize type-repo condensed-type-descriptions)
+          compiled (compile/compile-type canonicalized)]
+      (-> type-repo 
+          (assoc-in [:original-type-descriptions type-signifier] condensed-type-descriptions)
+          (assoc-in [:canonicalized-type-descriptions type-signifier] canonicalized)
+          (assoc-in [:compiled-types type-signifier] compiled))))
 
-    (replace-success-handler [type-repo f]
-      (assoc type-repo :success-handler f))
+  (get-type [type-repo type-signifier]
+    (or (get-in type-repo [:compiled-types type-signifier])
+        (boom! "There is no type `%s`" type-signifier)))
 
-    (the-error-handler [type-repo] (:error-handler type-repo))
-    (the-success-handler [type-repo] (:success-handler type-repo)))
+  (replace-error-handler [type-repo f]
+    (assoc type-repo :error-handler f))
+  
+  (replace-success-handler [type-repo f]
+    (assoc type-repo :success-handler f))
+  
+  (the-error-handler [type-repo] (:error-handler type-repo))
+  (the-success-handler [type-repo] (:success-handler type-repo)))
 
 (defmethod clojure.core/print-method TypeRepo [o, ^java.io.Writer w]
   (.write w "#TypeRepo[")

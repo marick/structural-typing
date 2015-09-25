@@ -3,6 +3,7 @@
 "
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.type-repo :as repo]
+            [structural-typing.guts.compile.compile :as compile]
             [structural-typing.global-type :as global-type]
             [such.readable :as readable]))
 
@@ -21,9 +22,23 @@
 
 ;;;; 
 
+;; This is used to check if an argument to `checked` is nil. If so, it's not further
+;; checked. Another approach would be to inject the following map into all types when
+;; they're compiled. However, that would mean that the `T1` in:
+;;     (type! :T2 {:a (includes :T1)})
+;; ... would not be optional, which would make it different from all other pred-like values.
+(def ^:private whole-type-checker (compile/compile-type {[] [not-nil]}))
+
+(defn- check-type [type-repo type-signifier candidate]
+  (let [checker (repo/get-type type-repo type-signifier)
+        oopsies (whole-type-checker candidate)]
+    (or (seq oopsies)
+        (checker candidate))))
+
 (defn- all-oopsies [type-repo one-or-more candidate]
-  (let [signifiers (if (sequential? one-or-more) one-or-more (vector one-or-more))]
-    (mapcat #(repo/check-type type-repo % candidate) signifiers)))
+  (let [[signifiers condensed-descriptions]
+        (bifurcate repo/valid-type-signifier? (force-vector one-or-more))]
+    (mapcat #(check-type type-repo % candidate) signifiers)))
 
 (defn checked
   "Check the `candidate` collection against the previously-defined type named by `type-signifier` in

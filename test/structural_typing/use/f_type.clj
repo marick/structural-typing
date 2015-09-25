@@ -2,6 +2,7 @@
   (:require [structural-typing.type :as type]
             [structural-typing.preds :as pred])
   (:use midje.sweet
+        structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
 (fact "about checking"
@@ -18,7 +19,30 @@
     (fact "can take a vector of type signifiers"
       (type/checked repo [:A :B] {:a 1}) => (just :error (contains {:path [:b]}))
       (type/checked repo [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
-      (type/checked repo [:A :B] {:a 1, :b 1}) => "yay")))
+      (type/checked repo [:A :B] {:a 1, :b 1}) => "yay")
+
+    (future-fact "the vector can contain on-the-fly condensed type descriptions"
+      (let [path [:A (requires :c) {:a even?}]]
+        (type/checked repo path {:a 2, :c 1}) => {:a 2, :c 1}
+        (check-for-explanations {:c 1}) => (just (err:required :a))
+        (check-for-explanations {:a 1}) => (just (err:shouldbe :a "even?" 1)
+                                                 (err:required :c)))))
+
+  (fact "values of types are not allowed to be nil"
+    (let [repo (-> type/empty-type-repo
+                   (type/named :Unused {:b string?}))]
+      (check-for-explanations repo :Unused nil) => (just #"Value is nil"))
+    
+    (fact "empty structures are not misclassified as nil"
+      (let [repo (-> type/empty-type-repo
+                     (type/named :Hash {:a even?})
+                     (type/named :Vec {[type/ALL] even?}))]
+        (type/checked repo :Hash {}) => {}
+        (type/checked repo :Vec []) => vector?
+        (type/checked repo :Vec []) => []))))
+                                                 
+      
+      
 
 (fact "about `described-by?`"
   (let [repo (-> type/empty-type-repo
@@ -60,3 +84,7 @@
 
     
 
+(fact "types can be strings"
+  (let [repo (-> type/empty-type-repo
+                 (type/named "A" {:a even?}))]
+    (type/checked repo "A" {:a 2}) => {:a 2}))
