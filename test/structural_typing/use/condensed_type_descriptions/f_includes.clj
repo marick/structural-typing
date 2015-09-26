@@ -23,7 +23,7 @@
 
   (tabular
     (fact 
-      (checked ?version {:x 2}) => {:x 2}
+      (built-like ?version {:x 2}) => {:x 2}
       (check-for-explanations ?version {:points [{:x "1" :y 1}]})
       => [(err:shouldbe [:points 0 :x] "integer?" "\"1\"")])
     ?version
@@ -74,9 +74,9 @@
 (fact "for reference: implies without `includes` works"
   (type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-key
                                                          [:the-sidecar :y] required-key}))
-  (checked :I-Direct {}) => {}
-  (checked :I-Direct {:sidecar? false}) => {:sidecar? false}
-  (checked :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  (built-like :I-Direct {}) => {}
+  (built-like :I-Direct {:sidecar? false}) => {:sidecar? false}
+  (built-like :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                 {:sidecar? true :the-sidecar {:x 1 :y 2}}
   
   (check-for-explanations :I-Direct {:sidecar? true}) => (just (err:required [:the-sidecar :x]) #":the-sidecar :y] must")
@@ -86,9 +86,9 @@
 
 (fact "You can use `includes` in the antecedent part of an `implies`"
   (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
-  (checked :I-Includer {}) => {}
-  (checked :I-Includer {:sidecar? false}) => {:sidecar? false}
-  (checked :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  (built-like :I-Includer {}) => {}
+  (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
+  (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
 
   (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:required [:the-sidecar :x])
@@ -101,9 +101,9 @@
 
 (fact "You can use `includes` in the antecedent part of an `implies`"
   (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
-  (checked :I-Includer {}) => {}
-  (checked :I-Includer {:sidecar? false}) => {:sidecar? false}
-  (checked :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  (built-like :I-Includer {}) => {}
+  (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
+  (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
 
   (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:required [:the-sidecar :x])
@@ -117,14 +117,14 @@
 (fact "You can use `includes` in an `all-of`"
   (type! :OptionalX {:x even?})
   (type! :Implies (pred/implies :a (pred/all-of :x (includes :OptionalX))))
-  (checked :Implies {:a 1, :x 2}) => {:a 1, :x 2}
+  (built-like :Implies {:a 1, :x 2}) => {:a 1, :x 2}
   (check-for-explanations :Implies {:a 1}) => [(err:required :x)]
   (check-for-explanations :Implies {:a 1, :x 1}) => [(err:shouldbe :x "even?" 1)]
   
   (fact "... even nested"
     (type! :OptionalX {:x even?})
     (type! :Implies (pred/implies :a (pred/all-of :b {:b (includes :OptionalX)})))
-    (checked :Implies {:a 1, :b {:x 2}}) => {:a 1, :b {:x 2}}
+    (built-like :Implies {:a 1, :b {:x 2}}) => {:a 1, :b {:x 2}}
     (check-for-explanations :Implies {:a 1, :b {:x 1}}) => [(err:shouldbe [:b :x] "even?" 1)]))
 
 (start-over!)

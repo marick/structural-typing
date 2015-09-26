@@ -13,14 +13,14 @@
   => (just #":x should be `pos\?`"))
 
 (fact "observe how keys are optional"
-  (map #(checked :Point %) [{} {:x 1} {:y 1} {:x 1 :y 2}])
+  (map #(built-like :Point %) [{} {:x 1} {:y 1} {:x 1 :y 2}])
   => [{} {:x 1} {:y 1} {:y 2, :x 1}])
 
 (fact "note that an explicitly nil key counts as optional"
-  (checked :Point {:x nil :y nil}) => {:x nil :y nil})
+  (built-like :Point {:x nil :y nil}) => {:x nil :y nil})
 
 (fact "excess keys are fine"
-  (map #(checked :Point %) [{:x 1 :y 2}
+  (map #(built-like :Point %) [{:x 1 :y 2}
                             {:x 1 :y 2 :z 3}
                             {:x 1 :y 2 :color "red"}])
   => [{:y 2, :x 1} {:y 2, :z 3, :x 1} {:y 2, :color "red", :x 1}])

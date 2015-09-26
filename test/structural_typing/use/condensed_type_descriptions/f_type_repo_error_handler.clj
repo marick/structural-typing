@@ -16,15 +16,15 @@
 
 (fact "the throwing error handler"
   (on-error! throwing-error-handler)
-  (checked :Point {:x "one" :y "two"}) => (throws))
+  (built-like :Point {:x "one" :y "two"}) => (throws))
 
  
 (fact "Default error handler returns nil"
   (on-error! default-error-handler)
   (with-out-str 
-    (some-> (checked :Point {:x "one" :y "two"})
+    (some-> (built-like :Point {:x "one" :y "two"})
             (prn "successful stuff")))
   =not=> #"successful")
 
 (fact "default success handler returns the original value"
-  (checked :Point {:x 1 :y 2}) => {:x 1 :y 2})
+  (built-like :Point {:x 1 :y 2}) => {:x 1 :y 2})

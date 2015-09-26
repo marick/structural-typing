@@ -4,7 +4,7 @@
             [structural-typing.assist.oopsie :as oopsie]
             [blancas.morph.monads :as m])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
-  (:use [structural-typing.type :exclude [checked]]))
+  (:use [structural-typing.type :exclude [built-like]]))
 
 (defn add-whole-value [oopsies]
   (cons (:whole-value (first oopsies))
@@ -20,5 +20,5 @@
                    (replace-error-handler (comp m/left add-whole-value))
                    (replace-success-handler m/right)))
 
-(def checked (partial type/checked type-repo))
+(def built-like (partial type/built-like type-repo))
 

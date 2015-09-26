@@ -13,7 +13,7 @@
                      :c2 {:d2 {:e 2}}}
                 :b2 {:c1 {:d1 {:e 2}}
                      :c2 {:d2 {:e 2}}}}}]
-    (checked :X ok) => ok)
+    (built-like :X ok) => ok)
   (check-for-explanations :X {}) => [(err:required [:a :b1 :c1 :d1 :e])
                                      (err:required [:a :b1 :c2 :d2 :e])
                                      (err:required [:a :b2 :c1 :d1 :e])
@@ -64,7 +64,7 @@
   (type! :X (requires :a (paths-of :Point)))
 
   (let [ok {:x 1, :y 1, :color 2, :a 3}]
-    (checked :X ok) => ok)
+    (built-like :X ok) => ok)
   (check-for-explanations :X {:x 1 :y 1}) => [(err:required :a)
                                               (err:required :color)])
 
@@ -73,14 +73,14 @@
   (type! :X (requires [:point (paths-of :Point)]))
 
   (let [ok {:point {:x 1, :y 1, :color 2}}]
-    (checked :X ok) => ok)
+    (built-like :X ok) => ok)
   (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
 
 (fact "the keys may come from an explicit map"
   (type! :X (requires [:point (paths-of {:x 1, :y 2, :color "red"})]))
 
   (let [ok {:point {:x 1, :y 1, :color 2}}]
-    (checked :X ok) => ok)
+    (built-like :X ok) => ok)
   (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
 
 (fact "A branch may follow an ALL"

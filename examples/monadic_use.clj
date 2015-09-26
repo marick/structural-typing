@@ -8,7 +8,7 @@
   (:use midje.sweet))
 
 (fact "using an Either monad to separate out success from failure cases"
-  (let [result (map #(v1/checked :Point %)
+  (let [result (map #(v1/built-like :Point %)
                     [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}])]
     (m/rights result) => [{:x 1 :y 2} {:x 1 :y 2 :color "red"}]
     (flatten (m/lefts result)) => (just ":y must exist and be non-nil"
@@ -18,7 +18,7 @@
                                         :in-any-order)))
 
 (fact "version 2 identifies the source candidate"
-  (let [result (map #(v2/checked :Point %)
+  (let [result (map #(v2/built-like :Point %)
                     [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}])]
     (m/rights result) => [{:x 1 :y 2} {:x 1 :y 2 :color "red"}]
     (nth (m/lefts result) 0) => [{:x 1} ":y must exist and be non-nil"]
@@ -37,10 +37,10 @@
 
 (fact "an example of sequencing"
   (m/run-right
-   (mc/monad [origin-triangle (v2/checked :OriginTriangle {:x 3, :y 4})]
+   (mc/monad [origin-triangle (v2/built-like :OriginTriangle {:x 3, :y 4})]
      (right (hypotenuse-length origin-triangle))))
   => 5
 
-  (mc/monad [origin-triangle (v2/checked :OriginTriangle {:x 0, :y 4})]
+  (mc/monad [origin-triangle (v2/built-like :OriginTriangle {:x 0, :y 4})]
     (right (hypotenuse-length origin-triangle)))
   => m/left?)

@@ -7,16 +7,16 @@
             :exval exval/required-keys
             :oopsie (set-union expred/required-keys exval/required-keys)})
 
-(defn checked* [type required-keys candidate]
+(defn built-like* [type required-keys candidate]
   (let [be-empty (set-difference required-keys (set (keys candidate)))]
     (if (empty? be-empty)
       candidate
       (boom! "Missing keys for %s: %s" type be-empty))))
 
-(defn checked [type candidate]
-  (checked* type (types type) candidate))
+(defn built-like [type candidate]
+  (built-like* type (types type) candidate))
 
-(def returns checked)
+(def returns built-like)
   
 (defn returns-many [type candidates]
-  (map #(checked type %1) candidates))
+  (map #(built-like type %1) candidates))

@@ -9,6 +9,11 @@ See [here](http://keepachangelog.com/) for the change log format.
 - You must now use `requires` instead of the vector notation for required paths.
 - "Forking" paths must be indicated by `through-each` or `each-of`, not vectors.
 
+### Deprecated
+
+- Use `built-like` instead of `checked`.
+- Use `build-like?` instead of `described-by?`
+
 ### Added
 
 - When checking a type, you can give "on the fly" condensed type descriptions in addition

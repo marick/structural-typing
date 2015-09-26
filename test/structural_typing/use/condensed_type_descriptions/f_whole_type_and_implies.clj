@@ -12,19 +12,19 @@
 (fact "a predicate is shorthand for a whole-type check"
   (fact "the expanded form"
     (type! :String {[] string?})
-    (checked :String "foo") => "foo"
+    (built-like :String "foo") => "foo"
     (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"])
     (check-for-explanations :String 1) => (just [(err:shouldbe "Value" "string?" 1)]))
 
   (fact "the predicate form"
     (type! :String string?)
-    (checked :String "foo") => "foo"
+    (built-like :String "foo") => "foo"
     (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"])
     (check-for-explanations :String 1) => (just [(err:shouldbe "Value" "string?" 1)]))
 
   (fact "a more elaborate check"
     (type! :X map? (show-as "even size" (comp even? count)))
-    (checked :X {:a 1, :b "foo"}) => {:a 1, :b "foo"}
+    (built-like :X {:a 1, :b "foo"}) => {:a 1, :b "foo"}
     (check-for-explanations :X {:b 1}) => (just (err:shouldbe "Value" "even size" {:b 1}))
     (check-for-explanations :X [1 2]) => (just (err:shouldbe "Value" "map?" [1 2]))))
 
@@ -35,26 +35,26 @@
   (fact "easily used to check that the presence of one key implies the presence of another"
     (type! :X (pred/implies :a :b))
     
-    (checked :X {:a 2, :b 1}) => {:a 2, :b 1}
+    (built-like :X {:a 2, :b 1}) => {:a 2, :b 1}
     (check-for-explanations :X {:a 2}) => [(err:required :b)]
-    (checked :X {:b 2}) => {:b 2})
+    (built-like :X {:b 2}) => {:b 2})
 
   (fact "going both ways"
     (type! :X (pred/implies :a :b)
               (pred/implies :b :a))
 
-    (checked :X {:a 2, :b 1}) => {:a 2, :b 1}
-    (checked :X {}) => {}
+    (built-like :X {:a 2, :b 1}) => {:a 2, :b 1}
+    (built-like :X {}) => {}
     (check-for-explanations :X {:a 2}) => [(err:required :b)]
     (check-for-explanations :X {:b 2}) => [(err:required :a)])
 
-  (fact "multiple paths can be checked"
+  (fact "multiple paths can be built-like"
     (type! :X (pred/implies :a (requires :b [:c :d])))
     
     (check-for-explanations :X {:a 2, :b 1}) => [(err:required [:c :d])]
     (let [in {:a 2, :b 1 :c {:d 3}}]
-      (checked :X in) => in)
-    (checked :X {:b 2}) => {:b 2})
+      (built-like :X in) => in)
+    (built-like :X {:b 2}) => {:b 2})
 
 
 
@@ -67,14 +67,14 @@
       (check-for-explanations :X in) => (just (err:shouldbe "Value" "missing :a" in)
                                               (err:shouldbe "Value" "missing :b" in)))
                                        
-    (checked :X {}) => {}
-    (checked :X {:a 2}) => {:a 2}
-    (checked :X {:b 2}) => {:b 2})
+    (built-like :X {}) => {}
+    (built-like :X {:a 2}) => {:a 2}
+    (built-like :X {:b 2}) => {:b 2})
 
 
   (fact "presence of a key can cause a test of another key"
     (type! :X (pred/implies :a {:b even?}))
-    (checked :X {:a 1}) => {:a 1}
+    (built-like :X {:a 1}) => {:a 1}
     (check-for-explanations :X {:a 1 :b 1}) => [(err:shouldbe :b "even?" 1)])
   
   (fact "a variant of the above that requires :b"
@@ -92,13 +92,13 @@
   (fact "an implication that checks the whole structure"
     (type! :X (pred/implies coll? (show-as "even" (comp even? count)))
               (pred/implies string? (show-as "uncool" #(not= % "cool"))))
-    (checked :X [1 2]) => [1 2]
+    (built-like :X [1 2]) => [1 2]
     (check-for-explanations :X [2]) => [(err:shouldbe "Value" "even" [2])]
 
-    (checked :X "something uncool") => "something uncool"
+    (built-like :X "something uncool") => "something uncool"
     (check-for-explanations :X "cool") => [(err:shouldbe "Value" "uncool" "\"cool\"")]
 
-    (checked :X 1) => 1)
+    (built-like :X 1) => 1)
   )
   
 (start-over!)

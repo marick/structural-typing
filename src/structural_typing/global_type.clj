@@ -13,17 +13,17 @@
 (start-over!)
 
 (defn on-success!
-  "Change the global type repo so that `f` is called when [[checked]]
+  "Change the global type repo so that `f` is called when [[built-like]]
    succeeds. `f` is given the original candidate structure. `f`'s return value becomes
-   the return value of `checked`.
+   the return value of `built-like`.
 "
   [f]
   (swap! repo repo/replace-success-handler f))
 
 (defn on-error!
-  "Change the global type repo so that `f` is called when [[checked]]
+  "Change the global type repo so that `f` is called when [[built-like]]
    fails. `f` is given a list of [[oopsies]].
-   `f`'s return value becomes the return value of `checked`.
+   `f`'s return value becomes the return value of `built-like`.
 "
   [f]
   (swap! repo repo/replace-error-handler f))

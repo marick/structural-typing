@@ -14,7 +14,7 @@
 
   (tabular
     (fact 
-      (checked ?version {:x 2}) => {:x 2}
+      (built-like ?version {:x 2}) => {:x 2}
       (check-for-explanations ?version {:x 1}) => [(err:shouldbe :x "even?" 1)])
     ?version
     :V1

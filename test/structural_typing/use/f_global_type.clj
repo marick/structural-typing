@@ -12,27 +12,27 @@
   
 (fact "checking"                           
   (fact "calls the error and success function depending on the oopsies it gets back"
-    (checked :A {:a 1}) => "yay"
-    (checked :A {}) => (just :error (contains {:path [:a]})))
+    (built-like :A {:a 1}) => "yay"
+    (built-like :A {}) => (just :error (contains {:path [:a]})))
 
   (fact "can take a vector of type signifiers"
-    (checked [:A :B] {:a 1}) => (just :error (contains {:path [:b]}))
-    (checked [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
-    (checked [:A :B] {:a 1, :b 1}) => "yay"))
+    (built-like [:A :B] {:a 1}) => (just :error (contains {:path [:b]}))
+    (built-like [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
+    (built-like [:A :B] {:a 1, :b 1}) => "yay"))
 
 (start-over!)
 (type! :A (requires :a))
 (type! :B (requires :b))
   
-(fact "about `described-by?`"
+(fact "about `built-like?`"
   (fact "one signifier"
-    (described-by? :A {:a 1}) => true
-    (described-by? :A {}) => false)
+    (built-like? :A {:a 1}) => true
+    (built-like? :A {}) => false)
   
   (fact "can take a vector of type signifiers"
-    (described-by? [:A :B] {:a 1}) => false
-    (described-by? [:A :B] {:b 1}) => false
-    (described-by? [:A :B] {:a 1, :b 1}) => true))
+    (built-like? [:A :B] {:a 1}) => false
+    (built-like? [:A :B] {:b 1}) => false
+    (built-like? [:A :B] {:a 1, :b 1}) => true))
 
 
 (start-over!)

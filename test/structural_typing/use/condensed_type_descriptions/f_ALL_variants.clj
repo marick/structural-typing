@@ -13,12 +13,12 @@
 (fact "RANGE"
   (fact "a single range"
     (type! :R {[(RANGE 1 3)] even?})
-    (checked :R [:wrong 4 2 :wrong]) => [:wrong 4 2 :wrong]
+    (built-like :R [:wrong 4 2 :wrong]) => [:wrong 4 2 :wrong]
     (check-for-explanations :R [:wrong 111 2 :wrong]) => (just (err:shouldbe [1] "even?" 111)))
 
   (fact "a single range outside of a path"
     (type! :R {(RANGE 1 3) even?})
-    (checked :R [:wrong 4 2 :wrong]) => [:wrong 4 2 :wrong]
+    (built-like :R [:wrong 4 2 :wrong]) => [:wrong 4 2 :wrong]
     (check-for-explanations :R [:wrong 111 2 :wrong]) => (just (err:shouldbe [1] "even?" 111)))
     
   (fact "a range within an ALL"
@@ -29,7 +29,7 @@
 
   (fact "it is a type failure if the range extends beyond the count of elements"
     (type! :SECOND-AND-THIRD {[(RANGE 1 3)] pos?})
-    (checked :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
+    (built-like :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
     (check-for-explanations :SECOND-AND-THIRD [:ignored 1])
     => (just #"\[\(RANGE 1 3\)\] is not a path into `\[:ignored 1\]`"))
 
@@ -45,12 +45,12 @@
 (fact "indexes in paths"
   (fact "describing the whole path"
     (type! :X {[1] even?})
-    (checked :X [1 2 3]) => [1 2 3]
+    (built-like :X [1 2 3]) => [1 2 3]
     (check-for-explanations :X [1 3 5]) => (just (err:shouldbe [1] "even?" 3)))
 
   (fact "as part of a path"
     (type! :X {[:a 2] {:b even?}})
-    (checked :X {:a [0 1 {:b 2}]}) => {:a [0 1 {:b 2}]}
+    (built-like :X {:a [0 1 {:b 2}]}) => {:a [0 1 {:b 2}]}
     (check-for-explanations :X {:a [0 1 {:b 1}]}) => (just (err:shouldbe [:a 2 :b] "even?" 1))
     )
 

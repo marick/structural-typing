@@ -6,7 +6,7 @@
             [clojure.string :as str]
             [taoensso.timbre :as timbre])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
-  (:use [structural-typing.type :exclude [checked]]))
+  (:use [structural-typing.type :exclude [built-like]]))
 
 (timbre/set-level! :info)
 
@@ -17,7 +17,7 @@
 (defn error-explainer [oopsies]
   (timbre/info "While checking this:")
   (-> (first oopsies) ; the error handler is always given at least one oopsie.
-      :whole-value    ; the original candidate being checked
+      :whole-value    ; the original candidate being built-like
       pprint-to-string
       str/trimr       ; be tidy by getting rid of pprint's trailing newline
       timbre/info)
@@ -31,5 +31,5 @@
              {:x integer? :y integer?})
       (replace-error-handler error-explainer)))
 
-(def checked (partial type/checked type-repo))
+(def built-like (partial type/built-like type-repo))
 

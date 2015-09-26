@@ -7,7 +7,7 @@
    "An oopsie contains these fields, all potentially relevant when dealing with
    the failure of a predicate.
 
-   * **whole-value**: the original value passed to [[checked]].
+   * **whole-value**: the original value passed to [[built-like]].
    * **leaf-value**: the value passed to the predicate.
    * **path**: A [Specter](https://github.com/nathanmarz/specter)-style path.
    * **predicate**: the original predicate (any callable)

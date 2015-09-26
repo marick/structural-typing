@@ -39,7 +39,7 @@
       (format "`%s` mismatches `%s`" plain lifted))))
 
 (defn check-for-explanations [& args]
-  (let [[retval output] (val-and-output (apply type/checked args))]
+  (let [[retval output] (val-and-output (apply type/built-like args))]
     (if (nil? retval)
       (str-split output #"\n") ; too lazy to handle windows.
       ["Actual return result was not `nil`"])))
@@ -51,5 +51,5 @@
 (defn err:shouldbe [what should-be is]
   (format "%s should be `%s`; it is `%s`" what should-be is))
 
-(defn is-checked [type value]
-  (= (type/checked type value) value))
+(defn is-built-like [type value]
+  (= (type/built-like type value) value))

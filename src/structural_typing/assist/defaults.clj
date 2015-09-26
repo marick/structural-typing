@@ -11,7 +11,7 @@
 (import-vars [structural-typing.guts.expred default-predicate-explainer])
 
 (def default-success-handler 
-  "The default success handler just returns the original candidate structure passed to `checked`."
+  "The default success handler just returns the original candidate structure passed to `built-like`."
   identity)
 
 (def default-error-handler
@@ -19,7 +19,7 @@
    each one's explanation to standard output. It returns
    `nil`, allowing constructs like this:
    
-        (some-> (type/checked :frobnoz x)
+        (some-> (type/built-like :frobnoz x)
                 (assoc :goodness true)
                 ...)
 "

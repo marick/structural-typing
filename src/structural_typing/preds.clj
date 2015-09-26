@@ -111,17 +111,17 @@
 
        user=> (type! :X (pred/implies :a :b))
 
-       user=> (checked :X {:a 1, :b 2})
+       user=> (built-like :X {:a 1, :b 2})
        => {:a 1, :b 2}
-       user=> (checked :X {:a 1})
+       user=> (built-like :X {:a 1})
        :b must exist and be non-nil
        => nil
 
    Note that the `then-part` is irrelevant if `:a` is not present:
 
-       user=> (checked :X {})
+       user=> (built-like :X {})
        => {}
-       user=> (checked :X {:b 1})
+       user=> (built-like :X {:b 1})
        => {:b 1}
    
    The `then-part` can be any *single* condensed type description. For
@@ -140,15 +140,15 @@
                                      neg? (show-as \"=3\" (partial = 3))
                                      string? empty?)})
 
-       user=> (checked :Sep {:a 1}) ; Neither `neg?` nor `string?`
+       user=> (built-like :Sep {:a 1}) ; Neither `neg?` nor `string?`
        => {:a 1}
        
-       user=> (checked :Sep {:a -1}) ; Two checked, two fail.
+       user=> (built-like :Sep {:a -1}) ; Two checked, two fail.
        :a should be `=3`; it is `-1`
        :a should be `even?`; it is `-1`
        => nil
        
-       user=> (checked :Sep {:a \"long\"}) ; String check fails
+       user=> (built-like :Sep {:a \"long\"}) ; String check fails
        :a should be `empty?`; it is `\"long\"`
        => nil
    

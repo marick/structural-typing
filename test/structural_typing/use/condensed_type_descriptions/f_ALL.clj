@@ -36,7 +36,7 @@
 
 (fact "A solitary ALL"
   (type! :IntArray {[ALL] integer?})
-  (described-by? :IntArray [1 2 3 4]) => true
+  (built-like? :IntArray [1 2 3 4]) => true
   (check-for-explanations :IntArray [1 :a 2 :b])
   => (just (err:shouldbe [1] "integer?" :a)
            (err:shouldbe [3] "integer?" :b)))

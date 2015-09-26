@@ -56,7 +56,7 @@
     (boom! "%s is old style description of required keys: use `requires` instead" this)))
 
 ;; For an unknown reason, if I extend AFn, the PersistentMap example above fails.
-;; So multimethods are checked separately.
+;; So multimethods are built-like separately.
 (extend-type clojure.lang.Fn
   DescriptionExpander
   (condensed-description->ppps [this]

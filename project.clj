@@ -8,7 +8,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [marick/suchwow "4.2.0"]
-                 [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
+                 [defprecated "0.1.2"]
                  [com.rpl/specter "0.7.1" :exclusions [org.clojure/clojure]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
