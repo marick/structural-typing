@@ -1,5 +1,5 @@
 (ns structural-typing.assist.testutil
-  "Useful shorthand for tests for new code, like custom predicates."
+  "Useful shorthand for tests of new code, like custom predicates."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.exval :as exval]
             [structural-typing.assist.oopsie :as oopsie]

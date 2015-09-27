@@ -1,5 +1,12 @@
 (defproject marick/structural-typing "0.12.0"
-  :description "Structural typing for Clojure. Generally useful when you want to define predicates to apply in bulk to parts of structures. The top-level namespaces contain what you need to use the library. The .assist namespaces help you tweak its behavior."
+  :description "Define types by giving descriptions (perhaps incomplete) of how they're built.
+               \"...by how they're built\" means applying arbitrary predicates (especially ones
+               about existence) to parts of structures.
+
+               The top-level namespaces contain what you need to use the library, including
+               simpler customizations.
+
+               The .assist namespaces are useful for more in-depth customizations."
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
   :license {:name "The Unlicense"

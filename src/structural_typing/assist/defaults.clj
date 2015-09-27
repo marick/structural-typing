@@ -19,8 +19,8 @@
    each one's explanation to standard output. It returns
    `nil`, allowing constructs like this:
    
-        (some-> (type/built-like :frobnoz x)
-                (assoc :goodness true)
+        (some-> (type/built-like :Patient p)
+                (assoc :handled true)
                 ...)
 "
   (oopsie/mkfn:apply-to-each-explanation println))
