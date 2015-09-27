@@ -1,7 +1,10 @@
 (ns structural-typing.use.f-global-type
   "Some basic tests of global-types code"
   (:use [structural-typing type global-type])
-  (:use midje.sweet))
+  (:use midje.sweet
+        structural-typing.assist.testutil))
+
+  
 
 
 (start-over!)
@@ -19,6 +22,29 @@
     (built-like [:A :B] {:a 1}) => (just :error (contains {:path [:b]}))
     (built-like [:A :B] {:b 1}) => (just :error (contains {:path [:a]}))
     (built-like [:A :B] {:a 1, :b 1}) => "yay"))
+
+(fact "variants of `built-like`"
+  (start-over!)
+  (type! :X (requires :x))
+
+  (fact "<>built-like"
+    (<>built-like {:x 1} :X) => (built-like :X {:x 1})
+    (with-out-str (<>built-like {:notx 1} :X))
+    => (with-out-str (built-like :X {:notx 1})))
+  
+  (fact "all-built-like"
+    (all-built-like :X [{:x 1} {:x 2}]) => [{:x 1} {:x 2}]
+    (all-built-like :X nil) => nil?
+    (all-built-like :X []) => []
+    
+    (check-all-for-explanations :X [{:x 1} {:b 2}]) => (just (err:required :x)))
+  
+  (fact "<>all-built-like"
+    (<>all-built-like [{:x 1}] :X) => (all-built-like :X [{:x 1}])
+    (with-out-str (<>all-built-like [{:notx 1}] :X))
+    => (with-out-str (built-like :X [{:notx 1}]))))
+
+
 
 (start-over!)
 (type! :A (requires :a))

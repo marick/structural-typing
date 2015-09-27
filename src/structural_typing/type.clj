@@ -30,7 +30,7 @@
 ;; ... would not be optional, which would make it different from all other pred-like values.
 (def ^:private whole-type-checker (compile/compile-type {[] [not-nil]}))
 
-(defn- all-oopsies [type-repo one-or-more candidate]
+(defn- produce-type [type-repo one-or-more]
   (let [[signifiers condensed-descriptions]
         (bifurcate repo/valid-type-signifier? (force-vector one-or-more))
 
@@ -38,44 +38,107 @@
         compiled-unnamed (->> condensed-descriptions
                               (repo/canonicalize type-repo)
                               compile/compile-type)]
+    (conj compiled-named compiled-unnamed)))
+
+
+(defn- all-oopsies [compiled-type candidate]
     (or (seq (whole-type-checker candidate))
         (reduce (fn [so-far checker]
                   (into so-far (checker candidate)))
                 []
-                (conj compiled-named compiled-unnamed)))))
+                compiled-type)))
 
-(defn built-like 
-  "Check the `candidate` collection against the previously-defined type named by `type-signifier` in
-  the given `type-repo`. If the `type-repo` is omitted, the global one is used.
+(defn- respond-to-results [type-repo candidate oopsies]
+  (if (empty? oopsies)
+    ((repo/the-success-handler type-repo) candidate)
+    (->> oopsies
+         ((repo/the-error-handler type-repo)))))
+
+
+(defn built-like
+  "`type-shorthand` is either a type-signifier (typically a keyword like `:Point`), a condensed
+   type description (like `(requires :x :y)`), or a vector with either or both.
+   `built-like` checks the `candidate` against the shorthand. 
+
+   By default, `built-like` will either return the `candidate` or, if it doesn't match the shorthand,
+   print an error message and return `nil`. The defaults can be changed in the `type-repo`.
+   If the `type-repo` is omitted, the global one is used.
    
        (type/built-like :Point {:x 1 :y 2})
-
-   To check if a candidate matches each of a set of types, wrap them in a vector:
-
        (type/built-like [:Colorful :Point] {:x 1, :y 2, :color \"red\"})
-   
-   Types are defined with [[named]] or [[type!]]. By default, `built-like` returns
-   the `candidate` argument if it checks out, `nil` otherwise. Those defaults can be
-   changed ([[replace-success-handler]], [[replace-error-handler]], [[on-success!]], [[on-error!]]). 
+       (type/built-like [:Colorful (requires :x :y)] {:x 1, :y 2, :color \"red\"})
+
+   Types are defined with [[named]] or [[type!]]. Defaults are change with
+   [[replace-success-handler]], [[replace-error-handler]], [[on-success!]], and [[on-error!]].
 "
-  ([type-repo type-signifier candidate]
-     (let [oopsies (all-oopsies type-repo type-signifier candidate)]
-       (if (empty? oopsies)
-         ((repo/the-success-handler type-repo) candidate)
-         (->> oopsies
-              ((repo/the-error-handler type-repo))))))
+  ([type-repo type-shorthand candidate]
+     (->> candidate
+          (all-oopsies (produce-type type-repo type-shorthand))
+          (respond-to-results type-repo candidate)))
+  ([type-shorthand candidate]
+     (built-like @global-type/repo type-shorthand candidate)))
 
-  ([type-signifier candidate]
-     (built-like @global-type/repo type-signifier candidate)))
+(defn <>built-like
+  "The same as [[built-like]] but intended to be used in `->`
+   pipelines. Consequently, the `candidate` argument comes first.
+   
+         (-> emr-patient
+             augment           (<>built-like [:Decidable Patient])
+             audit
+             decide
+             schedule)
+   
+   (The `<>` is intended to remind you of
+   [swiss arrows](https://github.com/rplevy/swiss-arrows).)"
+  ([candidate type-repo type-shorthand]
+     (built-like type-repo type-shorthand candidate))
+  ([candidate type-shorthand]
+     (built-like type-shorthand candidate)))
 
+(defn all-built-like
+  "Check each of the `candidates`. Perform the `type-repo`'s error behavior if *any* of
+   the candidates fail. Otherwise, return the original `candidates`.
+   
+       (some->> (all-built-like :Point [{:x 1, :y 2}
+                                        {:why \"so serious?\"}])
+                (map process-points))
+
+   Note: When the type-repo's error behavior is called, it is passed all the `candidates`. 
+   If this function is used, custom error-handlers need to handle both individual candidate
+   failures and group-of-candidate failures.
+"
+  ([type-repo type-shorthand candidate]
+     (let [compiled-type (produce-type type-repo type-shorthand)
+           oopsies (mapcat #(all-oopsies compiled-type %) candidate)]
+       (respond-to-results type-repo candidate oopsies)))
+  ([type-shorthand candidate]
+     (all-built-like @global-type/repo type-shorthand candidate)))
+
+(defn <>all-built-like
+  "The same as [[all-built-like]] but intended to be used in `->`
+   pipelines. Consequently, the `candidate` argument comes first.
+   
+         (-> emr-patients
+             augment           (<>all-built-like [:Decidable Patient])
+             audit
+             decide
+             schedule)
+   
+   (The `<>` is intended to remind you of
+   [swiss arrows](https://github.com/rplevy/swiss-arrows).)"
+  ([candidate type-repo type-shorthand]
+     (all-built-like type-repo type-shorthand candidate))
+  ([candidate type-shorthand]
+     (<>all-built-like candidate @global-type/repo type-shorthand)))
+  
 (depr/defn checked
   "Use [[built-like]] instead."
   {:deprecated {:in "0.13.0"}}
-  ([type-repo type-signifier candidate]
-     (built-like type-repo type-signifier candidate))
+  ([type-repo type-shorthand candidate]
+     (built-like type-repo type-shorthand candidate))
 
-  ([type-signifier candidate]
-     (checked @global-type/repo type-signifier candidate)))
+  ([type-shorthand candidate]
+     (checked @global-type/repo type-shorthand candidate)))
 
 
 (defn named 
@@ -89,10 +152,10 @@
      (repo/hold-type type-repo type-signifier type-descriptions))
 
 (defn built-like? 
-  "Return `true` iff the `candidate` structure matches 
-   the type named `type-signifier`. `type-signifier` may also be a vector 
-   containing type signifiers or condensed type descriptions. The candidate
-   must match each of them.
+  "`type-shorthand` is either a type-signifier (typically a keyword like `:Point`), a condensed
+   type description (like `(requires :x :y)`), or a vector with either or both.
+
+   Returns `true` iff the `candidate` structure matches each element in the type shorthand.
 
    With three arguments, the check is against the `type-repo`. If `type-repo` is
    omitted, the global repo is used.
@@ -100,18 +163,18 @@
        (type/built-like? :Point candidate)
        (type/built-like? [:Colorful :Point] candidate)
 "
-  ([type-repo type-signifier candidate]
-     (empty? (all-oopsies type-repo type-signifier candidate)))
-  ([type-signifier candidate]
-     (built-like? @global-type/repo type-signifier candidate)))
+  ([type-repo type-shorthand candidate]
+     (empty? (all-oopsies (produce-type type-repo type-shorthand) candidate)))
+  ([type-shorthand candidate]
+     (built-like? @global-type/repo type-shorthand candidate)))
 
 (defn described-by? 
   "Use [[built-like?]] instead."
   {:deprecated {:in "0.13.0"}}
-  ([type-repo type-signifier candidate]
-     (built-like? type-repo type-signifier candidate))
-  ([type-signifier candidate]
-     (described-by? @global-type/repo type-signifier candidate)))
+  ([type-repo type-shorthand candidate]
+     (built-like? type-repo type-shorthand candidate))
+  ([type-shorthand candidate]
+     (described-by? @global-type/repo type-shorthand candidate)))
 
 (defn origin
   "Returns the original condensed type description associated with the `type-signifier`. 

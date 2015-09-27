@@ -44,8 +44,25 @@
         (type/built-like repo :Vec []) => vector?
         (type/built-like repo :Vec []) => []))))
                                                  
+(fact "variants of `built-like`"
+  (let [repo (-> type/empty-type-repo
+                 (type/named :X (requires :x)))]
+    (fact "<>built-like"
+      (type/<>built-like {:x 1} repo :X) => (type/built-like repo :X {:x 1})
+      (with-out-str (type/<>built-like {:notx 1} repo :X))
+      => (with-out-str (type/built-like repo :X {:notx 1})))
+
+    (fact "all-built-like"
+      (type/all-built-like repo :X [{:x 1} {:x 2}]) => [{:x 1} {:x 2}]
+      (type/all-built-like repo :X nil) => nil?
+      (type/all-built-like repo :X []) => []
       
-      
+      (check-all-for-explanations repo :X [{:x 1} {:b 2}]) => (just (err:required :x)))
+
+    (fact "<>all-built-like"
+      (type/<>all-built-like [{:x 1}] repo :X) => (type/all-built-like repo :X [{:x 1}])
+      (with-out-str (type/<>all-built-like [{:notx 1}] repo :X))
+      => (with-out-str (type/built-like repo :X [{:notx 1}])))))
 
 (fact "about `built-like?`"
   (let [repo (-> type/empty-type-repo

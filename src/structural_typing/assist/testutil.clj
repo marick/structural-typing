@@ -44,6 +44,12 @@
       (str-split output #"\n") ; too lazy to handle windows.
       ["Actual return result was not `nil`"])))
 
+(defn check-all-for-explanations [& args]
+  (let [[retval output] (val-and-output (apply type/all-built-like args))]
+    (if (nil? retval)
+      (str-split output #"\n") ; too lazy to handle windows.
+      ["Actual return result was not `nil`"])))
+
 
 (defn err:required [what]
   (format "%s must exist and be non-nil" what))
