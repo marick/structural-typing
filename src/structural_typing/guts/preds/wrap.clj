@@ -3,8 +3,7 @@
   (:require [such.readable :as readable]
             [such.metadata :as meta]
             [structural-typing.assist.defaults :as defaults]
-            [structural-typing.guts.expred :as expred]
-            [structural-typing.guts.oopsie :as oopsie]))
+            [structural-typing.guts.expred :as expred]))
 
 ;; TODO: make readable have the "ensure-meta" behavior
 
@@ -66,7 +65,7 @@
     (-> (fn [exval]
           (if (protected (:leaf-value exval))
             []
-            (vector (oopsie/parts->oopsie expred exval))))
+            (vector (merge expred exval))))
         mark-as-lifted
         (give-lifted-predicate-a-nice-string expred))))
 

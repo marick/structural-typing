@@ -5,7 +5,7 @@
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.exval :as exval]
-            [structural-typing.guts.oopsie :as oopsie]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.preds.wrap :as wrap]))
 
 (defn path-will-match-many? [path]

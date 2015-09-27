@@ -1,7 +1,8 @@
 (ns ^:no-doc structural-typing.guts.preds.core
   "Preds that are used througout"
   (:require [structural-typing.guts.preds.wrap :as wrap]
-            [structural-typing.guts.expred :as expred]))
+            [structural-typing.guts.expred :as expred]
+            [structural-typing.assist.oopsie :as oopsie]))
 
 (def required-key
   "False iff a key/path does not exist or has value `nil`. 
@@ -13,7 +14,7 @@
   (wrap/lift-expred (expred/->ExPred (comp not nil?)
                                      "required-key"
                                      #(format "%s must exist and be non-nil"
-                                              (expred/friendly-path %)))
+                                              (oopsie/friendly-path %)))
                     [:check-nil]))
 
 (def not-nil
@@ -26,5 +27,5 @@
   (wrap/lift-expred (expred/->ExPred (comp not nil?)
                                      "not-nil"
                                      #(format "%s is nil, and that makes Sir Tony Hoare sad"
-                                              (expred/friendly-path %)))
+                                              (oopsie/friendly-path %)))
                     [:check-nil]))
