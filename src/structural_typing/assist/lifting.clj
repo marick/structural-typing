@@ -28,7 +28,11 @@
 
 (defn lift-type
   "Take a collection of condensed type descriptions. Canonicalize them.
-   Convert the result into a function that returns [[oopsies]]."
+   Convert the result into a function that returns [[oopsies]].
+
+   The `type-map` is *not* a type-repo as given to [[named]] or [[type!]].
+   It is rather a plain map from type signifiers to type descriptions. It can be 
+   obtained by a type-repo with `(:canonicalized-type-descriptions type-repo)`."
   ([condensed-type-descriptions type-map]
      (type-descriptions/lift condensed-type-descriptions type-map))
   ([condensed-type-descriptions]

@@ -11,12 +11,14 @@
 
    * **whole-value**: the original value passed to [[built-like]].
    * **leaf-value**: the value passed to the predicate.
-   * **path**: A [Specter](https://github.com/nathanmarz/specter)-style path.
-   * **predicate**: the original predicate (any callable)
+   * **path**: The specific path that lead from the whole value to the leaf value.
+     It will not contain tokens like `ALL`; rather; it will contain specific indexes.
+   * **predicate**: The predicate (any callable) that failed. Note: this is the original,
+     not the version from [[lift-pred]].
    * **predicate-string**: a friendly string, such as `even?` instead
      of `#<core$even_QMARK_ clojure.core$even_QMARK_@47a01b6e>`
    * **explainer**: A function that explains this particular oopsie, usually
-     associated with the original predicate. It usually produces a string, 
+     naming the original predicate, path, and leaf value. It usually produces a string, 
      but it could produce anything that your custom failure handler handles.
 
    This var doesn't actually do anything. It's just here as the endpoint for 
