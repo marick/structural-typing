@@ -25,9 +25,9 @@
 ;; state. such.readable needs fixing.
 (defn RANGE
   "Use this in a path to select a range of values in a 
-   collection.
+   collection. The first argument is inclusive; the second exclusive.
    
-       (type! :SECOND-AND-THIRD-ARE-EVEN {[(RANGE 1 3)] even?})
+       (type! :ELEMENTS-1-AND-2-ARE-EVEN {[(RANGE 1 3)] even?})
 "
   [inclusive-start exclusive-end]
   (let [r (meta/assoc (gensym (format "RANGE-%s-%s" inclusive-start exclusive-end))

@@ -39,7 +39,7 @@
 
 (defn through-each
   "Use `through-each` to describe a \"forking\" path. This is convenient when two
-   parts of a bigger data structure have the same type.
+   parts of a bigger data structure should be built the same way.
    
        (type! :Line {[(through-each :start :end) :location] (includes :Point)})
    
@@ -49,7 +49,7 @@
   (->Fork (map force-vector alternatives)))
 (def each-of
   "Use `each-of` to describe a \"forking\" path. This is convenient when two
-   parts of a bigger data structure have the same type.
+   parts of a bigger data structure should be built the same way.
    
        (type! :Plat {[:corners (each-of :nw :ne :sw :se)] (includes :GeoPoint)})
    
@@ -60,7 +60,9 @@
 (defn paths-of
   "Include all the paths of a type (or a literal map) within a path.
    
-        (type! :StrictX (requires (paths-of :X) (includes :X)))
+        (type! :StrictX (includes :X)
+                        (requires (paths-of :X)))
+                        
    
    The above example constructs a stricter version of `:X` by insisting 
    all of its paths are required.

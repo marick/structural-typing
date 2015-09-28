@@ -57,18 +57,18 @@
 
 (defn built-like
   "`type-shorthand` is either a type-signifier (typically a keyword like `:Point`), a condensed
-   type description (like `(requires :x :y)`), or a vector with either or both.
+   type description (like `(requires :x :y)`), or a vector containing either or both.
    `built-like` checks the `candidate` against the shorthand. 
 
-   By default, `built-like` will either return the `candidate` or, if it doesn't match the shorthand,
-   print an error message and return `nil`. The defaults can be changed in the `type-repo`.
+   By default, `built-like` will either return the `candidate` or, if the candidate doesn't match the shorthand,
+   print an error message and return `nil`. 
    If the `type-repo` is omitted, the global one is used.
    
        (type/built-like :Point {:x 1 :y 2})
        (type/built-like [:Colorful :Point] {:x 1, :y 2, :color \"red\"})
        (type/built-like [:Colorful (requires :x :y)] {:x 1, :y 2, :color \"red\"})
 
-   Types are defined with [[named]] or [[type!]]. Defaults are change with
+   Types are defined with [[named]] or [[type!]]. Default behavior is changed with
    [[replace-success-handler]], [[replace-error-handler]], [[on-success!]], and [[on-error!]].
 "
   ([type-repo type-shorthand candidate]
@@ -142,20 +142,19 @@
 
 
 (defn named 
-  "Define the type `type-signifier` as being a map or record containing all of the
-   given `type-descriptions` (which may a vector of required keys or paths
-   or a (potentially nested) map from keys/paths to predicates or vectors of predicates.
-
+  "Define `type-signifier` inside the `type-repo` in terms of the
+  `condensed-type-descriptions`.
+  
   Returns the augmented `type-repo`. See also [[named!]].
 "
-  [type-repo type-signifier & type-descriptions]
-     (repo/hold-type type-repo type-signifier type-descriptions))
+  [type-repo type-signifier & condensed-type-descriptions]
+     (repo/hold-type type-repo type-signifier condensed-type-descriptions))
 
 (defn built-like? 
   "`type-shorthand` is either a type-signifier (typically a keyword like `:Point`), a condensed
-   type description (like `(requires :x :y)`), or a vector with either or both.
+   type description (like `(requires :x :y)`), or a vector containing either or both.
 
-   Returns `true` iff the `candidate` structure matches each element in the type shorthand.
+   Returns `true` iff the `candidate` structure matches everything in the shorthand.
 
    With three arguments, the check is against the `type-repo`. If `type-repo` is
    omitted, the global repo is used.

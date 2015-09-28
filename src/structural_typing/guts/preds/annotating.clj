@@ -7,7 +7,7 @@
   "Associate the given `name` string with the predicate for use when predicate failures
    are explained.
      
-         (->> (partial >= 3) (show-as \"less than 3\"))
+         (show-as \"less than 3\" (partial >= 3))
 "
   [name predicate]
   (when (fn? name) (boom! "First arg is a function. You probably got your args reversed."))
@@ -18,7 +18,7 @@
 
 (defn explain-with
   "After the `predicate` fails, the failure will need to be explained. Arrange for
-   the `explainer` function to be called with the [[oopsie]] that results from the
+   `explainer` to be called with the [[oopsie]] that results from the
    failure.
    
         (explain-with \"too small\" #(< (count %) 54))

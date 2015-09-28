@@ -23,9 +23,8 @@
 (defn member
   "Produce a predicate that's false when applied to a value not a
    member of `coll`. The explainer associated with `member` prints
-   those `colls`.
+   `coll`.
      
-         ( (member [2 3 5 7]) 4) => false
          (type! :small-primes {:n (member [2 3 5 7])})
 "
   [coll]
@@ -36,9 +35,8 @@
 
 (defn exactly
   "Produce a predicate that's true iff the value it's applied to
-   is `=` to `x`.
+   is `expected`.
      
-         ( (exactly 5) 4) => false
          (type! :V5 {:version (exactly 5)})
 "
   [expected]
@@ -72,16 +70,18 @@
 ;; to disallow vectors in favor of a function (rather than having, as elsewhere,
 ;; a function that's just an alias for `vector`).
 
-(defrecord AllOf [type-descriptions])
+(defrecord AllOf [condensed-type-descriptions])
 (alter-meta! #'->AllOf assoc :private true)
 (alter-meta! #'map->AllOf assoc :private true)
 
 (defn all-of
-  "This is used with [[implies]] to group a collection of `type-descriptions`
-   into one. Unlike [[type!]] and [[named]], `all-of` doesn't support a final
-   \"& rest\" argument."
-  [& type-descriptions]
-  (->AllOf type-descriptions))
+  "This is used with [[implies]] to group a collection of `condensed-type-descriptions`
+   into one. 
+   
+        (all-of (requires :x :y) (includes :Point) {:color string?})
+"
+  [& condensed-type-descriptions]
+  (->AllOf condensed-type-descriptions))
 (defn ^:no-doc force-all-of [x]
   (if (instance? AllOf x)
     x
@@ -102,69 +102,26 @@
 
 (defn implies
   "Each `if-pred` is evaluated in turn. When the `if-pred` is
-   truthy, the corresponding `then-part` is applied. The `then-part`
+   truthy, the corresponding `then-part` applies. The `then-part`
    is either a single condensed type description or a set of them
    enclosed in [[all-of]].
-
-   Perhaps the most common use of `implies` is to say \"if one key
-   exists in a map, another must also exist\":
-
-       user=> (type! :X (pred/implies :a :b))
-
-       user=> (built-like :X {:a 1, :b 2})
-       => {:a 1, :b 2}
-       user=> (built-like :X {:a 1})
-       :b must exist and be non-nil
-       => nil
-
-   Note that the `then-part` is irrelevant if `:a` is not present:
-
-       user=> (built-like :X {})
-       => {}
-       user=> (built-like :X {:b 1})
-       => {:b 1}
    
-   The `then-part` can be any *single* condensed type description. For
-   example, the following requires three keys to exist if `:a` does.
+        (type! :X (pred/implies :a :b)) 
+        (type! :X (pred/implies (comp nil :a) (requires :b :c :d)))
+        (type! :X (pred/implies :a (pred/all-of (includes :Point)
+                                                (requires :color))))
 
-       (type! :X (pred/implies :a [:b :c :d]))
-
-   Here, if `:a` is even, `:b` must be present and a `:Point`:
-
-       (type! :X (pred/implies (comp even? :a)
-                               {:b [required-key (includes :Point)]}))
-
-   There can be more than one if/then pair:   
-   
-       (type! :Sep {:a (pred/implies neg? even?
-                                     neg? (show-as \"=3\" (partial = 3))
-                                     string? empty?)})
-
-       user=> (built-like :Sep {:a 1}) ; Neither `neg?` nor `string?`
-       => {:a 1}
-       
-       user=> (built-like :Sep {:a -1}) ; Two checked, two fail.
-       :a should be `=3`; it is `-1`
-       :a should be `even?`; it is `-1`
-       => nil
-       
-       user=> (built-like :Sep {:a \"long\"}) ; String check fails
-       :a should be `empty?`; it is `\"long\"`
-       => nil
-   
-   Note that, unlike most predicates in this namespace, 
-   `implies` cannot be used as an ordinary predicate. It
-   doesn't return a truthy/falsey value but rather a function that
-   returns a function.
+   There's enough going on with `implies` that it has its own
+   page in the user documentation: [[[TBD]]].
 "
-  {:arglists '([if-pred condensed-type-description if-pred condensed-type-description...])}
+  {:arglists '([if-pred then-part if-pred then-part  ...])}
   [& args]
 
   (-> (fn [type-map]
         (let [make-antecedent pred:exception->false
               make-consequent #(-> %
                                    force-all-of
-                                   :type-descriptions
+                                   :condensed-type-descriptions
                                    (lifting/lift-type type-map))
               adjusted-pairs (->> args
                                   (alternately make-antecedent make-consequent)

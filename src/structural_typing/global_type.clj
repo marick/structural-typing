@@ -38,9 +38,9 @@
 
 (defn type! 
   "Modifies the global type repo to define the type `type-signifier` as being
-   a structure constrained by the `type-descriptions`.
+   a structure constrained by the `condensed-type-descriptions`.
    See also [[named]].
 "
-  [type-signifier & type-descriptions]
-  (swap! repo repo/hold-type type-signifier type-descriptions))
+  [type-signifier & condensed-type-descriptions]
+  (swap! repo repo/hold-type type-signifier condensed-type-descriptions))
 

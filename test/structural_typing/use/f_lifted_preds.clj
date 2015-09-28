@@ -9,8 +9,8 @@
 
 
 (fact "utility for implies: all-of"
-  (:type-descriptions (subject/force-all-of odd?)) => [odd?]
-  (:type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
+  (:condensed-type-descriptions (subject/force-all-of odd?)) => [odd?]
+  (:condensed-type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
   
 
 (fact "implies is a three level predicate"
