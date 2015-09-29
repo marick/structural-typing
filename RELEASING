@@ -1,4 +1,4 @@
-* Bump version in project and readme
+* Bump version in project, readme, changelog
 * lein ancient
 * lein compatibility 
 * push
