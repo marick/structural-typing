@@ -44,7 +44,7 @@ is sometimes helpful for such a structure, but often it's not:
    have a `:color`.
 
 2. You might want to be more specific than "field `:color` is
-   a String".  It might be important that `:color` is an RGB string.
+   a String".  It might be important that `:color` encodes an RGB string.
    Type checks that are infeasible in static type systems are
    perfectly feasible at runtime; there's no reason to require types
    to be names when they can be arbitrary predicates.
@@ -55,7 +55,7 @@ is sometimes helpful for such a structure, but often it's not:
    likely to lead to really bad names. People reading those names will
    have to look to the source to understand them... kind of defeating
    the whole purpose of naming. For understandability, saying "step `N`
-   produces an `X<sub>33</sub>`" is less useful than "step `N` adds
+   produces a Type<sub>33</sub>" is less useful than "step `N` adds
    a color field". 
 
 This library is built to match the flow style of programming.
