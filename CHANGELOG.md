@@ -4,6 +4,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
 
+## [0.13.0]
+
 ### BREAKING
 
 - You must now use `requires` instead of the vector notation for required paths.
