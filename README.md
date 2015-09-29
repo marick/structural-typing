@@ -56,15 +56,15 @@ is sometimes helpful for such a structure, but often it's not:
    have to look to the source to understand them... kind of defeating
    the whole purpose of naming. For understandability, saying "step `N`
    produces a Type<sub>33</sub>" is less useful than "step `N` adds
-   a color field". 
+   a `:color` field". 
 
 This library is built to match the flow style of programming.
 
 ## A whirlwind tour
 
 Type descriptions are stored in one or more *type-repos*. For these
-examples, I'll use a predefined default global repo so that I don't
-have to keep mentioning it all the time. (In production, I recommend a different [[[setup]]].)
+examples, I'll use the predefined default global repo so that I don't
+have to keep mentioning it all the time. (In production, I recommend a different [setup](https://github.com/marick/structural-typing/wiki/Recommended-setup).)
 
 Let's say that a `:Point` is a map with `:x` and `:y` keys:
 
@@ -74,7 +74,7 @@ user=> (type! :Point (requires :x :y))
 => #TypeRepo[:Point]
 ```
 
-Here is a map:
+Here is how you check a value (which happens to succeed):
 
 ```clojure
 user=> (built-like :Point {:x 1 :y 2})
@@ -83,8 +83,8 @@ user=> (built-like :Point {:x 1 :y 2})
 
 When given something that's less than a proper `:Point`, `built-like`
 prints a helpful message and returns `nil`. (This default can be
-changed. If you roll monadically, you [[[can have]]] the success case
-produce a `Right` and the failure case produce a `Left`.)
+changed. If you roll monadically, you [can have](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad) the success case
+produce a `Right` and the failure case produce a `Left`.) For example:
 
 ```clojure
 user=> (built-like :Point {:x 1})
@@ -92,7 +92,7 @@ user=> (built-like :Point {:x 1})
 nil
 ```
 
-The default behavior is useful for cleanly interrupting pipelines when errors occur:
+This default behavior is useful for cleanly interrupting pipelines when errors occur:
 
 ```clojure
 (some->> points
@@ -135,10 +135,10 @@ user=> (built-like :Point {:x "one"})
 ```
 
 Feast your eyes on the "integer?". Pleasant error messages are
-important. (And I'm smug about producing them without resort to
+important. (And I'm smug about producing them without resorting to
 macro-ology.)
 
-Because error messages are important, you can easily name anonymous
+Because error messages are important, you're allowed to name anonymous
 predicates. Here's a way of restricting the bounds of `:x` and `:y`:
 
 ```clojure
@@ -155,7 +155,7 @@ Notice the second error message: when `"five"` was compared to `0`, the predicat
 threw a `ClassCastException`. That is interpreted as a false result. Otherwise,
 predicates would have to do error-checking that's not actually useful.
 
-Better than using anonymous functions, though, would be just naming predicates:
+Better than using anonymous functions, though, would be just defining a Clojure var:
 
 ```clojure
 user=> (def within-bounds? #(and (>= % 0) (< % 1024)))
@@ -166,7 +166,7 @@ user=> (built-like :Point {:x 1, :y -1})
 => nil
 ```
 
-The definition is still a bit annoying, in that it doesn't state clearly that `:x` and `:y` are of the same type. That can be done like this:
+`:Point`'s definition is still a bit annoying, in that it doesn't state clearly that `:x` and `:y` are of the same type. That can be done like this:
 
 ```clojure
 user=> (type! :Point {(each-of :x :y) [required-key within-bounds?]})
@@ -179,13 +179,13 @@ a `:Figure` type that contains many `:Points`. It can be described like this:
 
 ```clojure
 (type! :Figure (requires :points :fill-color :line-color)
-               {[:points ALL] (includes :Point)
+               {[:points ALL] (includes :Point)                 ; <<== interesting!
                 (each-of :fill-color :line-color) rgb-string?})
 ```
 
-The above says that all the `:points` must satisfy the constraints
-from `:Point`. (The name `includes` was chosen to remind you that they
-may have additional fields.) A failure looks like this:
+The highlighted line above says that all the `:points` must satisfy the constraints
+from `:Point`. (The name `includes` was chosen to remind you that the `:points`
+are allowed to have additional fields.) A failure looks like this:
 
 ```clojure
 user=> (built-like :Figure {:fill-color "#DA70D6" :line-color "#DA70D6"
@@ -196,9 +196,7 @@ user=> (built-like :Figure {:fill-color "#DA70D6" :line-color "#DA70D6"
 ```
 
 By using paths, you can describe a deeply nested structure as a flat
-path-to-constraints map. For nested maps, you can also use a nested
-description (which will be flattened for you when stored in the
-type-repo):
+path-to-constraints map. If you like type descriptions that are nested like the types they describe, you can do that too:
 
 ```clojure
 user=> (type! :X {:a even?
@@ -210,6 +208,8 @@ user=> (built-like :X {:a 1 :b {:c1 2, :c2 "foo"}})
 => nil
 ```
 
+(However, I never actually got arround to supporting vector literals in nested type descriptions - so this only works for maps.)
+
 When checking a value, you're not restricted to a single type. For example, suppose you have a `:Point` type and
 also a `:Colorful` "mixin" type:
 
@@ -217,7 +217,7 @@ also a `:Colorful` "mixin" type:
 user=> (type! :Colorful {:color [required-key rgb-string?]})
 ```
 
-If you expect a colorful point, you needn't create a type exactly for it. Instead, you can require that your value match two types:
+If you expect a colorful point, you needn't use a single type for it. Instead, you can require that the value match two types:
 
 ```clojure
 user=> (built-like [:Colorful :Point] {:x 1})
@@ -243,7 +243,9 @@ user=> (built-like [:Point (requires :color)] {:y 1})
 nil
 ```
 
-This style of type description can help with one of the problems with pipelines of processing stages: confusion about which stage does what. Consider the following:
+I've allowed snippets of type descriptions (like `(requires :color)`)
+because it helps with a problem I have while reading pipelines of
+processing stages: which stage does what? The following shows how anonymous, partial type descriptions can help:
 
 ```clojure
 (some->> patients        (all-built-like :Patient)
@@ -251,6 +253,14 @@ This style of type description can help with one of the problems with pipelines 
          flood-forward   (all-built-like {:schedule not-empty?})
          ...)
 ```
+
+(In this case, each step produces a structure that's still satisfies
+the `:Patient` type. I didn't bother mentioning that after the first
+step because (1) I doubt later steps will falsify that, and (2) it
+doesn't help a reader understand the code. If anything, the clutter
+hurts. I care more that type descriptions are *informative*, even to
+someone reading hastily, than that they're *complete*. If you care
+differently, you can be more rigorous.
 
 ## Oh, by the way
 
