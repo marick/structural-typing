@@ -1,4 +1,4 @@
-Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7  
+Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7+  
 For lein: [marick/structural-typing "0.13.0"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)       
@@ -13,9 +13,9 @@ Many Clojure apps look something like this:
 ![Flow through a pipeline](https://github.com/marick/structural-typing/blob/master/doc/flow.png)
 
 
-Data flows into them from some external source (1). Whatever the source,
-it's converted into a Clojure data structure: maps or vectors of
-maps. The data is perhaps augmented by requesting related data from
+Data flows into them from some external source.
+It's converted into a Clojure data structure: maps or vectors of
+maps (1). The data is perhaps augmented by requesting related data from
 other apps (2).
 
 Thereafter, the data flows through a sequence of processing steps
@@ -30,33 +30,33 @@ app in a pipeline of microservices.
 
 Conventional
 ([nominal](http://en.wikipedia.org/wiki/Nominal_type_system)) typing
-is sometimes helpful for such a structure, but it's often not:
+is sometimes helpful for such a structure, but often it's not:
 
-1. The structures coming into a program might well be of a type with a
-   fixed set of keys whose values are strings or ints or whatever -
+1. The structures coming into the app might have a
+   fixed set of keys, 
    but they could easily also be larger structures that *contain* the
    fixed set of keys. Extra keys are to be preserved but not otherwise
    meddled with. As a trivial example, an app might process a stream
-   of `Points`, requiring that each have an `:x` and `:y`
-   coordinate. But it's perfectly acceptable for some points to also
+   of `Points`, requiring that each have `:x` and `:y` floating point
+   coordinates. But it's perfectly acceptable for some points to also
    have a `:color`.
 
-2. Similarly, the output from the app might be looser than "an object
-   with these fields and no others".
-
-3. Alternately, you might want to be more specific than "field `:f` is
-   a String".  It might be important that `:f` is a *short*
-   string. Type checks that are infeasible in static type systems are
+2. You might want to be more specific than "field `:color` is
+   a String".  It might be important that `:color` is an RGB string.
+   Type checks that are infeasible in static type systems are
    perfectly feasible at runtime; there's no reason to require types
    to be names when they can be arbitrary predicates.
 
-4. Since many transformation steps make only small changes to the
-   structures to the structures they receive, it's annoying and
-   wasteful to give each one of them its own named type. For both
-   error-checking and documentation, it's better to describe how the
-   step changes its input.
+4. Many transformation steps make only small changes to the structures
+   they receive. When structures flow through a pipeline, giving the
+   output of each stage its own type name is (1) annoying, and (2)
+   likely to lead to really bad names. People reading those names will
+   have to look to the source to understand them... kind of defeating
+   the whole purpose of naming. For understandability, saying "step `N`
+   produces an `X<sub>33</sub>`" is less useful than "step `N` adds
+   a color field". 
 
-This library is built to matter match such a style of programming.
+This library is built to match the flow style of programming.
 
 ## A whirlwind tour
 
