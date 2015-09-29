@@ -22,7 +22,7 @@ Thereafter, the data flows through a series of processing steps
 (3). Each of them transforms structures into other structures. Some
 steps might reduce a sequential structure into a map, or generate a
 sequence from a map. But the most common transformation is to add,
-remove, or transform key-value pairs. Whatever the case, each step is
+remove, or change key-value pairs. Whatever the case, each step is
 (should be) a relatively isolated, discrete, and
 independently-understandable data transformation.
 
@@ -84,7 +84,7 @@ user=> (built-like :Point {:x 1 :y 2})
 When given something that's less than a proper `:Point`, `built-like`
 prints a helpful message and returns `nil`. (This default can be
 changed. If you roll monadically, you [can have](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad) the success case
-produce a `Right` and the failure case produce a `Left`.) For example:
+produce a `Right` and the failure case produce a `Left`.) Here is a failure example:
 
 ```clojure
 user=> (built-like :Point {:x 1})
@@ -254,10 +254,10 @@ processing stages: which stage does what? The following shows how anonymous, par
          ...)
 ```
 
-(In this case, each step produces a structure that's still satisfies
+(In this case, each step produces a structure that still satisfies
 the `:Patient` type. I didn't bother mentioning that after the first
 step because (1) I doubt later steps will falsify that, and (2) it
-doesn't help a reader understand the code. If anything, the clutter
+doesn't help a reader understand the pipeline. If anything, the clutter
 hurts. I care more that type descriptions are *informative*, even to
 someone reading hastily, than that they're *complete*. If you care
 differently, you can be more rigorous.
