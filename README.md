@@ -18,11 +18,13 @@ It's converted into a Clojure data structure: maps or vectors of
 maps (1). The data is perhaps augmented by requesting related data from
 other apps (2).
 
-Thereafter, the data flows through a sequence of processing steps
-(3). Each of them transforms Clojure structures into other
-structures. One of them might add, remove, or transform key-value
-pairs. Another might reduce a sequence into a single
-structure. Another might split a structure into a sequence.
+Thereafter, the data flows through a series of processing steps
+(3). Each of them transforms structures into other structures. Some
+steps might reduce a sequential structure into a map, or generate a
+sequence from a map. But the most common transformation is to add,
+remove, or transform key-value pairs. Whatever the case, each step is
+(should be) a relatively isolated, discrete, and
+independently-understandable data transformation.
 
 Finally (4), the result is passed on to some other app. It might be
 the app that sent the data in the first place, or it might be another
