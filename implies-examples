@@ -1,0 +1,54 @@
+   Perhaps the most common use of `implies` is to say \"if one key
+   exists in a map, another must also exist\". Because of that,
+   there's a special shorthand:
+
+       user=> (type! :X (pred/implies :a :b))
+
+       user=> (built-like :X {:a 1, :b 2})
+       => {:a 1, :b 2}
+       user=> (built-like :X {:a 1})
+       :b must exist and be non-nil
+       => nil
+
+   Note that the `then-part` is irrelevant if `:a` is not present:
+
+       user=> (built-like :X {})
+       => {}
+   
+   The previous example allows a single keyword to stand in for a `requires`
+   condensed type description like `(requires :a)`. For more complex cases,
+   you need a proper condensed description. In the following, if `:a`'s value is
+   missing or nil, keys `:b`, `:c`, and `:d` are required:
+
+       (type! :X (pred/implies (comp nil :a) (requires :b :c :d)))
+
+   Note that the `if-part` is treated the same was as elsewhere: 
+
+   There can be more than one if/then pair. The following describes what
+      must be true of a negative value (it must also be even). But it also
+      allows for a string (which must be empty):
+   
+       (type! :Sep {:a (pred/implies neg? even?                   
+                                     string? empty?)})
+
+       user=> (built-like :Sep {:a 1}) ; Neither `neg?` nor `string?`
+       => {:a 1}
+       
+       user=> (built-like :Sep {:a -1})
+       :a should be `even?`; it is `-1`
+       => nil
+       
+       user=> (built-like :Sep {:a \"long\"}) ; String check fails
+       :a should be `empty?`; it is `\"long\"`
+       => nil
+
+   For cases where you want more than one condensed type description in the
+   `then-part`, use `all-of`:
+    
+       type! :X (pred/implies integer? (pred/all-of pos? odd? prime?))
+   
+   Note that, unlike most predicates in this namespace, 
+   `implies` cannot be used as an ordinary predicate. It
+   doesn't return a truthy/falsey value but rather a function that
+   returns a function.
+;
