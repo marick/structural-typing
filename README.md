@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7  
-For lein: [marick/structural-typing "0.12.0"]    
+For lein: [marick/structural-typing "0.13.0"]    
 License: [Unlicense](http://unlicense.org/) (public domain)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
@@ -8,349 +8,268 @@ License: [Unlicense](http://unlicense.org/) (public domain)
 
 # structural-typing
 
-As far as looseness and flexibility goes, structural typing lives
-between [duck typing](http://en.wikipedia.org/wiki/Duck_typing) and
-[nominal typing](http://en.wikipedia.org/wiki/Nominal_type_system).
+Many Clojure apps look something like this:
 
-As implemented here, it's particularly useful for checking data
-flowing across module or system boundaries: you check data as it
-arrives, then the rest of your
-code can assume correctness.
+![Flow through a pipeline](https://github.com/marick/structural-typing/blob/master/doc/flow.png)
 
-Note that this fits particularly well with a coding style where
-programs take in data that is augmented (`assoc`) incrementally by
-stages of a pipeline, then transformed into new data that's pumped out
-the other side.
 
-Unlike nominal typing, structural types are described by predicates on
-keys, not by relationships between type names and other type
-names. That makes structural typing especially useful for
-loosely-coupled systems.
+Data flows into them from some external source (1). Whatever the source,
+it's converted into a Clojure data structure: maps or vectors of
+maps. The data is perhaps augmented by requesting related data from
+other apps (2).
 
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+Thereafter, the data flows through a sequence of processing steps
+(3). Each of them transforms Clojure structures into other
+structures. One of them might add, remove, or transform key-value
+pairs. Another might reduce a sequence into a single
+structure. Another might split a structure into a sequence.
 
-- [structural-typing](#structural-typing)
-	- [Simple examples](#simple-examples)
-	- [Multiple checks for a key](#multiple-checks-for-a-key)
-	- [Optional and required values](#optional-and-required-values)
-	- [Combining types](#combining-types)
-	- [Nested types and key paths](#nesting-types-and-key-paths)
-	- [For more details](#for-more-details)
-- [Back Matter](#back-matter)
-	- [Todo list](#todo-list)
-	- [Credits](#credits)
-	- [Contributing](#contributing)
+Finally (4), the result is passed on to some other app. It might be
+the app that sent the data in the first place, or it might be another
+app in a pipeline of microservices.
 
-## Simple examples
+Conventional
+([nominal](http://en.wikipedia.org/wiki/Nominal_type_system)) typing
+is sometimes helpful for such a structure, but it's often not:
 
-This library works with a *type repository* or "type repo".
-[In real life](https://github.com/marick/structural-typing/wiki/Recommended-setup),
-I put the repo in one or more namespaces that hold their own
-type repositories. Such a namespace also defines (via `partial`) checking functions that use the
-type repo. Those
-functions are then used like this:
+1. The structures coming into a program might well be of a type with a
+   fixed set of keys whose values are strings or ints or whatever -
+   but they could easily also be larger structures that *contain* the
+   fixed set of keys. Extra keys are to be preserved but not otherwise
+   meddled with. As a trivial example, an app might process a stream
+   of `Points`, requiring that each have an `:x` and `:y`
+   coordinate. But it's perfectly acceptable for some points to also
+   have a `:color`.
+
+2. Similarly, the output from the app might be looser than "an object
+   with these fields and no others".
+
+3. Alternately, you might want to be more specific than "field `:f` is
+   a String".  It might be important that `:f` is a *short*
+   string. Type checks that are infeasible in static type systems are
+   perfectly feasible at runtime; there's no reason to require types
+   to be names when they can be arbitrary predicates.
+
+4. Since many transformation steps make only small changes to the
+   structures to the structures they receive, it's annoying and
+   wasteful to give each one of them its own named type. For both
+   error-checking and documentation, it's better to describe how the
+   step changes its input.
+
+This library is built to matter match such a style of programming.
+
+## A whirlwind tour
+
+Type descriptions are stored in one or more *type-repos*. For these
+examples, I'll use a predefined default global repo so that I don't
+have to keep mentioning it all the time. (In production, I recommend a different [[[setup]]].)
+
+Let's say that a `:Point` is a map with `:x` and `:y` keys:
 
 ```clojure
-(ns my.namespace
-  (:require [my.types :as type])
-  ...)
-
-...
-... (type/checked :Point incoming-data) ...
-
+user=> (use 'structural-typing.type 'structural-typing.global-type)
+user=> (type! :Point (requires :x :y))
+=> #TypeRepo[:Point]
 ```
 
-For examples to try in a repl, though, it's convenient to use the
-single implicit global repo. Like this:
+Here is a map:
 
 ```clojure
-user=> (use 'structural-typing.type)
-user=> (use 'structural-typing.global-type)
+user=> (built-like :Point {:x 1 :y 2})
+{:x 1, :y 2}
 ```
 
-That given, here's how you
-define a `:Point` type.
+When given something that's less than a proper `:Point`, `built-like`
+prints a helpful message and returns `nil`. (This default can be
+changed. If you roll monadically, you [[[can have]]] the success case
+produce a `Right` and the failure case produce a `Left`.)
 
 ```clojure
-user=> (type! :Point {:x integer? :y integer?})
-```
-
-Here's an example of a type mismatch:
-
-```clojure
-user=> (checked :Point {:x "one" :y "two"})
-:y should be `integer?`; it is `"two"`
-:x should be `integer?`; it is `"one"`
-=> nil
-```
-
-By default, type errors are printed as with `println`. That's easily
-changed. For example, to throw an exception, do this:
-
-```clojure
-user=> (on-error! throwing-error-handler)
-user=> (checked :Point {:x "one" :y "two"})
-
-Exception :y should be `integer?`; it is `"two"`
-:x should be `integer?`; it is `"one"`  structural-typing.defaults/throwing-error-handler (defaults.clj:94)
-
-user=> (pst)
-Exception :y should be `integer?`; it is `"two"`
-:x should be `integer?`; it is `"one"`
-	structural-typing.defaults/throwing-error-handler (defaults.clj:94)
-	structural-typing.type-repo.TypeRepo (type_repo.clj:30)
-```
-
-Not all that pretty, but I hope you didn't come to Clojure expecting pretty stack traces.
-
-See [using a logging library](https://github.com/marick/structural-typing/wiki/Using-a-logging-library) and [using the Either monad](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad) to see how to write your own error-reporting functions. And if you're following along at the repl, revert to the original error handler now:
-
-```clojure
-user=> (on-error! default-error-handler)
-```
-
-
-The name `checked` is a bit peculiar. That's because it's intended to be used in this sort of pipeline:
-
-```clojure
-(defn amqp-handler [payload]
-  (some-> (type/checked :Point payload)
-          frob
-          twiddle
-          tweak))
-```
-
-You place type checks at important boundaries, which pass along
-type-checked values to interior functions. When the candidate payload
-fails the type check, `checked` returns `nil`, so the pipeline is
-short-circuited. (Note: if you roll monadically, you can make success
-and failure return `Either` values. See [the wiki page](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad).)
-
-In the success case, `checked` returns the unmodified original value:
-
-```clojure
-user=> (checked :Point {:x 1 :y 2})
-=> {:y 2, :x 1}
-```
-
-## Multiple checks for a key
-
-
-To apply more than one predicate to a key's value, enclose them in a vector:
-
-```clojure
-user=> (type! :Point {:x [integer? pos?] :y [integer? pos?]})
-
-user=> (checked :Point {:x -1 :y 2})
-:x should be `pos?`; it is `-1`
-=> nil
-
-```
-
-It's worth noting that all the predicates are checked even if one of them fails:
-
-```clojure
-user=> (checked :Point {:x "string" :y 2})
-:x should be `integer?`; it is `"string"`
-:x should be `pos?`; it is `"string"`
-=> nil
-```
-
-If a predicate would throw an error (as `pos?` does on a string), that's considered `false`.
-
-In addition to predicates defined by Clojure or your program, you can use [predefined predicates](http://marick.github.io/structural-typing/structural-typing.preds.html).
-
-
-## Optional and required values
-
-In addition to ignoring exceptions, predicates also ignore `nil`
-values. The effect is that all keys are optional by default. So all of
-these are valid points:
-
-```clojure
-user=> (map #(checked :Point %) [{} {:x 1} {:y 1} {:x 1 :y 2}])
-=> ({} {:x 1} {:y 1} {:y 2, :x 1})
-```
-
-(Note: For this library, a `nil` value is treated the same as a missing
-value. There is no difference in the handling of `{:x nil}` and `{}`.)
-
-It's hard to imagine a useful Point type where the coordinates are optional, so we'd want to
-require them:
-
-```clojure
-user=> (type! :Point {:x [required-key integer?]
-                      :y [required-key integer?]})
-
-user=> (checked :Point {:x "1"})
+user=> (built-like :Point {:x 1})
 :y must exist and be non-nil
-:x should be `integer?`; it is `"1"`
+nil
+```
+
+The default behavior is useful for cleanly interrupting pipelines when errors occur:
+
+```clojure
+(some->> points
+         (all-built-like :Point)
+         (map color)
+         (map embellish))
+```
+
+A map is allowed to have extra keys. For example, a colorful point is still a point:
+
+```clojure
+user=> (built-like :Point {:x 1, :y 2, :color "#DA70D6"})
+=> {:x 1, :y 2, :color "#DA70D6"}
+```
+
+This is similar to the rules for [structural typing](https://en.wikipedia.org/wiki/Structural_typing) as used in [Elm](http://elm-lang.org/learn/Records.elm).
+
+You might be surprised (I was) how often all you need to check at the
+beginning of a pipeline is whether the input has all the required
+keys. Inputs seem to either be right or wildly wrong; it's less often
+the case that the `:x` and `:y` of a `:Point` are strings instead of
+numbers. However, you can apply arbitrary predicates to any part of a
+structure. Here, for example, are two equivalent ways of requiring that a
+`:Point` have integer keys:
+
+```clojure
+(type! :Point (requires :x :y)
+              {:x integer?, :y integer?})
+(type! :Point {:x [required-key integer?]
+               :y [required-key integer?]})
+```
+
+In either case, an error looks like this:
+
+```clojure
+user=> (built-like :Point {:x "one"})
+:x should be `integer?`; it is `"one"`
+:y must exist and be non-nil
 => nil
 ```
 
-There is an alternate notation that's shorter and perhaps clearer for
-many cases. It lists the required keys in a vector, separately
-from the map of keys to predicates. It looks like this:
+Feast your eyes on the "integer?". Pleasant error messages are
+important. (And I'm smug about producing them without resort to
+macro-ology.)
+
+Because error messages are important, you can easily name anonymous
+predicates. Here's a way of restricting the bounds of `:x` and `:y`:
 
 ```clojure
-user=> (type! :Point
-              [:x :y]
-              {:x integer? :y integer?})
-```
-
-I won't describe it further here. See
-[all about condensed type descriptions](https://github.com/marick/structural-typing/wiki/All-about-condensed-type-descriptions).
-
-One final note about optionality. Extra keys are not considered an
-error. A value can have as many extra keys as you want and still be
-"of" a particular type. That is, all of the following are `:Points`:
-
-```clojure
-user=> (map #(checked :Point %) [{:x 1 :y 2}
-                                 {:x 1 :y 2 :z 3}
-                                 {:x 1 :y 2 :color "red"}])
-=> ({:y 2, :x 1} {:y 2, :z 3, :x 1} {:y 2, :color "red", :x 1})
-```
-
-## Combining types
-
-Here's one way to create a point with a color:
-
-```clojure
-user=> (type! :ColorfulPoint
-          {:x [required-key integer?]
-           :y [required-key integer?]
-           :color [required-key string?]})
-
-user=> (checked :ColorfulPoint {:y 1 :color 1})
-:x must exist and be non-nil
-:color should be `string?`; it is `1`
+user=> (type! :Point (requires :x :y)
+                     {:x (show-as "in bounds" #(and (>= % 0) (< % 1024)))
+                      :y (show-as "in bounds" #(and (>= % 0) (< % 1024)))})
+user=> (built-like :Point {:x -1, :y "five"})
+:x should be `in bounds`; it is `-1`
+:y should be `in bounds`; it is `"five"`
 => nil
 ```
 
-That seems a bit silly, given that we've already defined a
-`:Point`. We should reuse its definition:
+Notice the second error message: when `"five"` was compared to `0`, the predicate
+threw a `ClassCastException`. That is interpreted as a false result. Otherwise,
+predicates would have to do error-checking that's not actually useful.
+
+Better than using anonymous functions, though, would be just naming predicates:
 
 ```clojure
-user=> (type! :ColorfulPoint
-              (includes :Point)
-              {:color string?})
-
-user=> (checked :ColorfulPoint {:y 1 :color 1})
-:x must exist and be non-nil
-:color should be `string?`; it is `1`
-=> nil
-
-```
-
-If you'll have many colored objects, you can create a `:Colorful` "[mixin](https://en.wikipedia.org/wiki/Mixin)" and then use it:
-
-```clojure
-user=> (type! :Colorful {:color [required-key string?]})
-user=> (type! :ColorfulPoint (includes :Point) (includes :Colorful))
-```
-
-You might not want to dignify the combination of `:Colorful` and
-`:Point` with its own type. To support that, you can check against
-more than one type at once:
-
-```clojure
-user=> (checked [:Colorful :Point] {:y 1 :color 1})
-:x must exist and be non-nil
-:color should be `string?`; it is `1`
+user=> (def within-bounds? #(and (>= % 0) (< % 1024)))
+user=> (type! :Point (requires :x :y)
+                     {:x within-bounds? :y within-bounds?})
+user=> (built-like :Point {:x 1, :y -1})
+:y should be `within-bounds?`; it is `-1`
 => nil
 ```
 
-It's important to understand that all of the above types are *the
-same*. The names are only for human convenience; types are defined by
-a structure of keys and predicates, and do not have any intrinsic
-relationship to other types. One consequence is that if you redefine
-`:Colorful`, that will not affect `:ColorfulPoint`.
-
-## Nested types and key paths
-
-Here's a 
-colorful figure composed of a set of points.
+The definition is still a bit annoying, in that it doesn't state clearly that `:x` and `:y` are of the same type. That can be done like this:
 
 ```clojure
-user=> (def ok-figure {:color "red"
-                       :points [{:x 1, :y 1}
-                                {:x 2, :y 3}]})
+user=> (type! :Point {(each-of :x :y) [required-key within-bounds?]})
 ```
 
-We can define its type like this:
+The use of `each-of` hints that the keys in a type description are
+much more than keywords. They are, in fact, condensed descriptions of
+zero or more paths into the data structure. For example, suppose you have
+a `:Figure` type that contains many `:Points`. It can be described like this:
 
 ```clojure
-user=> (type! :Figure (includes :Colorful)
-                      {[:points ALL :x] [required-key integer?]
-                       [:points ALL :y] [required-key integer?]})
+(type! :Figure (requires :points :fill-color :line-color)
+               {[:points ALL] (includes :Point)
+                (each-of :fill-color :line-color) rgb-string?})
 ```
 
-The vector describes a *path* into a nested structure. That path can
-include `ALL`, which stands in for all elements of a collection.
-
-The `ok-figure` matches that type:
+The above says that all the `:points` must satisfy the constraints
+from `:Point`. (The name `includes` was chosen to remind you that they
+may have additional fields.) A failure looks like this:
 
 ```clojure
-user=> (checked :Figure ok-figure)
-=> {:color "red", :points [{:x 1, :y 1} {:x 2, :y 3}]}
+user=> (built-like :Figure {:fill-color "#DA70D6" :line-color "#DA70D6"
+                            :points [{:x 1 :y -1} {:x 1 :y 2} {:x -1 :y 1}]})
+[:points 0 :y] should be `within-bounds?`; it is `-1`
+[:points 2 :x] should be `within-bounds?`; it is `-1`
+=> nil
 ```
 
-Type mismatches are detected as you'd expect:
+By using paths, you can describe a deeply nested structure as a flat
+path-to-constraints map. For nested maps, you can also use a nested
+description (which will be flattened for you when stored in the
+type-repo):
 
 ```clojure
-user=> (checked :Figure {:points [{:y 1} {:x 1 :y "2"}]})
+user=> (type! :X {:a even?
+                  :b {:c1 odd?
+                      :c2 string?}})
+user=> (built-like :X {:a 1 :b {:c1 2, :c2 "foo"}})
+:a should be `even?`; it is `1`
+[:b :c1] should be `odd?`; it is `2`
+=> nil
+```
+
+When checking a value, you're not restricted to a single type. For example, suppose you have a `:Point` type and
+also a `:Colorful` "mixin" type:
+
+```clojure
+user=> (type! :Colorful {:color [required-key rgb-string?]})
+```
+
+If you expect a colorful point, you needn't create a type exactly for it. Instead, you can require that your value match two types:
+
+```clojure
+user=> (built-like [:Colorful :Point] {:x 1})
 :color must exist and be non-nil
-[:points 0 :x] must exist and be non-nil
-[:points 1 :y] should be `integer?`; it is `"2"`
+:y must exist and be non-nil
 => nil
 ```
 
-Notice that the paths appear in the output, and that `ALL` is replaced
-with a specific index to help you identify which value was in error.
-
-Here's an example of the output for a figure that has a point instead of an array of points:
+If, though, the idea of a colorful point is an important part of your domain, it's easy to create one:
 
 ```clojure
-user=> (checked :Figure {:points {:x 1 :y 2}})
-:color must exist and be non-nil
-[:points 0 :x] must exist and be non-nil
-[:points 0 :y] must exist and be non-nil
-[:points 1 :x] must exist and be non-nil
-[:points 1 :y] must exist and be non-nil
-=> nil
+user=> (type! :ColorfulPoint (includes :Colorful)
+                             (includes :Point))
 ```
 
-It's not as good a description of the real problem as you'd hope for,
-but it's something. This output can be explained when you realize that
-`ALL` converts `{:x 1, :y 2}` into a sequential collection. As is the
-case throughout Clojure, that means the map becomes `[[:x 1] [:y 2]]`.
-
-Other flat-out wrong candidates return better errors:
+At the other extreme, there might only be one place where the existence of a `:color` key matters. In that case,
+you can use an unnamed bit of type description (analogous to an unnamed function):
 
 ```clojure
-user=> (checked :Figure {:points 3})
-[:points ALL :x] is not a path into `{:points 3}`
-[:points ALL :y] is not a path into `{:points 3}`
+user=> (built-like [:Point (requires :color)] {:y 1})
 :color must exist and be non-nil
+:x must exist and be non-nil
+nil
+```
+
+This style of type description can help with one of the problems with pipelines of processing stages: confusion about which stage does what. Consider the following:
+
+```clojure
+(some->> patients        (all-built-like :Patient)
+         add-history     (all-built-like (requires :history :appointments))
+         flood-forward   (all-built-like {:schedule not-empty?})
+         ...)
+```
+
+## Oh, by the way
+
+You can check simple values:
+
+```clojure
+user=> (built-like string? 5)
+Value should be `string?`; it is `5`
 => nil
 ```
+
+That's not really the point of the library, though.
+
 
 ## For more details
 
-See the [wiki](https://github.com/marick/structural-typing/wiki) for recommended setup, use with logging libraries and monads, and details on semantics. There is [API](http://marick.github.io/structural-typing/) documentation. It includes descriptions of [predefined predicates](http://marick.github.io/structural-typing/structural-typing.preds.html).
+See the [wiki](https://github.com/marick/structural-typing/wiki) for more methodical documentation, recommended setup, use with logging libraries and monads, and details on semantics. There is [API](http://marick.github.io/structural-typing/) documentation. It includes descriptions of [predefined predicates](http://marick.github.io/structural-typing/structural-typing.preds.html).
 
 -------------------
 
 # Back Matter
-
-## Todo list
-
-* Coercion and migration
-* Friendly printing for Specter operators other than ALL.
-* Predicates that apply to the whole input
-* Implement Midje collection checkers with this library
-* Use for collection checking in Midje 2
 
 ## Credits
 
@@ -363,7 +282,8 @@ better. (Sorry, GetSet!)
 [Specter](https://github.com/nathanmarz/specter) does the work of
 traversing structures, and Nathan Marz provided invaluable help with
 Specter subtleties. [Potemkin](https://github.com/ztellman/potemkin)
-gave me a function I couldn't write correctly myself.
+gave me a function I couldn't write correctly myself. [Defprecated](https://github.com/alexander-yakushev/defprecated) came in handy as I flailed around in search of an API.
+
 
 ## Contributing
 
