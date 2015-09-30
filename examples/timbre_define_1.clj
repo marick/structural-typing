@@ -4,7 +4,9 @@
             [structural-typing.assist.oopsie :as oopsie]
             [taoensso.timbre :as timbre])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
-  (:use [structural-typing.type :exclude [built-like]]))
+  (:use [structural-typing.type :exclude [built-like all-built-like
+                                          <>built-like <>all-built-like
+                                          built-like?]]))
 
 ;; Example 1: not the greatest error reporting
 
@@ -16,4 +18,9 @@
       (replace-error-handler (oopsie/mkfn:apply-to-each-explanation #(timbre/error %)))))
 
 (def built-like (partial type/built-like type-repo))
+(def all-built-like (partial type/all-built-like type-repo))
+(def <>built-like (partial type/<>built-like type-repo))
+(def <>all-built-like (partial type/<>all-built-like type-repo))
+(def built-like? (partial type/built-like? type-repo))
+
 

@@ -6,7 +6,9 @@
             [clojure.string :as str]
             [taoensso.timbre :as timbre])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
-  (:use [structural-typing.type :exclude [built-like]]))
+  (:use [structural-typing.type :exclude [built-like all-built-like
+                                          <>built-like <>all-built-like
+                                          built-like?]]))
 
 (timbre/set-level! :info)
 
@@ -32,4 +34,8 @@
       (replace-error-handler error-explainer)))
 
 (def built-like (partial type/built-like type-repo))
+(def all-built-like (partial type/all-built-like type-repo))
+(def <>built-like (partial type/<>built-like type-repo))
+(def <>all-built-like (partial type/<>all-built-like type-repo))
+(def built-like? (partial type/built-like? type-repo))
 
