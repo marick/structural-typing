@@ -297,18 +297,3 @@ Specter subtleties. [Potemkin](https://github.com/ztellman/potemkin)
 gave me a function I couldn't write correctly myself. [Defprecated](https://github.com/alexander-yakushev/defprecated) came in handy as I flailed around in search of an API.
 
 
-## Contributing
-
-Pull requests accepted, provided you have the right to put your contribution into the public domain.
-To allow me to be a teensy bit scrupulous, please include the following text in
-the comment of your pull request:
-
-    > I dedicate any and all copyright interest in this software to the
-    > public domain. I make this dedication for the benefit of the public at
-    > large and to the detriment of my heirs and successors. I intend this
-    > dedication to be an overt act of relinquishment in perpetuity of all
-    > present and future rights to this software under copyright law.
-
-I prefer, but do not require, pull requests with tests. I'm leery of
-adding further dependencies to the library, but could be convinced
-otherwise.

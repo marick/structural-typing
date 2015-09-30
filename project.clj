@@ -9,8 +9,8 @@
                The .assist namespaces are useful for more in-depth customizations."
   :url "https://github.com/marick/structural-typing"
   :pedantic? :warn
-  :license {:name "The Unlicense"
-            :url "http://unlicense.org/"
+  :license {:name "The MIT License (MIT)"
+            :url "http://opensource.org/licenses/mit-license.php"
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
