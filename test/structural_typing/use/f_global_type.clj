@@ -42,7 +42,7 @@
   (fact "<>all-built-like"
     (<>all-built-like [{:x 1}] :X) => (all-built-like :X [{:x 1}])
     (with-out-str (<>all-built-like [{:notx 1}] :X))
-    => (with-out-str (built-like :X [{:notx 1}]))))
+    => (with-out-str (all-built-like :X [{:notx 1}]))))
 
 
 

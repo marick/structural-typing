@@ -62,7 +62,7 @@
     (fact "<>all-built-like"
       (type/<>all-built-like [{:x 1}] repo :X) => (type/all-built-like repo :X [{:x 1}])
       (with-out-str (type/<>all-built-like [{:notx 1}] repo :X))
-      => (with-out-str (type/built-like repo :X [{:notx 1}])))))
+      => (with-out-str (type/all-built-like repo :X [{:notx 1}])))))
 
 (fact "about `built-like?`"
   (let [repo (-> type/empty-type-repo
