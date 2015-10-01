@@ -95,3 +95,7 @@
   [path should-be is]
   (format "%s should be `%s`; it is `%s`" path should-be is))
 
+(defn err:notpath
+  "Produces the same error messsage produced when the whole value is not the same \"shape\" as the path requires."
+  [path whole-value]
+  (format "%s is not a path into `%s`" path whole-value))

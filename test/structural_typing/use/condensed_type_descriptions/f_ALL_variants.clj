@@ -51,11 +51,5 @@
   (fact "as part of a path"
     (type! :X {[:a 2] {:b even?}})
     (built-like :X {:a [0 1 {:b 2}]}) => {:a [0 1 {:b 2}]}
-    (check-for-explanations :X {:a [0 1 {:b 1}]}) => (just (err:shouldbe [:a 2 :b] "even?" 1))
-    )
-
-  (fact "the index does not exist in the value"
-    (type! :X {[:a 2] {:b even?}})
-    (check-for-explanations :X {:a [0 {:b 1}]}) => (just #"\[:a 2 :b\] is not a path into")))
-
+    (check-for-explanations :X {:a [0 1 {:b 1}]}) => (just (err:shouldbe [:a 2 :b] "even?" 1))))
 (start-over!)

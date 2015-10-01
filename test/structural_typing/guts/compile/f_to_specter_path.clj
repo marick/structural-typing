@@ -5,6 +5,7 @@
             [com.rpl.specter :as specter]
             [structural-typing.guts.type-descriptions.elements :as element])
   (:use midje.sweet
+        structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
 (fact path-will-match-many?
@@ -55,6 +56,6 @@
     (let [f (subject/mkfn:whole-value->oopsies [ALL] (wrap/lift even?))
           results (f 1)
           oopsie (first results)]
-      ((:explainer oopsie) oopsie) => "[ALL] is not a path into `1`")))
+      ((:explainer oopsie) oopsie) => (err:notpath [ALL] 1))))
     
       

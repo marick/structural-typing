@@ -13,13 +13,11 @@
   (fact "the expanded form"
     (type! :String {[] string?})
     (built-like :String "foo") => "foo"
-    (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"])
     (check-for-explanations :String 1) => (just [(err:shouldbe "Value" "string?" 1)]))
 
   (fact "the predicate form"
     (type! :String string?)
     (built-like :String "foo") => "foo"
-    (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"])
     (check-for-explanations :String 1) => (just [(err:shouldbe "Value" "string?" 1)]))
 
   (fact "a more elaborate check"
