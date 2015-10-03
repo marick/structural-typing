@@ -23,7 +23,26 @@
     (check-for-explanations :X {:a nil}) => (just (err:required [:a :b]))
     (check-for-explanations :X {:a {:c 1}}) => (just (err:required [:a :b]))))
 
+(fact "indices"
+  (fact "non-collections: impossible"
+    (type! :X {[1 0] [required-key even?]})
+    (check-for-explanations :X 1) =>      (just (err:notpath [1 0] 1))
+    (check-for-explanations :X [[] 1]) => (just (err:notpath [1 0] [[] 1])))
 
+  (fact "it is 'impossible' to apply an index to maps or sets"
+    (check-for-explanations :X [[] {:a 1}]) => (just (err:notpath [1 0] [[] {:a 1}]))
+    (check-for-explanations :X [[] #{0 1}]) => (just (err:notpath [1 0] [[] #{0 1}])))
+
+  (fact "missing or nil values: truncated"
+    (check-for-explanations :X [     ]) => (just (err:required [1 0]))
+    (check-for-explanations :X [[]   ]) => (just (err:required [1 0]))
+    (check-for-explanations :X [[] []]) => (just (err:required [1 0])))
+
+  (fact "note that you can take the index of an infinite sequence"
+    (let [result (built-like :X (repeat (list 2 1)))]
+      (sequential? result) => true
+      (take 3 result) => (take 3 (repeat (list 2 1))))))
+  
 
 
 

@@ -13,12 +13,31 @@
 (extend-type clojure.lang.Keyword
   sp/StructurePath
   (select* [kw structure next-fn]
-    (cond (map? structure) (next-fn (get structure kw))
-          (nil? structure) (next-fn (get structure kw))
-          :else            (boom! "%s is not a map" structure)))
-  (transform* [kw structure next-fn]
-    (assoc structure kw (next-fn (get structure kw)))
-    ))
+    (cond (map? structure)
+          (next-fn (get structure kw))
+
+          (nil? structure)
+          (next-fn nil)
+
+          :else
+          (boom! "%s is not a map" structure)))
+  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+
+(extend-type java.lang.Long
+  sp/StructurePath
+  (select* [this structure next-fn] 
+    (cond (nil? structure)
+          (next-fn nil)
+          
+          (not (sequential? structure))
+          (boom! "%s is not sequential" structure)
+
+          :else
+          (try
+            (next-fn (nth structure this))
+            (catch IndexOutOfBoundsException ex
+              (next-fn nil)))))
+  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
 
 
@@ -61,11 +80,6 @@
                   (into specter-path
                         (surround-with-index-collector (element/specter-equivalent elt)))
                   :indexed-path)
-
-           (integer? elt)
-           (recur remainder
-                  (into specter-path [(specter/srange elt (inc elt)) specter/ALL])
-                  path-type)
 
            :else
            (recur remainder (conj specter-path elt) path-type))))
