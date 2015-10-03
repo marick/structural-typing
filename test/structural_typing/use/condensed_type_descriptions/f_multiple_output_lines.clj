@@ -18,10 +18,10 @@
            (err:required [:points 0 :x])
            (err:shouldbe [:points 1 :y] "integer?" "\"2\""))
 
-  (check-for-explanations :Figure {:points {:x 1 :y 2}})
+  (check-for-explanations :Figure {:points [{}{}]})
   => (just (err:required :color)
            (err:required [:points 0 :x])
            (err:required [:points 0 :y])
            (err:required [:points 1 :x])
            (err:required [:points 1 :y])))
-    
+

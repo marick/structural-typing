@@ -2,11 +2,25 @@
   (:use structural-typing.clojure.core)
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
+            [com.rpl.specter.protocols :as sp]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.exval :as exval]
+            [structural-typing.guts.expred :as expred]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.preds.wrap :as wrap]))
+
+(extend-type clojure.lang.Keyword
+  sp/StructurePath
+  (select* [kw structure next-fn]
+    (cond (map? structure) (next-fn (get structure kw))
+          (nil? structure) (next-fn (get structure kw))
+          :else            (boom! "%s is not a map" structure)))
+  (transform* [kw structure next-fn]
+    (assoc structure kw (next-fn (get structure kw)))
+    ))
+
+
 
 (defn path-will-match-many? [path]
   (boolean (some element/will-match-many? path)))
@@ -69,6 +83,17 @@
     :indexed-path [indexed-path-exval-maker indexed-path-postprocessor]
     (boom! "%s is an invalid path-type (neither constant nor indexed)" path-type)))
 
+(defn- impossible-path-oopsie [original-path whole-value]
+  (merge (expred/->ExPred 'impossible-path
+                          "check for impossible path"
+                          (constantly (format "%s is not a path into `%s`"
+                                              (oopsie/friendly-path {:path original-path})
+                                              (pr-str whole-value))))
+         (exval/->ExVal :no-leaf
+                        whole-value
+                        original-path)))
+  
+
 (defn mkfn:whole-value->oopsies [original-path lifted-preds]
   (let [[compiled-path path-type] (compile original-path)
         [exval-maker path-postprocessor] (processors path-type)]
@@ -79,9 +104,4 @@
                 raw-oopsie (lifted-preds (exval-maker result original-path whole-value))]
             (path-postprocessor result raw-oopsie)))
         (catch Exception ex
-          (vector {:explainer (constantly (format "%s is not a path into `%s`"
-                                                  (oopsie/friendly-path {:path original-path})
-                                                  (pr-str whole-value)))
-                   ;; These are just for debugging should it be needed.
-                   :whole-value whole-value
-                   :path original-path}))))))
+          (vector (impossible-path-oopsie original-path whole-value)))))))

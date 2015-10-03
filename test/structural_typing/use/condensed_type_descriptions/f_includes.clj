@@ -54,18 +54,21 @@
   
   (check-for-explanations :Includer {}) => (just (err:required [:the-sidecar :x])
                                                  (err:required [:the-sidecar :y]))
-  (check-for-explanations :Includer {:the-sidecar 3}) => (just (err:required [:the-sidecar :x])
-                                                               (err:required [:the-sidecar :y]))
+  (check-for-explanations :Includer {:the-sidecar 3})
+  => (just (err:notpath [:the-sidecar :x] {:the-sidecar 3})
+           (err:notpath [:the-sidecar :y] {:the-sidecar 3}))
   (check-for-explanations :Includer {:the-sidecar {}}) => (just (err:required [:the-sidecar :x])
                                                                 (err:required [:the-sidecar :y]))
-  (check-for-explanations :Includer {:the-sidecar {:x 1}}) => (just (err:required [:the-sidecar :y]))
+  (check-for-explanations :Includer {:the-sidecar {:x 1}})
+  => (just (err:required [:the-sidecar :y]))
   
   (check-for-explanations :Direct {}) => (just (err:required [:the-sidecar :x])
                                                (err:required [:the-sidecar :y]))
   (check-for-explanations :Direct {}) => (just (err:required [:the-sidecar :x])
                                                (err:required [:the-sidecar :y]))
-  (check-for-explanations :Direct {:the-sidecar 3}) => (just (err:required [:the-sidecar :x])
-                                                             (err:required [:the-sidecar :y]))
+  (check-for-explanations :Direct {:the-sidecar 3})
+  => (just (err:notpath [:the-sidecar :x] {:the-sidecar 3})
+           (err:notpath [:the-sidecar :y] {:the-sidecar 3}))
   (check-for-explanations :Direct {:the-sidecar {}}) => (just (err:required [:the-sidecar :x])
                                                               (err:required [:the-sidecar :y]))
   (check-for-explanations :Direct {:the-sidecar {:x 1}}) => (just (err:required [:the-sidecar :y])))
@@ -77,12 +80,36 @@
   (built-like :I-Direct {}) => {}
   (built-like :I-Direct {:sidecar? false}) => {:sidecar? false}
   (built-like :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
-  =>                 {:sidecar? true :the-sidecar {:x 1 :y 2}}
+  =>                    {:sidecar? true :the-sidecar {:x 1 :y 2}}
   
-  (check-for-explanations :I-Direct {:sidecar? true}) => (just (err:required [:the-sidecar :x]) #":the-sidecar :y] must")
-  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar 3}) => (just (err:required [:the-sidecar :x]) #":the-sidecar :y] must")
-  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {}}) => (just (err:required [:the-sidecar :x]) #":the-sidecar :y] must")
-  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {:x 1}}) => (just #":the-sidecar :y] must"))
+  (check-for-explanations :I-Direct {:sidecar? true})
+  => (just (err:required [:the-sidecar :x]) (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar 3})
+  => (just (err:notpath [:the-sidecar :x] {:sidecar? true :the-sidecar 3})
+           (err:notpath [:the-sidecar :y] {:sidecar? true :the-sidecar 3}))
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {}})
+  => (just (err:required [:the-sidecar :x]) (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {:x 1}})
+  => (just (err:required [:the-sidecar :y])))
+
+(fact "You can use `includes` in the antecedent part of an `implies`"
+  (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
+  (built-like :I-Includer {}) => {}
+  (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
+  (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
+  =>                      {:sidecar? true :the-sidecar {:x 1 :y 2}}
+
+  (check-for-explanations :I-Includer {:sidecar? true})
+  => (just (err:required [:the-sidecar :x])
+           (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3})
+  => (just (err:notpath [:the-sidecar :x] {:sidecar? true :the-sidecar 3})
+           (err:notpath [:the-sidecar :y] {:sidecar? true :the-sidecar 3}))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}})
+  => (just (err:required [:the-sidecar :x])
+           (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}})
+  => (just (err:required [:the-sidecar :y])))
 
 (fact "You can use `includes` in the antecedent part of an `implies`"
   (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
@@ -91,28 +118,17 @@
   (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
 
-  (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:required [:the-sidecar :x])
-                                                                 (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3}) => (just (err:required [:the-sidecar :x])
-                                                                                (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}}) => (just (err:required [:the-sidecar :x])
-                                                                                 (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}}) => (just (err:required [:the-sidecar :y])))
-
-(fact "You can use `includes` in the antecedent part of an `implies`"
-  (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
-  (built-like :I-Includer {}) => {}
-  (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
-  (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
-  =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
-
-  (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:required [:the-sidecar :x])
-                                                                 (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3}) => (just (err:required [:the-sidecar :x])
-                                                                                (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}}) => (just (err:required [:the-sidecar :x])
-                                                                                 (err:required [:the-sidecar :y]))
-  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}}) => (just (err:required [:the-sidecar :y])))
+  (check-for-explanations :I-Includer {:sidecar? true})
+  => (just (err:required [:the-sidecar :x])
+           (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3})
+  => (just (err:notpath [:the-sidecar :x] {:sidecar? true :the-sidecar 3})
+           (err:notpath [:the-sidecar :y] {:sidecar? true :the-sidecar 3}))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}})
+  => (just (err:required [:the-sidecar :x])
+           (err:required [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}})
+  => (just (err:required [:the-sidecar :y])))
 
 (fact "You can use `includes` in an `all-of`"
   (type! :OptionalX {:x even?})

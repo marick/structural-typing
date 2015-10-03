@@ -1,16 +1,41 @@
-(ns structural-typing.use.f-bad-paths
-  "Cases where the path doesn't match the structure of the value"
+(ns structural-typing.use.f-path-mismatches
+  "Cases where no additions to the value could make it match the path"
   (:use midje.sweet
         structural-typing.type
         structural-typing.global-type
         structural-typing.clojure.core
         structural-typing.assist.testutil))
 
-(fact "whole value is nil"
+(fact "whole value is nil: impossible"
   (type! :String {[] string?})
   (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"]))
 
-(fact "indexes in paths"
+(fact "keywords"
+  (fact "matching non-maps: impossible"
+    (type! :X {[:a :b] [required-key even?]})
+    (check-for-explanations :X 1) =>      (just (err:notpath [:a :b] 1))
+    (check-for-explanations :X [:a 1]) => (just (err:notpath [:a :b] [:a 1]))
+    (check-for-explanations :X {:a 1}) => (just (err:notpath [:a :b] {:a 1})))
+
+  (fact "missing or nil values: truncated"
+    (check-for-explanations :X {}) => (just (err:required [:a :b]))
+    (check-for-explanations :X {:b 1}) => (just (err:required [:a :b]))
+    (check-for-explanations :X {:a nil}) => (just (err:required [:a :b]))
+    (check-for-explanations :X {:a {:c 1}}) => (just (err:required [:a :b]))))
+
+
+
+
+
+
+
+
+
+
+
+(future-fact "What happens when you use [:a ALL :c] on {}")
+
+(future-fact "indexes in paths"
   (fact "one index"
     (type! :X {[:a 2] {:b even?}})
     (check-for-explanations :X {:a [0 {:b 1}]}) => (just (err:notpath [:a 2 :b] {:a [0 {:b 1}]})))
@@ -24,20 +49,14 @@
   (fact "against non-indexical whole value"
     (check-for-explanations :X 1) => (just (err:notpath [1 1] 1))))
 
-(future-fact "keywords matching non-maps"
-  (type! :X {[:a :b] even?})
-  (check-for-explanations :X 1) =>      (just (err:notpath [:a :b] 1))
-  (check-for-explanations :X {:a 1}) => (just (err:notpath [:a :b] {:a 1}))
-  (check-for-explanations :X {:b 1}) => (just (err:notpath [:a :b] {:b 1})))
-  
 
-(fact "When traversing paths reveals that location of ALL is not a collection"
+(future-fact "When traversing paths reveals that location of ALL is not a collection"
   (type! :Points {[ALL :x] integer?
                   [ALL :y] integer?})
   (check-for-explanations :Points 3) => (just (err:notpath [ALL :x] 3)
                                               (err:notpath [ALL :y] 3))
   
-  (future-fact "Failure is annoying side effect of there being no distinction between a present nil and a missing key"
+  (fact "Failure is annoying side effect of there being no distinction between a present nil and a missing key"
     
     (check-for-explanations :Points [1 2 3]) => (just (err:notpath [ALL :x] 3)
                                                       (err:notpath [ALL :y] 3)))
@@ -52,6 +71,3 @@
   (fact "ALL following ALL"
     (type! :Nesty {[:x ALL ALL :y] integer?})
     (check-for-explanations :Nesty {:x [1]}) (just (err:notpath [:x ALL ALL :y] {:x [1]}))))
-
-
-
