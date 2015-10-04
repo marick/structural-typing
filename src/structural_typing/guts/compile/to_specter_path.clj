@@ -3,6 +3,7 @@
   (:refer-clojure :exclude [compile])
   (:require [com.rpl.specter :as specter]
             [com.rpl.specter.protocols :as sp]
+            [clojure.core.reducers :as r]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.exval :as exval]
@@ -40,6 +41,36 @@
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
 
+                                 ;;; ALL, RANGE
+
+(defn pursue-multiple-paths [subcollection-fn collection next-fn]
+  (cond (nil? collection)
+        (next-fn nil)
+
+        (not (coll? collection))
+        (boom! "%s is not a collection" collection)
+
+        :else
+        (into [] (r/mapcat next-fn (subcollection-fn collection)))))
+
+;;; ALL
+(def all-element-selector identity)
+
+(deftype AllVariantType [])
+
+(extend-type AllVariantType
+  sp/StructurePath
+  (select* [this structure next-fn] (pursue-multiple-paths all-element-selector structure next-fn))
+  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+
+(def ALLVariant (->AllVariantType))
+
+
+
+
+
+;;;;; 
+
 
 (defn path-will-match-many? [path]
   (boolean (some element/will-match-many? path)))
@@ -61,6 +92,10 @@
                  ps
                  indices))))
 
+(defn specter-equivalent [elt]
+  (if (= elt element/ALL)
+    [ALLVariant]
+    (element/specter-equivalent elt)))
 
 (defn- surround-with-index-collector [vec]
   (-> [(specter/view (partial map-indexed vector))]
@@ -78,7 +113,7 @@
            (element/will-match-many? elt)
            (recur remainder
                   (into specter-path
-                        (surround-with-index-collector (element/specter-equivalent elt)))
+                        (surround-with-index-collector (specter-equivalent elt)))
                   :indexed-path)
 
            :else

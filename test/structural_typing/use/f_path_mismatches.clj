@@ -11,8 +11,8 @@
   (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"]))
 
 (fact "keywords"
+  (type! :X {[:a :b] [required-key even?]})
   (fact "matching non-maps: impossible"
-    (type! :X {[:a :b] [required-key even?]})
     (check-for-explanations :X 1) =>      (just (err:notpath [:a :b] 1))
     (check-for-explanations :X [:a 1]) => (just (err:notpath [:a :b] [:a 1]))
     (check-for-explanations :X {:a 1}) => (just (err:notpath [:a :b] {:a 1})))
@@ -24,8 +24,8 @@
     (check-for-explanations :X {:a {:c 1}}) => (just (err:required [:a :b]))))
 
 (fact "indices"
+  (type! :X {[1 0] [required-key even?]})
   (fact "non-collections: impossible"
-    (type! :X {[1 0] [required-key even?]})
     (check-for-explanations :X 1) =>      (just (err:notpath [1 0] 1))
     (check-for-explanations :X [[] 1]) => (just (err:notpath [1 0] [[] 1])))
 
@@ -42,6 +42,40 @@
     (let [result (built-like :X (repeat (list 2 1)))]
       (sequential? result) => true
       (take 3 result) => (take 3 (repeat (list 2 1))))))
+
+(fact "ALL"
+  (type! :X {[ALL ALL] [required-key even?]})
+  (fact "non-collections: impossible"
+    (check-for-explanations :X 1) =>   (just (err:notpath [ALL ALL] 1))
+    (check-for-explanations :X [1]) => (just (err:notpath [ALL ALL] [1])))
+  (future-fact "missing or nil values: truncated"
+    (check-for-explanations :X [     ]) => (just (err:required [0 ALL])))
+
+  (type! :X {[:x ALL] [required-key even?]})
+  (fact "as before, non-collections: impossible"
+    (check-for-explanations :X {:x 1}) =>   (just (err:notpath [:x ALL] {:x 1})))
+  (fact "A previously non-indexed element is checked for existence "
+    (check-for-explanations :X {}) =>         (just (err:required :x))
+    (check-for-explanations :X {:x nil}) =>   (just (err:required :x)))
+    
+  (type! :X {[ALL :x] [required-key even?]})
+  (fact "ALL passes a nil along to later elements"
+    (check-for-explanations :X [{:x 1} {} {:x nil}]) => (just (err:shouldbe [0 :x] "even?" 1)
+                                                              (err:required [1 :x])
+                                                              (err:required [2 :x]))))
+
+    
+(future-fact "RANGE"
+  (let [path [(RANGE 1 2) (RANGE 1 2)]]
+    (type! :X {path [required-key even?]})
+    (future-fact "non-collections: impossible"
+      (check-for-explanations :X 1) =>   (just (err:notpath path 1))
+      (check-for-explanations :X [1]) => (just (err:notpath path [1])))
+    (fact "missing or nil values: truncated"
+      (check-for-explanations :X [     ]) =future=> (just (err:required [0 ALL])))
+    (future-fact "cannot take maps or sets")
+    (future-fact "note you can take range of an infinite sequence")))
+    
   
 
 
