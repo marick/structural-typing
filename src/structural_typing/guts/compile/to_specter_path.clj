@@ -65,11 +65,21 @@
 
 (def ALLVariant (->AllVariantType))
 
-
+(def ALL 'ALL) ; temp
 
 
 
 ;;;;; 
+
+(defn specter-equivalent [elt]
+  (if (= elt ALL)
+    [ALLVariant]
+    (element/specter-equivalent elt)))
+
+(defn will-match-many? [elt]
+  (if (= elt ALL)
+    true
+    (element/will-match-many? elt)))
 
 
 (defn replace-with-indices [path indices]
@@ -79,7 +89,7 @@
     (cond (nil? p)
           result
 
-          (element/will-match-many? p)
+          (will-match-many? p)
           (recur (conj result (first indices))
                  ps
                  (rest indices))
@@ -88,11 +98,6 @@
           (recur (conj result p)
                  ps
                  indices))))
-
-(defn specter-equivalent [elt]
-  (if (= elt element/ALL)
-    [ALLVariant]
-    (element/specter-equivalent elt)))
 
 (defn- surround-with-index-collector [vec]
   (-> [(specter/view (partial map-indexed vector))]
@@ -107,7 +112,7 @@
      (cond (nil? elt)
            [(apply specter/comp-paths specter-path) path-type]
 
-           (element/will-match-many? elt)
+           (will-match-many? elt)
            (recur remainder
                   (into specter-path
                         (surround-with-index-collector (specter-equivalent elt)))

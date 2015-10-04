@@ -4,7 +4,7 @@
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
-            [structural-typing.guts.type-descriptions.elements :as element]
+            [structural-typing.guts.compile.to-specter-path :as to-specter-path]
             [structural-typing.guts.preds.core :refer [required-key]]))
 
 (defrecord PPP [path preds])
@@ -83,7 +83,7 @@
   (->> path
        (map-indexed vector)
        (drop 1) ; This rules out {[ALL :x] [required]}
-       (filter #(element/will-match-many? (second %)))
+       (filter #(to-specter-path/will-match-many? (second %)))
        (map first)
        (map #(subvec path 0 %))))
 
@@ -97,7 +97,7 @@
             (map first))
         new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
         ;; This prevents sequences like [:x ALL ALL]
-        new-paths (remove #(element/will-match-many? (last %)) new-paths-with-noise)]
+        new-paths (remove #(to-specter-path/will-match-many? (last %)) new-paths-with-noise)]
     (reduce (fn [so-far path]
               (merge-with into so-far (hash-map path #{required-key})))
             kvs

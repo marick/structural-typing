@@ -9,9 +9,10 @@
                not-nil]
              [structural-typing.guts.preds.annotating
                show-as
-               explain-with]
+              explain-with]
+             [structural-typing.guts.compile.to-specter-path
+               ALL]
              [structural-typing.guts.type-descriptions.elements
-               ALL
                RANGE]
              [structural-typing.guts.type-descriptions.includes
                includes]

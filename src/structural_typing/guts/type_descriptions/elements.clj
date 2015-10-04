@@ -12,15 +12,6 @@
 (def specter-equivalent (mkfn:meta-getter :specter-equivalent))
 (def will-match-many? (comp boolean (mkfn:meta-getter :will-match-many?)))
 
-
-(def ALL
-  "Use this in a path to select all values of a 
-   collection.
-      
-       (type! :Figure {[:points ALL] (type/include :Point)})
-"
-  (meta/assoc 'ALL :specter-equivalent [specter/ALL] :will-match-many? true))
-
 ;; TODO: In suchwow 3, have to use `instead-of`, which is lame, because it has global
 ;; state. such.readable needs fixing.
 (defn RANGE

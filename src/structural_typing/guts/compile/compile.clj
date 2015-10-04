@@ -3,7 +3,6 @@
   (:require [structural-typing.guts.compile.to-specter-path :as to-specter-path]
             [com.rpl.specter :as specter]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
-            [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.preds.wrap :as wrap]))
 
 (defn compile-predicates [preds]

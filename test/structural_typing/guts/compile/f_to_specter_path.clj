@@ -17,7 +17,7 @@
   :constant-path []                    ..whole..                   [..whole..]
   :constant-path [:a :b]               {:a {:b 1}}                 [1]
   :constant-path [:a even?]            {:a 1}                      empty?
-  :indexed-path  [:a element/ALL :b]   {:a [{:b :one} {:b :two}]}  [ [0 :one] [1 :two] ]
+  :indexed-path  [:a ALL :b]           {:a [{:b :one} {:b :two}]}  [ [0 :one] [1 :two] ]
   :indexed-path  [(element/RANGE 1 3)] [0 :a :b 3]                 [[1 :a] [2 :b]]
   :constant-path [:a 1 :b]             {:a [{:b :one} {:b :two}]}  [:two]
   :indexed-path  [:a 1 ALL]            {:a [ [3] [:x :y]]}         [[0 :x] [1 :y]]

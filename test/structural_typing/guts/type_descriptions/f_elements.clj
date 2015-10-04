@@ -3,12 +3,6 @@
             [structural-typing.guts.type-descriptions.readable :as readable])
   (:use midje.sweet))
 
-(facts "ALL"
-  (fact "matches many"
-    (subject/will-match-many? subject/ALL) => true)
-  (fact "readable"
-    (readable/friendly [subject/ALL]) => "[ALL]"))
-
 (fact "RANGE"
   (let [r (subject/RANGE 3 5)]
     (fact "matches many"
