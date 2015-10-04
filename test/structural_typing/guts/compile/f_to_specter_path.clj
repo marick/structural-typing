@@ -8,10 +8,6 @@
         structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
-(fact path-will-match-many?
-  (subject/path-will-match-many? [:a :b]) => false
-  (subject/path-will-match-many? [:a ALL :b]) => true)
-
 (tabular "compiling paths"
   (fact 
     (let [[compiled kind] (subject/compile ?path)]

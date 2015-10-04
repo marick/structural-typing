@@ -72,9 +72,6 @@
 ;;;;; 
 
 
-(defn path-will-match-many? [path]
-  (boolean (some element/will-match-many? path)))
-
 (defn replace-with-indices [path indices]
   (loop [result []
          [p & ps] path
