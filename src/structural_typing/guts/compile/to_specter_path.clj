@@ -4,6 +4,7 @@
   (:require [com.rpl.specter :as specter]
             [com.rpl.specter.protocols :as sp]
             [clojure.core.reducers :as r]
+            [such.readable :as readable]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.exval :as exval]
@@ -63,9 +64,11 @@
   (select* [this structure next-fn] (pursue-multiple-paths all-element-selector structure next-fn))
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
-(def ALLVariant (->AllVariantType))
+(def ALL (->AllVariantType))
 
-(def ALL 'ALL) ; temp
+(defmethod clojure.core/print-method AllVariantType [o, ^java.io.Writer w] (.write w "ALL"))
+(readable/instead-of ALL 'ALL)
+
 
 
 
@@ -73,7 +76,7 @@
 
 (defn specter-equivalent [elt]
   (if (= elt ALL)
-    [ALLVariant]
+    [ALL]
     (element/specter-equivalent elt)))
 
 (defn will-match-many? [elt]
