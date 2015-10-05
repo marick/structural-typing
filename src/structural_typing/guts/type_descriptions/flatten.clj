@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [com.rpl.specter :as specter]))
 
-(declare map->flatmap)
+(declare map->flatmap map->pairs)
 
 ;;; Flattening paths
 
@@ -75,24 +75,8 @@
             (handle-kvs ( (includes/includes type-signifier-or-map) type-map)))
           includes/as-type-expander))))
 
-(deftype ALLType []
-  CondensedPath 
-  (->paths [this] (add-on this [[]]))
-  PathComponent
-  (add-on [this paths]
-    (prn :adding this :onto paths)
-    (let [note-index (specter/view (partial map-indexed vector)) ; value [x y] -> [ [0 x] [1 y] ]
-                                                                 ; for next step
-          prepend-index (specter/collect-one specter/FIRST)  ; stash the index (0 or 1 above) so that
-                                                             ; Specter will prepend to final result.
-          intermediate-value specter/LAST]  ; Further selectors apply to the original val (x and y)
-      (for [path paths]
-        (let [x (into path [note-index specter/ALL prepend-index intermediate-value])]
-          (prn :result x)
-          x)))))
-
-;; TODO: don't know yet if this should reject objects other than Specter-equivalents,
-;; or if compilation should.
+;; TODO: don't know yet if this is the right place to reject types that can't be
+;; used in one of our paths.
 (extend-type Object
   PathComponent
   (add-on [this paths]
@@ -106,8 +90,6 @@
 
 
 ;;;; Flattening maps
-
-(declare map->flatmap map->pairs)
 
 (defn- step1:expand-map-values [kvs parent-path]
   (reduce (fn [so-far [path v]]
