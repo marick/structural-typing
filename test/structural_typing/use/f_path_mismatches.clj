@@ -48,7 +48,7 @@
   (fact "non-collections: impossible"
     (check-for-explanations :X 1) =>   (just (err:notpath [ALL ALL] 1))
     (check-for-explanations :X [1]) => (just (err:notpath [ALL ALL] [1])))
-  (future-fact "missing or nil values: truncated"
+  (future-fact "nested missing or nil values: truncated"
     (check-for-explanations :X [     ]) => (just (err:required [0 ALL])))
 
   (type! :X {[:x ALL] [required-key even?]})
@@ -65,54 +65,62 @@
                                                               (err:required [2 :x]))))
 
     
-(future-fact "RANGE"
-  (let [path [(RANGE 1 2) (RANGE 1 2)]]
-    (type! :X {path [required-key even?]})
-    (future-fact "non-collections: impossible"
+(fact "RANGE"
+  (fact "non-collections: impossible"
+    (let [path [(RANGE 1 2) (RANGE 1 2)]]
+      (type! :X {path [required-key]})
       (check-for-explanations :X 1) =>   (just (err:notpath path 1))
-      (check-for-explanations :X [1]) => (just (err:notpath path [1])))
-    (fact "missing or nil values: truncated"
-      (check-for-explanations :X [     ]) =future=> (just (err:required [0 ALL])))
-    (future-fact "cannot take maps or sets")
-    (future-fact "note you can take range of an infinite sequence")))
-    
+      (check-for-explanations :X [0 1]) => (just (err:notpath path [0 1]))))
   
+  (fact "missing or nil values: truncated"
+    (let [path [(RANGE 1 4) (RANGE 1 3)]]
+      (type! :X {path [required-key]})
+      (let [in [:unchecked [10 11 12] [20 21 22] [30 31 32] :unchecked]]
+        (built-like :X in) => in)
+
+      (let [in [ :unchecked [10 11 12] [20 21] [30] :unchecked]]
+        (check-for-explanations :X in) => (just (err:required [2 2])
+                                                (err:required [3 1])
+                                                (err:required [3 2])))
+
+      (let [in [ :unchecked [10 11 12] nil [30 31 32] :unchecked]]
+        (check-for-explanations :X in) => (just (err:required [2 1])
+                                                (err:required [2 2])))
+
+      (fact "in a combination of impossible path and truncation, you only see impossible path"
+        (let [in [ :unchecked [10 11 12] :oops [30 31 32] :unchecked]]
+          (check-for-explanations :X in) => (just (err:notpath path in))))))
+
+  (fact "completely empty arrays count as truncation"
+    (let [path [(RANGE 1 2) (RANGE 1 3)]]
+      (type! :X {path [required-key]})
+      (fact "top level"
+        (check-for-explanations :X []) => (just (err:required [1 1])
+                                                (err:required [1 2])))
+      (fact "nested"
+        (check-for-explanations :X [ [] ]) => (just (err:required [1 1])
+                                                    (err:required [1 2])))))
+
+  (future-fact "cannot take maps or sets"
+    ;; The reason this doesn't work is that RANGE is prefaced by a map-indexed,
+    ;; so we lose track of where the value came from.
+    (type! :X (requires [(RANGE 1 2)]))
+    (let [bad {:a 1, :b 2, :c 3}]
+      (check-for-explanations :X bad) => (err:notpath [(RANGE 1 2)] bad))
+
+    (let [bad #{1 2 3 4 5}]
+      (check-for-explanations :X bad) => (err:notpath [(RANGE 1 2)] bad))))
 
 
 
-
-
-
-
-
-
-(future-fact "What happens when you use [:a ALL :c] on {}")
-
-(future-fact "indexes in paths"
-  (fact "one index"
-    (type! :X {[:a 2] {:b even?}})
-    (check-for-explanations :X {:a [0 {:b 1}]}) => (just (err:notpath [:a 2 :b] {:a [0 {:b 1}]})))
-
-  (fact "two indexes" 
-    (type! :X {[1 1] even?}) 
-    (check-for-explanations :X []) =>               (just (err:notpath [1 1] []))
-    (check-for-explanations :X [ [00 01] ]) =>      (just (err:notpath [1 1] [[0 1]]))
-    (check-for-explanations :X [ [00 01] [10] ]) => (just (err:notpath [1 1] [[0 1] [10]])))
-
-  (fact "against non-indexical whole value"
-    (check-for-explanations :X 1) => (just (err:notpath [1 1] 1))))
-
-
-(future-fact "When traversing paths reveals that location of ALL is not a collection"
+(fact "Some random leftover tests"
   (type! :Points {[ALL :x] integer?
                   [ALL :y] integer?})
   (check-for-explanations :Points 3) => (just (err:notpath [ALL :x] 3)
                                               (err:notpath [ALL :y] 3))
   
-  (fact "Failure is annoying side effect of there being no distinction between a present nil and a missing key"
-    
-    (check-for-explanations :Points [1 2 3]) => (just (err:notpath [ALL :x] 3)
-                                                      (err:notpath [ALL :y] 3)))
+  (check-for-explanations :Points [1 2 3]) => (just (err:notpath [ALL :x] [1 2 3])
+                                                    (err:notpath [ALL :y] [1 2 3]))
   
   (fact "works for partial collections"
     (type! :Figure (requires :color [:points ALL (each-of :x :y)]))

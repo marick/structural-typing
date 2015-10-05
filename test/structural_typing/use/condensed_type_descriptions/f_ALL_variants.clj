@@ -27,11 +27,11 @@
                                  {:x [:ignored 1 2 :ignored]}])
     => (just (err:shouldbe [1 :x 1] "even?" 1)))
 
-  (fact "it is a type failure if the range extends beyond the count of elements"
-    (type! :SECOND-AND-THIRD {[(RANGE 1 3)] pos?})
+  (fact "sequences are nil-padded on the right"
+    (type! :SECOND-AND-THIRD {[(RANGE 1 3)] [required-key pos?]})
     (built-like :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
     (check-for-explanations :SECOND-AND-THIRD [:ignored 1])
-    => (just #"\[\(RANGE 1 3\)\] is not a path into `\[:ignored 1\]`"))
+    => (just (err:required [2])))
 
   (fact "two ranges in a path"
     (type! :X {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?})
@@ -39,7 +39,12 @@
                                     {:b [1  2  2  2  2 1]}
                                     {:b [1 -1 -1 -1 -1 1]}
                                     :wrong]})
-    => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path")))
+    => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path"))
+
+  (fact "a range can be taken of an infinite sequence"
+    (type! :X {(RANGE 1 3) even?})
+    (check-for-explanations :X (repeat 1)) => (just (err:shouldbe [1] "even?" 1)
+                                                    (err:shouldbe [2] "even?" 1))))
 
 
 (fact "indexes in paths"

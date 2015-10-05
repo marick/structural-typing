@@ -2,8 +2,7 @@
   (:require [structural-typing.guts.type-descriptions.ppps :as subject]
             [structural-typing.guts.compile.to-specter-path :refer [ALL]]
             [structural-typing.guts.preds.core :refer [required-key]]
-            [structural-typing.guts.type-descriptions.flatten :as flatten]
-            [structural-typing.guts.type-descriptions.elements :as element])
+            [structural-typing.guts.type-descriptions.flatten :as flatten])
   (:use midje.sweet))
 
 (fact "ppps from `required`"

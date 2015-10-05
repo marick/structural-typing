@@ -6,7 +6,6 @@
             [clojure.core.reducers :as r]
             [such.readable :as readable]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
-            [structural-typing.guts.type-descriptions.elements :as element]
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
             [structural-typing.assist.oopsie :as oopsie]
@@ -55,13 +54,11 @@
         (into [] (r/mapcat next-fn (subcollection-fn collection)))))
 
 ;;; ALL
-(def all-element-selector identity)
-
 (deftype AllVariantType [])
 
 (extend-type AllVariantType
   sp/StructurePath
-  (select* [this structure next-fn] (pursue-multiple-paths all-element-selector structure next-fn))
+  (select* [this structure next-fn] (pursue-multiple-paths identity structure next-fn))
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
 (def ALL (->AllVariantType))
@@ -69,21 +66,55 @@
 (defmethod clojure.core/print-method AllVariantType [o, ^java.io.Writer w] (.write w "ALL"))
 (readable/instead-of ALL 'ALL)
 
+;;; RANGE
+(defn mkfn:range-element-selector [{:keys [inclusive-start exclusive-end]}]
+  (fn [sequence]
+    (let [desired-count (- exclusive-end inclusive-start)
+          subseq (->> sequence
+                      (drop inclusive-start)
+                      (take desired-count)
+                      vec)
+          actual-count (count subseq)
+          result (if (= actual-count desired-count)
+                   subseq
+                   (into subseq
+                         (map vector 
+                              (drop (+ inclusive-start actual-count) (range))
+                              (repeat (- desired-count actual-count) nil))))]
+      result)))
+
+(defrecord RangeVariantType [inclusive-start exclusive-end])
+
+(extend-type RangeVariantType
+  sp/StructurePath
+  (select* [this structure next-fn]
+    (if (or (map? structure) (set? structure))
+      (boom! "Cannot take a map or a set")
+      (pursue-multiple-paths (mkfn:range-element-selector this) structure next-fn)))
+  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+
+(defn RANGE
+  "Use this in a path to select a range of values in a 
+   collection. The first argument is inclusive; the second exclusive.
+   
+       (type! :ELEMENTS-1-AND-2-ARE-EVEN {[(RANGE 1 3)] even?})
+"
+  [inclusive-start exclusive-end]
+  (->RangeVariantType inclusive-start exclusive-end))
+
+
+(defmethod clojure.core/print-method RangeVariantType [o, ^java.io.Writer w]
+  (.write w (format "(RANGE %s %s)" (:inclusive-start o) (:exclusive-end o))))
+
 
 
 
 ;;;;; 
 
-(defn specter-equivalent [elt]
-  (if (= elt ALL)
-    [ALL]
-    (element/specter-equivalent elt)))
 
 (defn will-match-many? [elt]
-  (if (= elt ALL)
-    true
-    (element/will-match-many? elt)))
-
+  (or (= elt ALL)
+      (instance? RangeVariantType elt)))
 
 (defn replace-with-indices [path indices]
   (loop [result []
@@ -102,9 +133,9 @@
                  ps
                  indices))))
 
-(defn- surround-with-index-collector [vec]
+(defn- surround-with-index-collector [elt]
   (-> [(specter/view (partial map-indexed vector))]
-      (into vec)
+      (into (vector elt))
       (into [(specter/collect-one specter/FIRST)
              specter/LAST])))
 
@@ -118,7 +149,7 @@
            (will-match-many? elt)
            (recur remainder
                   (into specter-path
-                        (surround-with-index-collector (specter-equivalent elt)))
+                        (surround-with-index-collector elt))
                   :indexed-path)
 
            :else
