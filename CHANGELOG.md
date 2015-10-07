@@ -4,6 +4,10 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
 
+### Added
+- Considerably better handling of "impossible" path cases. https://github.com/marick/structural-typing/wiki/Error-Cases
+- `only-keys` and `exactly-keys` predicates
+
 ## [0.13.0]
 
 ### BREAKING

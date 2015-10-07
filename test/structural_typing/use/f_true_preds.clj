@@ -26,6 +26,28 @@
     (explain-lifted simple (exval 8 [:x])) => (just ":x should be exactly `3`; it is `8`")
     (explain-lifted with-fn (exval pos? [:x])) => (just ":x should be exactly `even?`; it is `pos?`")))
 
+(fact at-most-keys
+  (let [p (subject/at-most-keys :a :b)]
+    (map p [{:a 1} {:a 1 :b 1} {:a 1 :b 1 :c 1}]) => [true true false]
+    (both-names p) => "(at-most-keys :a :b)"
+    (explain-lifted p (exval {:a 1, :b 1, :c 1} [:x]))
+    => (just ":x has extra keys: #{:c}; it is {:a 1, :b 1, :c 1}")))
+  
+
+(fact exactly-keys
+  (let [p (subject/exactly-keys :a :b)]
+    (both-names p) => "(exactly-keys :a :b)"
+    (map p [{:a 1} {:a 1 :b 1} {:a 1 :b 1 :c 1}]) => [false true false]
+
+    (fact "extra keys in actual"
+      (explain-lifted p (exval {:a 1, :b 1, :c 1} [:x]))
+      => (just ":x has extra keys: #{:c}; it is {:a 1, :b 1, :c 1}"))
+  
+    (fact "missing keys in actual"
+      (explain-lifted p (exval {:a 1} [:x]))
+      => (just ":x has missing keys: #{:b}; it is {:a 1}"))))
+  
+
 (fact matches
   (future-fact "finish")
 

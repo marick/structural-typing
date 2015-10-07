@@ -46,6 +46,62 @@
    (should-be "%s should be exactly `%s`; it is `%s`" expected)))
 
 
+(defn- key-differences [expected-keycoll actual-value]
+  (let [actual-set (set (keys actual-value))
+        expected-keyset (set expected-keycoll)
+        extras (set-difference actual-set expected-keyset)
+        missing (set-difference expected-keyset actual-set)]
+    (cond (not-empty? extras) [:actual-has-extras extras]
+          (not-empty? missing) [:actual-missing-required missing]
+          :else [:ok])))
+
+(defn at-most-keys
+  "Produce a predicate that's false when applied to a value with keys other than
+   those given in `coll`. Note: the value may be *missing* keys in `coll`. See [[exactly-keys]].
+   
+        (type! :X {:v1 string?
+                   :v2 integer?}
+                  (at-most-keys :v1 :v2))
+   
+   Note: this predicate works only with keys, not paths."
+  [& coll]
+  (letfn []
+    (->> (fn [actual]
+           (let [[status _] (key-differences coll actual)]
+             (not= status :actual-has-extras)))
+         (show-as (cl-format nil "(at-most-keys ~{~A~^ ~})" coll))
+         (explain-with (fn [oopsie]
+                         (format "%s has extra keys: %s; it is %s"
+                                 (oopsie/friendly-path oopsie)
+                                 (second (key-differences coll (:leaf-value oopsie)))
+                                 (:leaf-value oopsie)))))))
+
+(defn exactly-keys
+  "Produce a predicate that's false when applied to a value with keys at all different than
+   those given in `coll`. See [[at-most-keys]] for a variant that allows the value to be
+   missing some of the `coll` keys.
+   
+        (type! :X {:v1 string?
+                   :v2 integer?}
+                  (at-exactly-keys :v1 :v2))
+   
+   Note: this predicate works only with keys, not paths."
+  [& coll]
+  (letfn []
+    (->> (fn [actual]
+           (let [[status _] (key-differences coll actual)]
+             (= status :ok)))
+         (show-as (cl-format nil "(exactly-keys ~{~A~^ ~})" coll))
+         (explain-with (fn [oopsie]
+                         (let [[status keys] (key-differences coll (:leaf-value oopsie))
+                               fmt (if (= status :actual-has-extras)
+                                     "%s has extra keys: %s; it is %s"
+                                     "%s has missing keys: %s; it is %s")]
+                         (format fmt
+                                 (oopsie/friendly-path oopsie)
+                                 keys
+                                 (:leaf-value oopsie))))))))
+
 (defn ^:no-doc matches
   "Doc"
   [expected]
