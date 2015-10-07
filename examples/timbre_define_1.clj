@@ -1,6 +1,7 @@
 (ns timbre-define-1
   "Logging to Timbre"
   (:require [structural-typing.type :as type]
+            [structural-typing.preds :as preds]
             [structural-typing.assist.oopsie :as oopsie]
             [taoensso.timbre :as timbre])
   ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
