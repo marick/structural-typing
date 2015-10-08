@@ -18,10 +18,11 @@
                                               (oopsie/friendly-path %)))
                     [:check-nil]))
 
-(def required-key
-  "DEPRECATED: Use [[required-path]] instead."
+(depr/def ^{:deprecated {:in "0.14.0"
+                         :use-instead required-path}}
+  required-key
   (wrap/lift-expred (expred/->ExPred (constantly false)
-                                     "required-path"
+                                     "required-key"
                                      (constantly "You have to replace `required-key` with `required-path`. Sorry this deprecation is so ungraceful."))
                     [:check-nil]))
 
