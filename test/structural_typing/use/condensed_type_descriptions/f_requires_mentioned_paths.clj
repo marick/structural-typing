@@ -33,7 +33,33 @@
   (built-like :X {:points [{:x 1 :y 1}]}) => {:points [{:x 1 :y 1}]}
   (check-for-explanations :X {:points [{:x 1}]}) => (just (err:required [:points 0 :y]))
   
-  (future-fact "use with an `implies` that uses `includes`"))
+  (fact "use with an `implies` that uses `includes`: the `includes` works"
+    (type! :Point {:x integer? :y integer?})
+    
+    (fact "(but *contents* of implies are not part of a path)"
+      (type! :Include (requires-mentioned-paths (pred/implies :c (includes :Point))))
+
+      (built-like :Include {}) => {}
+      (built-like :Include {:x :ok-not-to-be-int}) => {:x :ok-not-to-be-int}
+      (check-for-explanations :Include {:c 1 :x :ok-not-to-be-int})
+      => (just (err:shouldbe :x "integer?" :ok-not-to-be-int)))
+
+
+    (fact "deeper nesting"
+      (type! :X (requires-mentioned-paths {:l3 integer?}
+                                          (pred/implies :l4 (includes :Include))))
+      (built-like :X {:l3 3}) => {:l3 3}
+      (check-for-explanations :X {}) => (just (err:required :l3))
+
+      ;; The rest illustrate that deep nesting of included types is unaffected by `requires-mentioned-paths
+      (built-like :X {:l3 3, :l4 true}) => {:l3 3, :l4 true}
+      (built-like :X {:l3 3, :l4 true, :c true}) => {:l3 3, :l4 true, :c true}
+      (built-like :X {:l3 3, :l4 true, :c true, :x 1, :y 2}) => {:l3 3, :l4 true, :c true, :x 1, :y 2}
+                 
+      (check-for-explanations :X {:l3 3, :l4 true, :c true, :x :notint, :y :notint})
+      => (just (err:shouldbe :x "integer?" :notint)
+               (err:shouldbe :y "integer?" :notint)) )))
+          
 
 (fact "typical use is to force paths in a previous type to be required"
   (type! :P {:x integer? :y {:z string?}})
