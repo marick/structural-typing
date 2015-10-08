@@ -4,6 +4,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
 
+## [0.14.0]
+
 ### BREAKING
 
 - You must use `required-path` instead of `required-key`.
