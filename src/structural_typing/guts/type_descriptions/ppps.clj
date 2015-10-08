@@ -5,7 +5,7 @@
   (:require [such.readable :as readable]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.compile.to-specter-path :as to-specter-path]
-            [structural-typing.guts.preds.core :refer [required-key]]))
+            [structural-typing.guts.preds.core :refer [required-path]]))
 
 (defrecord PPP [path preds])
 
@@ -33,7 +33,7 @@
   (->> x
        force-vector
        flatten/->paths
-       (map #(->PPP % [required-key]))))
+       (map #(->PPP % [required-path]))))
 
 (extend-type Requires
   DescriptionExpander
@@ -87,29 +87,29 @@
        (map first)
        (map #(subvec path 0 %))))
 
-(defn add-implied-required-keys
-  "A form like {[:a ALL :b] [required-key]} implies that the `:a` key must be present.
-   That doesn't happen automatically, so a `[:a] [required-key]` term is added."
+(defn add-implied-required-paths
+  "A form like {[:a ALL :b] [required-path]} implies that the `:a` key must be present.
+   That doesn't happen automatically, so a `[:a] [required-path]` term is added."
   [kvs]
   (let [candidate-paths
         (->> kvs
-            (filter (fn [[_path_ predset]] (contains? predset required-key)))
+            (filter (fn [[_path_ predset]] (contains? predset required-path)))
             (map first))
         new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
         ;; This prevents sequences like [:x ALL ALL]
         new-paths (remove #(to-specter-path/will-match-many? (last %)) new-paths-with-noise)]
     (reduce (fn [so-far path]
-              (merge-with into so-far (hash-map path #{required-key})))
+              (merge-with into so-far (hash-map path #{required-path})))
             kvs
             new-paths)))
 
 (defn- mapset->map-with-ordered-preds [kvs]
   (update-each-value kvs
-                     #(if (contains? % required-key)
-                        (into [required-key]
-                              (set-difference % #{required-key}))
+                     #(if (contains? % required-path)
+                        (into [required-path]
+                              (set-difference % #{required-path}))
                         (vec %))))
 
 (defn ->type-description [ppps]
-  (-> ppps ppps->mapset add-implied-required-keys mapset->map-with-ordered-preds))
+  (-> ppps ppps->mapset add-implied-required-paths mapset->map-with-ordered-preds))
 

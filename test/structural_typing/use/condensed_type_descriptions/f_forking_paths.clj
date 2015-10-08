@@ -35,8 +35,8 @@
   (fact "in `requires` as well"
     (type! :X (requires (through-each :b1 :b2)))
     (type! :X! (requires (each-of :b1 :b2)))
-    (type! :Y {[:b1] required-key
-               [:b2] required-key})
+    (type! :Y {[:b1] required-path
+               [:b2] required-path})
     (description :X) => (description :X!)
     (description :X) => (description :Y)))
 
@@ -52,8 +52,8 @@
   (fact "in `requires` as well"
     (type! :X (requires (paths-of :Point)))
     (type! :X (requires (paths-of :Point)))
-    (type! :Y {:x [required-key]
-               :y [required-key]})
+    (type! :Y {:x [required-path]
+               :y [required-path]})
     (description :X) => (description :Y)))
     
 
@@ -84,7 +84,7 @@
   (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
 
 (fact "A branch may follow an ALL"
-  (type! :Figure {[:points ALL (each-of :x :y)] [required-key integer?]})
+  (type! :Figure {[:points ALL (each-of :x :y)] [required-path integer?]})
   (check-for-explanations :Figure {:points [{:x "1"}]})
   => (just (err:shouldbe [:points 0 :x] "integer?" "\"1\"")
            (err:required [:points 0 :y])))
@@ -92,7 +92,7 @@
 
 (fact "forking paths may result in duplicates to merge"
   (type! :X (requires [:a :b1]) {[:a (each-of :b1 :b2)] integer?})
-  (type! :Y {[:a :b1] [required-key integer?]
+  (type! :Y {[:a :b1] [required-path integer?]
              [:a :b2] integer?})
   (description :X) => (description :Y))
   

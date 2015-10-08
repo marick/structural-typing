@@ -1,4 +1,4 @@
-(ns structural-typing.use.condensed-type-descriptions.f-required-key
+(ns structural-typing.use.condensed-type-descriptions.f-required-path
   (:require [structural-typing.preds :as pred])
   (:use midje.sweet
         structural-typing.type
@@ -8,15 +8,15 @@
 
 (start-over!)
 
-(fact "`required-key` combines with other predicates"
-  (type! :Point {:x [required-key integer?]
-                 :y [required-key integer?]})
+(fact "`required-path` combines with other predicates"
+  (type! :Point {:x [required-path integer?]
+                 :y [required-path integer?]})
   
   (check-for-explanations :Point {:x "1"})
   => (just (err:shouldbe :x "integer?" "\"1\"")
            (err:required :y)))
 
-(fact "The `requires` function is shorthand for required-key"
+(fact "The `requires` function is shorthand for required-path"
   (type! :Point
        (requires :x :y)
        {:x integer? :y integer?})
@@ -29,11 +29,11 @@
 (fact "use of ALL"
 
   (fact "final ALL forces a preceding key to be required"
-    (type! :Terminal {[:a ALL] [required-key even?]})
+    (type! :Terminal {[:a ALL] [required-path even?]})
     (check-for-explanations :Terminal {}) => [(err:required :a)])
 
   (fact "A middle ALL requires the preceding and following key"
-    (type! :Middle {[:a ALL :b] [even? required-key]}) ; doesn't matter where `required-key` is.
+    (type! :Middle {[:a ALL :b] [even? required-path]}) ; doesn't matter where `required-path` is.
     (check-for-explanations :Middle {}) => [(err:required :a)]
     (check-for-explanations :Middle {:a [{:c 1}]}) => [(err:required [:a 0 :b])]
 
@@ -41,7 +41,7 @@
       (built-like :Middle {:a []}) => {:a []}))
 
   (fact "there may be more than one ALL in the path"
-    (type! :Double {[:a ALL :b ALL] [required-key even?]})
+    (type! :Double {[:a ALL :b ALL] [required-path even?]})
     (check-for-explanations :Double {}) => [(err:required :a)]
     (built-like :Double {:a []}) => {:a []}
     (check-for-explanations :Double {:a [{:c 1}]}) => [(err:required [:a 0 :b])]

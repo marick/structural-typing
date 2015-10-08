@@ -11,7 +11,7 @@
   (check-for-explanations :String nil) => (just ["Value is nil, and that makes Sir Tony Hoare sad"]))
 
 (fact "keywords"
-  (type! :X {[:a :b] [required-key even?]})
+  (type! :X {[:a :b] [required-path even?]})
   (fact "matching non-maps: impossible"
     (check-for-explanations :X 1) =>      (just (err:notpath [:a :b] 1))
     (check-for-explanations :X [:a 1]) => (just (err:notpath [:a :b] [:a 1]))
@@ -24,7 +24,7 @@
     (check-for-explanations :X {:a {:c 1}}) => (just (err:required [:a :b]))))
 
 (fact "indices"
-  (type! :X {[1 0] [required-key even?]})
+  (type! :X {[1 0] [required-path even?]})
   (fact "non-collections: impossible"
     (check-for-explanations :X 1) =>      (just (err:notpath [1 0] 1))
     (check-for-explanations :X [[] 1]) => (just (err:notpath [1 0] [[] 1])))
@@ -44,21 +44,21 @@
       (take 3 result) => (take 3 (repeat (list 2 1))))))
 
 (fact "ALL"
-  (type! :X {[ALL ALL] [required-key even?]})
+  (type! :X {[ALL ALL] [required-path even?]})
   (fact "non-collections: impossible"
     (check-for-explanations :X 1) =>   (just (err:notpath [ALL ALL] 1))
     (check-for-explanations :X [1]) => (just (err:notpath [ALL ALL] [1])))
   (future-fact "nested missing or nil values: truncated"
     (check-for-explanations :X [     ]) => (just (err:required [0 ALL])))
 
-  (type! :X {[:x ALL] [required-key even?]})
+  (type! :X {[:x ALL] [required-path even?]})
   (fact "as before, non-collections: impossible"
     (check-for-explanations :X {:x 1}) =>   (just (err:notpath [:x ALL] {:x 1})))
   (fact "A previously non-indexed element is checked for existence "
     (check-for-explanations :X {}) =>         (just (err:required :x))
     (check-for-explanations :X {:x nil}) =>   (just (err:required :x)))
     
-  (type! :X {[ALL :x] [required-key even?]})
+  (type! :X {[ALL :x] [required-path even?]})
   (fact "ALL passes a nil along to later elements"
     (check-for-explanations :X [{:x 1} {} {:x nil}]) => (just (err:shouldbe [0 :x] "even?" 1)
                                                               (err:required [1 :x])
@@ -68,13 +68,13 @@
 (fact "RANGE"
   (fact "non-collections: impossible"
     (let [path [(RANGE 1 2) (RANGE 1 2)]]
-      (type! :X {path [required-key]})
+      (type! :X {path [required-path]})
       (check-for-explanations :X 1) =>   (just (err:notpath path 1))
       (check-for-explanations :X [0 1]) => (just (err:notpath path [0 1]))))
   
   (fact "missing or nil values: truncated"
     (let [path [(RANGE 1 4) (RANGE 1 3)]]
-      (type! :X {path [required-key]})
+      (type! :X {path [required-path]})
       (let [in [:unchecked [10 11 12] [20 21 22] [30 31 32] :unchecked]]
         (built-like :X in) => in)
 
@@ -93,7 +93,7 @@
 
   (fact "completely empty arrays count as truncation"
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
-      (type! :X {path [required-key]})
+      (type! :X {path [required-path]})
       (fact "top level"
         (check-for-explanations :X []) => (just (err:required [1 1])
                                                 (err:required [1 2])))

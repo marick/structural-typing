@@ -57,9 +57,9 @@
   (check-for-explanations :X {:x 1 :y 2 :color "red" :hue "dark" :other :non-int})
   => (just (err:shouldbe :other "integer?" :non-int)))
 
-(fact "duplicate required-key are not affected"
+(fact "duplicate required-path are not affected"
   (type! :X (requires-mentioned-paths (requires :x)
-                                {:x [integer?] :y [required-key]}
+                                {:x [integer?] :y [required-path]}
                                 (requires :z)))
   (built-like :X {:x 3 :y 4 :z 5}) => {:x 3 :y 4 :z 5}
   (check-for-explanations :X {:x :not-int}) => (just (err:shouldbe :x "integer?" :not-int)

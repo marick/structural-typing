@@ -11,6 +11,6 @@
     (subject/substitute type-map (includes :Point)) => point
     (subject/substitute type-map [(includes :Point)]) => [point]
     (subject/substitute type-map {:a (includes :Point)}) => {:a point}
-    (subject/substitute type-map {[:a :points ALL] [required-key (includes :Point)]})
-    => {[:a :points ALL] [required-key point]}
-    (subject/substitute type-map {:a [required-key pos?]}) => {:a [required-key pos?]}))
+    (subject/substitute type-map {[:a :points ALL] [required-path (includes :Point)]})
+    => {[:a :points ALL] [required-path point]}
+    (subject/substitute type-map {:a [required-path pos?]}) => {:a [required-path pos?]}))

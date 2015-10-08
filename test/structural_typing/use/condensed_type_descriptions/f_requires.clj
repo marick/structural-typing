@@ -11,8 +11,8 @@
 
 (fact "requires can be given either keys or paths"
   (type! :V1 (requires :x [:y :z]))
-  (type! :V2 {[:x] [required-key]
-              [:y :z] [required-key]})
+  (type! :V2 {[:x] [required-path]
+              [:y :z] [required-path]})
 
   (tabular
     (fact

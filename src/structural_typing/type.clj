@@ -133,7 +133,8 @@
   
 (depr/defn checked
   "Use [[built-like]] instead."
-  {:deprecated {:in "0.13.0"}}
+  {:deprecated {:in "0.13.0"
+                :use-instead built-like}}
   ([type-repo type-shorthand candidate]
      (built-like type-repo type-shorthand candidate))
 
@@ -167,9 +168,10 @@
   ([type-shorthand candidate]
      (built-like? @global-type/repo type-shorthand candidate)))
 
-(defn described-by? 
+(depr/defn described-by? 
   "Use [[built-like?]] instead."
-  {:deprecated {:in "0.13.0"}}
+  {:deprecated {:in "0.13.0"
+                :use-instead built-like?}}
   ([type-repo type-shorthand candidate]
      (built-like? type-repo type-shorthand candidate))
   ([type-shorthand candidate]

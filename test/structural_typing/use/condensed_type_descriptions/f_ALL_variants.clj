@@ -28,7 +28,7 @@
     => (just (err:shouldbe [1 :x 1] "even?" 1)))
 
   (fact "sequences are nil-padded on the right"
-    (type! :SECOND-AND-THIRD {[(RANGE 1 3)] [required-key pos?]})
+    (type! :SECOND-AND-THIRD {[(RANGE 1 3)] [required-path pos?]})
     (built-like :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
     (check-for-explanations :SECOND-AND-THIRD [:ignored 1])
     => (just (err:required [2])))

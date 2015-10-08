@@ -59,9 +59,16 @@
   "Produce a predicate that's false when applied to a value with keys other than
    those given in `coll`. Note: the value may be *missing* keys in `coll`. See [[exactly-keys]].
    
-        (type! :X {:v1 string?
-                   :v2 integer?}
-                  (at-most-keys :v1 :v2))
+         user=> (type! :X {:v1 string?
+                           :v2 integer?}
+                          (at-most-keys :v1 :v2))
+         user=> (built-like :X {:v1 \"apple\"})
+         => {:v1 \"apple\"}
+         user=> (built-like :X {:v1 \"apple\" :v2 3})
+         => {:v1 \"apple\", :v2 3}
+         user=> (built-like :X {:v1 \"apple\" :v2 3, :actual-is-too-big true})
+         Value has extra keys: #{:actual-is-too-big}; it is {:v1 \"apple\", ...
+         => nil
    
    Note: this predicate works only with keys, not paths."
   [& coll]
@@ -81,9 +88,18 @@
    those given in `coll`. See [[at-most-keys]] for a variant that allows the value to be
    missing some of the `coll` keys.
    
-        (type! :X {:v1 string?
-                   :v2 integer?}
-                  (at-exactly-keys :v1 :v2))
+        user=> (type! :X {:v1 string?
+                          :v2 integer?}
+                         (exactly-keys :v1 :v2))
+        user=> (built-like :X {:v1 \"apple\"})
+        => Value has missing keys: #{:v2}; it is {:v1 \"apple\"}
+        nil
+        user=> (built-like :X {:v1 \"apple\" :v2 3})
+        {:v1 \"apple\", :v2 3}
+        user=> (built-like :X {:v1 \"apple\" :v2 3, :actual-is-too-big true})
+        Value has extra keys: #{:actual-is-too-big}; it is {:v1 \"apple\", ...
+        => nil
+
    
    Note: this predicate works only with keys, not paths."
   [& coll]

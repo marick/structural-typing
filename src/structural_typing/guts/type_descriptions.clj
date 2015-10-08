@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.type-descriptions.includes :as includes]
             [structural-typing.guts.type-descriptions.ppps :as ppp]
             [structural-typing.guts.compile.compile :as compile]
-            [structural-typing.guts.preds.core :refer [required-key]]))
+            [structural-typing.guts.preds.core :refer [required-path]]))
 
 
 (defn ->finished-ppps [condensed-type-descriptions]
@@ -20,11 +20,11 @@
       compile/compile-type))
 
 (defn requires-mentioned-paths
-  "Forces each path in the (canonicalized) type descriptions to be required as if
-   you'd used [[required-key]] with it.
+  "Canonicalizes the type descriptions into a single path->pred map and adds 
+   [[required-path]] to each path's predicates.
    
         (type! :X (requires-mentioned-paths (includes :Point)
-                                            (includes :Colorful))
+                                            {:color rgb-string?}))
   
    Note: It can't require paths you don't mention. The easiest way to mention a
    path is to name it in a `requires` - which may be either an argument to this function
@@ -38,6 +38,6 @@
   [& condensed-type-descriptions]
   (-> (fn [type-map]
         (let [canonical (canonicalize condensed-type-descriptions type-map)]
-          (update-each-value canonical conj required-key)))
+          (update-each-value canonical conj required-path)))
       includes/as-type-expander))
 

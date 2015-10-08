@@ -10,10 +10,10 @@
 
 (fact "predicates are combined"
   (type! :V1
-         {[:x] [required-key]}
+         {[:x] [required-path]}
          {[:x] [even?]})
   (type! :V2
-         {[:x] [required-key even?]})
+         {[:x] [required-path even?]})
 
   (tabular
     (fact 
@@ -36,9 +36,9 @@
          {[(through-each :x :y)] integer?})
   
   (type! :Point2
-         {[:x] [required-key integer?]
-          [:y] [required-key integer?]
-          [:color] [required-key]})
+         {[:x] [required-path integer?]
+          [:y] [required-path integer?]
+          [:color] [required-path]})
   
   (tabular
     (fact
@@ -54,7 +54,7 @@
   (type! :X (requires :a :b :c [:d :e]))
   (type! :Y (requires :a) (requires :b) (requires :c) (requires [:d :e]))
 
-  (description :X) => '{[:a] [required-key], [:b] [required-key], [:c] [required-key], [:d :e] [required-key]}
+  (description :X) => '{[:a] [required-path], [:b] [required-path], [:c] [required-path], [:d :e] [required-path]}
   (description :Y) => (description :X))
 
 (fact "combining descriptions containing ALL"
@@ -62,15 +62,15 @@
          (requires [:a ALL :c] [:b :f ALL])
          {:a even?}
          {[:b :f ALL] even?})
-  (type! :Y {[:a ALL :c] [required-key]
-             [:b :f ALL] [required-key even?]
+  (type! :Y {[:a ALL :c] [required-path]
+             [:b :f ALL] [required-path even?]
              [:a] [even?]})
   (description :Y) => (description :X))
 
 (fact "duplicates are ignored"
-  (type! :X {:a required-key :b even?} (requires :b :a) {:b even?})
-  (type! :Y {[:a] [required-key]
-             [:b] [required-key even?]})
+  (type! :X {:a required-path :b even?} (requires :b :a) {:b even?})
+  (type! :Y {[:a] [required-path]
+             [:b] [required-path even?]})
   (description :Y) => (description :X))
 
 
@@ -113,9 +113,9 @@
          {:x integer? :y integer?})
   
   (type! :ColorfulPoint
-         {:x [required-key integer?]
-          :y [required-key integer?]
-          :color [required-key string?]})
+         {:x [required-path integer?]
+          :y [required-path integer?]
+          :color [required-path string?]})
   
   (fact
     (check-for-explanations :ColorfulPoint {:y 1 :color 1})
@@ -130,7 +130,7 @@
     => (just (err:shouldbe :color "string?" 1)
              (err:required :x)))
   
-  (type! :Colorful {:color [required-key string?]})
+  (type! :Colorful {:color [required-path string?]})
   (type! :ColorfulPoint (includes :Point) (includes :Colorful))
   
   (fact

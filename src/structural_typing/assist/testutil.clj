@@ -85,7 +85,7 @@
 
 
 (defn err:required
-  "Produces the same error messsage produced when [[required-key]] fails."
+  "Produces the same error messsage produced when [[required-path]] fails."
   [path]
   (format "%s must exist and be non-nil" path))
 

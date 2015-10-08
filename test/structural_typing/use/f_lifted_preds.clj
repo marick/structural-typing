@@ -87,7 +87,7 @@
         => (just "[:x :c] must exist and be non-nil")))
 
     (fact "including preexisting type definitions"
-      (let [r (subject/implies (comp even? :a) {:b [required-key (includes :Point)]})
+      (let [r (subject/implies (comp even? :a) {:b [required-path (includes :Point)]})
             type-map {:Point {:x integer? :y integer?}}]
         (run r {} type-map) => empty?
         (run r {:a 1 :b 1} type-map) => empty?

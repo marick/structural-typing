@@ -76,7 +76,7 @@
     (check-for-explanations :X {:a 1 :b 1}) => [(err:shouldbe :b "even?" 1)])
   
   (fact "a variant of the above that requires :b"
-    (type! :X (pred/implies :a {:b [required-key even?]}))
+    (type! :X (pred/implies :a {:b [required-path even?]}))
     (check-for-explanations :X {:a 1}) => [(err:required :b)]
     (check-for-explanations :X {:a 1 :b 1}) => [(err:shouldbe :b "even?" 1)])
   

@@ -4,11 +4,11 @@
   (:require [such.readable :as readable])
   (:use midje.sweet structural-typing.assist.testutil))
 
-(facts "required-key starts out lifted"
-  (subject/required-key (exval 5)) => []
-  (readable/fn-string subject/required-key) => "required-key"
-  (let [result (subject/required-key (exval nil [:x]))]
-    result => (just (oopsie-for nil :predicate-string "required-key"))
+(facts "required-path starts out lifted"
+  (subject/required-path (exval 5)) => []
+  (readable/fn-string subject/required-path) => "required-path"
+  (let [result (subject/required-path (exval nil [:x]))]
+    result => (just (oopsie-for nil :predicate-string "required-path"))
     (oopsie/explanations result) => (just ":x must exist and be non-nil")))
 
 

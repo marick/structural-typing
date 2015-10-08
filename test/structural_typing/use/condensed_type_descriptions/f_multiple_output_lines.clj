@@ -10,8 +10,8 @@
 (fact "output lines are sorted"
   (type! :Figure
          (requires :color)
-         {[:points ALL :x] [required-key integer?]
-          [:points ALL :y] [required-key integer?]})
+         {[:points ALL :x] [required-path integer?]
+          [:points ALL :y] [required-path integer?]})
 
   (check-for-explanations :Figure {:points [{:y 1} {:x 1 :y "2"}]})
   => (just (err:required :color)

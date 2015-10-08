@@ -32,8 +32,8 @@
 
 (fact "`include` can also be used to be part of a predicate list"
   (type! :A {:a even?})
-  (type! :X {[:as] [required-key (includes :A)]})
-  (type! :Y {[:as] required-key
+  (type! :X {[:as] [required-path (includes :A)]})
+  (type! :Y {[:as] required-path
              [:as :a] even?})
   (description :X) => (description :Y))
   
@@ -45,8 +45,8 @@
 
 (type! :Point (requires :x :y))
 (type! :Includer {:the-sidecar (includes :Point)})
-(type! :Direct {[:the-sidecar :x] required-key
-                [:the-sidecar :y] required-key})
+(type! :Direct {[:the-sidecar :x] required-path
+                [:the-sidecar :y] required-path})
 
 
 (fact "for reference: the basic types work"
@@ -75,8 +75,8 @@
 
 
 (fact "for reference: implies without `includes` works"
-  (type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-key
-                                                         [:the-sidecar :y] required-key}))
+  (type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-path
+                                                         [:the-sidecar :y] required-path}))
   (built-like :I-Direct {}) => {}
   (built-like :I-Direct {:sidecar? false}) => {:sidecar? false}
   (built-like :I-Direct {:sidecar? true :the-sidecar {:x 1 :y 2}})
