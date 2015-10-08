@@ -7,6 +7,7 @@ See [here](http://keepachangelog.com/) for the change log format.
 ### Added
 - Considerably better handling of "impossible" path cases. https://github.com/marick/structural-typing/wiki/Error-Cases
 - `only-keys` and `exactly-keys` predicates
+- `requires-mentioned-paths`
 
 ## [0.13.0]
 

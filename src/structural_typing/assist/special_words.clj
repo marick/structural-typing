@@ -13,6 +13,8 @@
              [structural-typing.guts.compile.to-specter-path
                ALL
                RANGE]
+             [structural-typing.guts.type-descriptions
+               requires-mentioned-paths]
              [structural-typing.guts.type-descriptions.includes
                includes]
              [structural-typing.guts.type-descriptions.flatten
