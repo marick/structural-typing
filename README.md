@@ -121,8 +121,8 @@ structure. Here, for example, are two equivalent ways of requiring that a
 ```clojure
 (type! :Point (requires :x :y)
               {:x integer?, :y integer?})
-(type! :Point {:x [required-key integer?]
-               :y [required-key integer?]})
+(type! :Point {:x [required-path integer?]
+               :y [required-path integer?]})
 ```
 
 In either case, an error looks like this:
@@ -169,7 +169,7 @@ user=> (built-like :Point {:x 1, :y -1})
 `:Point`'s definition is still a bit annoying, in that it doesn't state clearly that `:x` and `:y` are of the same type. That can be done like this:
 
 ```clojure
-user=> (type! :Point {(each-of :x :y) [required-key within-bounds?]})
+user=> (type! :Point {(each-of :x :y) [required-path within-bounds?]})
 ```
 
 The use of `each-of` hints that the keys in a type description are
@@ -214,7 +214,7 @@ When checking a value, you're not restricted to a single type. For example, supp
 also a `:Colorful` "mixin" type:
 
 ```clojure
-user=> (type! :Colorful {:color [required-key rgb-string?]})
+user=> (type! :Colorful {:color [required-path rgb-string?]})
 ```
 
 If you expect a colorful point, you needn't use a single type for it. Instead, you can require that the value match two types:
