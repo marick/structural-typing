@@ -21,7 +21,10 @@
    `explainer` to be called with the [[oopsie]] that results from the
    failure.
    
-        (explain-with \"too small\" #(< (count %) 54))
+        (explain-with #(format \"Yo! %s has %s characters, which is WAY too long.\"
+                               (:leaf-value %)
+                               (count (:leaf-value %)))
+                      #(< (count %) 8)))
 "
   [explainer predicate]
   (-> predicate
