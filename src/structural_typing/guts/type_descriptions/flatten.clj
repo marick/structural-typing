@@ -62,10 +62,13 @@
    
         (type! :StrictX (includes :X)
                         (requires (paths-of :X)))
-                        
    
    The above example constructs a stricter version of `:X` by insisting 
    all of its paths are required.
+
+   When the argument is a map, it is flattened before the paths are extracted, so that
+   `{:a {:b even?}}` and `{[:a :b] even?}` have the same effect.
+   (Included types are already flat.)
 "
   [type-signifier-or-map]
   (let [handle-kvs #(->Fork (keys %))]
