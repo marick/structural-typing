@@ -111,6 +111,9 @@
     (let [bad #{1 2 3 4 5}]
       (check-for-explanations :X bad) => (err:notpath [(RANGE 1 2)] bad))))
 
+(fact "a path predicate that blows up counts as an impossible path"
+  (type! :X {[:a pos?] even?})
+  (check-for-explanations :X {:a "string"}) => (just (err:notpath '[:a pos?] {:a "string"})))
 
 
 (fact "Some random leftover tests"
