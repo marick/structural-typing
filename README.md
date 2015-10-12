@@ -74,23 +74,27 @@ user=> (type! :Point (requires :x :y))
 => #TypeRepo[:Point]
 ```
 
-Here is how you check a value (which happens to succeed):
+The following shows how you check a value, and what the result of a successful check is:
 
 ```clojure
 user=> (built-like :Point {:x 1 :y 2})
 {:x 1, :y 2}
 ```
 
-When given something that's less than a proper `:Point`, `built-like`
-prints a helpful message and returns `nil`. (This default can be
-changed. If you roll monadically, you [can have](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad) the success case
-produce a `Right` and the error case produce a `Left`.) Here is an error example:
+When given something that's not a proper `:Point`, `built-like`
+prints a helpful message and returns `nil`: 
 
 ```clojure
 user=> (built-like :Point {:x 1})
 :y must exist and be non-nil
 nil
 ```
+
+(You can customize this behavior. For example, if you roll monadically,
+you
+[can have](https://github.com/marick/structural-typing/wiki/Using-the-Either-monad)
+the success case produce a `Right` and the error case produce a
+`Left`.)
 
 This default behavior is useful for cleanly interrupting pipelines when errors occur:
 
@@ -138,8 +142,10 @@ Feast your eyes on the "integer?". Pleasant error messages are
 important. (And I'm smug about producing them without resorting to
 macro-ology.)
 
-(Terminology: When used like the above (as predicates on the
-right-hand side of type-description maps), I call predicates *check-preds*.)
+(Terminology: although they're just plain predicates, I refer to
+predicates on the right-hand side of type-description maps as
+*check-preds*. That avoids ambiguity in some of the reference
+documentation.)
 
 Because error messages are important, you're allowed to name anonymous
 check-preds. Here's a way of restricting the bounds of `:x` and `:y`:
@@ -177,10 +183,12 @@ done like this:
 user=> (type! :Point {(each-of :x :y) [required-path within-bounds?]})
 ```
 
-The use of `each-of` hints that the keys in a type description are
-much more than keywords. They are, in fact, condensed descriptions of 
-zero or more [paths](https://github.com/marick/structural-typing/wiki/Paths) into the data structure. For example, suppose you have
-a `:Figure` type that contains many `:Points`. It can be described like this:
+You've seen that the keys in a type-description map can be keywords or
+a use of `each-of`. There are other possibilities, lumped under the term 
+[paths](https://github.com/marick/structural-typing/wiki/Paths). Any path describes zero or more routes 
+through a structure to individual substructures or *leaf values*.
+For example, suppose you have a `:Figure` type
+that contains many `:Points`. It can be described like this:
 
 ```clojure
 (type! :Figure (requires :points :fill-color :line-color)
@@ -188,8 +196,9 @@ a `:Figure` type that contains many `:Points`. It can be described like this:
                 (each-of :fill-color :line-color) rgb-string?})
 ```
 
-The highlighted line above says that all the `:points` must satisfy the constraints
-from `:Point`. (The name `includes` was chosen to remind you that the `:points`
+The highlighted line above says that all values of the `:points` collection must satisfy the predicates that
+define a 
+`:Point`. (The name `includes` was chosen to remind you that the `:points`
 are allowed to have additional fields.) An error looks like this:
 
 ```clojure
@@ -201,8 +210,9 @@ user=> (built-like :Figure {:fill-color "#DA70D6" :line-color "#DA70D6"
 ```
 
 By using paths, you can describe a deeply nested structure as a flat
-path-to-check-preds map.  If you like type descriptions that are
-nested like the types they describe, you can do that too:
+map whose keys are paths and whose values are collections of
+check-preds.  But if you like type descriptions that are nested like the
+types they describe, you can do that too:
 
 ```clojure
 user=> (type! :X {:a even?
@@ -215,18 +225,16 @@ user=> (built-like :X {:a 1 :b {:c1 2, :c2 "foo"}})
 ```
 
 (However, I never actually got arround to supporting vector literals
-in nested type descriptions - so this only works for maps.)
+in nested type descriptions - so this only works for maps. It could be added.)
 
-When checking a value, you're not restricted to a single type. For
-example, suppose you have a `:Point` type and also a `:Colorful`
-"mixin" type:
+Let's add another type to the type-repo, `:Colorful`. 
 
 ```clojure
 user=> (type! :Colorful {:color [required-path rgb-string?]})
 ```
 
-If you expect a colorful point, you needn't use a single type for
-it. Instead, you can require that the value match two types:
+If you want to check that a value is a colorful point, you can check
+against both types at the same time:
 
 ```clojure
 user=> (built-like [:Colorful :Point] {:x 1})
@@ -251,7 +259,7 @@ unnamed bit of type description (analogous to an unnamed function):
 user=> (built-like [:Point (requires :color)] {:y 1})
 :color must exist and be non-nil
 :x must exist and be non-nil
-nil
+=> nil
 ```
 
 I've allowed snippets of type descriptions (like `(requires :color)`)
@@ -266,13 +274,13 @@ anonymous, partial type descriptions can help:
          ...)
 ```
 
-(In this case, each step produces a structure that still satisfies
-the `:Patient` type. I didn't bother mentioning that after the first
-step because (1) I doubt later steps will falsify that, and (2) it
-doesn't help a reader understand the pipeline. If anything, the clutter
-hurts. I care more that type descriptions are *informative*, even to
-someone reading hastily, than that they're *complete*. If you care
-differently, you can be more rigorous.
+In this case, I only mention the `:Patient` type in the first check. I
+don't use `:Patient` later because (1) I doubt later steps will
+produce non-patients, so (2) reiterating it doesn't help a reader
+understand the pipeline. If anything, the clutter hurts. I care more
+that type descriptions are *informative*, even to someone reading
+hastily, than that they're *complete*. If you care differently, you
+can be more rigorous.
 
 ## Oh, by the way
 
