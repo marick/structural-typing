@@ -8,6 +8,9 @@
 
 (future-fact "There should be an error if there's an instance of `includes` in a path")
 
+(future-fact "error out if you use `requires` on the right-hand side"
+  (type! :Line {(each-of :head :tail) (requires :x :y)})
+  )
 
 
 (future-fact "reject impossible condensed type descriptions"
