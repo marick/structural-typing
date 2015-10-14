@@ -6,6 +6,9 @@
         structural-typing.clojure.core
         structural-typing.assist.testutil))
 
+(start-over!)
+
+
 (type! :Point {:x [integer? pos?] :y [integer? pos?]})
 
 (fact "above :Point description actually works"
@@ -25,3 +28,4 @@
                             {:x 1 :y 2 :color "red"}])
   => [{:y 2, :x 1} {:y 2, :z 3, :x 1} {:y 2, :color "red", :x 1}])
 
+(start-over!)

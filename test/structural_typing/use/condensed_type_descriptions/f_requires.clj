@@ -5,6 +5,9 @@
         structural-typing.clojure.core
         structural-typing.assist.testutil))
 
+(start-over!)
+
+
 (fact "an empty `requires`"
   (type! :X (requires))
   (built-like :X 3) => 3)
@@ -22,3 +25,5 @@
     ?version
     :V1
     :V2))
+
+(start-over!)

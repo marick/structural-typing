@@ -7,6 +7,8 @@
       structural-typing.assist.testutil))
 
 
+(start-over!)
+
 (fact "output lines are sorted"
   (type! :Figure
          (requires :color)
@@ -24,4 +26,6 @@
            (err:required [:points 0 :y])
            (err:required [:points 1 :x])
            (err:required [:points 1 :y])))
+
+(start-over!)
 

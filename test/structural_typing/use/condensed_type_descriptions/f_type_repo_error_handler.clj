@@ -28,3 +28,5 @@
 
 (fact "default success handler returns the original value"
   (built-like :Point {:x 1 :y 2}) => {:x 1 :y 2})
+
+(start-over!)
