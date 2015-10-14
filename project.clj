@@ -14,9 +14,9 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "4.2.0"]
+                 [marick/suchwow "4.4.0"]
                  [defprecated "0.1.2"]
-                 [com.rpl/specter "0.7.1" :exclusions [org.clojure/clojure]]]
+                 [com.rpl/specter "0.8.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}
@@ -27,7 +27,7 @@
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
-             :1.8 {:dependencies [[org.clojure/clojure "1.8.0-alpha3"]]}
+             :1.8 {:dependencies [[org.clojure/clojure "1.8.0-beta1"]]}
              }
 
   :test-paths ["test" "examples"]
