@@ -284,15 +284,13 @@ can be more rigorous.
 
 ## Oh, by the way
 
-You can check simple values:
+You can check simple values, and you don't have to use a type name:
 
 ```clojure
 user=> (built-like string? 5)
 Value should be `string?`; it is `5`
 => nil
 ```
-
-That's not really the point of the library, though.
 
 
 ## For more details
