@@ -3,22 +3,10 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.includes :as includes]
             [such.readable :as readable])
   (:use structural-typing.assist.special-words))
-
-(defn- should-be [format-string expected]
-  #(format format-string,
-           (oopsie/friendly-path %)
-           (readable/value-string expected)
-           (readable/value-string (:leaf-value %))))
-
-(defn- compose-predicate [name pred fmt-fn]
-  (->> pred
-       (show-as name)
-       (explain-with fmt-fn)))
-
-;;;                      THE ACTUAL PREDICATES
 
 (defn member
   "Produce a predicate that's false when applied to a value not a
@@ -28,10 +16,10 @@
          (type! :small-primes {:n (member [2 3 5 7])})
 "
   [coll]
-  (compose-predicate
+  (pdef/compose-predicate
    (format "(member %s)" (readable/value-string coll))
    #(boolean ((set coll) %))
-   (should-be "%s should be a member of `%s`; it is `%s`" coll)))
+   (pdef/should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
 (defn exactly
   "Produce a predicate that's true iff the value it's applied to
@@ -40,10 +28,10 @@
          (type! :V5 {:version (exactly 5)})
 "
   [expected]
-  (compose-predicate
+  (pdef/compose-predicate
    (format "(exactly %s)" (readable/value-string expected))
    (partial = expected)
-   (should-be "%s should be exactly `%s`; it is `%s`" expected)))
+   (pdef/should-be "%s should be exactly `%s`; it is `%s`" expected)))
 
 
 (defn- key-differences [expected-keycoll actual-value]
@@ -121,7 +109,7 @@
 (defn ^:no-doc matches
   "Doc"
   [expected]
-  (compose-predicate
+  (pdef/compose-predicate
    (format "(matches %s)" (readable/value-string expected))
    (fn [actual]
      (cond (every? regex? [actual expected])
@@ -132,7 +120,7 @@
 
            :else
            (= actual expected)))
-   (should-be "%s should match `%s`; it is `%s`" expected)))
+   (pdef/should-be "%s should match `%s`; it is `%s`" expected)))
 
 
 ;;; More exotic predicate creation.
