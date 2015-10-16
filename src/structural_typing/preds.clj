@@ -172,7 +172,10 @@
                                                 (requires :color))))
 
    There's enough going on with `implies` that it has its own
-   page in the user documentation: [[[TBD]]].
+   page in the user documentation: http://bit.ly/1LeLTy9.
+
+   Warning: I am considering making this function more powerful. I
+   think the change won't be breaking, but it might be.
 "
   {:arglists '([if-pred then-part if-pred then-part  ...])}
   [& args]
