@@ -2,7 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format. 
 
-## [unreleased]
+## [1.0-beta1]
+
+- Just documentation and test improvements
 
 ## [0.14.0]
 
