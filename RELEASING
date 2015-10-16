@@ -4,3 +4,4 @@
 * push
 * rake doc 
 * lein deploy
+* lein install
