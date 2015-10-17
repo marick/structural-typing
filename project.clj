@@ -15,6 +15,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [marick/suchwow "4.4.0"]
+                 [swiss-arrows "1.0.0"]
                  [defprecated "0.1.2"]
                  [com.rpl/specter "0.8.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
