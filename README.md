@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7+  
-For lein: [marick/structural-typing "1.0-beta1"]    
+For lein: [marick/structural-typing "1.0-beta2"]    
 License: [MIT](http://opensource.org/licenses/MIT)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
