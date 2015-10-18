@@ -314,4 +314,7 @@ traversing structures, and Nathan Marz provided invaluable help with
 Specter subtleties. [Potemkin](https://github.com/ztellman/potemkin)
 gave me a function I couldn't write correctly myself. [Defprecated](https://github.com/alexander-yakushev/defprecated) came in handy as I flailed around in search of an API.
 
+## Contributors
 
+* Alessandro Andrioni
+* Brian Marick
