@@ -36,7 +36,7 @@
 
 (def built-like (partial type/built-like type-repo))
 (def all-built-like (partial type/all-built-like type-repo))
-(def <>built-like (partial type/<>built-like type-repo))
-(def <>all-built-like (partial type/<>all-built-like type-repo))
+(def <>built-like #(type/<>built-like %1 type-repo %2))
+(def <>all-built-like #(type/<>all-built-like %1 type-repo %2))
 (def built-like? (partial type/built-like? type-repo))
 
