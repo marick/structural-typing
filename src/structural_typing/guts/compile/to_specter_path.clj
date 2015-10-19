@@ -22,7 +22,9 @@
 
           :else
           (boom! "%s is not a map" structure)))
-  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+  (transform* [kw structure next-fn]
+    (assoc structure kw (next-fn (get structure kw)))
+    ))
 
 (extend-type java.lang.Long
   sp/StructurePath
