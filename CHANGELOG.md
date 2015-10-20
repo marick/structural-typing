@@ -1,6 +1,10 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
-See [here](http://keepachangelog.com/) for the change log format. 
+See [here](http://keepachangelog.com/) for the change log format.
+
+## [1.0-beta3]
+
+- FIX: `structural-typing` stomped on Specter's handling of keywords.
 
 ## [1.0-beta2]
 
