@@ -33,7 +33,7 @@
 
   :test-paths ["test" "examples"]
 
-  :plugins [[lein-midje "3.2-RC4"]
+  :plugins [[lein-midje "3.2"]
             [codox "0.8.11"]]
 
   :codox {:src-dir-uri "https://github.com/marick/structural-typing/blob/master/"
