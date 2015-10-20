@@ -11,24 +11,34 @@
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.preds.wrap :as wrap]))
 
-(extend-type clojure.lang.Keyword
+
+;; NOTE: I don't know why Specter requires `extend-type/extend-protocol` instead of
+;; defining the protocol functions in the deftype. But it does.
+
+(deftype KeywordVariantType [keyword])
+
+(extend-type KeywordVariantType
   sp/StructurePath
-  (select* [kw structure next-fn]
+  (select* [this structure next-fn]
     (cond (map? structure)
-          (next-fn (get structure kw))
+          (next-fn (get structure (.-keyword this)))
 
           (nil? structure)
           (next-fn nil)
 
           :else
           (boom! "%s is not a map" structure)))
-  (transform* [kw structure next-fn]
-    (assoc structure kw (next-fn (get structure kw)))
-    ))
+  (transform* [this structure next-fn] (boom! "structural-typing does not use transform")))
 
-(extend-type java.lang.Long
+(defmethod clojure.core/print-method KeywordVariantType [o, ^java.io.Writer w]
+  (.write w (str (.-keyword o))))
+
+
+(deftype IntegerVariantType [value])
+  
+(extend-type IntegerVariantType
   sp/StructurePath
-  (select* [this structure next-fn] 
+  (select* [this structure next-fn]
     (cond (nil? structure)
           (next-fn nil)
           
@@ -37,10 +47,15 @@
 
           :else
           (try
-            (next-fn (nth structure this))
+            (next-fn (nth structure (.-value this)))
             (catch IndexOutOfBoundsException ex
               (next-fn nil)))))
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+
+(defmethod clojure.core/print-method IntegerVariantType [o, ^java.io.Writer w]
+  (.write w (str (.-value o))))
+
+
 
 
                                  ;;; ALL, RANGE
@@ -153,6 +168,16 @@
                   (into specter-path
                         (surround-with-index-collector elt))
                   :indexed-path)
+
+           (keyword? elt)
+           (recur remainder
+                  (conj specter-path (->KeywordVariantType elt))
+                  path-type)
+
+           (integer? elt)
+           (recur remainder
+                  (conj specter-path (->IntegerVariantType elt))
+                  path-type)
 
            :else
            (recur remainder (conj specter-path elt) path-type))))
