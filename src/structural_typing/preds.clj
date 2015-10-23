@@ -126,10 +126,6 @@
 ;;; More exotic predicate creation.
 
 
-;; Too many places accept vectors or single arguments. This is an experiment
-;; to disallow vectors in favor of a function (rather than having, as elsewhere,
-;; a function that's just an alias for `vector`).
-
 (defrecord AllOf [condensed-type-descriptions])
 (alter-meta! #'->AllOf assoc :private true)
 (alter-meta! #'map->AllOf assoc :private true)
@@ -152,7 +148,7 @@
          (letfn [(adjust-path [oopsie]
                    (update oopsie :path #(into (:path exval) %)))]
            (reduce (fn [so-far [antecedent consequent]]
-                     (if (antecedent (:leaf-value exval))
+                     (if (empty? (antecedent (:leaf-value exval)))
                        (into so-far (map adjust-path (consequent (:leaf-value exval))))
                        so-far))
                    []
@@ -161,33 +157,38 @@
        (show-as "implies")))
 
 (defn implies
-  "Each `if-pred` is evaluated in turn. When the `if-pred` is
-   truthy, the corresponding `then-part` applies. The `then-part`
-   is either a single condensed type description or a set of them
-   enclosed in [[all-of]].
+   "There's enough going on with `implies` that it has its own
+    page in the user documentation: http://bit.ly/1LeLTy9.
+
+   Both the `if` and `then` parts are either a single condensed
+   type description (like `(requires :a :b :c)`) or a collection 
+   of them wrapped in [[all-of]]. 
+
+   Each `if-part` is evaluated in turn. When the `if-part` matches
+   the whole value, then the `then-part` is applied to check for
+   type errors. Otherwise,the `then-part` is ignored (meaning that
+   the whole expression reports no type errors).
    
-        (type! :X (pred/implies :a :b)) 
-        (type! :X (pred/implies (comp nil :a) (requires :b :c :d)))
+        ;; If `:a` is present, `:b` must also be present:
+        (type! :X (pred/implies :a :b))  
+
+        ;; If `:a` is absent (or nil), `:b` must be odd.
+        (type! :X (pred/implies {:a nil?} {:b [required-path odd?]}))
+
+        ;; A use of `all-of`:
         (type! :X (pred/implies :a (pred/all-of (includes :Point)
                                                 (requires :color))))
 
-   There's enough going on with `implies` that it has its own
-   page in the user documentation: http://bit.ly/1LeLTy9.
-
-   Warning: I am considering making this function more powerful. I
-   think the change won't be breaking, but it might be.
+   Warning: this \"predicate\" cannot be used outside of a structural-typing
+   functions like `type!`, `named`, and `built-like`.
 "
-  {:arglists '([if-pred then-part if-pred then-part  ...])}
+  {:arglists '([if-part then-part if-part then-part  ...])}
   [& args]
 
   (-> (fn [type-map]
-        (let [make-antecedent pred:exception->false
-              make-consequent #(-> %
-                                   force-all-of
-                                   :condensed-type-descriptions
-                                   (lifting/lift-type type-map))
-              adjusted-pairs (->> args
-                                  (alternately make-antecedent make-consequent)
-                            (partition 2))]
-          (implies:mkfn:from-adjusted adjusted-pairs)))
+        (let [lift #(-> %
+                        force-all-of
+                        :condensed-type-descriptions
+                        (lifting/lift-type type-map))]
+          (implies:mkfn:from-adjusted (partition 2 (map lift args)))))
       includes/as-type-expander))

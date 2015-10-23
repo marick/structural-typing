@@ -2,16 +2,14 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.0-beta3]
+## [in progress]
+
+- ADD: antecedent arguments to `implies` can be condensed type descriptions, not just predicates.
+
+## [1.0-beta*]
 
 - FIX: `structural-typing` stomped on Specter's handling of keywords.
-
-## [1.0-beta2]
-
 - swiss-arrows was only a test dependency
-
-## [1.0-beta1]
-
 - Just documentation and test improvements
 
 ## [0.14.0]
