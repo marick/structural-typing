@@ -107,16 +107,16 @@
    If this function is used, custom error-handlers need to handle both individual candidate
    failures and group-of-candidate failures.
 "
-  ([type-repo type-shorthand candidate]
+  ([type-repo type-shorthand candidates]
      (let [compiled-type (produce-type type-repo type-shorthand)
-           oopsies (mapcat #(all-oopsies compiled-type %) candidate)]
-       (respond-to-results type-repo candidate oopsies)))
-  ([type-shorthand candidate]
-     (all-built-like @global-type/repo type-shorthand candidate)))
+           oopsies (mapcat #(all-oopsies compiled-type %) candidates)]
+       (respond-to-results type-repo candidates oopsies)))
+  ([type-shorthand candidates]
+     (all-built-like @global-type/repo type-shorthand candidates)))
 
 (defn <>all-built-like
   "The same as [[all-built-like]] but intended to be used in `->`
-   pipelines. Consequently, the `candidate` argument comes first.
+   pipelines. Consequently, the `candidates` argument comes first.
    
          (-> emr-patients
              augment           (<>all-built-like [:Decidable Patient])
@@ -126,10 +126,10 @@
    
    (The `<>` is intended to remind you of
    [swiss arrows](https://github.com/rplevy/swiss-arrows).)"
-  ([candidate type-repo type-shorthand]
-     (all-built-like type-repo type-shorthand candidate))
-  ([candidate type-shorthand]
-     (<>all-built-like candidate @global-type/repo type-shorthand)))
+  ([candidates type-repo type-shorthand]
+     (all-built-like type-repo type-shorthand candidates))
+  ([candidates type-shorthand]
+     (<>all-built-like candidates @global-type/repo type-shorthand)))
   
 (depr/defn checked
   "Use [[built-like]] instead."
