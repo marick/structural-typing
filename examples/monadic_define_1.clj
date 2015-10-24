@@ -9,7 +9,9 @@
                                           <>built-like <>all-built-like
                                           built-like?]]))
 
-;; Example 1: not the greatest error reporting
+;; The following code is explained in the wiki at
+;; https://github.com/marick/structural-typing/wiki/Using-the-Either-monad
+;; See `monadic-use` for examples.
 
 (def type-repo
   (-> empty-type-repo

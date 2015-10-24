@@ -7,15 +7,51 @@
             [clojure.math.numeric-tower :as math])
   (:use midje.sweet))
 
+
+;;; Note: Some of the tests are a little awkward because Morph doesn't
+;;; consider `(left 5)` to be equal to `(left 5)`.
+
+(fact "successful values are wrapped in a `Right`"
+  (let [result (v1/built-like :Point {:x 1, :y 1})]
+    result => m/right?
+    (m/run-right result) => {:x 1, :y 1}))
+
+(fact "errors produce a `Left` containing the error messages"
+  (let [result (v1/built-like :Point {:x 1})]
+    result => m/left?
+    (m/run-left (v1/built-like :Point {:x 1})) => [":y must exist and be non-nil"]))
+
+(fact "`all-built-like` is used to reduce a collection of structures into a Left or Right"
+  (fact "success wraps the original in a Right"
+    (let [result (v1/all-built-like :Point [{:x 1, :y 1}, {:x 2 :y 2}])]
+      result => m/right?
+      (m/run-right result) => [{:x 1, :y 1}, {:x 2 :y 2}]))
+
+  (fact "failure wraps error messages in a Left. Note the indices"
+    (let [result (v1/all-built-like :Point [{:x 1} {:y 2} {:x 1 :y 2}
+                                            {:x 1 :y 2 :color "red"} {:x "1"}])]
+      result => m/left?
+      (m/run-left result) => (just "[0 :y] must exist and be non-nil"
+                                   "[1 :x] must exist and be non-nil"
+                                   "[4 :x] should be `integer?`; it is `\"1\"`"
+                                   "[4 :y] must exist and be non-nil"))))
+
+
+
 (fact "using an Either monad to separate out success from failure cases"
-  (let [result (map #(v1/built-like :Point %)
-                    [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}])]
-    (m/rights result) => [{:x 1 :y 2} {:x 1 :y 2 :color "red"}]
-    (flatten (m/lefts result)) => (just ":y must exist and be non-nil"
-                                        ":x must exist and be non-nil"
-                                        ":y must exist and be non-nil"
-                                        ":x should be `integer?`; it is `\"1\"`"
-                                        :in-any-order)))
+  (let [input [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}]
+        result (map #(v1/built-like :Point %) input)]
+    (fact "filtering out the Right elements of the sequence works nicely"
+      (m/rights result) => [{:x 1 :y 2} {:x 1 :y 2 :color "red"}])
+
+    (fact "It is awkward, though, that the collected Lefts don't have indexes"
+      (flatten (m/lefts result)) => (just ":y must exist and be non-nil"
+                                          ":x must exist and be non-nil"
+                                          ":x should be `integer?`; it is `\"1\"`"
+                                          ":y must exist and be non-nil"))))
+
+;;;; Version 2 helps with the awkwardness in the previous test by
+;;;; adding the structure itself to the error message.
 
 (fact "version 2 identifies the source candidate"
   (let [result (map #(v2/built-like :Point %)
@@ -24,9 +60,11 @@
     (nth (m/lefts result) 0) => [{:x 1} ":y must exist and be non-nil"]
     (nth (m/lefts result) 1) => [{:y 2} ":x must exist and be non-nil"]
     (nth (m/lefts result) 2) => (just {:x "1"}
-                                      ":y must exist and be non-nil"
                                       ":x should be `integer?`; it is `\"1\"`"
-                                      :in-any-order)))
+                                      ":y must exist and be non-nil")))
+
+
+;;; Just for yucks, an example of Morph's equivalent of Haskell's `do`:
 
 (def right m/right)
 (def wrong m/left)

@@ -9,7 +9,14 @@
                                           <>built-like <>all-built-like
                                           built-like?]]))
 
-(defn add-whole-value [oopsies]
+;;; See `monadic-use` contains motivation for this variant. 
+
+;;; The error handler is called with a (non-empty) collection of oopsies that
+;;; came from a particular structure (the "whole value").
+;;; This function converts the oopsies into "explanations" (which is typical). 
+;;; But it also adds the whole value to the front of the resulting collection.
+
+(defn explanations-with-whole-value [oopsies]
   (cons (:whole-value (first oopsies))
         (oopsie/explanations oopsies)))
 
@@ -20,8 +27,8 @@
                    (named :OriginTriangle
                           (includes :Point)
                           {:x (complement zero?) :y (complement zero?)})
-                   (replace-error-handler (comp m/left add-whole-value))
-                   (replace-success-handler m/right)))
+                   (replace-success-handler m/right)
+                   (replace-error-handler (comp m/left explanations-with-whole-value))))
 
 (def built-like (partial type/built-like type-repo))
 (def all-built-like (partial type/all-built-like type-repo))
