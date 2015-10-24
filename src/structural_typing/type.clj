@@ -103,14 +103,17 @@
                                         {:why \"so serious?\"}])
                 (map process-points))
 
-   Note: When the type-repo's error behavior is called, it is passed all the `candidates`. 
-   If this function is used, custom error-handlers need to handle both individual candidate
-   failures and group-of-candidate failures.
+   Error messages will include the index of the structure that failed.
 "
   ([type-repo type-shorthand candidates]
      (let [compiled-type (produce-type type-repo type-shorthand)
-           oopsies (mapcat #(all-oopsies compiled-type %) candidates)]
-       (respond-to-results type-repo candidates oopsies)))
+           oopsie-chunks (map-indexed (fn [index candidate]
+                                        (->> (all-oopsies compiled-type candidate)
+                                             (map (fn [oopsie]
+                                                    (assoc oopsie :path
+                                                           (into (vector index) (:path oopsie)))))))
+                                      candidates)]
+       (respond-to-results type-repo candidates (apply concat oopsie-chunks))))
   ([type-shorthand candidates]
      (all-built-like @global-type/repo type-shorthand candidates)))
 

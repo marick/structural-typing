@@ -57,7 +57,7 @@
       (type/all-built-like repo :X nil) => nil?
       (type/all-built-like repo :X []) => []
       
-      (check-all-for-explanations repo :X [{:x 1} {:b 2}]) => (just (err:required :x)))
+      (check-all-for-explanations repo :X [{:x 1} {:b 2}]) => (just (err:required [1 :x])))
 
     (fact "<>all-built-like"
       (type/<>all-built-like [{:x 1}] repo :X) => (type/all-built-like repo :X [{:x 1}])

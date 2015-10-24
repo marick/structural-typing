@@ -37,7 +37,7 @@
     (all-built-like :X nil) => nil?
     (all-built-like :X []) => []
     
-    (check-all-for-explanations :X [{:x 1} {:b 2}]) => (just (err:required :x)))
+    (check-all-for-explanations :X [{:x 1} {:b 2}]) => (just (err:required [1 :x])))
   
   (fact "<>all-built-like"
     (<>all-built-like [{:x 1}] :X) => (all-built-like :X [{:x 1}])
