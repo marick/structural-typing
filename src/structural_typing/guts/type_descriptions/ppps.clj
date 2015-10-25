@@ -53,7 +53,7 @@
 (extend-type clojure.lang.IPersistentVector
   DescriptionExpander
   (condensed-description->ppps [this]
-    (boom! "%s is old style description of required keys: use `requires` instead" this)))
+    (boom! "%s is the old-style description of required keys: use `requires` instead" this)))
 
 ;; For an unknown reason, if I extend AFn, the PersistentMap example above fails.
 ;; So multimethods are built-like separately.
@@ -67,7 +67,15 @@
   (condensed-description->ppps [this]
     (vector (->PPP [] [this]))))
 
+(extend-type java.lang.Object
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (boom! "Error in a condensed type description: `%s` is not allowed" this)))
 
+(extend-type nil
+  DescriptionExpander
+  (condensed-description->ppps [this]
+    (boom! "One of your condensed type descriptions evaluated to `nil`")))
 
 ;;; And the final result
 
