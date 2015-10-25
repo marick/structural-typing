@@ -16,7 +16,7 @@
                RANGE]
              [structural-typing.guts.type-descriptions
                requires-mentioned-paths]
-             [structural-typing.guts.type-descriptions.includes
+             [structural-typing.guts.type-descriptions.type-expander
                includes]
              [structural-typing.guts.type-descriptions.flatten
                through-each each-of paths-of]

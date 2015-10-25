@@ -4,7 +4,7 @@
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.predicate-defining :as pdef]
-            [structural-typing.guts.type-descriptions.includes :as includes]
+            [structural-typing.guts.type-descriptions.type-expander :as type-expander]
             [such.readable :as readable])
   (:use structural-typing.assist.special-words))
 
@@ -185,10 +185,9 @@
   {:arglists '([if-part then-part if-part then-part  ...])}
   [& args]
 
-  (-> (fn [type-map]
-        (let [lift #(-> %
-                        force-all-of
-                        :condensed-type-descriptions
-                        (lifting/lift-type type-map))]
-          (implies:mkfn:from-adjusted (partition 2 (map lift args)))))
-      includes/as-type-expander))
+  (type-expander/mkfn [type-map]
+    (let [lift #(-> %
+                    force-all-of
+                    :condensed-type-descriptions
+                    (lifting/lift-type type-map))]
+      (implies:mkfn:from-adjusted (partition 2 (map lift args))))))

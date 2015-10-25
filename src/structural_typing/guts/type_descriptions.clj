@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.includes :as includes]
+  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]
             [structural-typing.guts.type-descriptions.ppps :as ppp]
             [structural-typing.guts.compile.compile :as compile]
             [structural-typing.guts.preds.core :refer [required-path]]))
@@ -10,7 +10,7 @@
   (mapcat ppp/condensed-description->ppps condensed-type-descriptions))
 
 (defn canonicalize [condensed-type-descriptions type-map]
-  (-> (includes/substitute type-map condensed-type-descriptions)
+  (-> (type-expander/expand-throughout type-map condensed-type-descriptions)
       ->finished-ppps
       ppp/->type-description))
 
@@ -36,8 +36,7 @@
                   (requires-mentioned-paths (includes :Point)))
 "
   [& condensed-type-descriptions]
-  (-> (fn [type-map]
-        (let [canonical (canonicalize condensed-type-descriptions type-map)]
-          (update-each-value canonical conj required-path)))
-      includes/as-type-expander))
+  (type-expander/mkfn [type-map]
+    (let [canonical (canonicalize condensed-type-descriptions type-map)]
+      (update-each-value canonical conj required-path))))
 

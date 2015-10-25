@@ -1,6 +1,6 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.includes :as includes]
+  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]
             [com.rpl.specter :as specter]))
 
 (declare map->flatmap map->pairs)
@@ -74,9 +74,8 @@
   (let [handle-kvs #(->Fork (keys %))]
     (if (map? type-signifier-or-map)
       (handle-kvs (map->flatmap type-signifier-or-map))
-      (-> (fn [type-map]
-            (handle-kvs ( (includes/includes type-signifier-or-map) type-map)))
-          includes/as-type-expander))))
+      (type-expander/mkfn [type-map]
+        (handle-kvs ( (type-expander/includes type-signifier-or-map) type-map))))))
 
 ;; TODO: don't know yet if this is the right place to reject types that can't be
 ;; used in one of our paths.
