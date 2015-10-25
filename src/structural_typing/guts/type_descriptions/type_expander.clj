@@ -30,7 +30,7 @@
   [type-signifier]
   (when-not (keyword? type-signifier) (boom! "%s is supposed to be a keyword." type-signifier))
   (mkfn [type-map] 
-     (if-let [result (get type-map type-signifier)]
-       result
-       (boom! "%s does not name a type" type-signifier))))
+    (if-let [result (get type-map type-signifier)]
+      result
+      (boom! "%s does not name a type" type-signifier))))
 

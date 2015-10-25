@@ -7,12 +7,6 @@
         structural-typing.assist.testutil
         structural-typing.assist.special-words))
 
-
-(fact "utility for implies: all-of"
-  (:condensed-type-descriptions (subject/force-all-of odd?)) => [odd?]
-  (:condensed-type-descriptions (subject/force-all-of (subject/all-of odd? even?))) => [odd? even?])
-  
-
 (fact "implies is a three level predicate"
   ;; implies -> fn that replaces `includes` -> lifted fn
   (letfn [(run

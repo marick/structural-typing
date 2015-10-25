@@ -5,6 +5,7 @@
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.type-expander :as type-expander]
+            [structural-typing.guts.type-descriptions :as type-descriptions]
             [such.readable :as readable])
   (:use structural-typing.assist.special-words))
 
@@ -126,10 +127,6 @@
 ;;; More exotic predicate creation.
 
 
-(defrecord AllOf [condensed-type-descriptions])
-(alter-meta! #'->AllOf assoc :private true)
-(alter-meta! #'map->AllOf assoc :private true)
-
 (defn all-of
   "This is used with [[implies]] to group a collection of `condensed-type-descriptions`
    into one. 
@@ -137,11 +134,8 @@
         (all-of (requires :x :y) (includes :Point) {:color string?})
 "
   [& condensed-type-descriptions]
-  (->AllOf condensed-type-descriptions))
-(defn ^:no-doc force-all-of [x]
-  (if (instance? AllOf x)
-    x
-    (all-of x)))
+  (type-expander/mkfn [type-map]
+    (type-descriptions/canonicalize condensed-type-descriptions type-map)))
 
 (defn ^:no-doc implies:mkfn:from-adjusted [adjusted-pairs]
   (->> (fn [exval]
@@ -186,8 +180,5 @@
   [& args]
 
   (type-expander/mkfn [type-map]
-    (let [lift #(-> %
-                    force-all-of
-                    :condensed-type-descriptions
-                    (lifting/lift-type type-map))]
+    (let [lift #(lifting/lift-type (vector %) type-map)]
       (implies:mkfn:from-adjusted (partition 2 (map lift args))))))

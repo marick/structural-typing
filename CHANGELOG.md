@@ -6,6 +6,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 - ADD: antecedent arguments to `implies` can be condensed type descriptions, not just predicates.
 - `all-built-like` and `<>all-built-like` add indexes to their error messages.
+- Replaced default protocol error messages with clearer ones.
+
 
 ## [1.0-beta*]
 
