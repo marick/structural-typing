@@ -4,16 +4,13 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
 
+## [1.0-RC1]
+
 - ADD: antecedent arguments to `implies` can be condensed type descriptions, not just predicates.
 - `all-built-like` and `<>all-built-like` add indexes to their error messages.
 - Replaced default protocol error messages with clearer ones.
-
-
-## [1.0-beta*]
-
 - FIX: `structural-typing` stomped on Specter's handling of keywords.
 - swiss-arrows was only a test dependency
-- Just documentation and test improvements
 
 ## [0.14.0]
 
