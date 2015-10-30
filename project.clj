@@ -22,7 +22,7 @@
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}
 
-  :profiles {:dev {:dependencies [[midje "1.8-alpha1" :exclusions [org.clojure/clojure]]
+  :profiles {:dev {:dependencies [[midje "1.8.1" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
                                   [com.taoensso/timbre "4.1.4" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
