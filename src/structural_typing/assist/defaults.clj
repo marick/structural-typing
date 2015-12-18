@@ -38,8 +38,8 @@
    
    To make all type mismatches throw failures, do this:
    
-          (global-type/on-error! type/throwing-failure-handler) ; for the global type repo
-          (type/replace-error-handler type-repo type/throwing-failure-handler) ; local repo
+          (global-type/on-error! type/throwing-error-handler) ; for the global type repo
+          (type/replace-error-handler type-repo type/throwing-error-handler) ; local repo
 "
   [oopsies]
   (throw (new Exception (str-join "\n" (oopsie/explanations oopsies)))))
