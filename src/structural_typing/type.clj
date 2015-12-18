@@ -6,7 +6,9 @@
             [structural-typing.guts.compile.compile :as compile]
             [structural-typing.global-type :as global-type]
             [such.readable :as readable]
-            [defprecated.core :as depr]))
+            [defprecated.core :as depr])
+  (:require structural-typing.assist.special-words
+            structural-typing.assist.defaults))
 
 (import-all-vars structural-typing.assist.special-words)
 

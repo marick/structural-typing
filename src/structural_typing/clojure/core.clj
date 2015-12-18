@@ -1,7 +1,19 @@
 (ns ^:no-doc structural-typing.clojure.core
   "The general purpose functions that, for purposes of this application, I wish
    had been included in clojure.core."
-  (:require such.immigration))
+  (:require such.immigration
+            such.maps
+            such.wrongness
+            such.types
+            such.sequences
+            such.immigration
+            clojure.pprint
+            swiss.arrows
+            such.shorthand
+            such.function-makers
+            such.imperfection
+            clojure.set
+            clojure.string))
 
 (such.immigration/import-all-vars such.immigration)
 
@@ -10,8 +22,6 @@
               update-each-value]
              [such.wrongness
               boom!]
-             [such.types
-              extended-fn?]
              [such.sequences
                bifurcate]
              [such.immigration
