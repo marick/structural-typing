@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7+  
-For lein: [marick/structural-typing "1.0.0"]    
+For lein: [marick/structural-typing "1.0.1"]    
 License: [MIT](http://opensource.org/licenses/MIT)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
@@ -318,3 +318,4 @@ gave me a function I couldn't write correctly myself. [Defprecated](https://gith
 
 * Alessandro Andrioni
 * Brian Marick
+* Devin Walters

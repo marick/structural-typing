@@ -4,6 +4,11 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
 
+## [1.0.1]
+- CHANGE: Use newest version of `suchwow` and `specter`.
+- BUGFIX: Should now work when in an uberjar.
+- Doc tweak via @devn
+
 ## [1.0.0]
 
 - ADD: antecedent arguments to `implies` can be condensed type descriptions, not just predicates.
