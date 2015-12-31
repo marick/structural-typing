@@ -60,6 +60,10 @@ is sometimes helpful for such a structure, but often it's not:
 
 This library is built to match the flow style of programming.
 
+## Similar libraries
+
+[Schema](https://github.com/Prismatic/schema) and [Truss](https://github.com/ptaoussanis/truss) *At some point, there will be a link to a compare-and-contrast page.*
+
 ## A whirlwind tour
 
 Type descriptions are stored in one or more [type-repos](https://github.com/marick/structural-typing/wiki/Glossary#type-repo). For these
