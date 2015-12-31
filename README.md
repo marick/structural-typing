@@ -62,7 +62,7 @@ This library is built to match the flow style of programming.
 
 ## Similar libraries
 
-[Schema](https://github.com/Prismatic/schema) and [Truss](https://github.com/ptaoussanis/truss) *At some point, there will be a link to a compare-and-contrast page.*
+[Schema](https://github.com/Prismatic/schema) and [Truss](https://github.com/ptaoussanis/truss). *At some point, there will be a link to a compare-and-contrast page.*
 
 ## A whirlwind tour
 
