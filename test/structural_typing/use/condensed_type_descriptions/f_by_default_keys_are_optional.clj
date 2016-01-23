@@ -1,4 +1,4 @@
-(ns structural-typing.use.condensed-type-descriptions.f-predicates-are-optional
+(ns structural-typing.use.condensed-type-descriptions.f-by-default-keys-are-optional
   (:require [structural-typing.preds :as pred])
   (:use midje.sweet
         structural-typing.type
