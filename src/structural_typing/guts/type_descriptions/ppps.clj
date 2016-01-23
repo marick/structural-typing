@@ -3,6 +3,7 @@
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
+            [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.compile.to-specter-path :as to-specter-path]
             [structural-typing.guts.preds.core :refer [required-path]]))
@@ -111,6 +112,16 @@
             kvs
             new-paths)))
 
+
+(defn coerce-plain-values-into-predicates [kvs]
+  (update-each-value kvs
+                     #(->> %
+                           (map (fn [maybe-pred]
+                                  (if (extended-fn? maybe-pred)
+                                    maybe-pred
+                                    (pdef/exactly maybe-pred))))
+                           set)))
+
 (defn- mapset->map-with-ordered-preds [kvs]
   (update-each-value kvs
                      #(if (contains? % required-path)
@@ -119,5 +130,8 @@
                         (vec %))))
 
 (defn ->type-description [ppps]
-  (-> ppps ppps->mapset add-implied-required-paths mapset->map-with-ordered-preds))
-
+  (-> ppps
+      ppps->mapset
+      add-implied-required-paths
+      coerce-plain-values-into-predicates
+      mapset->map-with-ordered-preds))

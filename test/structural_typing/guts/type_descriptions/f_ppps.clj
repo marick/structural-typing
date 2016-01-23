@@ -62,22 +62,22 @@
 
 (fact ->type-description
   (fact "it produces a map from ppps"
-    (let [result (subject/->type-description [ (subject/->PPP [:x] [1 2])
-                                               (subject/->PPP [:y] [3])])]
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [even? odd?])
+                                               (subject/->PPP [:y] [pos?])])]
       (get result [:x]) => vector?
-      (get result [:x]) => (just 1 2 :in-any-order)
-      (get result [:y]) => [3]))
+      (get result [:x]) => (just [(exactly even?) (exactly odd?)] :in-any-order)
+      (get result [:y]) => [pos?]))
   
   (fact "duplicate paths are combined"
-    (let [result (subject/->type-description [ (subject/->PPP [:x] [1])
-                                               (subject/->PPP [:x] [2])])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
+                                               (subject/->PPP [:x] [odd?])])]
+      (get result [:x]) => (just [(exactly even?) (exactly odd?)] :in-any-order)))
   
   (fact "duplicate predicates appear only once"
-    (let [result (subject/->type-description [ (subject/->PPP [:x] [1])
-                                               (subject/->PPP [:x] [2])
-                                               (subject/->PPP [:x] [2])])]
-      (get result [:x]) => (just 1 2 :in-any-order)))
+    (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
+                                               (subject/->PPP [:x] [odd?])
+                                               (subject/->PPP [:x] [odd?])])]
+      (get result [:x]) => (just (exactly even?) (exactly odd?) :in-any-order)))
   
   (fact "the predicate list is a vector with required-path first (if present)"
     (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
@@ -142,3 +142,25 @@
       => {[:a] [required-path even?]
           [:a ALL :b] [required-path]})))
 
+(fact "non-function values within a canonicalized map are coerced to `exactly` functions"
+  (let [input {[:a :b] #{5}}
+        {expreds [:a :b]} (subject/coerce-plain-values-into-predicates input)]
+    ( (first expreds) 5) => true
+    ( (first expreds) 6) => false)
+
+  (fact "here are some of the things that get coerced to functions"
+    (let [input {[:strings] ["a"]
+                  [:keywords] [:k]
+                  [:vectors] [ [1 2] ]
+                  ;; Note that maps could, but there's no way to get them to the
+                  ;; function.
+                  }
+          result (subject/coerce-plain-values-into-predicates input)]
+      ( (-> result (get [:strings]) first) "a") => true
+      ( (-> result (get [:strings]) first) "NOT A") => false
+
+      ( (-> result (get [:keywords]) first) :k) => true
+      ( (-> result (get [:keywords]) first) :not-k) => false
+
+      ( (-> result (get [:vectors]) first) [1 2]) => true
+      ( (-> result (get [:keywords]) first) [1 3]) => false)))
