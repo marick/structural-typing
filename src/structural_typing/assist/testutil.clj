@@ -92,8 +92,12 @@
 (defn err:shouldbe
   "Produces the same error messsage produced when a predicate not altered by [[explain-with]]
    fails."
-  [path should-be is]
-  (format "%s should be `%s`; it is `%s`" path should-be is))
+  ([path should-be is]
+     (err:shouldbe path should-be is false))
+
+  ([path should-be is omit-quotes]
+     (let [should-be (if omit-quotes should-be (str "`" should-be "`"))]
+       (format "%s should be %s; it is `%s`" path should-be is))))
 
 (defn err:notpath
   "Produces the same error messsage produced when the whole value is not the same \"shape\" as the path requires."
