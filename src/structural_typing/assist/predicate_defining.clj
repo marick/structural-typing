@@ -2,8 +2,8 @@
   "Help for defining custom predicates"
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.oopsie :as oopsie]
-            [such.readable :as readable])
-  (:use structural-typing.assist.special-words))
+            [structural-typing.guts.preds.annotating :as annotating]
+            [such.readable :as readable]))
 
 (defn should-be [format-string expected]
   #(format format-string,
@@ -13,5 +13,11 @@
 
 (defn compose-predicate [name pred fmt-fn]
   (->> pred
-       (show-as name)
-       (explain-with fmt-fn)))
+       (annotating/show-as name)
+       (annotating/explain-with fmt-fn)))
+
+(defn exactly [expected]
+  (compose-predicate
+   (format "(exactly %s)" (readable/value-string expected))
+   (partial = expected)
+   (should-be "%s should be exactly `%s`; it is `%s`" expected)))

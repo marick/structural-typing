@@ -29,10 +29,7 @@
          (type! :V5 {:version (exactly 5)})
 "
   [expected]
-  (pdef/compose-predicate
-   (format "(exactly %s)" (readable/value-string expected))
-   (partial = expected)
-   (pdef/should-be "%s should be exactly `%s`; it is `%s`" expected)))
+  (pdef/exactly expected))
 
 
 (defn- key-differences [expected-keycoll actual-value]
