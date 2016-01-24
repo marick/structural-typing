@@ -46,5 +46,6 @@
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
-  :deploy-repositories [["releases" :clojars]]
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
 )
