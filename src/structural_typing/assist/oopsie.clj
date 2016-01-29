@@ -41,7 +41,9 @@ nil)
   "Convert an [[oopsie]] into a string explaining the error,
    using the `:explainer` within it."
   [oopsie]
-  ((:explainer oopsie) oopsie))
+  (if-let [explainer (:explainer oopsie)]
+    (explainer oopsie)
+    (boom! "Oopsie `%s` has no explainer function" oopsie)))
 
 (defn explanations 
   "Convert a collection of [[oopsies]] into a lazy sequence of explanatory strings.
