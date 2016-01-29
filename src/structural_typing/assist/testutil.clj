@@ -103,3 +103,7 @@
   "Produces the same error messsage produced when the whole value is not the same \"shape\" as the path requires."
   [path whole-value]
   (format "%s is not a path into `%s`" path whole-value))
+
+(defn err:only
+  [bad-arity-collection]
+  (format "`%s` is supposed to have exactly one element" bad-arity-collection))

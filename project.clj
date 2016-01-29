@@ -17,6 +17,7 @@
                  [marick/suchwow "4.4.3"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
+                 [slingshot "0.12.2"]
                  [com.rpl/specter "0.9.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)

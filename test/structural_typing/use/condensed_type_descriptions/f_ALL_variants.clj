@@ -57,4 +57,25 @@
     (type! :X {[:a 2] {:b even?}})
     (built-like :X {:a [0 1 {:b 2}]}) => {:a [0 1 {:b 2}]}
     (check-for-explanations :X {:a [0 1 {:b 1}]}) => (just (err:shouldbe [:a 2 :b] "even?" 1))))
+
+
+(fact "ONLY"
+  (fact "describing the whole path"
+    (type! :X {[ONLY] even?})
+    (built-like :X [2]) => [2]
+    (check-for-explanations :X [1]) => (just (err:shouldbe [ONLY] "even?" 1))
+    (check-for-explanations :X []) => (just (err:only []))
+    (check-for-explanations :X [1 2]) => (just (err:only [1 2]))
+    (check-for-explanations :X 3) => (just (err:notpath [ONLY] 3)))
+
+  (fact "as part of a path"
+    (type! :X {[:a ONLY] {:b even?}})
+    (built-like :X {:a [{:b 2}]}) => {:a [{:b 2}]}
+    (check-for-explanations :X {:a [{:b 1}]}) => (just (err:shouldbe [:a ONLY :b] "even?" 1))
+    (check-for-explanations :X {:a [{:b 1}]}) => (just (err:shouldbe [:a ONLY :b] "even?" 1))
+    (check-for-explanations :X {:a [3 {:b 1}]}) => (just (err:only [3 {:b 1}]))
+    (check-for-explanations :X {:a []}) => (just (err:only []))
+    (check-for-explanations :X {:a 3}) => (just (err:notpath [:a ONLY :b] {:a 3}))))
+
+
 (start-over!)

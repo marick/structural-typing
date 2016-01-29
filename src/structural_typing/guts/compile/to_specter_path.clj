@@ -8,12 +8,14 @@
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
+            [structural-typing.guts.preds.wrap :as wrap]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.preds.wrap :as wrap]))
+            [slingshot.slingshot :refer [throw+ try+]]))
 
 
-;; NOTE: I don't know why Specter requires `extend-type/extend-protocol` instead of
-;; defining the protocol functions in the deftype. But it does.
+;; NOTE: Specter requires `extend-type/extend-protocol` instead of
+;; defining the protocol functions in the deftype. It's an
+;; implementation detail.
 
 (deftype KeywordVariantType [keyword])
 
@@ -46,7 +48,7 @@
           (boom! "%s is not sequential" structure)
 
           :else
-          (try
+          (try+
             (next-fn (nth structure (.-value this)))
             (catch IndexOutOfBoundsException ex
               (next-fn nil)))))
@@ -58,7 +60,7 @@
 
 
 
-                                 ;;; ALL, RANGE
+                                 ;;; ALL, RANGE, etc.
 
 (defn pursue-multiple-paths [subcollection-fn collection next-fn]
   (cond (nil? collection)
@@ -69,6 +71,7 @@
 
         :else
         (into [] (r/mapcat next-fn (subcollection-fn collection)))))
+
 
 ;;; ALL
 (deftype AllVariantType [])
@@ -82,6 +85,8 @@
 
 (defmethod clojure.core/print-method AllVariantType [o, ^java.io.Writer w] (.write w "ALL"))
 (readable/instead-of ALL 'ALL)
+
+
 
 ;;; RANGE
 (defn mkfn:range-element-selector [{:keys [inclusive-start exclusive-end]}]
@@ -125,12 +130,35 @@
 
 
 
+;;; ONLY
+(deftype OnlyVariantType [])
+
+(extend-type OnlyVariantType
+  sp/StructurePath
+  (select* [this structure next-fn]
+    (cond (not (coll? structure))
+          (boom! "%s is not a collection" structure)
+
+          (not= 1 (count structure))
+          (throw+ {:type :only, :interior-node structure})
+
+          :else
+          (next-fn (first structure))))
+
+  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+
+(def ONLY (->OnlyVariantType))
+
+(defmethod clojure.core/print-method OnlyVariantType [o, ^java.io.Writer w] (.write w "ONLY"))
+(readable/instead-of ONLY 'ONLY)
+
+
 
 ;;;;; 
 
 
 (defn will-match-many? [elt]
-  (or (= elt ALL)
+  (or (#{ALL} elt)
       (instance? RangeVariantType elt)))
 
 (defn replace-with-indices [path indices]
@@ -204,16 +232,29 @@
          (exval/->ExVal :no-leaf
                         whole-value
                         original-path)))
-  
+
+
+(defn- only-oopsie [original-path whole-value interior-node]
+  (let [pred (expred/->ExPred 'message
+                              "miscellaneous message detected"
+                              (constantly (format "`%s` is supposed to have exactly one element" interior-node)))
+        val (exval/->ExVal :no-leaf
+                           whole-value
+                           original-path)]
+    (merge pred val)))
+
 
 (defn mkfn:whole-value->oopsies [original-path lifted-preds]
   (let [[compiled-path path-type] (compile original-path)
         [exval-maker path-postprocessor] (processors path-type)]
     (fn [whole-value]
-      (try
+      (try+
         (let [specter-results (specter/compiled-select compiled-path whole-value)]
           (for [result specter-results
                 raw-oopsie (lifted-preds (exval-maker result original-path whole-value))]
             (path-postprocessor result raw-oopsie)))
+        (catch [:type :only] {:keys [interior-node]}
+          (vector (only-oopsie original-path whole-value interior-node)))
+
         (catch Exception ex
           (vector (impossible-path-oopsie original-path whole-value)))))))
