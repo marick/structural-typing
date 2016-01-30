@@ -84,6 +84,10 @@
       ["Actual return result was not `nil`"])))
 
 
+(import-vars [structural-typing.guts.explanations
+               err:only err:notpath
+              ])
+
 (defn err:required
   "Produces the same error messsage produced when [[required-path]] fails."
   [path]
@@ -98,12 +102,3 @@
   ([path should-be is omit-quotes]
      (let [should-be (if omit-quotes should-be (str "`" should-be "`"))]
        (format "%s should be %s; it is `%s`" path should-be is))))
-
-(defn err:notpath
-  "Produces the same error messsage produced when the whole value is not the same \"shape\" as the path requires."
-  [path whole-value]
-  (format "%s is not a path into `%s`" path whole-value))
-
-(defn err:only
-  [bad-arity-collection]
-  (format "`%s` is supposed to have exactly one element" bad-arity-collection))

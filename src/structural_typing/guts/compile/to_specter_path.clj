@@ -6,6 +6,7 @@
             [clojure.core.reducers :as r]
             [such.readable :as readable]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
+            [structural-typing.guts.explanations :as explain]
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.preds.wrap :as wrap]
@@ -223,27 +224,6 @@
     :indexed-path [indexed-path-exval-maker indexed-path-postprocessor]
     (boom! "%s is an invalid path-type (neither constant nor indexed)" path-type)))
 
-(defn- impossible-path-oopsie [original-path whole-value]
-  (merge (expred/->ExPred 'impossible-path
-                          "check for impossible path"
-                          (constantly (format "%s is not a path into `%s`"
-                                              (oopsie/friendly-path {:path original-path})
-                                              (pr-str whole-value))))
-         (exval/->ExVal :no-leaf
-                        whole-value
-                        original-path)))
-
-
-(defn- only-oopsie [original-path whole-value interior-node]
-  (let [pred (expred/->ExPred 'message
-                              "miscellaneous message detected"
-                              (constantly (format "`%s` is supposed to have exactly one element" interior-node)))
-        val (exval/->ExVal :no-leaf
-                           whole-value
-                           original-path)]
-    (merge pred val)))
-
-
 (defn mkfn:whole-value->oopsies [original-path lifted-preds]
   (let [[compiled-path path-type] (compile original-path)
         [exval-maker path-postprocessor] (processors path-type)]
@@ -254,7 +234,7 @@
                 raw-oopsie (lifted-preds (exval-maker result original-path whole-value))]
             (path-postprocessor result raw-oopsie)))
         (catch [:type :only] {:keys [interior-node]}
-          (vector (only-oopsie original-path whole-value interior-node)))
+          (explain/as-oopsies:only original-path whole-value interior-node))
 
         (catch Exception ex
-          (vector (impossible-path-oopsie original-path whole-value)))))))
+          (explain/as-oopsies:notpath original-path whole-value))))))
