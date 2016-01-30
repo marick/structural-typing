@@ -29,7 +29,18 @@
              [:points ALL :y] integer?})
   (description :X) => (description :Y))
   
+(fact "because maps have semantics, you have to wrap them to use them as values to compare"
+  (type! :Unwrapped {:unwrapped {:x 1}})
+  (type! :Wrapped {:wrapped (pred/exactly {:x 1})})
 
+  (fact "The success case is no different"
+    (built-like :Unwrapped {:unwrapped {:x 1}}) => {:unwrapped {:x 1}}
+    (built-like :Wrapped {:wrapped {:x 1}}) => {:wrapped {:x 1}})
 
+  (fact "but the failure case produces a different error message"
+    (check-for-explanations :Unwrapped {:unwrapped {:x 2}})
+    => (just (err:shouldbe [:unwrapped :x] "exactly `1`" 2 :omit-quotes))
+    (check-for-explanations :Wrapped {:wrapped {:x 2}})
+    => (just (err:shouldbe :wrapped "exactly `{:x 1}`" "{:x 2}" :omit-quotes))))
 
 (start-over!)
