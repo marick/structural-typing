@@ -112,15 +112,15 @@
             kvs
             new-paths)))
 
+(defn force-predicate [value]
+  (branch-on value
+     extended-fn?     value
+     regex?           (pdef/regex-match value)
+     :else            (pdef/exactly value)))
 
 (defn coerce-plain-values-into-predicates [kvs]
   (update-each-value kvs
-                     #(->> %
-                           (map (fn [maybe-pred]
-                                  (if (extended-fn? maybe-pred)
-                                    maybe-pred
-                                    (pdef/exactly maybe-pred))))
-                           set)))
+                     #(set (map force-predicate %))))
 
 (defn- mapset->map-with-ordered-preds [kvs]
   (update-each-value kvs

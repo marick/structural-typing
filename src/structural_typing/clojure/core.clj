@@ -24,6 +24,8 @@
               boom!]
              [such.sequences
                bifurcate]
+             [such.control-flow
+               branch-on]
              [such.immigration
               import-vars]
              [clojure.pprint
