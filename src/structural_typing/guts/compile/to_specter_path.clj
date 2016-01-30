@@ -36,7 +36,26 @@
 (defmethod clojure.core/print-method KeywordVariantType [o, ^java.io.Writer w]
   (.write w (str (.-keyword o))))
 
+;;
+(deftype StringVariantType [string])
 
+(extend-type StringVariantType
+  sp/StructurePath
+  (select* [this structure next-fn]
+    (cond (map? structure)
+          (next-fn (get structure (.-string this)))
+
+          (nil? structure)
+          (next-fn nil)
+
+          :else
+          (boom! "%s is not a map" structure)))
+  (transform* [this structure next-fn] (boom! "structural-typing does not use transform")))
+
+(defmethod clojure.core/print-method StringVariantType [o, ^java.io.Writer w]
+  (.write w (pr-str (.-string o))))
+
+;;
 (deftype IntegerVariantType [value])
   
 (extend-type IntegerVariantType
@@ -201,6 +220,11 @@
            (keyword? elt)
            (recur remainder
                   (conj specter-path (->KeywordVariantType elt))
+                  path-type)
+
+           (string? elt)
+           (recur remainder
+                  (conj specter-path (->StringVariantType elt))
                   path-type)
 
            (integer? elt)

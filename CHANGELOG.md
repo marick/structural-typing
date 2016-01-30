@@ -3,6 +3,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
+- ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: `ONLY` is like `ALL`, but it insists that its collection have exactly one element.
 - ADD: A non-function `x` used in predicate position behaves as `(exactly x)`. [intermediate step]
 - CHANGE: Some improvements to error handling
