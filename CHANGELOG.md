@@ -3,6 +3,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
+- ADD: A record on the right-hand side is treated as an exact value, rather than a
+  map to traverse to built up paths.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: `ONLY` is like `ALL`, but it insists that its collection have exactly one element.
 - ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`.
