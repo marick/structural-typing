@@ -48,28 +48,3 @@
       => (just ":x has missing keys: #{:b}; it is {:a 1}"))))
   
 
-(fact matches
-  (future-fact "finish")
-
-  (fact "checks"
-    (map (subject/matches "str") ["str" "FAIL"]) => [true false]
-
-    ;; regexp
-    ( (subject/matches #"str*") "strrr") => true
-    ( (subject/matches #"str") "strrXXX") => true
-    ( (subject/matches #"str") "stR") => false
-    (fact "regex-to-regex comparisons compare string representations"
-      ( (subject/matches #"str+") #"str+") => true
-      ( (subject/matches #"str+") #"strr*") => false)
-    )
-
-  (fact "names"
-    (readable/fn-string (subject/matches "foo")) => "(matches \"foo\")"
-    )
-
-  (fact "explanations"
-    (explain-lifted (subject/matches "foo") (exval 8 [:x])) => (just ":x should match `\"foo\"`; it is `8`")
-    (explain-lifted (subject/matches #"foo") (exval "fod" [:x])) => (just ":x should match `#\"foo\"`; it is `\"fod\"`")
-  )
-  )
-

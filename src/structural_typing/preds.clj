@@ -104,23 +104,6 @@
                                  keys
                                  (:leaf-value oopsie))))))))
 
-(defn ^:no-doc matches
-  "Doc"
-  [expected]
-  (pdef/compose-predicate
-   (format "(matches %s)" (readable/value-string expected))
-   (fn [actual]
-     (cond (every? regex? [actual expected])
-           (= (str actual) (str expected))
-           
-           (regex? expected)
-           (boolean (re-find expected actual))
-
-           :else
-           (= actual expected)))
-   (pdef/should-be "%s should match `%s`; it is `%s`" expected)))
-
-
 ;;; More exotic predicate creation.
 
 
