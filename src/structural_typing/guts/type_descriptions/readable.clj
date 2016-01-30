@@ -7,7 +7,7 @@
   (if (and (= 1 (count components))
            (keyword? (first components)))
     (str (first components))
-    (cl-format nil "[~{~A~^ ~}]" components)))
+    (cl-format nil "[~{~S~^ ~}]" components)))
 
 (defn friendly [path]
   (->> path
