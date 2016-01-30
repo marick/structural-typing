@@ -16,11 +16,13 @@
        (annotating/show-as name)
        (annotating/explain-with fmt-fn)))
 
+(def exactly-format "%s should be exactly `%s`; it is `%s`")
+
 (defn exactly [expected]
   (compose-predicate
    (format "(exactly %s)" (readable/value-string expected))
    (partial = expected)
-   (should-be "%s should be exactly `%s`; it is `%s`" expected)))
+   (should-be exactly-format expected)))
 
 (defn regex-match [expected]
   (compose-predicate
@@ -33,9 +35,40 @@
    (fn [oopsie]
      (let [actual (:leaf-value oopsie)
            readable-actual (readable/value-string actual)]
+
        (format "%s should match %s; it is %s"
                (oopsie/friendly-path oopsie)
                (readable/value-string expected)
                (if (or (string? actual) (regex? actual))
                  readable-actual
                  (str "`" readable-actual "`")))))))
+
+(defn pretty-record-class [r]
+  (-> (type r)
+      pr-str
+      (str-split #"\.")
+      last))
+
+(defn pretty-record-instance [r]
+  (str "#" (pretty-record-class r) (pr-str (into {} r))))
+
+(defn record-match [expected]
+  (compose-predicate
+   (format "(record-match %s)" (pretty-record-instance expected))
+   (partial = expected)
+   (fn [{actual :leaf-value :as oopsie}]
+     (let [path (oopsie/friendly-path oopsie)]
+       (cond (classic-map? actual)
+             (format "%s should be a record; it is plain map `%s`" path actual)
+
+             (not= (type expected) (type actual))
+             (format "%s should be a `%s` record; it is a `%s`"
+                     path
+                     (pretty-record-class expected)
+                     (pretty-record-class actual))
+
+             :else
+             (format exactly-format
+                     path
+                     (pretty-record-instance expected)
+                     (pretty-record-instance actual)))))))

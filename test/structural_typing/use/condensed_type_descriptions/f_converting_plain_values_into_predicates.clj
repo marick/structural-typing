@@ -28,11 +28,28 @@
     (check-for-explanations {:k #"a+b"} {:k 5}) => (just ":k should match #\"a+b\"; it is `5`")))
 
 
-(future-fact "comparing key-value objects"
-  (fact "a leaf map compared to a predicate map works by equality")
-  (fact "a leaf record compared to a predicate map ignores the record type")
-  (fact "a leaf map compared to a predicate record will always fail because of type mismatch")
-  (fact "a leaf record compared to a predicate record uses ordinary equality"))
+;; Note that maps have to be surrounded by either (exactly {}) or (key-values {}))
+(defrecord R [r])
+(defrecord R2 [r])
+(fact "comparing Record objects"
+  (fact "a leaf map compared to a predicate record will always fail because of type mismatch"
+    (check-for-explanations {:k (->R 5)} {:k {:r 5}})
+    => (just ":k should be a record; it is plain map `{:r 5}`")
+
+    ;; Also true of a record inside a pred-list)
+    (check-for-explanations {:k [integer? (->R 5)]} {:k {:r 5}})
+    => (just ":k should be `integer?`; it is `{:r 5}`"
+             ":k should be a record; it is plain map `{:r 5}`"))
+
+  (fact "a leaf record compared to a same-typed predicate record uses ordinary equality"
+    (built-like {:k (->R 5)} {:k (R. 5)}) => {:k (R. 5)}
+    (check-for-explanations {:k (->R 5)} {:k (->R 50)})
+    => (just ":k should be exactly `#R{:r 5}`; it is `#R{:r 50}`"))
+
+  (fact "different types are reported differently"
+    (check-for-explanations {:k (->R 5)} {:k (->R2 5)})
+    => (just ":k should be a `R` record; it is a `R2`")))
+
 
 (future-fact "BigDecimals do not fail when compared to integers and the like")
 

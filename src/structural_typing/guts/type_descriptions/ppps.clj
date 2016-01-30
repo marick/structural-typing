@@ -113,10 +113,12 @@
             new-paths)))
 
 (defn force-predicate [value]
-  (branch-on value
-     extended-fn?     value
-     regex?           (pdef/regex-match value)
-     :else            (pdef/exactly value)))
+  (let [converter (branch-on value
+                             extended-fn?   identity
+                             regex?         pdef/regex-match
+                             record?        pdef/record-match
+                             :else          pdef/exactly)]
+    (converter value)))
 
 (defn coerce-plain-values-into-predicates [kvs]
   (update-each-value kvs

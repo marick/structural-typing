@@ -72,7 +72,7 @@
 "
   [type-signifier-or-map]
   (let [handle-kvs #(->Fork (keys %))]
-    (if (map? type-signifier-or-map)
+    (if (classic-map? type-signifier-or-map)
       (handle-kvs (map->flatmap type-signifier-or-map))
       (type-expander/mkfn [type-map]
         (handle-kvs ( (type-expander/includes type-signifier-or-map) type-map))))))
@@ -96,7 +96,7 @@
 (defn- step1:expand-map-values [kvs parent-path]
   (reduce (fn [so-far [path v]]
             (let [extended-path (adding-on parent-path path)]
-              (into so-far (if (map? v)
+              (into so-far (if (classic-map? v)
                              (step1:expand-map-values v extended-path)
                              [(vector extended-path (force-vector v))]))))
           []
@@ -112,7 +112,7 @@
 
 (defn- step3:expand-maps-in-pred-list [pairs]
   (reduce (fn [so-far [path preds]]
-            (let [[maps plain] (bifurcate map? preds)
+            (let [[maps plain] (bifurcate classic-map? preds)
                   one-plain-pair (if (empty? plain) [] [(vector path plain)])
                   n-map-pairs (mapcat #(map->pairs % path) maps)]
               (-> so-far

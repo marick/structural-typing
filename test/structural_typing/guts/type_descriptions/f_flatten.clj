@@ -96,3 +96,7 @@
     (subject/map->flatmap {:a [{:b 1}]}) => {[:a :b] [1]}
     (subject/map->flatmap {:a [1 {:b {:c 2}}]}) => {[:a] [1]
                                                     [:a :b :c] [2]}))
+
+
+
+(fact "need a test that fails if paths-of uses `map?` instead of `classic-map?`")
