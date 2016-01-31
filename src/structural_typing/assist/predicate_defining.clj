@@ -18,7 +18,17 @@
 
 (def exactly-format "%s should be exactly `%s`; it is `%s`")
 
-(defn exactly [expected]
+(defn exactly
+  "A predicate that succeeds exactly when its argument is `=` to expected.
+
+        (built-like? even? even?) ;=> false
+        (built-like? (exactly even?) even?) ;=> true
+
+  Note: except for vectors, maps, and functions, `exactly` is added implicitly:
+
+        (built-like {[ALL :a] 1} [{:a 1} {:a 2}]) ;=> [1 :a] should be exactly `1`; it is `2`
+" 
+  [expected]
   (compose-predicate
    (format "(exactly %s)" (readable/value-string expected))
    (partial = expected)
