@@ -42,7 +42,7 @@
           :else [:ok])))
 
 (defn at-most-keys
-  "Produce a predicate that's false when applied to a value with keys other than
+  "Produce a predicate that's false when applied to a map or record with keys other than
    those given in `coll`. Note: the value may be *missing* keys in `coll`. See [[exactly-keys]].
    
          user=> (type! :X {:v1 string?
@@ -56,7 +56,10 @@
          Value has extra keys: #{:actual-is-too-big}; it is {:v1 \"apple\", ...
          => nil
    
-   Note: this predicate works only with keys, not paths."
+   Note: this predicate works only with keys, not paths.
+
+   Note also: all that matters is the presence of keys, not their values. Unlike other
+   parts of this library, `nil` values are not treated as missing."
   [& coll]
   (letfn []
     (->> (fn [actual]
@@ -70,9 +73,10 @@
                                  (:leaf-value oopsie)))))))
 
 (defn exactly-keys
-  "Produce a predicate that's false when applied to a value with keys at all different than
-   those given in `coll`. See [[at-most-keys]] for a variant that allows the value to be
-   missing some of the `coll` keys.
+  "Produce a predicate that's false when applied to a map or record
+   with keys at all different than those given in `coll`. See
+   [[at-most-keys]] for a variant that allows the value to be missing
+   some of the `coll` keys.
    
         user=> (type! :X {:v1 string?
                           :v2 integer?}
@@ -87,7 +91,10 @@
         => nil
 
    
-   Note: this predicate works only with keys, not paths."
+   Note: this predicate works only with keys, not paths.
+
+   Note also: all that matters is the presence of keys, not their values. Unlike other
+   parts of this library, `nil` values are not treated as missing."
   [& coll]
   (letfn []
     (->> (fn [actual]

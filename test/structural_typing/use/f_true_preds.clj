@@ -26,13 +26,23 @@
     (explain-lifted simple (exval 8 [:x])) => (just ":x should be exactly `3`; it is `8`")
     (explain-lifted with-fn (exval pos? [:x])) => (just ":x should be exactly `even?`; it is `pos?`")))
 
+(defrecord TwoKeys [a b])
+
 (fact at-most-keys
   (let [p (subject/at-most-keys :a :b)]
     (map p [{:a 1} {:a 1 :b 1} {:a 1 :b 1 :c 1}]) => [true true false]
     (both-names p) => "(at-most-keys :a :b)"
     (explain-lifted p (exval {:a 1, :b 1, :c 1} [:x]))
-    => (just ":x has extra keys: #{:c}; it is {:a 1, :b 1, :c 1}")))
-  
+    => (just ":x has extra keys: #{:c}; it is {:a 1, :b 1, :c 1}")
+
+    (fact "a nil-valued key actually counts as present (as distinct from a missing key)"
+      (p {:a nil :b nil, :c nil}) => false)
+
+    (fact "also works for records"
+      (p (map->TwoKeys {:a 1})) => true
+      (p (map->TwoKeys {:a 1, :b 1})) => true
+      (p (map->TwoKeys {:a 1, :b 1, :c 1})) => false)))
+
 
 (fact exactly-keys
   (let [p (subject/exactly-keys :a :b)]
@@ -45,6 +55,13 @@
   
     (fact "missing keys in actual"
       (explain-lifted p (exval {:a 1} [:x]))
-      => (just ":x has missing keys: #{:b}; it is {:a 1}"))))
-  
+      => (just ":x has missing keys: #{:b}; it is {:a 1}"))
 
+    (fact "nil keys are counted"
+      (p {:a nil, :b nil}) => true
+      (p {:a nil, :b nil, :c nil}) => false)
+
+    (fact "also works for records"
+      (p (map->TwoKeys {:a 1})) => true ; because of nil keys
+      (p (map->TwoKeys {:a 1, :b 1})) => true
+      (p (map->TwoKeys {:a 1, :b 1, :c 1})) => false)))
