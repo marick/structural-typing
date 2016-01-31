@@ -53,6 +53,20 @@
                  readable-actual
                  (str "`" readable-actual "`")))))))
 
+
+(defn- bigfloatlike? [n]
+  (or (= (type n) (type 1N))
+      (= (type n) (type 1M))))
+
+(defn number-match [expected]
+  (let [[comparison format-string] (if (bigfloatlike? expected)
+                                      [== "%s should be `==` to %s; it is %s"]
+                                      [= exactly-format])]
+    (compose-predicate
+     (format "(number-match %s)" expected)
+     (partial comparison expected)
+     (should-be format-string expected))))
+
 (defn pretty-record-class [r]
   (-> (type r)
       pr-str

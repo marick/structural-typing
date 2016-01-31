@@ -52,7 +52,23 @@
   (future-fact "make printing of records as actual value prettier"))
 
 
-(future-fact "BigDecimals do not fail when compared to integers and the like")
+(fact "If you expect a bigdecimal-ish number, == is accepted."
+  (built-like {:a 1M} {:a 1}) => {:a 1}
+  (built-like {:a 1M} {:a 1N}) => {:a 1N}
+  (built-like {:a 1M} {:a 1M}) => {:a 1M}
+
+  (built-like {:a 1N} {:a 1}) => {:a 1}
+  (built-like {:a 1N} {:a 1N}) => {:a 1N}
+  (built-like {:a 1N} {:a 1M}) => {:a 1M}
+
+  (fact "whereas `exactly` uses `=`"
+    (built-like? {:a (exactly 1M)} {:a 1}) => false
+    (built-like? {:a (exactly 1N)} {:a 1M}) => false)
+
+  (fact "the error message differs from normal exact comparisons"
+    (check-for-explanations {:a 1M} {:a 3}) => (just ":a should be `==` to 1M; it is 3")
+    (check-for-explanations {:a 1M} {:a 3N}) => (just ":a should be `==` to 1M; it is 3N")))
+
 
 (facts "about interactions between coercions and shorthand"
   (fact "coercion applies for maps on the right-hand side of a type expression"

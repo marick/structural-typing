@@ -116,6 +116,7 @@
   (let [converter (branch-on value
                              extended-fn?   identity
                              regex?         pdef/regex-match
+                             number?        pdef/number-match
                              record?        pdef/record-match
                              :else          pdef/exactly)]
     (converter value)))
