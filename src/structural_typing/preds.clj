@@ -111,6 +111,26 @@
                                  keys
                                  (:leaf-value oopsie))))))))
 
+(defn kvs
+  "Normally, compound clojure values are equal if their contents are equal. For example:
+
+       (= (vector 1 2) (list 1 2)) ;=> true
+
+   That is not true when comparing records to maps. Therefore, given this:
+
+       (built-like {[ALL] (exactly {:a 1, :b 2})} structure)
+
+   ... you might be surprised if the structure contains records. If so, use `kvs`
+   instead of `exactly`.
+
+   Note: `kvs` is false when given anything other than a map or record."
+  [maplike]
+  (let [expected (into {} maplike)]
+    (pdef/compose-predicate
+     (format "(kvs %s)" (readable/value-string expected))
+     (fn [actual] (= (into {} actual) expected))
+     (pdef/should-be "%s should be structurally equal to `%s`; it is `%s`" expected))))
+
 ;;; More exotic predicate creation.
 
 

@@ -26,6 +26,34 @@
     (explain-lifted simple (exval 8 [:x])) => (just ":x should be exactly `3`; it is `8`")
     (explain-lifted with-fn (exval pos? [:x])) => (just ":x should be exactly `even?`; it is `pos?`")))
 
+
+(defrecord RecordVersion [a b])
+(defrecord OtherRecordVersion [a b])
+
+(fact kvs
+  (let [p (subject/kvs {:a 1, :b 2})]
+    (p {:a 1, :b 2}) => true
+    (p {:a 2, :b 2}) => false
+    (p (->RecordVersion 1 2)) => true
+    (p (map->RecordVersion {:a 1, :b 2, :c 3})) => false
+
+    (both-names p) => "(kvs {:a 1, :b 2})"
+
+    (explain-lifted p (exval {:a 1, :b 3}))
+    => (just ":x should be structurally equal to `{:a 1, :b 2}`; it is `{:a 1, :b 3}`"))
+
+  (fact "the expected value can also be a record"
+    (let [p (subject/kvs (RecordVersion. 1 2))]
+      (p {:a 1 :b 2}) => true
+      (p {:a 1 :b 3}) => false
+      (p (OtherRecordVersion. 1 2)) => true
+
+      (both-names p) => "(kvs {:a 1, :b 2})"
+
+      (explain-lifted p (exval {:a 1, :b 3}))
+      => (just ":x should be structurally equal to `{:a 1, :b 2}`; it is `{:a 1, :b 3}`"))))
+
+
 (defrecord TwoKeys [a b])
 
 (fact at-most-keys
@@ -65,3 +93,5 @@
       (p (map->TwoKeys {:a 1})) => true ; because of nil keys
       (p (map->TwoKeys {:a 1, :b 1})) => true
       (p (map->TwoKeys {:a 1, :b 1, :c 1})) => false)))
+
+
