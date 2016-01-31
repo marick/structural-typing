@@ -9,6 +9,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 - ADD: `ONLY` is like `ALL`, but it insists that its collection have exactly one element.
 - ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`.
        - Regular expressions are treated as in Midje.
+       - Comparison of record to map as in Midje.
+       - BigDecimal and BigFloat literals will match plain floats, longs, etc.
 - CHANGE: Some improvements to error handling
 
 ## [1.0.1]
