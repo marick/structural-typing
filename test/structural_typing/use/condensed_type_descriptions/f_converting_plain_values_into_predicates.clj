@@ -48,7 +48,8 @@
 
   (fact "different types are reported differently"
     (check-for-explanations {:k (->R 5)} {:k (->R2 5)})
-    => (just ":k should be a `R` record; it is a `R2`")))
+    => (just #":k should be a `R` record; it is R2.*:r 5}"))
+  (future-fact "make printing of records as actual value prettier"))
 
 
 (future-fact "BigDecimals do not fail when compared to integers and the like")

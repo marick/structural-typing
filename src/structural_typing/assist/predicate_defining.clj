@@ -62,10 +62,11 @@
              (format "%s should be a record; it is plain map `%s`" path actual)
 
              (not= (type expected) (type actual))
-             (format "%s should be a `%s` record; it is a `%s`"
+             (format "%s should be a `%s` record; it is %s `%s`"
                      path
                      (pretty-record-class expected)
-                     (pretty-record-class actual))
+                     (pretty-record-class actual)
+                     (readable/value-string actual))
 
              :else
              (format exactly-format
