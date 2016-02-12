@@ -14,18 +14,19 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "4.4.3"]
+                 [marick/suchwow "5.0.0"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
                  [slingshot "0.12.2"]
-                 [com.rpl/specter "0.9.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
+                 [org.clojure/math.combinatorics "0.1.1"]
+                 [com.rpl/specter "0.9.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}
 
   :profiles {:dev {:dependencies [[midje "1.8.3" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
-                                  [com.taoensso/timbre "4.1.4" :exclusions [org.clojure/clojure]]
+                                  [com.taoensso/timbre "4.2.1" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
