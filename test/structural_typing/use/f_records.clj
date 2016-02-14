@@ -34,10 +34,8 @@
     (built-like {[:k] even-holder} {:k even-holder}) => {:k even-holder})
   ;; Which is different from maps
   (let [even-holder {:f even?}]
+    ;; What's expected is something like `{:k {:f 2}}`
     (check-for-explanations {[:k] even-holder} {:k even-holder})
-    => (just (err:shouldbe [:k :f] "even?" (pr-str even?)))))
-
-(future-fact "print functions in a `shouldbe` as pretty names?")
-
+    => (just "[:k :f] should be `even?`; it is the function `even?`")))
 
 (start-over!)

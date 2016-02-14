@@ -10,7 +10,7 @@
          (show-as \"less than 3\" (partial >= 3))
 "
   [name predicate]
-  (when (fn? name) (boom! "First arg is a function. You probably got your args reversed."))
+  (when (extended-fn? name) (boom! "First arg is a function. You probably got your args reversed."))
   (when-not (string? name) (boom! "First arg must be a string: %s %s" name predicate))
   (-> predicate
       wrap/stash-defaults

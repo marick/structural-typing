@@ -7,14 +7,27 @@
         structural-typing.assist.testutil))
 
 
-(fact "the way functions print by default"
+(fact "special cases for printing"
   (type! :X {:x even?
              :y (complement even?)})
 
-  (check-for-explanations :X {:x 1 :y 2})
-  => (just (err:shouldbe :x "even?" 1)
-           (err:shouldbe :y "<custom-predicate>" 2)))
+  (fact "the checking predicates are printed nicely"
+    (check-for-explanations :X {:x 1 :y 2})
+    => (just ":x should be `even?`; it is `1`"
+             ":y should be `<custom-predicate>`; it is `2`"))
 
+  (fact "a defined predicate as the incorrect value also prints nicely"
+    (check-for-explanations :X {:x even?})
+    => (just ":x should be `even?`; it is the function `even?`"))
+
+  (fact "a predicate as the incorrect value also prints nicely"
+    (let [built-fn (complement even?)
+          msgs (check-for-explanations :X {:y built-fn})]
+      msgs => (just #"it is the function `")
+      (.contains (first msgs) (pr-str built-fn)))))
+
+
+  
 (fact "default error explainer"
   (subject/default-predicate-explainer {:predicate-string "even?"
                                         :path [:x]

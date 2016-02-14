@@ -6,15 +6,28 @@
   (:require [such.readable :as readable])
   (:require [structural-typing.assist.oopsie :as oopsie]))
 
-(readable/set-function-elaborations! {:anonymous-name "<custom-predicate>" :surroundings ""})
+(def anonymous-name "<custom-predicate>")
+(readable/set-function-elaborations! {:anonymous-name anonymous-name :surroundings ""})
+
+
+(defn function-as-bad-value-string [f]
+  (let [s (readable/value-string f)]
+    (if (= s anonymous-name)
+      (pr-str f)
+      s)))
+
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be `%s`; it is `%s`\"."
   [{:keys [predicate-string leaf-value] :as expred}]
-  (format "%s should be `%s`; it is `%s`"
+  (format "%s should be `%s`; it is %s"
           (oopsie/friendly-path expred)
           predicate-string
-          (pr-str leaf-value)))
+          (cond (extended-fn? leaf-value)
+                (format "the function `%s`" (function-as-bad-value-string leaf-value))
+
+                :else
+                (str "`" (pr-str leaf-value) "`"))))
 
 (def default-success-handler 
   "The default success handler just returns the original candidate structure passed to `built-like`."
