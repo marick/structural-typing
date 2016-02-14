@@ -1,5 +1,5 @@
-(ns structural-typing.assist.f-predicate-defining
-  (:require [structural-typing.assist.predicate-defining :as subject]
+(ns structural-typing.assist.f-format
+  (:require [structural-typing.assist.format :as subject]
             [midje.sweet :refer :all]))
 
 (defrecord R [a b])

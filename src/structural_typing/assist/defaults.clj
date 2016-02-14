@@ -3,19 +3,8 @@
 
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:use structural-typing.clojure.core)  ; yes: `use`. Glorious, skimmable, terse `use`.
-  (:require [such.readable :as readable])
-  (:require [structural-typing.assist.oopsie :as oopsie]))
-
-(def anonymous-name "<custom-predicate>")
-(readable/set-function-elaborations! {:anonymous-name anonymous-name :surroundings ""})
-
-
-(defn function-as-bad-value-string [f]
-  (let [s (readable/value-string f)]
-    (if (= s anonymous-name)
-      (pr-str f)
-      s)))
-
+  (:require [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.format :as format]))
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be `%s`; it is `%s`\"."
@@ -23,11 +12,7 @@
   (format "%s should be `%s`; it is %s"
           (oopsie/friendly-path expred)
           predicate-string
-          (cond (extended-fn? leaf-value)
-                (format "the function `%s`" (function-as-bad-value-string leaf-value))
-
-                :else
-                (str "`" (pr-str leaf-value) "`"))))
+          (format/explain-leaf-value leaf-value)))
 
 (def default-success-handler 
   "The default success handler just returns the original candidate structure passed to `built-like`."

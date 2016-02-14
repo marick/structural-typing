@@ -2,6 +2,7 @@
   "Help for defining custom predicates"
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.format :as format]
             [structural-typing.guts.preds.annotating :as annotating]
             [such.readable :as readable]))
 
@@ -67,18 +68,9 @@
      (partial comparison expected)
      (should-be format-string expected))))
 
-(defn pretty-record-class [r]
-  (-> (type r)
-      pr-str
-      (str-split #"\.")
-      last))
-
-(defn pretty-record-instance [r]
-  (str "#" (pretty-record-class r) (pr-str (into {} r))))
-
 (defn record-match [expected]
   (compose-predicate
-   (format "(record-match %s)" (pretty-record-instance expected))
+   (format "(record-match %s)" (format/pretty-record-instance expected))
    (partial = expected)
    (fn [{actual :leaf-value :as oopsie}]
      (let [path (oopsie/friendly-path oopsie)]
@@ -86,14 +78,13 @@
              (format "%s should be a record; it is plain map `%s`" path actual)
 
              (not= (type expected) (type actual))
-             (format "%s should be a `%s` record; it is %s `%s`"
+             (format "%s should be a `%s` record; it is `%s`"
                      path
-                     (pretty-record-class expected)
-                     (pretty-record-class actual)
-                     (readable/value-string actual))
+                     (format/pretty-record-class expected)
+                     (format/pretty-record-instance actual))
 
              :else
              (format exactly-format
                      path
-                     (pretty-record-instance expected)
-                     (pretty-record-instance actual)))))))
+                     (format/pretty-record-instance expected)
+                     (format/pretty-record-instance actual)))))))
