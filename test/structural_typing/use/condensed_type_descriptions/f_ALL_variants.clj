@@ -75,24 +75,4 @@
     (check-for-explanations :X {:a [3 {:b 1}]}) => (just (err:only [3 {:b 1}]))
     (check-for-explanations :X {:a []}) => (just (err:only []))
     (check-for-explanations :X {:a 3}) => (just (err:notpath [:a ONLY :b] {:a 3}))))
-
-
-(future-fact "SOME"
-  (fact "describing the whole path"
-    (type! :X {[SOME] even?})
-    (built-like :X [2]) => [2]
-    (built-like :X [1 2]) => [1 2]
-    (check-for-explanations :X [1]) => (just (err:shouldbe [SOME] "even?" [1]))
-    (check-for-explanations :X []) => (just (err:shouldbe [SOME] "even?" []))
-    (check-for-explanations :X 3) => (just (err:notpath [SOME] 3)))
-
-  (fact "as part of a path"
-    (type! :X {[:a SOME] {:b even?}})
-    (built-like :X {:a [{:b 2}]}) => {:a [{:b 2}]}
-    (built-like :X {:a [{:b 1} {:b 2}]}) => {:a [{:b 1} {:b 2}]}
-    (check-for-explanations :X {:a [{:b 1}]}) => (just (err:shouldbe [:a SOME] "even?" [{:b 1}]))
-    (check-for-explanations :X {:a []}) => (just (err:shouldbe [:a SOME] "even?" []))
-    (check-for-explanations :X {:a 3}) => (just (err:notpath [:a SOME] 3))))
-
-
 (start-over!)
