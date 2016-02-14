@@ -70,7 +70,7 @@
 
 (defn record-match [expected]
   (compose-predicate
-   (format "(record-match %s)" (format/pretty-record-instance expected))
+   (format "(record-match %s)" (format/leaf:record expected))
    (partial = expected)
    (fn [{actual :leaf-value :as oopsie}]
      (let [path (oopsie/friendly-path oopsie)]
@@ -80,11 +80,11 @@
              (not= (type expected) (type actual))
              (format "%s should be a `%s` record; it is `%s`"
                      path
-                     (format/pretty-record-class expected)
-                     (format/pretty-record-instance actual))
+                     (format/record-class expected)
+                     (format/leaf:record actual))
 
              :else
              (format exactly-format
                      path
-                     (format/pretty-record-instance expected)
-                     (format/pretty-record-instance actual)))))))
+                     (format/leaf:record expected)
+                     (format/leaf:record actual)))))))

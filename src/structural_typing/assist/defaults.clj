@@ -12,7 +12,7 @@
   (format "%s should be `%s`; it is %s"
           (oopsie/friendly-path expred)
           predicate-string
-          (format/explain-leaf-value leaf-value)))
+          (format/leaf leaf-value)))
 
 (def default-success-handler 
   "The default success handler just returns the original candidate structure passed to `built-like`."

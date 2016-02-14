@@ -48,8 +48,7 @@
 
   (fact "different types are reported differently"
     (check-for-explanations {:k (->R 5)} {:k (->R2 5)})
-    => (just ":k should be a `R` record; it is `#R2{:r 5}`"))
-  (future-fact "make printing of records as actual value prettier"))
+    => (just ":k should be a `R` record; it is `#R2{:r 5}`")))
 
 
 (fact "If you expect a bigdecimal-ish number, == is accepted."
