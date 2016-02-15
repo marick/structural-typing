@@ -4,13 +4,14 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
 - ADD: A record on the right-hand side is treated as an exact value, rather than a
-  map to traverse to built up paths.
+  map to traverse to build up paths.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: `ONLY` is like `ALL`, but it insists that its collection have exactly one element.
 - ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`.
        - Regular expressions are treated as in Midje.
        - Comparison of record to map as in Midje.
        - BigDecimal and BigFloat literals will match plain floats, longs, etc.
+- CHANGE: Better detection/reporting of structures that cannot match the path.
 - CHANGE: Some improvements to error handling
 
 ## [1.0.1]
