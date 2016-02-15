@@ -12,6 +12,10 @@
   (subject/err:only :foo) => "`:foo` is supposed to have exactly one element"
   (subject/err:only 'foo) => "`foo` is supposed to have exactly one element")
 
+
+(facts "err:bad-range-target"
+  (subject/err:bad-range-target 5) => "RANGE could not be applied to `5`; it is not a sequential collection")
+
 (facts "err:notpath"
   (subject/err:notpath [:a :k] 5) => "[:a :k] is not a path into `5`"
   (subject/err:notpath [:a :k] []) => "[:a :k] is not a path into `[]`"

@@ -4,7 +4,9 @@
         structural-typing.type
         structural-typing.global-type
         structural-typing.clojure.core
-        structural-typing.assist.testutil))
+        structural-typing.assist.testutil)
+  (:require [structural-typing.guts.explanations :as explain]))
+
 
 (fact "whole value is nil: impossible"
   (type! :String {[] string?})
@@ -69,8 +71,8 @@
   (fact "non-collections: impossible"
     (let [path [(RANGE 1 2) (RANGE 1 2)]]
       (type! :X {path [required-path]})
-      (check-for-explanations :X 1) =>   (just (err:notpath path 1))
-      (check-for-explanations :X [0 1]) => (just (err:notpath path [0 1]))))
+      (check-for-explanations :X 8) =>   (just (explain/err:bad-range-target 8))
+      (check-for-explanations :X [0 1]) => (just (explain/err:bad-range-target 1))))
   
   (fact "missing or nil values: truncated"
     (let [path [(RANGE 1 4) (RANGE 1 3)]]
@@ -87,9 +89,9 @@
         (check-for-explanations :X in) => (just (err:required [2 1])
                                                 (err:required [2 2])))
 
-      (fact "in a combination of impossible path and truncation, you only see impossible path"
+      (fact "in a combination of non-sequential value and truncation, you only see impossible path"
         (let [in [ :unchecked [10 11 12] :oops [30 31 32] :unchecked]]
-          (check-for-explanations :X in) => (just (err:notpath path in))))))
+          (check-for-explanations :X in) => (just (explain/err:bad-range-target :oops))))))
 
   (fact "completely empty arrays count as truncation"
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
@@ -101,15 +103,13 @@
         (check-for-explanations :X [ [] ]) => (just (err:required [1 1])
                                                     (err:required [1 2])))))
 
-  (future-fact "cannot take maps or sets"
-    ;; The reason this doesn't work is that RANGE is prefaced by a map-indexed,
-    ;; so we lose track of where the value came from.
+  (fact "cannot take maps or sets"
     (type! :X (requires [(RANGE 1 2)]))
     (let [bad {:a 1, :b 2, :c 3}]
-      (check-for-explanations :X bad) => (err:notpath [(RANGE 1 2)] bad))
+      (check-for-explanations :X bad) => (just (explain/err:bad-range-target bad)))
 
     (let [bad #{1 2 3 4 5}]
-      (check-for-explanations :X bad) => (err:notpath [(RANGE 1 2)] bad))))
+      (check-for-explanations :X bad) => (just (explain/err:bad-range-target bad)))))
 
 (fact "a path predicate that blows up counts as an impossible path"
   (type! :X {[:a pos?] even?})

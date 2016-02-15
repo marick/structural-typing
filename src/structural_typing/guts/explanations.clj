@@ -27,11 +27,19 @@
   "The error message produced by `ONLY` when a collection does not have only one element."
   [collection-with-bad-arity]
   (cl-format nil "`~S` is supposed to have exactly one element" collection-with-bad-arity))
-
-
 (defn oopsie:only [original-path whole-value collection-with-bad-arity]
   (structural-oopsie original-path whole-value (err:only collection-with-bad-arity)))
 (def as-oopsies:only (pluralize oopsie:only))
+
+;;; ---
+
+(defn err:bad-range-target
+  "The error message produed when `RANGE` is applied to a non-sequential value"
+  [target]
+  (cl-format nil "RANGE could not be applied to `~S`; it is not a sequential collection" target))
+(defn oopsie:bad-range-target [original-path whole-value target]
+  (structural-oopsie original-path whole-value (err:bad-range-target target)))
+(def as-oopsies:bad-range-target (pluralize oopsie:bad-range-target))
 
 ;;; ---
 

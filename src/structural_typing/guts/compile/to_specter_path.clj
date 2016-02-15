@@ -198,11 +198,21 @@
                  ps
                  indices))))
 
+
+;; A pseudo-predicate to short-circuit processing with an error when a non-sequential is
+;; to be given to RANGE. Note: although `nil` is actually non-sequential, it is allowed
+;; because it typically represents a too-short sequence, which should get a different error.
+(defn- assert-sequential [x]
+  (when (and (not (sequential? x))
+             (not (nil? x)))
+    (throw+ {:type :bad-range-target :interior-node x}))
+  true)
+
 (defn- surround-with-index-collector [elt]
-  (-> [(specter/view (partial map-indexed vector))]
-      (into (vector elt))
-      (into [(specter/collect-one specter/FIRST)
-             specter/LAST])))
+  [(specter/view (partial map-indexed vector))
+   elt
+   (specter/collect-one specter/FIRST)
+   specter/LAST])
 
 (defn compile [original-path]
    (loop [[elt & remainder] original-path
@@ -211,10 +221,18 @@
      (cond (nil? elt)
            [(apply specter/comp-paths specter-path) path-type]
 
-           (will-match-many? elt)
+
+           (= ALL elt)
            (recur remainder
                   (into specter-path
                         (surround-with-index-collector elt))
+                  :indexed-path)
+
+           (instance? RangeVariantType elt)
+           (recur remainder
+                  (-> specter-path
+                      (conj assert-sequential)
+                      (into (surround-with-index-collector elt)))
                   :indexed-path)
 
            (keyword? elt)
@@ -257,6 +275,10 @@
           (for [result specter-results
                 raw-oopsie (lifted-preds (exval-maker result original-path whole-value))]
             (path-postprocessor result raw-oopsie)))
+
+        (catch [:type :bad-range-target] {:keys [interior-node]}
+          (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
+
         (catch [:type :only] {:keys [interior-node]}
           (explain/as-oopsies:only original-path whole-value interior-node))
 
