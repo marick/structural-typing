@@ -5,7 +5,9 @@
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.lifting :as lifting]
             [structural-typing.type :as type]
-            [such.readable :as readable]))
+            [such.readable :as readable]
+            such.immigration
+            structural-typing.guts.explanations))
 
 (defn exval
   "Generate an \"extended value\". Omitted values are replaced
@@ -85,9 +87,13 @@
 
 
 (import-vars [structural-typing.guts.explanations
-               err:only err:notpath
-              ])
+                err:only err:notpath
+                err:nil-all
+                err:bad-range-target])
 
+;; I don't immigrate the following out of a deep-seated fear that I'll
+;; mess up the output by having the test generator and code generator
+;; produce the same incorrect strings.
 (defn err:required
   "Produces the same error messsage produced when [[required-path]] fails."
   [path]
