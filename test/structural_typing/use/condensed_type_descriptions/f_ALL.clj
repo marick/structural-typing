@@ -38,5 +38,13 @@
   (check-for-explanations :Nesty {:x [1]})
   => (just #"\[:x ALL ALL :y\] is not a path"))
 
+(future-fact "ALL requires collections that are not maps"
+  (built-like [ALL] #{}) => #{}
+  (built-like [ALL] []) => []
+  (built-like [ALL] (map inc [1 2])) => [2 3]
+  (check-for-explanations [ALL] 1) => (just (err:bad-all-target [ALL] 1))
+  (check-for-explanations [ALL] {:a 1, :b 2}) => (just (err:bad-all-target [ALL] {:a 1, :b 2})))
+
+
 
 (start-over!)

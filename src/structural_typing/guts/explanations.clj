@@ -35,11 +35,33 @@
 
 (defn err:bad-range-target
   "The error message produed when `RANGE` is applied to a non-sequential value"
-  [target]
-  (cl-format nil "RANGE could not be applied to `~S`; it is not a sequential collection" target))
+  [original-path target]
+  (cl-format nil "~A is not a path into `~S`; RANGE may only descend into a sequential collection"
+             original-path target))
 (defn oopsie:bad-range-target [original-path whole-value target]
-  (structural-oopsie original-path whole-value (err:bad-range-target target)))
+  (structural-oopsie original-path whole-value (err:bad-range-target original-path  target)))
 (def as-oopsies:bad-range-target (pluralize oopsie:bad-range-target))
+
+(defn err:bad-all-target
+  "The error message produed when `ALL` is applied to a map or non-collection value"
+  [original-path target]
+  (cl-format nil "~A is not a path into `~S`; ALL must be a collection (but not a map)"
+             original-path target))
+(defn oopsie:bad-all-target [original-path whole-value target]
+  (structural-oopsie original-path whole-value (err:bad-all-target original-path target)))
+(def as-oopsies:bad-all-target (pluralize oopsie:bad-all-target))
+
+;;; ---
+
+(defn err:nil-all
+  "The error message produed when `ALL` descends into a missing (or nil) collection"
+  [original-path whole-value]
+  (cl-format nil "~A is not a path into `~S`; ALL would have to descend into a missing or nil collection"
+             (oopsie/friendly-path {:path original-path})
+             whole-value))
+(defn oopsie:nil-all [original-path whole-value]
+  (structural-oopsie original-path whole-value (err:nil-all original-path whole-value)))
+(def as-oopsies:nil-all (pluralize oopsie:nil-all))
 
 ;;; ---
 

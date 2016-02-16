@@ -202,11 +202,23 @@
 ;; A pseudo-predicate to short-circuit processing with an error when a non-sequential is
 ;; to be given to RANGE. Note: although `nil` is actually non-sequential, it is allowed
 ;; because it typically represents a too-short sequence, which should get a different error.
-(defn- assert-sequential [x]
+(defn- range-requires-sequential! [x]
   (when (and (not (sequential? x))
              (not (nil? x)))
     (throw+ {:type :bad-range-target :interior-node x}))
   true)
+
+(defn- all-may-not-be-nil! [x]
+  (when (nil? x)
+    (throw+ {:type :nil-all}))
+  true)
+
+(defn- all-requires-collection! [x]
+  (when-not (coll? x)
+    (boom! "Temporarily make this a 'notpath' error"))
+    ;(throw+ {:type :bad-all-target :interior-node x}))
+  true)
+
 
 (defn- surround-with-index-collector [elt]
   [(specter/view (partial map-indexed vector))
@@ -224,14 +236,17 @@
 
            (= ALL elt)
            (recur remainder
-                  (into specter-path
-                        (surround-with-index-collector elt))
+                  (-> specter-path
+                      ;; This is probably not the right way to accomplish this.
+                      ;; (conj all-may-not-be-nil!)
+                      (conj all-requires-collection!)
+                      (into (surround-with-index-collector elt)))
                   :indexed-path)
 
            (instance? RangeVariantType elt)
            (recur remainder
                   (-> specter-path
-                      (conj assert-sequential)
+                      (conj range-requires-sequential!)
                       (into (surround-with-index-collector elt)))
                   :indexed-path)
 
@@ -278,6 +293,15 @@
 
         (catch [:type :bad-range-target] {:keys [interior-node]}
           (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
+
+        (catch [:type :bad-all-target] {:keys [interior-node]}
+          (explain/as-oopsies:bad-all-target original-path whole-value interior-node))
+
+        (catch [:type :bad-range-target] {:keys [interior-node]}
+          (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
+
+        (catch [:type :nil-all] {}
+          (explain/as-oopsies:nil-all original-path whole-value))
 
         (catch [:type :only] {:keys [interior-node]}
           (explain/as-oopsies:only original-path whole-value interior-node))
