@@ -14,10 +14,15 @@
 
 
 (facts "err:bad-range-target"
-  (subject/err:bad-range-target '[(RANGE 1 2)] 5) => "[(RANGE 1 2)] is not a path into `5`; RANGE may only descend into a sequential collection")
+  (subject/err:bad-range-target '[:a (RANGE 1 2)] {:a 5} 5)
+  => "[:a (RANGE 1 2)] is not a path into `{:a 5}`; RANGE cannot make sense of non-collection `5`")
 
 (facts "err:bad-all-target"
-  (subject/err:bad-all-target '[ALL] 5) => "[ALL] is not a path into `5`; ALL must be a collection (but not a map)")
+  (subject/err:bad-all-target '[:a ALL] {:a 5} 5)
+  => "[:a ALL] is not a path into `{:a 5}`; ALL cannot make sense of non-collection `5`"
+  (subject/err:bad-all-target '[:a ALL] {:a {:b 5}} {:b 5})
+  => "[:a ALL] is not a path into `{:a {:b 5}}`; ALL cannot make sense of map `{:b 5}`")
+
 
 (facts "err:nil-all"
   (subject/err:nil-all '[:a ALL] {}) => "[:a ALL] is not a path into `{}`; ALL would have to descend into a missing or nil collection")

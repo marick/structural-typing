@@ -214,9 +214,9 @@
   true)
 
 (defn- all-requires-collection! [x]
-  (when-not (coll? x)
-    (boom! "Temporarily make this a 'notpath' error"))
-    ;(throw+ {:type :bad-all-target :interior-node x}))
+  (when (or (map? x)
+            (not (coll? x)))
+    (throw+ {:type :bad-all-target :interior-node x}))
   true)
 
 

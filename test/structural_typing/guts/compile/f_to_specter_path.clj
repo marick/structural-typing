@@ -51,7 +51,7 @@
     (let [f (subject/mkfn:whole-value->oopsies [ALL] (wrap/lift even?))
           results (f 1)
           oopsie (first results)]
-      ((:explainer oopsie) oopsie) => (err:notpath [ALL] 1))))
+      ((:explainer oopsie) oopsie) => (err:bad-all-target [ALL] 1 1))))
     
       
 (fact 'mkfn:range-element-selector

@@ -33,22 +33,26 @@
 
 ;;; ---
 
+;; TODO: Condense
 (defn err:bad-range-target
   "The error message produed when `RANGE` is applied to a non-sequential value"
-  [original-path target]
-  (cl-format nil "~A is not a path into `~S`; RANGE may only descend into a sequential collection"
-             original-path target))
+  [original-path whole-value target]
+  (cl-format nil "~A is not a path into `~S`; RANGE cannot make sense of non-collection `~S`"
+             original-path whole-value target))
 (defn oopsie:bad-range-target [original-path whole-value target]
-  (structural-oopsie original-path whole-value (err:bad-range-target original-path  target)))
+  (structural-oopsie original-path whole-value
+                     (err:bad-range-target original-path whole-value target)))
 (def as-oopsies:bad-range-target (pluralize oopsie:bad-range-target))
 
 (defn err:bad-all-target
-  "The error message produed when `ALL` is applied to a map or non-collection value"
-  [original-path target]
-  (cl-format nil "~A is not a path into `~S`; ALL must be a collection (but not a map)"
-             original-path target))
+  "The error message produed when `ALL` is applied to a non-collection or a map"
+  [original-path whole-value target]
+  (let [tag (if (map? target) "map" "non-collection")]
+    (cl-format nil "~A is not a path into `~S`; ALL cannot make sense of ~A `~S`"
+               original-path whole-value tag target)))
 (defn oopsie:bad-all-target [original-path whole-value target]
-  (structural-oopsie original-path whole-value (err:bad-all-target original-path target)))
+  (structural-oopsie original-path whole-value
+                     (err:bad-all-target original-path whole-value target)))
 (def as-oopsies:bad-all-target (pluralize oopsie:bad-all-target))
 
 ;;; ---

@@ -89,6 +89,7 @@
 (import-vars [structural-typing.guts.explanations
                 err:only err:notpath
                 err:nil-all
+                err:bad-all-target
                 err:bad-range-target])
 
 ;; I don't immigrate the following out of a deep-seated fear that I'll
