@@ -71,8 +71,8 @@
   (fact "non-collections: impossible"
     (let [path [(RANGE 1 2) (RANGE 1 2)]]
       (type! :X {path [required-path]})
-      (check-for-explanations :X 8) =>   (just (explain/err:bad-range-target 8))
-      (check-for-explanations :X [0 1]) => (just (explain/err:bad-range-target 1))))
+      (check-for-explanations :X 8) =>   (just (err:bad-range-target path 8))
+      (check-for-explanations :X [0 1]) => (just (err:bad-range-target path 1))))
   
   (fact "missing or nil values: truncated"
     (let [path [(RANGE 1 4) (RANGE 1 3)]]
@@ -91,7 +91,7 @@
 
       (fact "in a combination of non-sequential value and truncation, you only see impossible path"
         (let [in [ :unchecked [10 11 12] :oops [30 31 32] :unchecked]]
-          (check-for-explanations :X in) => (just (explain/err:bad-range-target :oops))))))
+          (check-for-explanations :X in) => (just (err:bad-range-target path :oops))))))
 
   (fact "completely empty arrays count as truncation"
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
@@ -106,10 +106,10 @@
   (fact "cannot take maps or sets"
     (type! :X (requires [(RANGE 1 2)]))
     (let [bad {:a 1, :b 2, :c 3}]
-      (check-for-explanations :X bad) => (just (explain/err:bad-range-target bad)))
+      (check-for-explanations :X bad) => (just (err:bad-range-target [(RANGE 1 2)] bad)))
 
     (let [bad #{1 2 3 4 5}]
-      (check-for-explanations :X bad) => (just (explain/err:bad-range-target bad)))))
+      (check-for-explanations :X bad) => (just (err:bad-range-target [(RANGE 1 2)] bad)))))
 
 (fact "a path predicate that blows up counts as an impossible path"
   (type! :X {[:a pos?] even?})

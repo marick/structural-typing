@@ -23,7 +23,7 @@
 
   (tabular
     (fact 
-      (built-like ?version {:x 2}) => {:x 2}
+      (built-like ?version {:points [{:x 2}]}) =>  {:points [{:x 2}]}
       (check-for-explanations ?version {:points [{:x "1" :y 1}]})
       => [(err:shouldbe [:points 0 :x] "integer?" "\"1\"")])
     ?version
