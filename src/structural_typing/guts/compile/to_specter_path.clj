@@ -84,10 +84,7 @@
 
 (defn pursue-multiple-paths [subcollection-fn collection next-fn]
   (cond (nil? collection)
-        (next-fn nil)
-
-        (not (coll? collection))
-        (boom! "%s is not a collection" collection)
+        nil
 
         :else
         (into [] (r/mapcat next-fn (subcollection-fn collection)))))
@@ -215,7 +212,8 @@
 
 (defn- all-requires-collection! [x]
   (when (or (map? x)
-            (not (coll? x)))
+            (and (not (nil? x))
+                 (not (coll? x))))
     (throw+ {:type :bad-all-target :interior-node x}))
   true)
 

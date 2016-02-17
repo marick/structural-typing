@@ -35,3 +35,7 @@
   (subject/err:notpath [:a :k] "foo") => "[:a :k] is not a path into `\"foo\"`"
   (subject/err:notpath [:a :k] :foo) => "[:a :k] is not a path into `:foo`"
   (subject/err:notpath [:a :k] 'foo) => "[:a :k] is not a path into `foo`")
+
+
+(future-fact "Hand-test range output - descend into 5, what incomplete range looks like")
+(future-fact "finish ALL output so that it chokes on non-sequential collection.")

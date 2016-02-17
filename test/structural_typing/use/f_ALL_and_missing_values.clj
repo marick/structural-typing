@@ -1,0 +1,58 @@
+(ns structural-typing.use.f-all-and-missing-values
+  (:require [structural-typing.preds :as pred])
+  (:use midje.sweet
+        structural-typing.type
+        structural-typing.global-type
+        structural-typing.clojure.core
+        structural-typing.assist.testutil))
+
+(start-over!)
+
+(fact "when there are no required paths, ALL can correspond to no value, nil, or an empty array"
+  (type! :Top {[ALL] odd?})
+  (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
+  (built-like :Top []) => []
+
+  (type! :Bottom {[:x ALL] odd?})
+  (built-like :Bottom {}) => {}
+  (built-like :Bottom {:x nil}) => {:x nil}
+  (built-like :Bottom {:x []}) => {:x []}
+
+  (type! :Middle {[:x ALL :y] odd?})
+  (built-like :Middle {}) => {}
+  (built-like :Middle {:x nil}) => {:x nil}
+  (built-like :Middle {:x []}) => {:x []}
+  (built-like :Middle {:x [{}]}) => {:x [{}]}
+  ;; Following is because an optional value allows either `nil` or "missing"
+  (built-like :Middle {:x [{:y nil}]}) => {:x [{:y nil}]}
+  (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
+  (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2)))
+
+
+(fact "when the ALL is a required-path, it will not accept a nil value"
+  (type! :Top {[ALL] [required-path odd?]})
+  (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
+  (built-like :Top []) => []
+
+  (let [path [:x ALL]]
+    (type! :Bottom {path [required-path odd?]})
+    (check-for-explanations :Bottom {}) => (just (err:required :x))
+    (check-for-explanations :Bottom {:x nil}) => (just (err:required :x))
+    (built-like :Bottom {:x []}) => {:x []})
+
+  (let [path [:x ALL :y]]
+    (type! :Middle {path [required-path odd?]})
+    (built-like :Middle {}) =future=> (just (err:required :x))
+    (built-like :Middle {:x nil}) =future=> (just (err:bad-all-target path {:x nil} nil))
+    (built-like :Middle {:x []}) =future=> {:x []}
+    (built-like :Middle {:x [{}]}) =future=> (just (err:required [:x 0 :y]))
+    (built-like :Middle {:x [{:y nil}]}) =future=> (just (err:required [:x 0 :y]))
+    (built-like :Middle {:x [{:y 1}]}) =future=> {:x [{:y 1}]}
+    (check-for-explanations :Middle {:x [{:y 2}]}) =future=> (just (err:shouldbe [:x 0 :y] "odd?" 2))))
+
+
+(future-fact "same for ONLY")
+(future-fact "and RANGE")
+
+
+(start-over!)

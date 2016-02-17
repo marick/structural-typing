@@ -43,7 +43,7 @@
 
   (fact "indexed path"
     (let [f (subject/mkfn:whole-value->oopsies [:a ALL] (wrap/lift even?))]
-      (f {}) => (just (contains {:leaf-value :halted-before-leaf-value-found}))
+      (f {}) =future=> (just (contains {:leaf-value :halted-before-leaf-value-found}))
       (f {:a [2]}) => []
       (f {:a [2 1]}) => (just (contains {:leaf-value 1, :path [:a 1]}))))
     
