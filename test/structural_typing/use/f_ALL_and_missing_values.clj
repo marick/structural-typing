@@ -1,4 +1,4 @@
-(ns structural-typing.use.f-all-and-missing-values
+(ns structural-typing.use.f-ALL-and-missing-values
   (:require [structural-typing.preds :as pred])
   (:use midje.sweet
         structural-typing.type
