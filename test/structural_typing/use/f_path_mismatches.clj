@@ -47,14 +47,14 @@
 (fact "ALL"
   (type! :X {[ALL ALL] [required-path even?]})
   (fact "non-collections: impossible"
-    (check-for-explanations :X 1) =>   (just (err:bad-all-target [ALL ALL] 1 1))
-    (check-for-explanations :X [1]) => (just (err:bad-all-target [ALL ALL] [1] 1)))
+    (check-for-explanations :X 1) =future=>   (just (err:bad-all-target [ALL ALL] 1 1))
+    (check-for-explanations :X [1]) =future=> (just (err:bad-all-target [ALL ALL] [1] 1)))
   (future-fact "nested missing or nil values: truncated"
     (check-for-explanations :X [     ]) => (just (err:required [0 ALL])))
 
   (type! :X {[:x ALL] [required-path even?]})
   (fact "as before, non-collections: impossible"
-    (check-for-explanations :X {:x 1}) =>   (just (err:bad-all-target [:x ALL] {:x 1} 1)))
+    (check-for-explanations :X {:x 1}) =future=>   (just (err:bad-all-target [:x ALL] {:x 1} 1)))
   (future-fact "A previously non-indexed element is checked for existence "
     (check-for-explanations :X {}) =>         (just (err:required :x)
                                                     (err:nil-all [:x ALL] {}))
@@ -72,8 +72,8 @@
   (fact "non-collections: impossible"
     (let [path [(RANGE 1 2) (RANGE 1 2)]]
       (type! :X {path [required-path]})
-      (check-for-explanations :X 8) =>   (just (err:bad-range-target path 8 8))
-      (check-for-explanations :X [0 1]) => (just (err:bad-range-target path [0 1] 1))))
+      (check-for-explanations :X 8) =future=>   (just (err:bad-range-target path 8 8))
+      (check-for-explanations :X [0 1]) =future=> (just (err:bad-range-target path [0 1] 1))))
   
   (fact "missing or nil values: truncated"
     (let [path [(RANGE 1 4) (RANGE 1 3)]]
@@ -87,30 +87,30 @@
                                                 (err:required [3 2])))
 
       (let [in [ :unchecked [10 11 12] nil [30 31 32] :unchecked]]
-        (check-for-explanations :X in) => (just (err:required [2 1])
+        (check-for-explanations :X in) =future=> (just (err:required [2 1])
                                                 (err:required [2 2])))
 
       (fact "in a combination of non-sequential value and truncation, you only see impossible path"
         (let [in [ :unchecked [10 11 12] :oops [30 31 32] :unchecked]]
-          (check-for-explanations :X in) => (just (err:bad-range-target path in :oops))))))
+          (check-for-explanations :X in) =future=> (just (err:bad-range-target path in :oops))))))
 
   (fact "completely empty arrays count as truncation"
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
       (type! :X {path [required-path]})
       (fact "top level"
-        (check-for-explanations :X []) => (just (err:required [1 1])
+        (check-for-explanations :X []) =future=> (just (err:required [1 1])
                                                 (err:required [1 2])))
       (fact "nested"
-        (check-for-explanations :X [ [] ]) => (just (err:required [1 1])
+        (check-for-explanations :X [ [] ]) =future=> (just (err:required [1 1])
                                                     (err:required [1 2])))))
 
   (fact "cannot take maps or sets"
     (type! :X (requires [(RANGE 1 2)]))
     (let [bad {:a 1, :b 2, :c 3}]
-      (check-for-explanations :X bad) => (just (err:bad-range-target [(RANGE 1 2)] bad bad)))
+      (check-for-explanations :X bad) =future=> (just (err:bad-range-target [(RANGE 1 2)] bad bad)))
 
     (let [bad #{1 2 3 4 5}]
-      (check-for-explanations :X bad) => (just (err:bad-range-target [(RANGE 1 2)] bad bad)))))
+      (check-for-explanations :X bad) =future=> (just (err:bad-range-target [(RANGE 1 2)] bad bad)))))
 
 (fact "a path predicate that blows up counts as an impossible path"
   (type! :X {[:a pos?] even?})
@@ -120,7 +120,7 @@
 (fact "Some random leftover tests"
   (type! :Points {[ALL :x] integer?
                   [ALL :y] integer?})
-  (check-for-explanations :Points 3) => (just (err:bad-all-target [ALL :x] 3 3)
+  (check-for-explanations :Points 3) =future=> (just (err:bad-all-target [ALL :x] 3 3)
                                               (err:bad-all-target [ALL :y] 3 3))
   
   (check-for-explanations :Points [1 2 3]) => (just (err:notpath [ALL :x] [1 2 3])
@@ -129,7 +129,7 @@
   (fact "works for partial collections"
     (type! :Figure (requires :color [:points ALL (each-of :x :y)]))
     (check-for-explanations :Figure {:points 3})
-    => (just (err:required :color)
+    =future=> (just (err:required :color)
              (err:bad-all-target [:points ALL :x] {:points 3} 3)
              (err:bad-all-target [:points ALL :y] {:points 3} 3)))
 

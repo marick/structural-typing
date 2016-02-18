@@ -43,8 +43,8 @@
   (built-like {[ALL] pos?} #{}) => #{}
   (built-like {[ALL] pos?} []) => []
   (built-like {[ALL] pos?} (map inc [1 2])) => [2 3]
-  (check-for-explanations {[ALL] pos?} 1) => (just (err:bad-all-target [ALL] 1 1))
+  (check-for-explanations {[ALL] pos?} 1) =future=> (just (err:bad-all-target [ALL] 1 1))
   (check-for-explanations {[ALL] pos?} {:a 1, :b 2})
-  => (just (err:bad-all-target [ALL] {:a 1, :b 2} {:a 1, :b 2})))
+  =future=> (just (err:bad-all-target [ALL] {:a 1, :b 2} {:a 1, :b 2})))
 
 (start-over!)

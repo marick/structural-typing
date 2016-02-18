@@ -178,24 +178,6 @@
   (or (#{ALL} elt)
       (instance? RangeVariantType elt)))
 
-(defn replace-with-indices [path indices]
-  (loop [result []
-         [p & ps] path
-         indices indices]
-    (cond (nil? p)
-          result
-
-          (will-match-many? p)
-          (recur (conj result (first indices))
-                 ps
-                 (rest indices))
-
-          :else
-          (recur (conj result p)
-                 ps
-                 indices))))
-
-
 ;; A pseudo-predicate to short-circuit processing with an error when a non-sequential is
 ;; to be given to RANGE. Note: although `nil` is actually non-sequential, it is allowed
 ;; because it typically represents a too-short sequence, which should get a different error.
@@ -219,77 +201,55 @@
 
 
 (defn- surround-with-index-collector [elt]
-  [(specter/view (partial map-indexed vector))
-   elt
-   (specter/collect-one specter/FIRST)
-   specter/LAST])
+  (vector (specter/view #(into (empty %) (map-indexed vector %)))
+          elt
+          (specter/collect-one specter/FIRST)
+          specter/LAST))
+
+(defn- prefix-with-elt-collector [original-elt dispatch-version-of-elt]
+  (vector (specter/putval original-elt) dispatch-version-of-elt))
+
+
+(defn- munge-path-appropriately [original-path]
+  (loop [[elt & remainder] original-path
+         specter-path []]
+    (if (nil? elt)
+      specter-path
+      (let [new-path
+            (cond (= ALL elt)
+                  (surround-with-index-collector elt)
+
+                  (instance? RangeVariantType elt)
+                  (surround-with-index-collector elt)
+
+                  (keyword? elt)
+                  (prefix-with-elt-collector elt (->KeywordVariantType elt))
+
+                  (string? elt)
+                  (prefix-with-elt-collector elt (->StringVariantType elt))
+
+                  (integer? elt)
+                  (prefix-with-elt-collector elt (->IntegerVariantType elt))
+
+                  :else
+                  (prefix-with-elt-collector elt elt))]
+        (recur remainder (into specter-path new-path))))))
 
 (defn compile [original-path]
-   (loop [[elt & remainder] original-path
-          specter-path []
-          path-type :constant-path]
-     (cond (nil? elt)
-           [(apply specter/comp-paths specter-path) path-type]
-
-
-           (= ALL elt)
-           (recur remainder
-                  (-> specter-path
-                      ;; This is probably not the right way to accomplish this.
-                      ;; (conj all-may-not-be-nil!)
-                      (conj all-requires-collection!)
-                      (into (surround-with-index-collector elt)))
-                  :indexed-path)
-
-           (instance? RangeVariantType elt)
-           (recur remainder
-                  (-> specter-path
-                      (conj range-requires-sequential!)
-                      (into (surround-with-index-collector elt)))
-                  :indexed-path)
-
-           (keyword? elt)
-           (recur remainder
-                  (conj specter-path (->KeywordVariantType elt))
-                  path-type)
-
-           (string? elt)
-           (recur remainder
-                  (conj specter-path (->StringVariantType elt))
-                  path-type)
-
-           (integer? elt)
-           (recur remainder
-                  (conj specter-path (->IntegerVariantType elt))
-                  path-type)
-
-           :else
-           (recur remainder (conj specter-path elt) path-type))))
-
-(def constant-path-exval-maker exval/->ExVal)
-(defn constant-path-postprocessor [specter-result oopsie] oopsie)
-(defn indexed-path-exval-maker [specter-result original-path whole-value]
-  (exval/->ExVal (last specter-result) original-path whole-value))
-(defn indexed-path-postprocessor [specter-result raw-oopsie]
-  (update raw-oopsie :path #(replace-with-indices % (butlast specter-result))))
-
-(defn processors [path-type]
-  (case path-type
-    :constant-path [constant-path-exval-maker constant-path-postprocessor]
-    :indexed-path [indexed-path-exval-maker indexed-path-postprocessor]
-    (boom! "%s is an invalid path-type (neither constant nor indexed)" path-type)))
+  (if (empty? original-path)
+    (fn [whole-value] (vector (exval/->ExVal whole-value [] whole-value)))
+    (let [compiled-path (apply specter/comp-paths (munge-path-appropriately original-path))]
+      (fn [whole-value]
+        (let [result (specter/compiled-select compiled-path whole-value)]
+          (mapv #(exval/->ExVal (last %) (butlast %) whole-value) result))))))
 
 (defn mkfn:whole-value->oopsies [original-path lifted-preds]
-  (let [[compiled-path path-type] (compile original-path)
-        [exval-maker path-postprocessor] (processors path-type)]
+  (let [exval-maker (compile original-path)]
     (fn [whole-value]
       (try+
-        (let [specter-results (specter/compiled-select compiled-path whole-value)]
-          (for [result specter-results
-                raw-oopsie (lifted-preds (exval-maker result original-path whole-value))]
-            (path-postprocessor result raw-oopsie)))
+       (mapcat lifted-preds (exval-maker whole-value))
 
-        (catch [:type :bad-range-target] {:keys [interior-node]}
+       (catch [:type :bad-range-target] {:keys [interior-node]}
           (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
 
         (catch [:type :bad-all-target] {:keys [interior-node]}
