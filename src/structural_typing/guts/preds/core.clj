@@ -18,15 +18,6 @@
                                               (oopsie/friendly-path %)))
                     [:check-nil]))
 
-(depr/def ^{:deprecated {:in "0.14.0"
-                         :use-instead required-path}}
-  required-key
-  (wrap/lift-expred (expred/->ExPred (constantly false)
-                                     "required-key"
-                                     (constantly "You have to replace `required-key` with `required-path`. Sorry this deprecation is so ungraceful."))
-                    [:check-nil]))
-
-                
 
 (def not-nil
   "False iff a key/path does not exist or has value `nil`. 

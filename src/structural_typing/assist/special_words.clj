@@ -12,7 +12,6 @@
 
 (import-vars [structural-typing.guts.preds.core
                required-path
-               required-key
                not-nil]
              [structural-typing.guts.preds.annotating
                show-as

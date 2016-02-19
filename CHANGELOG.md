@@ -13,6 +13,7 @@ See [here](http://keepachangelog.com/) for the change log format.
        - BigDecimal and BigFloat literals will match plain floats, longs, etc.
 - CHANGE: Better detection/reporting of structures that cannot match the path.
 - CHANGE: Some improvements to error handling
+- BREAKING: Removed `required-key` (previously deprecated)
 
 ## [1.0.1]
 - CHANGE: Use newest version of `suchwow` and `specter`.
