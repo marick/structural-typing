@@ -82,21 +82,20 @@
       ((:explainer oopsie) oopsie) => (err:bad-all-target [subject/ALL] 1 1))))
     
       
-(fact 'mkfn:range-element-selector
+(fact desired-range
   (let [make-range (fn [inclusive-start exclusive-end]
                      {:inclusive-start inclusive-start
                       :exclusive-end exclusive-end})]
 
     (fact "no missing elements"
       (let [in [ [0 :zero] [1 :one] [2 :two] [3 :three] ]]
-        ( (subject/mkfn:range-element-selector (make-range 0 2)) in) => [[0 :zero] [1 :one]]
-        ( (subject/mkfn:range-element-selector (make-range 0 1)) in) => [[0 :zero]]
-        ( (subject/mkfn:range-element-selector (make-range 0 0)) in) => []
-        ( (subject/mkfn:range-element-selector (make-range 2 4)) in) => [[2 :two] [3 :three]]))
+        (subject/desired-range (make-range 0 2) in) => [[0 :zero] [1 :one]]
+        (subject/desired-range (make-range 0 1) in) => [[0 :zero]]
+        (subject/desired-range (make-range 0 0) in) => []
+        (subject/desired-range (make-range 2 4) in) => [[2 :two] [3 :three]]))
     
     (fact "missing elements are filled with nils"
       (let [range (make-range 1 4)]
         (fact "no preceding ALL or RANGE"
           (let [in [ [0 :irrelevant] [1 :one] [2 :two] ]]
-            ( (subject/mkfn:range-element-selector range) in) => [ [1 :one] [2 :two] [3 nil] ]))))))
-  
+            (subject/desired-range range in) => [ [1 :one] [2 :two] [3 nil] ]))))))

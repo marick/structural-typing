@@ -44,11 +44,11 @@
 
 
 (defn- all-oopsies [compiled-type candidate]
-    (or (seq (whole-type-checker candidate))
-        (reduce (fn [so-far checker]
-                  (into so-far (checker candidate)))
-                []
-                compiled-type)))
+  (or (seq (whole-type-checker candidate))
+      (reduce (fn [so-far checker]
+                (into so-far (checker candidate)))
+              []
+              compiled-type)))
 
 (defn- respond-to-results [type-repo candidate oopsies]
   (if (empty? oopsies)

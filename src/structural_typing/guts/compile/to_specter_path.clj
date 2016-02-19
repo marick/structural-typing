@@ -83,11 +83,7 @@
                                  ;;; ALL, RANGE, etc.
 
 (defn pursue-multiple-paths [subcollection-fn collection next-fn]
-  (cond (nil? collection)
-        nil
-
-        :else
-        (into [] (r/mapcat next-fn (subcollection-fn collection)))))
+  (into [] (r/mapcat next-fn (subcollection-fn collection))))
 
 
 ;;; ALL
@@ -95,7 +91,8 @@
 
 (extend-type AllVariantType
   sp/StructurePath
-  (select* [this structure next-fn] (pursue-multiple-paths identity structure next-fn))
+  (select* [this structure next-fn]
+    (into [] (r/mapcat next-fn structure)))
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
 (def ALL (->AllVariantType))
@@ -106,30 +103,27 @@
 
 
 ;;; RANGE
-(defn mkfn:range-element-selector [{:keys [inclusive-start exclusive-end]}]
-  (fn [sequence]
-    (let [desired-count (- exclusive-end inclusive-start)
-          subseq (->> sequence
-                      (drop inclusive-start)
-                      (take desired-count)
-                      vec)
-          actual-count (count subseq)
-          result (if (= actual-count desired-count)
-                   subseq
-                   (into subseq
-                         (map vector 
-                              (drop (+ inclusive-start actual-count) (range))
-                              (repeat (- desired-count actual-count) nil))))]
-      result)))
+(defn desired-range [{:keys [inclusive-start exclusive-end]} sequence]
+  (let [desired-count (- exclusive-end inclusive-start)
+        subseq (->> sequence
+                    (drop inclusive-start)
+                    (take desired-count)
+                    vec)
+        actual-count (count subseq)
+        result (if (= actual-count desired-count)
+                 subseq
+                 (into subseq
+                       (map vector
+                            (drop (+ inclusive-start actual-count) (range))
+                            (repeat (- desired-count actual-count) nil))))]
+    result))
 
 (defrecord RangeVariantType [inclusive-start exclusive-end])
 
 (extend-type RangeVariantType
   sp/StructurePath
   (select* [this structure next-fn]
-    (if (or (map? structure) (set? structure))
-      (boom! "Cannot take a map or a set")
-      (pursue-multiple-paths (mkfn:range-element-selector this) structure next-fn)))
+    (into [] (r/mapcat next-fn (desired-range this structure))))
   (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
 
 (defn RANGE
@@ -182,8 +176,7 @@
 ;; to be given to RANGE. Note: although `nil` is actually non-sequential, it is allowed
 ;; because it typically represents a too-short sequence, which should get a different error.
 (defn- range-requires-sequential! [x]
-  (when (and (not (sequential? x))
-             (not (nil? x)))
+  (when (not (sequential? x))
     (throw+ {:type :bad-range-target :interior-node x}))
   true)
 
@@ -198,7 +191,7 @@
 
 
 (defn- surround-with-index-collector [elt]
-  (vector (specter/view #(into (empty %) (map-indexed vector %)))
+  (vector (specter/view #(map-indexed vector %))
           elt
           (specter/collect-one specter/FIRST)
           specter/LAST))
@@ -218,7 +211,8 @@
                         (surround-with-index-collector elt))
 
                   (instance? RangeVariantType elt)
-                  (into [range-requires-sequential!] (surround-with-index-collector elt))
+                  (into [range-requires-sequential!]
+                        (surround-with-index-collector elt))
 
                   (keyword? elt)
                   (prefix-with-elt-collector elt (->KeywordVariantType elt))

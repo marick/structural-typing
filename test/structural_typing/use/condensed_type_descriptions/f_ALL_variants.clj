@@ -41,7 +41,8 @@
                                     :wrong]})
     => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path"))
 
-  (future-fact "a range can be taken of an infinite sequence"
+
+  (fact "a range can be taken of an infinite sequence"
     (type! :X {(RANGE 1 3) even?})
     (check-for-explanations :X (repeat 1)) => (just (err:shouldbe [1] "even?" 1)
                                                     (err:shouldbe [2] "even?" 1))))
