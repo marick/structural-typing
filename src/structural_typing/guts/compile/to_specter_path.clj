@@ -187,15 +187,12 @@
     (throw+ {:type :bad-range-target :interior-node x}))
   true)
 
-(defn- all-may-not-be-nil! [x]
-  (when (nil? x)
-    (throw+ {:type :nil-all}))
-  true)
+(defn- short-circuit-on-nil [x]
+  (not (nil? x)))
 
-(defn- all-requires-collection! [x]
+(defn- all-requires-collection! [x]  ;; assumes nil has already been filtered out.
   (when (or (map? x)
-            (and (not (nil? x))
-                 (not (coll? x))))
+            (not (coll? x)))
     (throw+ {:type :bad-all-target :interior-node x}))
   true)
 
@@ -217,10 +214,11 @@
       specter-path
       (let [new-path
             (cond (= ALL elt)
-                  (surround-with-index-collector elt)
+                  (into [short-circuit-on-nil all-requires-collection!]
+                        (surround-with-index-collector elt))
 
                   (instance? RangeVariantType elt)
-                  (surround-with-index-collector elt)
+                  (into [range-requires-sequential!] (surround-with-index-collector elt))
 
                   (keyword? elt)
                   (prefix-with-elt-collector elt (->KeywordVariantType elt))

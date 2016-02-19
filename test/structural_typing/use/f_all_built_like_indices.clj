@@ -20,22 +20,11 @@
   (check-all-for-explanations [(requires [:x ALL :a]) {:y integer?}]
                               [ {:x [{:a 3}]}
                                 {:x [{:b 3}], :y 3}
-                                {:y "string"}])
-  =future=> (just (err:required [1 :x 0 :a])
+                                {:y "string"}
+                                {:y 1}])
+  => (just (err:required [1 :x 0 :a])
            (err:required [2 :x])
            (err:shouldbe [2 :y] "integer?" "\"string\"")
-           (err:notpath [:x ALL :a] {:y "string"}))
-
-
-  ;; or would this be better?
-  (check-all-for-explanations [(requires [:x ALL :a]) {:y integer?}]
-                              [ {:x [{:a 3}]}
-                                {:x [{:b 3}], :y 3}
-                                {:y "string"}])
-  =future=> (just (err:required [1 :x 0 :a])
-                  (err:required [2 :x])
-                  (err:shouldbe [2 :y] "integer?" "\"string\"")
-                  (err:nil-all [:x ALL :a] {:y "string"})))
-
+           (err:required [3 :x])))
 
 (start-over!)

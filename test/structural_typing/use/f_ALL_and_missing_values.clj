@@ -16,6 +16,8 @@
   (type! :Bottom {[:x ALL] odd?})
   (built-like :Bottom {}) => {}
   (built-like :Bottom {:x nil}) => {:x nil}
+  ;; If you want the above rejected, you do this:
+  (check-for-explanations {:x required-path, [:x ALL] odd?} {:x nil}) => (just (err:required :x))
   (built-like :Bottom {:x []}) => {:x []}
 
   (type! :Middle {[:x ALL :y] odd?})
@@ -42,14 +44,13 @@
 
   (let [path [:x ALL :y]]
     (type! :Middle {path [required-path odd?]})
-    (built-like :Middle {}) =future=> (just (err:required :x))
-    (built-like :Middle {:x nil}) =future=> (just (err:bad-all-target path {:x nil} nil))
-    (built-like :Middle {:x []}) =future=> {:x []}
-    (built-like :Middle {:x [{}]}) =future=> (just (err:required [:x 0 :y]))
-    (built-like :Middle {:x [{:y nil}]}) =future=> (just (err:required [:x 0 :y]))
-    (built-like :Middle {:x [{:y 1}]}) =future=> {:x [{:y 1}]}
-    (check-for-explanations :Middle {:x [{:y 2}]}) =future=> (just (err:shouldbe [:x 0 :y] "odd?" 2))))
-
+    (check-for-explanations :Middle {}) => (just (err:required :x))
+    (check-for-explanations :Middle {:x nil}) => (just (err:required :x))
+    (built-like :Middle {:x []}) => {:x []}
+    (check-for-explanations :Middle {:x [{}]}) => (just (err:required [:x 0 :y]))
+    (check-for-explanations :Middle {:x [{:y nil}]}) => (just (err:required [:x 0 :y]))
+    (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
+    (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2))))
 
 (future-fact "same for ONLY")
 (future-fact "and RANGE")

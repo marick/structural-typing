@@ -63,19 +63,19 @@
 
 
 (fact mkfn:whole-value->oopsies
-  (fact "constant paths"
+  (fact "non-branching-paths"
     (let [f (subject/mkfn:whole-value->oopsies [:a] (wrap/lift even?))]
       (f {}) => []
       (f {:a 2}) => []
       (f {:a 1}) => (just (contains {:leaf-value 1, :path [:a]}))))
 
-  (fact "indexed path"
+  (fact "branching-paths"
     (let [f (subject/mkfn:whole-value->oopsies [:a subject/ALL] (wrap/lift even?))]
-      (f {}) =future=> (just (contains {:leaf-value :halted-before-leaf-value-found}))
+      (f {}) => []
       (f {:a [2]}) => []
       (f {:a [2 1]}) => (just (contains {:leaf-value 1, :path [:a 1]}))))
     
-  (future-fact "a broken path"
+  (fact "a broken path"
     (let [f (subject/mkfn:whole-value->oopsies [subject/ALL] (wrap/lift even?))
           results (f 1)
           oopsie (first results)]
@@ -96,7 +96,7 @@
     
     (fact "missing elements are filled with nils"
       (let [range (make-range 1 4)]
-        (future-fact "no preceding ALL or RANGE"
+        (fact "no preceding ALL or RANGE"
           (let [in [ [0 :irrelevant] [1 :one] [2 :two] ]]
             ( (subject/mkfn:range-element-selector range) in) => [ [1 :one] [2 :two] [3 nil] ]))))))
   
