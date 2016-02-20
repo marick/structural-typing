@@ -57,18 +57,6 @@
 
 ;;; ---
 
-(defn err:nil-all
-  "The error message produed when `ALL` descends into a missing (or nil) collection"
-  [original-path whole-value]
-  (cl-format nil "~A is not a path into `~S`; ALL would have to descend into a missing or nil collection"
-             (oopsie/friendly-path {:path original-path})
-             whole-value))
-(defn oopsie:nil-all [original-path whole-value]
-  (structural-oopsie original-path whole-value (err:nil-all original-path whole-value)))
-(def as-oopsies:nil-all (pluralize oopsie:nil-all))
-
-;;; ---
-
 (defn err:notpath
   "Produces the same error messsage produced when the whole value is not the same \"shape\" as the path requires."
   [original-path whole-value]
