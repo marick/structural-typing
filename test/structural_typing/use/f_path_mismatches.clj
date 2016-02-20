@@ -85,8 +85,7 @@
                                                 (err:required [3 2])))
 
       (let [in [ :unchecked [10 11 12] nil [30 31 32] :unchecked]]
-        (check-for-explanations :X in) =future=> (just (err:required [2 1])
-                                                       (err:required [2 2])))
+        (check-for-explanations :X in) => (just (err:bad-range-target path in nil)))
 
       (fact "in a combination of non-sequential value and truncation, you only see impossible path"
         (let [in [ :unchecked [10 11 12] :oops [30 31 32] :unchecked]]
@@ -96,11 +95,9 @@
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
       (type! :X {path [required-path]})
       (fact "top level"
-        (check-for-explanations :X []) =future=> (just (err:required [1 1])
-                                                (err:required [1 2])))
+        (check-for-explanations :X []) => (just (err:bad-range-target path [] nil))
       (fact "nested"
-        (check-for-explanations :X [ [] ]) =future=> (just (err:required [1 1])
-                                                    (err:required [1 2])))))
+        (check-for-explanations :X [ [] ]) => (just (err:bad-range-target path [[]] nil))))))
 
   (fact "cannot take maps or sets"
     (type! :X (requires [(RANGE 1 2)]))
