@@ -87,7 +87,9 @@
 
 
 (import-vars [structural-typing.guts.explanations
-                err:only err:notpath
+                err:only-wrong-count
+                err:some-wrong-count
+                err:notpath
                 err:bad-all-target
                 err:bad-range-target])
 

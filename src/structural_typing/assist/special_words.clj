@@ -19,6 +19,7 @@
              [structural-typing.guts.compile.to-specter-path
                ALL
                ONLY
+               SOME
                RANGE]
              [structural-typing.guts.type-descriptions
                requires-mentioned-paths]

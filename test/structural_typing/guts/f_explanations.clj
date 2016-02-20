@@ -3,15 +3,12 @@
             [midje.sweet :refer :all]))
 
 
-(facts "err:only"
-  (subject/err:only 5) => "`5` is supposed to have exactly one element"
-  (subject/err:only []) => "`[]` is supposed to have exactly one element"
-  (subject/err:only '(1 2 3)) => "`(1 2 3)` is supposed to have exactly one element"
-  (subject/err:only (map inc (range 0 3))) => "`(1 2 3)` is supposed to have exactly one element"
-  (subject/err:only "foo") => "`\"foo\"` is supposed to have exactly one element"
-  (subject/err:only :foo) => "`:foo` is supposed to have exactly one element"
-  (subject/err:only 'foo) => "`foo` is supposed to have exactly one element")
+(facts "err:only-wrong-count"
+  (subject/err:only-wrong-count '[ONLY] 5) => "`[ONLY]` should be a path through a single-element collection; it passes through `5`"
+  (subject/err:only-wrong-count '[ONLY] []) => "`[ONLY]` should be a path through a single-element collection; it passes through `[]`")
 
+(facts "err:some-wrong-count"
+  (subject/err:some-wrong-count [:a] []) => "`[:a]` should be a path to a non-empty collection; it ends in `[]`")
 
 (facts "err:bad-range-target"
   (subject/err:bad-range-target '[:a (RANGE 1 2)] {:a 5} 5)

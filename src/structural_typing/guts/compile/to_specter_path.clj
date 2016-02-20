@@ -159,7 +159,7 @@
           (boom! "%s is not a collection" structure)
 
           (not= 1 (count structure))
-          (throw+ {:type :only, :interior-node structure})
+          (throw+ {:type :only-wrong-count, :interior-node structure})
 
           :else
           (next-fn (first structure))))
@@ -169,6 +169,21 @@
 
 (defmethod clojure.core/print-method OnlyVariantType [o, ^java.io.Writer w] (.write w "ONLY"))
 (readable/instead-of ONLY 'ONLY)
+
+
+;;; SOME
+(deftype SomeVariantType [])
+
+(extend-type SomeVariantType
+  sp/StructurePath
+  (select* [this structure next-fn]
+    (into [] (r/mapcat next-fn structure)))
+  (transform* [& _] (no-transform!)))
+
+(def SOME (->SomeVariantType))
+
+(defmethod clojure.core/print-method SomeVariantType [o, ^java.io.Writer w] (.write w "SOME"))
+(readable/instead-of SOME 'SOME)
 
 
 
@@ -197,6 +212,11 @@
     (throw+ {:type :bad-all-target :interior-node x}))
   true)
 
+(defn- some-must-be-non-empty! [x]
+  (when (empty? x)
+    (throw+ {:type :some-wrong-count :interior-node x}))
+  true)
+
 
 (defn- surround-with-index-collector [elt]
   (vector (specter/view #(map-indexed vector %))
@@ -216,6 +236,10 @@
       (let [new-path
             (cond (= ALL elt)
                   (into [short-circuit-on-nil all-requires-collection!]
+                        (surround-with-index-collector elt))
+
+                  (= SOME elt)
+                  (into [some-must-be-non-empty!]
                         (surround-with-index-collector elt))
 
                   (instance? RangeVariantType elt)
@@ -258,8 +282,11 @@
         (catch [:type :bad-range-target] {:keys [interior-node]}
           (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
 
-        (catch [:type :only] {:keys [interior-node]}
-          (explain/as-oopsies:only original-path whole-value interior-node))
+        (catch [:type :only-wrong-count] {:keys [interior-node]}
+          (explain/as-oopsies:only-wrong-count original-path whole-value interior-node))
+
+        (catch [:type :some-wrong-count] {:keys [interior-node]}
+          (explain/as-oopsies:some-wrong-count original-path whole-value interior-node))
 
         (catch Exception ex
           (explain/as-oopsies:notpath original-path whole-value))))))

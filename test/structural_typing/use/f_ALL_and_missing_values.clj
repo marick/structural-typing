@@ -54,6 +54,7 @@
 
 (future-fact "same for ONLY")
 (future-fact "and RANGE")
+(future-fact "and SOME")
 
 
 (start-over!)
