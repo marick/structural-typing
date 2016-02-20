@@ -13,53 +13,52 @@
             [structural-typing.assist.oopsie :as oopsie]
             [slingshot.slingshot :refer [throw+ try+]]))
 
+(defn no-transform! []
+  (boom! "structural-typing does not use transform"))
+
+
 ;; NOTE: Specter requires `extend-type/extend-protocol` instead of
 ;; defining the protocol functions in the deftype. It's an
 ;; implementation detail.
 
-(deftype KeywordVariantType [keyword])
+(defrecord KeywordVariantType [keyword])
+
+
+(defn- associative-select* [accessor this structure next-fn]
+  (cond (map? structure)
+        (next-fn (get structure (accessor this)))
+
+        ;; This code could return `nil` immediately, rather than calling `next-fn`.
+        ;; That would (I think) provide an easier way of handling cases like this:
+        ;;    (built-like {[:k ALL] required-path} {}) => (just (err:required :k))
+        ;; ... than the current method, which relies on `add-implied-required-paths`.
+        ;; However, that code was already added back when I was using Specter's
+        ;; extension of `clojure.lang.Keyword` rather than rolling my own. It's easier
+        ;; to keep it than take it out.
+        ;;
+        ;; Also this would allow something like `{[ALL :k some-VERY-peculiar-predicate] ...}`
+        ;; to do something like, oh, replacing the nth `nil` with its count.
+        (nil? structure)
+        (next-fn nil)
+
+        :else
+        (boom! "%s is not a map" structure)))
 
 (extend-type KeywordVariantType
   sp/StructurePath
-  (select* [this structure next-fn]
-    (cond (map? structure)
-          (next-fn (get structure (.-keyword this)))
-
-          ;; This code could return `nil` immediately, rather than calling `next-fn`.
-          ;; That would (I think) provide an easier way of handling cases like this:
-          ;;    (built-like {[:k ALL] required-path} {}) => (just (err:required :k))
-          ;; ... than the current method, which relies on `add-implied-required-paths`.
-          ;; However, that code was already added back when I was using Specter's
-          ;; extension of `clojure.lang.Keyword` rather than rolling my own. It's easier
-          ;; to keep it than take it out.
-          ;;
-          ;; Also this would allow something like `{[ALL :k some-VERY-peculiar-predicate] ...}`
-          ;; to do something like, oh, replacing the nth `nil` with its count.
-          (nil? structure)
-          (next-fn nil)
-
-          :else
-          (boom! "%s is not a map" structure)))
-  (transform* [this structure next-fn] (boom! "structural-typing does not use transform")))
+  (select* [& args] (apply associative-select* :keyword args))
+  (transform* [& _] (no-transform!)))
 
 (defmethod clojure.core/print-method KeywordVariantType [o, ^java.io.Writer w]
   (.write w (str (.-keyword o))))
 
 ;;
-(deftype StringVariantType [string])
+(defrecord StringVariantType [string])
 
 (extend-type StringVariantType
   sp/StructurePath
-  (select* [this structure next-fn]
-    (cond (map? structure)
-          (next-fn (get structure (.-string this)))
-
-          (nil? structure)
-          (next-fn nil)
-
-          :else
-          (boom! "%s is not a map" structure)))
-  (transform* [this structure next-fn] (boom! "structural-typing does not use transform")))
+  (select* [& args] (apply associative-select* :string args))
+  (transform* [& _] (no-transform!)))
 
 (defmethod clojure.core/print-method StringVariantType [o, ^java.io.Writer w]
   (.write w (pr-str (.-string o))))
@@ -81,7 +80,7 @@
             (next-fn (nth structure (.-value this)))
             (catch IndexOutOfBoundsException ex
               (next-fn nil)))))
-  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+  (transform* [& _] (no-transform!)))
 
 (defmethod clojure.core/print-method IntegerVariantType [o, ^java.io.Writer w]
   (.write w (str (.-value o))))
@@ -102,7 +101,7 @@
   sp/StructurePath
   (select* [this structure next-fn]
     (into [] (r/mapcat next-fn structure)))
-  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+  (transform* [& _] (no-transform!)))
 
 (def ALL (->AllVariantType))
 
@@ -133,7 +132,7 @@
   sp/StructurePath
   (select* [this structure next-fn]
     (into [] (r/mapcat next-fn (desired-range this structure))))
-  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+  (transform* [& _] (no-transform!)))
 
 (defn RANGE
   "Use this in a path to select a range of values in a 
@@ -164,8 +163,7 @@
 
           :else
           (next-fn (first structure))))
-
-  (transform* [kw structure next-fn] (boom! "structural-typing does not use transform")))
+  (transform* [& _] (no-transform!)))
 
 (def ONLY (->OnlyVariantType))
 
