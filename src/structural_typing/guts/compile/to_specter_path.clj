@@ -176,7 +176,8 @@
 ;; to be given to RANGE. Note: although `nil` is actually non-sequential, it is allowed
 ;; because it typically represents a too-short sequence, which should get a different error.
 (defn- range-requires-sequential! [x]
-  (when (not (sequential? x))
+  (when (and (not (sequential? x))
+             (not (nil? x)))
     (throw+ {:type :bad-range-target :interior-node x}))
   true)
 
