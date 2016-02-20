@@ -48,10 +48,25 @@
   (type! :X {[ALL ALL] [required-path even?]})
   (fact "non-collections: impossible"
     (check-for-explanations :X 1) =>   (just (err:bad-all-target [ALL ALL] 1 1))
-    (check-for-explanations :X [1]) => (just (err:bad-all-target [ALL ALL] [1] 1)))
-  (fact "nested missing or nil values: truncated"
-    (check-for-explanations :X [     ]) =future=> (just (err:required [0 ALL])))
+    (check-for-explanations :X [1]) => (just (err:bad-all-target [ALL ALL] [1] 1))))
 
+(future-fact "Two ALLs in a row implies that the first should be a SOME"
+  (check-for-explanations {[ALL ALL] required-path} [     ]) =future=> (just (err:required [0 ALL]))
+  (check-for-explanations {[:x ALL ALL] required-path} {:x [     ]}) =future=> (just "message")
+  (check-for-explanations {[ALL :x ALL ALL] [even? required-path]}
+                          [{:x [[2]]}
+                           {:x [[2 1] [3]]}
+                           {:x [     ]}])
+  =future=> (just "message")
+  (check-for-explanations {[ALL :x ALL ALL :z] [even? required-path]}
+                          [{:x [[{:z 2}]]}
+                           {:x [[{:z 1}]]}
+                           {:x [[{:notz 2}]]}
+                           {:x [     ]}])
+  =future=> (just "message"))
+
+
+(fact "nested missing or nil values: truncated"
   (type! :X {[:x ALL] [required-path even?]})
   (fact "as before, non-collections: impossible"
     (check-for-explanations :X {:x 1}) =>   (just (err:bad-all-target [:x ALL] {:x 1} 1)))
