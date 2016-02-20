@@ -250,9 +250,6 @@
         (catch [:type :bad-range-target] {:keys [interior-node]}
           (explain/as-oopsies:bad-range-target original-path whole-value interior-node))
 
-        (catch [:type :nil-all] {}
-          (explain/as-oopsies:nil-all original-path whole-value))
-
         (catch [:type :only] {:keys [interior-node]}
           (explain/as-oopsies:only original-path whole-value interior-node))
 

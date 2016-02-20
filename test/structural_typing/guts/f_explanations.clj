@@ -24,9 +24,6 @@
   => "[:a ALL] is not a path into `{:a {:b 5}}`; ALL cannot make sense of map `{:b 5}`")
 
 
-(facts "err:nil-all"
-  (subject/err:nil-all '[:a ALL] {}) => "[:a ALL] is not a path into `{}`; ALL would have to descend into a missing or nil collection")
-
 (facts "err:notpath"
   (subject/err:notpath [:a :k] 5) => "[:a :k] is not a path into `5`"
   (subject/err:notpath [:a :k] []) => "[:a :k] is not a path into `[]`"
