@@ -3,7 +3,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [in progress]
-- ADD: A record on the right-hand side is treated as an exact value, rather than a
+- BUGFIX: A record on the right-hand side is treated as an exact value, rather than a
   map to traverse to build up paths.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: `ONLY` is like `ALL`, but it insists that its collection have exactly one element.
@@ -13,7 +13,8 @@ See [here](http://keepachangelog.com/) for the change log format.
        - BigDecimal and BigFloat literals will match plain floats, longs, etc.
 - CHANGE: Better detection/reporting of structures that cannot match the path.
 - CHANGE: Some improvements to error handling
-- BREAKING: Removed `required-key` (previously deprecated)
+- BREAKING: Removed `required-key` (not bumping major number because this was deprecated
+  well before 1.0
 
 ## [1.0.1]
 - CHANGE: Use newest version of `suchwow` and `specter`.
