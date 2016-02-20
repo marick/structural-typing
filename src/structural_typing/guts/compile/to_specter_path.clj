@@ -13,7 +13,6 @@
             [structural-typing.assist.oopsie :as oopsie]
             [slingshot.slingshot :refer [throw+ try+]]))
 
-
 ;; NOTE: Specter requires `extend-type/extend-protocol` instead of
 ;; defining the protocol functions in the deftype. It's an
 ;; implementation detail.
@@ -26,6 +25,16 @@
     (cond (map? structure)
           (next-fn (get structure (.-keyword this)))
 
+          ;; This code could return `nil` immediately, rather than calling `next-fn`.
+          ;; That would (I think) provide an easier way of handling cases like this:
+          ;;    (built-like {[:k ALL] required-path} {}) => (just (err:required :k))
+          ;; ... than the current method, which relies on `add-implied-required-paths`.
+          ;; However, that code was already added back when I was using Specter's
+          ;; extension of `clojure.lang.Keyword` rather than rolling my own. It's easier
+          ;; to keep it than take it out.
+          ;;
+          ;; Also this would allow something like `{[ALL :k some-VERY-peculiar-predicate] ...}`
+          ;; to do something like, oh, replacing the nth `nil` with its count.
           (nil? structure)
           (next-fn nil)
 

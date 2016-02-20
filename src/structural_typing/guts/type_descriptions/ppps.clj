@@ -125,7 +125,12 @@
   (update-each-value kvs
                      #(set (map force-predicate %))))
 
-(defn- mapset->map-with-ordered-preds [kvs]
+(defn- mapset->map-with-ordered-preds
+  "By putting `required-path` first, we avoid spurious errors from later predicates
+   in cases like `(built-like {:k [even? required-path]} {})`. You don't care to see
+   an error that `nil` is not even and then an error that `:k` should
+   not be `nil`. You just want the latter."
+  [kvs]
   (update-each-value kvs
                      #(if (contains? % required-path)
                         (into [required-path]
