@@ -6,7 +6,7 @@
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.compile.to-specter-path :as to-specter-path]
-            [structural-typing.guts.preds.core :refer [required-path]]))
+            [structural-typing.guts.preds.core :refer [required-path rejects-missing-and-nil?]]))
 
 (defrecord PPP [path preds])
 
@@ -102,7 +102,7 @@
   [kvs]
   (let [candidate-paths
         (->> kvs
-            (filter (fn [[_path_ predset]] (contains? predset required-path)))
+            (filter (fn [[_path_ predset]] (any? rejects-missing-and-nil? predset)))
             (map first))
         new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
         ;; This prevents sequences like [:x ALL ALL]
@@ -131,8 +131,13 @@
    an error that `nil` is not even and then an error that `:k` should
    not be `nil`. You just want the latter."
   [kvs]
+  ;; TODO: This should probably not insert `required-path`, but rather whatever
+  ;; function that `rejects-missing-and-nil` the user supplied. For example, she
+  ;; might have used `explain-with` to modify the behavior of `required-path`, thus
+  ;; creating her own version that applies the same test but produces a different
+  ;; message.
   (update-each-value kvs
-                     #(if (contains? % required-path)
+                     #(if (any? rejects-missing-and-nil? %)
                         (into [required-path]
                               (set-difference % #{required-path}))
                         (vec %))))
