@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.f-ppps
   (:require [structural-typing.guts.type-descriptions.ppps :as subject]
-            [structural-typing.guts.compile.to-specter-path :refer [ALL]]
+            [structural-typing.guts.compile.to-specter-path :refer [ALL SOME]]
             [structural-typing.guts.preds.core :refer [required-path]]
             [structural-typing.guts.type-descriptions.flatten :as flatten])
   (:use midje.sweet))
@@ -141,6 +141,24 @@
                                    (subject/->PPP [:a ALL :b]  [required-path])])
       => {[:a] [required-path even?]
           [:a ALL :b] [required-path]})))
+
+(fact "replacing leading ALLs"
+  (subject/replace-with-SOME []) => []
+  (subject/replace-with-SOME [ALL]) => [ALL]
+  (subject/replace-with-SOME [ALL ALL]) => [SOME ALL]
+  (subject/replace-with-SOME [:k ALL]) => [:k ALL]
+  (subject/replace-with-SOME [ALL :k]) => [ALL :k]
+  (subject/replace-with-SOME [ALL :k ALL]) => [ALL :k ALL]
+  (subject/replace-with-SOME [ALL ALL ALL]) => [SOME SOME ALL])
+
+
+(fact "handling multidimensional arrays in the path part of mapsets"
+  (subject/handle-multidimensional-arrays {[:k] #{even?}}) => {[:k] #{even?}}
+  (subject/handle-multidimensional-arrays {}) => {}
+  (subject/handle-multidimensional-arrays {[:k] #{even?}
+                                           [ALL ALL] #{odd?}}) => {[:k] #{even?}
+                                                                   [SOME ALL] #{odd?}})
+
 
 (fact "non-function values within a canonicalized map are coerced to `exactly` functions"
   (let [input {[:a :b] #{5}}
