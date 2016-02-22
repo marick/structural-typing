@@ -12,53 +12,54 @@
   (fact "a common case"
     (let [path [:a :b]
           whole-value {:a {:b 1}}]
-      ( (subject/compile path) whole-value) => (just (exval 1 path whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval 1 path whole-value)])))
 
   (fact "predicates that filter out"
     (let [path [:a odd?]]
-      ( (subject/compile path) {:a 1}) => (just (exval 1 path {:a 1}))
-      ( (subject/compile path) {:a 2}) => empty?))
+      ( (subject/compile path) {:a 1}) => (just [] [(exval 1 path {:a 1})])
+      ( (subject/compile path) {:a 2}) => (just empty? empty?)))
 
   (fact "A simple use of ALL"
     (let [path [subject/ALL]]
-      ( (subject/compile path) [100 200]) => (just (exval 100 [0] [100 200])
-                                                   (exval 200 [1] [100 200]))))
+      ( (subject/compile path) [100 200]) => (just []
+                                                   [(exval 100 [0] [100 200])
+                                                    (exval 200 [1] [100 200])])))
 
   (fact "ALL and keywords"
     (let [path [:a subject/ALL :b]
           whole-value {:a [{:b :one} {:b :two}]}]
-      ( (subject/compile path) whole-value) => (just (exval :one [:a 0 :b] whole-value)
-                                                     (exval :two [:a 1 :b] whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval :one [:a 0 :b] whole-value)
+                                                         (exval :two [:a 1 :b] whole-value)])))
 
   (fact "RANGE"
     (let [path [(subject/RANGE 1 3)]
           whole-value [0 :a :b 3]]
-      ( (subject/compile path) whole-value) => (just (exval :a [1] whole-value)
-                                                     (exval :b [2] whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval :a [1] whole-value)
+                                                         (exval :b [2] whole-value)])))
 
   (fact "an empty path"
     (let [path []
           whole-value [0 :a :b 3]]
-      ( (subject/compile path) whole-value) => (just (exval whole-value [] whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval whole-value [] whole-value)])))
 
   (fact "a path with specific indexes"
     (let [path [:a 1 :b]
           whole-value {:a [{:b :one} {:b :two}]}]
-      ( (subject/compile path) whole-value) => (just (exval :two path whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval :two path whole-value)])))
 
   (fact "combining specific indexes and ALL"
     (let [path [:a 1 subject/ALL]
           whole-value {:a [ [3] [:x :y]]}]
-      ( (subject/compile path) whole-value) => (just (exval :x [:a 1 0] whole-value)
-                                                     (exval :y [:a 1 1] whole-value))))
+      ( (subject/compile path) whole-value) => (just [] [(exval :x [:a 1 0] whole-value)
+                                                         (exval :y [:a 1 1] whole-value)])))
 
   (fact "nested ALL"
     (let [path [subject/ALL subject/ALL]
           whole-value [ [:a :b] [:c :d] ]]
-      ( (subject/compile path) whole-value) => (just (exval :a [0 0] whole-value)
-                                                     (exval :b [0 1] whole-value)
-                                                     (exval :c [1 0] whole-value)
-                                                     (exval :d [1 1] whole-value)))))
+      ( (subject/compile path) whole-value) => (just [] [(exval :a [0 0] whole-value)
+                                                         (exval :b [0 1] whole-value)
+                                                         (exval :c [1 0] whole-value)
+                                                         (exval :d [1 1] whole-value)]))))
 
 
 

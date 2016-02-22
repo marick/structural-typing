@@ -5,7 +5,7 @@
             [com.rpl.specter.protocols :as sp]
             [clojure.core.reducers :as r]
             [such.readable :as readable]
-            [structural-typing.guts.self-check :as self :refer [returns-many]]
+            [structural-typing.guts.self-check :as self :refer [returns-many built-like]]
             [structural-typing.guts.explanations :as explain]
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
@@ -259,19 +259,39 @@
                   (prefix-with-elt-collector elt elt))]
         (recur remainder (into specter-path new-path))))))
 
-(defn compile [original-path]
-  (if (empty? original-path)
-    (fn [whole-value] (vector (exval/->ExVal whole-value [] whole-value)))
+;; The way we use Specter, it returns a sequence of entities. Each is a path with the
+;; leaf value tacked on to the end.
+(let [leaf-part last
+      ;; `(butlast [x])` is nil, not []. Sigh.
+      path-part (fn [x] (or (butlast x) []))
+      lift-to-exvals (fn [leaves-with-paths whole-value]
+                       (mapv #(exval/->ExVal (leaf-part %) (path-part %) whole-value)
+                             leaves-with-paths))
+      ;; In this context, the only kind of oopsie we'll get back is due to a Specter traversal
+      ;; failure.
+      traversal-oopsie? wrap/oopsie?]
+
+  (defn compile [original-path]
     (let [compiled-path (apply specter/comp-paths (munge-path-appropriately original-path))]
       (fn [whole-value]
-        (let [result (specter/compiled-select compiled-path whole-value)]
-          (mapv #(exval/->ExVal (last %) (butlast %) whole-value) result))))))
+        ;; We instruct Specter to put accumulate each path element so as to make it available for
+        ;; constructing the eventual ExVal. However, that doesn't work when the original path
+        ;; is empty - `select` processing doesn't know to create the empty path-so-far. So we
+        ;; fake it by wrapping the whole-value in a vector. That's the return value - which
+        ;; happens to contain the correct empty path.
+        (let [selectable-whole-value (if (empty? original-path) [whole-value] whole-value)
+              [traversal-oopsies leaves-with-paths] (->> selectable-whole-value
+                                                         (specter/compiled-select compiled-path)
+                                                         (bifurcate traversal-oopsie?))]
+          (vector traversal-oopsies
+                  (lift-to-exvals leaves-with-paths whole-value)))))))
 
 (defn mkfn:whole-value->oopsies [original-path lifted-preds]
-  (let [exval-maker (compile original-path)]
+  (let [path-traverser (compile original-path)]
     (fn [whole-value]
       (try+
-       (mapcat lifted-preds (exval-maker whole-value))
+       (let [[traversal-oopsies exvals] (path-traverser whole-value)]
+         (into traversal-oopsies (mapcat lifted-preds exvals)))
 
        (catch [:type :bad-range-target] {:keys [interior-node]}
           (explain/as-oopsies:bad-range-target original-path whole-value interior-node))

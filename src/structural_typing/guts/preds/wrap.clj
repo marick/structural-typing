@@ -2,6 +2,7 @@
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
             [such.metadata :as meta]
+            [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.defaults :as defaults]
             [structural-typing.guts.expred :as expred]))
 
@@ -44,6 +45,12 @@
                    (get-explainer pred)))
 
 
+(defrecord Oopsie []) ; just a marker interface, used like part of a union type.
+(defn oopsie? [x] (instance? Oopsie x))
+
+(defn ->oopsie [expred exval]
+  (map->Oopsie (merge expred exval)))
+
 (defn- mkfn:optional [pred]
   (fn [value]
     (if (nil? value)
@@ -65,7 +72,7 @@
     (-> (fn [exval]
           (if (pred-with-protections (:leaf-value exval))
             []
-            (vector (merge expred exval))))
+            (vector (->oopsie expred exval))))
         mark-as-lifted
         (give-lifted-predicate-a-nice-string expred))))
 
