@@ -61,9 +61,9 @@
               (not (any? #{:check-nil} protection-subtractions)) mkfn:optional)))
 
 (defn lift-expred [expred protection-subtractions]
-  (let [protected (protect-pred (:predicate expred) protection-subtractions)]
+  (let [pred-with-protections (protect-pred (:predicate expred) protection-subtractions)]
     (-> (fn [exval]
-          (if (protected (:leaf-value exval))
+          (if (pred-with-protections (:leaf-value exval))
             []
             (vector (merge expred exval))))
         mark-as-lifted
