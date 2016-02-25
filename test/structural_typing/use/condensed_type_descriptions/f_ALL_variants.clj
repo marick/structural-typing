@@ -60,7 +60,7 @@
     (check-for-explanations :X {:a [0 1 {:b 1}]}) => (just (err:shouldbe [:a 2 :b] "even?" 1))))
 
 
-(fact "ONLY"
+(future-fact "ONLY"
   (fact "describing the whole path"
     (type! :X {[ONLY] even?})
     (built-like :X [2]) => [2]

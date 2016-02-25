@@ -16,10 +16,21 @@
 (defn no-transform! []
   (boom! "structural-typing does not use transform"))
 
-
 ;; NOTE: Specter requires `extend-type/extend-protocol` instead of
 ;; defining the protocol functions in the deftype. It's an
 ;; implementation detail.
+
+
+
+
+
+
+
+
+
+
+
+
 
 (defrecord KeywordVariantType [keyword])
 
