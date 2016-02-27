@@ -34,7 +34,7 @@
 (def oopsies:shouldbe-collection
   (mkfn:structural-singleton-oopsies err:shouldbe-collection [:path :leaf-value]))
 
-(def err:shouldbe-sequential (mkfn:shouldbe-type "a sequential sequential"))
+(def err:shouldbe-sequential (mkfn:shouldbe-type "a sequential"))
 (def oopsies:shouldbe-sequential
   (mkfn:structural-singleton-oopsies err:shouldbe-sequential [:path :leaf-value]))
 
