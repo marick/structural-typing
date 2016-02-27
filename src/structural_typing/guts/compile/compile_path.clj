@@ -132,75 +132,75 @@
 (defmethod clojure.core/print-method RangePathElement [o, ^java.io.Writer w]
   (.write w (:printable o)))
 
-(defn desired-range [{:keys [inclusive-start desired-count]} sequence]
-  ;; This works with infinite sequences
-  (->> sequence
-       (drop inclusive-start)
-       (take desired-count)
-       vec))
+(letfn [(desired-range [{:keys [inclusive-start desired-count]} sequence]
+          ;; This works with infinite sequences
+          (->> sequence
+               (drop inclusive-start)
+               (take desired-count)
+               vec))
 
-(defn extract-desired-range-as-exvals [exval {:keys [inclusive-start] :as selector-element}]
-  (->> (:leaf-value exval)
-       (desired-range selector-element)
-       (mapv #(update-exval exval {:conj-path %1 :descend-into %2})
-             (drop inclusive-start (range)))))
+        (extract-desired-range-as-exvals [exval {:keys [inclusive-start] :as selector-element}]
+          (->> (:leaf-value exval)
+               (desired-range selector-element)
+               (mapv #(update-exval exval {:conj-path %1 :descend-into %2})
+                     (drop inclusive-start (range)))))
 
-(defn indexes-of-out-of-range-elements [actual-count {:keys [inclusive-start desired-count]}]
-  (let [shortfall (- desired-count actual-count)]
-    (take shortfall
-          (drop (+ inclusive-start actual-count)
-                (range)))))
+        (indexes-of-out-of-range-elements [actual-count {:keys [inclusive-start desired-count]}]
+          (let [shortfall (- desired-count actual-count)]
+            (take shortfall
+                  (drop (+ inclusive-start actual-count)
+                        (range)))))
 
-(defn padding:nil-exval [exval index]
-  (update-exval exval {:conj-path index :descend-into nil}))
+        (padding:nil-exval [exval index]
+          (update-exval exval {:conj-path index :descend-into nil}))
 
-(defn padding:shouldbe-present-oopsie [exval index]
-  (first (errcase explain/oopsies:shouldbe-present exval {:conj-path index
-                                                          :descend-into ::missing-value})))
+        (padding:shouldbe-present-oopsie [exval index]
+          (first (errcase explain/oopsies:shouldbe-present exval {:conj-path index
+                                                                  :descend-into ::missing-value})))
 
-(defn pad-the-end [actual-values exval {:keys [:reject-missing?] :as selector-element}]
-  (let [missing-indexes (indexes-of-out-of-range-elements (count actual-values)
-                                                          selector-element)
-        padder (if reject-missing? padding:shouldbe-present-oopsie padding:nil-exval)]
-    (into actual-values (map padder (repeat exval) missing-indexes))))
+        (pad-the-end [actual-values exval {:keys [:reject-missing?] :as selector-element}]
+          (let [missing-indexes (indexes-of-out-of-range-elements (count actual-values)
+                                                                  selector-element)
+                padder (if reject-missing? padding:shouldbe-present-oopsie padding:nil-exval)]
+            (into actual-values (map padder (repeat exval) missing-indexes))))
 
-(defn perhaps-rejecting-nil [mixture selector-element]
-  (mapv #(if (rejected-nil? (:leaf-value %) selector-element)
-           (first (errcase explain/oopsies:shouldbe-not-nil % {}))
-           %)
-        mixture))
+        (perhaps-rejecting-nil [mixture selector-element]
+          (mapv #(if (rejected-nil? (:leaf-value %) selector-element)
+                   (first (errcase explain/oopsies:shouldbe-not-nil % {}))
+                   %)
+                mixture))
 
-(defn descend [mixture next-fn]
-  (reduce (fn [so-far x]
-            (if (wrap/oopsie? x)
-              (conj so-far x)
-              (into so-far (next-fn x))))
-          []
-          mixture))
+        (descend [mixture next-fn]
+          (reduce (fn [so-far x]
+                    (if (wrap/oopsie? x)
+                      (conj so-far x)
+                      (into so-far (next-fn x))))
+                  []
+                  mixture))
 
-(defn range-select* [{:keys [inclusive-start desired-count] :as selector-element} {:keys [leaf-value] :as exval} next-fn]
-  (cond (rejected-nil? leaf-value selector-element)
-        (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path selector-element})
+        (range-select* [{:keys [inclusive-start desired-count] :as selector-element} {:keys [leaf-value] :as exval} next-fn]
+          (cond (rejected-nil? leaf-value selector-element)
+                (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path selector-element})
 
-        (nil? leaf-value)
-        (pad-the-end [] exval selector-element)
+                (nil? leaf-value)
+                (pad-the-end [] exval selector-element)
 
-        (not (sequential? leaf-value))
-        (errcase explain/oopsies:shouldbe-sequential exval {:conj-path selector-element})
+                (not (sequential? leaf-value))
+                (errcase explain/oopsies:shouldbe-sequential exval {:conj-path selector-element})
 
-        :else
-        (-> exval
-            (extract-desired-range-as-exvals selector-element)
-            (pad-the-end exval selector-element)
-            (perhaps-rejecting-nil selector-element)
-            (descend next-fn))))
+                :else
+                (-> exval
+                    (extract-desired-range-as-exvals selector-element)
+                    (pad-the-end exval selector-element)
+                    (perhaps-rejecting-nil selector-element)
+                    (descend next-fn))))]
 
-(extend-type RangePathElement
+  (extend-type RangePathElement
     sp/StructurePath
     (select* [this exval next-fn]
       (range-select* this exval next-fn))
 
-    (transform* [& _] (no-transform!)))
+    (transform* [& _] (no-transform!))))
 
 
 (letfn [(range-boom! [fmt [inclusive-start exclusive-end]]
