@@ -45,11 +45,10 @@
                    (get-explainer pred)))
 
 
-(defrecord Oopsie []) ; just a marker interface, used like part of a union type.
-(defn oopsie? [x] (instance? Oopsie x))
-
-(defn ->oopsie [expred exval]
-  (map->Oopsie (merge expred exval)))
+;; In keeping with the structural theme of the library, an object is an Oopsie if it
+;; contains an `:explainer`.
+(defn oopsie? [x] (and (map? x)
+                       (contains? x :explainer)))
 
 (defn- mkfn:optional [pred]
   (fn [value]
@@ -72,7 +71,7 @@
     (-> (fn [exval]
           (if (pred-with-protections (:leaf-value exval))
             []
-            (vector (->oopsie expred exval))))
+            (vector (merge expred exval))))
         mark-as-lifted
         (give-lifted-predicate-a-nice-string expred))))
 

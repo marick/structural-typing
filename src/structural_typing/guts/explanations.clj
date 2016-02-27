@@ -34,6 +34,10 @@
 (def oopsies:shouldbe-collection
   (mkfn:structural-singleton-oopsies err:shouldbe-collection [:path :leaf-value]))
 
+(def err:shouldbe-sequential (mkfn:shouldbe-type "a sequential sequential"))
+(def oopsies:shouldbe-sequential
+  (mkfn:structural-singleton-oopsies err:shouldbe-sequential [:path :leaf-value]))
+
 (defn err:shouldbe-not-maplike [path bad-nonterminal]
   (cl-format nil "~S encountered map or record `~S`; `ALL` doesn't allow that."
              path bad-nonterminal))
@@ -41,19 +45,23 @@
   (mkfn:structural-singleton-oopsies err:shouldbe-not-maplike [:path :leaf-value]))
 
 
+(defn err:should-not-be-applied-to-nil [path]
+  (format (if (and (coll? path)
+                   (> 1 (count path)))
+            "%s applies the last component to `nil`"
+            "%s should not descend into `nil`")
+          path))
 
-(def err:nil (partial format "%s exists but is nil"))
-(def oopsies:nil
-  (mkfn:structural-singleton-oopsies err:nil [:path]))
+(def oopsies:should-not-be-applied-to-nil
+  (mkfn:structural-singleton-oopsies err:should-not-be-applied-to-nil [:path]))
 
-(def err:missing (partial format "%s does not exist"))
-(def oopsies:missing
-  (mkfn:structural-singleton-oopsies err:missing [:path]))
+(def err:shouldbe-not-nil (partial format "%s has a `nil` value"))
+(def oopsies:shouldbe-not-nil
+  (mkfn:structural-singleton-oopsies err:shouldbe-not-nil [:path]))
 
-(def err:all-missing (partial format "%s attempted to pass through a `nil` value"))
-(def oopsies:all-missing
-  (mkfn:structural-singleton-oopsies err:all-missing [:path]))
-
+(def err:shouldbe-present (partial format "%s does not exist"))
+(def oopsies:shouldbe-present
+  (mkfn:structural-singleton-oopsies err:shouldbe-present [:path]))
 
 
 

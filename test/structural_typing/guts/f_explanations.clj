@@ -42,3 +42,6 @@
 
 (future-fact "Hand-test range output - descend into 5, what incomplete range looks like")
 (future-fact "finish ALL output so that it chokes on non-sequential collection.")
+
+
+(future-fact "Add tests for all new explanations")
