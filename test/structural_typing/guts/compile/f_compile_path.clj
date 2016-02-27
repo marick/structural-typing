@@ -150,10 +150,7 @@
 (fact "RANGE"
   (let [r1-3 (subject/RANGE 1 3)]
     (fact "prints as its definition"
-      (pr-str (subject/->RangePathElement 1 2 [1 2] 1)) => "(RANGE 1 2)")
-
-    (fact "is created from its name"
-      (subject/path-element (subject/RANGE 1 2)) => (subject/->RangePathElement 1 2 [1 2] 1))
+      (pr-str (subject/RANGE 1 2)) => "(RANGE 1 2)")
 
     (fact "rejects impossible cases"
       (subject/RANGE 2 2) => (throws "Second argument of `(RANGE 2 2)` should be greater than the first")
@@ -273,71 +270,90 @@
                               (explain/err:shouldbe-present [:a 2])))))))))
 
 
-
 (fact "integers"
   (fact "prints as the integer"
-    (pr-str (subject/->IntegerPathElement 3)) => "3")
-
-  (fact "is created from an integer"
-    (subject/path-element 1) => (subject/->IntegerPathElement 1))
+    (pr-str (subject/path-element 3)) => "3")
 
   (fact "rejects non-sequential collections"
-    (err:compile-and-run [:a 0] {:a "1"}) => (just (explain/err:shouldbe-sequential [:a 0] "1"))
-    (err:compile-and-run [:a 0] {:a #{"1"}}) => (just (explain/err:shouldbe-sequential [:a 0] #{"1"})))
+    (err:compile-and-run [:a 1] {:a "1"})
+    => (just (explain/err:shouldbe-sequential [:a 1] "1"))
+    (err:compile-and-run [:a 1] {:a #{"1"}})
+    => (just (explain/err:shouldbe-sequential [:a 1] #{"1"})))
 
-  (fact "descends elements"
-    (compile-and-run [1] [:first :second]) => (just {:path [1]
-                                                     :whole-value [:first :second]
-                                                     :leaf-value :second})
-    (let [whole-value {:a [{:b 1}]}]
-      (compile-and-run [:a 0 :b] whole-value) => (just {:path [:a 0 :b]
+    (fact "descends elements"
+      (let [whole-value [:skipped :one :two :skipped]]
+        (compile-and-run [1] whole-value) => (just {:path [1]
+                                                       :whole-value whole-value
+                                                       :leaf-value :one}))
+
+      (let [whole-value {:a [:skipped :key 1 :skipped]}]
+        (err:compile-and-run [:a 1 :b] whole-value)
+        => (just (explain/err:shouldbe-maplike [:a 1 :b] :key))))
+
+  (fact "works with various types, not just arrays"
+      (compile-and-run [1 :b] '({:b :first} {:b :second}))
+      => (just {:path [1 :b]
+                :whole-value '({:b :first} {:b :second})
+                :leaf-value :second})
+      (let [[result & _ :as all] (compile-and-run [1000] (map (partial * 2) (range)))]
+        ;; separate checks are so that printing failure messages doesn't go infinite
+        (count all) => 1
+        (:path result) => [1000]
+        (:leaf-value result) => 2000))
+
+    (facts "about those troublesome special cases"
+      (fact "applying the integer to `nil`"
+        (fact "normally tolerates being applied to `nil`"
+          (compile-and-run [1] nil) => (just {:path [1]
+                                              :whole-value nil
+                                              :leaf-value nil}))
+
+        (fact "but it can reject nil"
+          (err:compile-and-run [1] nil {:reject-nil? true})
+          => (just (explain/err:should-not-be-applied-to-nil [1])))
+
+        (fact "when reject-missing is given, you get a different message"
+          (err:compile-and-run [1] nil {:reject-missing? true})
+          => (just (explain/err:shouldbe-present [1])))
+
+        (fact "when both are given, the `reject-nil` takes precedence"
+          (err:compile-and-run [1] nil {:reject-nil? true :reject-missing? true})
+          => (just (explain/err:should-not-be-applied-to-nil [1]))))
+
+      (facts "about missing values - ones beyond the size of the sequence"
+        (let [whole-value [:skipped :present]]
+          (fact "normally happy to generate a nil value"
+            (compile-and-run [5] whole-value)
+            => (just {:path [5]
+                      :whole-value whole-value
+                      :leaf-value nil}))
+
+          (fact "reject-missing? produces errors instead"
+            (let [result (compile-and-run [500] whole-value {:reject-missing? true})]
+              (first result) => (contains {:explainer anything
+                                           :path [500]})
+              ((:explainer (first result)) (first result))
+              => (just (explain/err:shouldbe-present [500]))))))
+
+      (facts "about nil values"
+        (let [whole-value [:skipped :ok nil :skipped]]
+          (fact "normally happy to descend into a nil value"
+            (compile-and-run [2] whole-value) => (just {:path [2]
                                                         :whole-value whole-value
-                                                        :leaf-value 1}))
+                                                        :leaf-value nil}))
 
-    (let [whole-value {:a [:key 1]}]
-      (err:compile-and-run [:a 1 :b] whole-value)
-      => (just (explain/err:shouldbe-maplike [:a 1 :b] 1))))
+          (fact "but can be made to reject descending into a nil value"
+            (let [result (compile-and-run [2] whole-value {:reject-nil? true})]
+              (first result) => (contains {:explainer anything
+                                           :path [2]})
+              ((:explainer (first result)) (first result))
+              => (just (explain/err:shouldbe-not-nil [2]))))
 
-  (future-fact "works with various types"
-    (compile-and-run [1] '(:first :second)) => (just {:path [1]
-                                                      :whole-value [:first :second]
-                                                      :leaf-value :second})
-    (compile-and-run [1000] (range)) => (just (contains {:path [1]
-                                                         :leaf-value 1000})))
+          (fact "reject-missing takes precedence"
+            (let [whole-value {:a [nil {:b nil}]}
+                  rejections {:reject-nil? true :reject-missing? true}
+                  pick (fn [idx] (err:compile-and-run [:a idx :b] whole-value rejections))]
+              (pick 0) => (just (explain/err:shouldbe-not-nil [:a 0]))
+              (pick 1) => (just (explain/err:shouldbe-not-nil [:a 1 :b]))
+              (pick 2) => (just (explain/err:shouldbe-present [:a 2]))))))))
 
-  (facts "about those troublesome special cases"
-    (fact "normally tolerates being applied to `nil`"
-      (compile-and-run [0] nil) => nil
-      (compile-and-run [1] nil) => nil)
-
-    (fact "but it can reject nil"
-      (err:compile-and-run [0] nil {:reject-nil? true})
-      => (just (explain/err:should-not-be-applied-to-nil [0])))
-
-    (future-fact "reject-missing? works for types with and without an integer key"
-      (compile-and-run [0] [] {:reject-missing? true})
-      => (just (explain/err:shouldbe-present [0]))
-      (compile-and-run [333] [0 1] {:reject-missing? true})
-      => (just (explain/err:shouldbe-present [333]))
-      (compile-and-run [333] '(0 1) {:reject-missing? true})
-      => (just (explain/err:shouldbe-present [333])))
-
-    (fact "normally happy to descend into a nil value"
-      (compile-and-run [:a 1] {:a [0 nil]}) => (just {:path [:a 1]
-                                                      :whole-value {:a [0 nil]}
-                                                      :leaf-value nil}))
-
-    (future-fact "but can be made to reject descending into a nil value"
-      (err:compile-and-run [subject/ALL] [nil] {:reject-nil? true})
-      => (just (explain/err:shouldbe-not-nil [0])))
-
-    (future-fact "note that one nil value does not prevent handling of valid values"
-      (let [result (compile-and-run [subject/ALL] [nil 3] {:reject-nil? true})]
-        (first result) => (contains {:explainer anything
-                                     :path [0]
-                                     :whole-value [nil 3]
-                                     :leaf-value nil})
-        ((:explainer (first result)) (first result)) => (just (explain/err:shouldbe-not-nil [0]))
-        (second result) => (just {:path [1]
-                                  :whole-value [nil 3]
-                                  :leaf-value 3})))))
