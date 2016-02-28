@@ -28,17 +28,11 @@
 
 
 (fact "predicates can be classified as special-case handlers"
-  (subject/special-case-handling even?) => :none
-  (subject/special-case-handling (wrap/lift even?)) => :none
-
-  (subject/special-case-handling subject/required-path) => :reject-missing-and-nil
-  (subject/special-case-handling subject/not-nil) => :reject-missing-and-nil
-  (subject/special-case-handling (wrap/lift subject/required-path)) => :reject-missing-and-nil
-
-  (subject/rejects-missing-and-nil? even?) => false
-  (subject/rejects-missing-and-nil? subject/required-path) => true)
-
-(future-fact "wrapping `required-path` in an `explain-with` does not change any special-case handling")
-;; Right now, a number of tests are explicitly for `required-path`
-;; ... and in at least one place, a `required-path` is explicitly inserted, rather than
-;; the predicate the user chose.
+  (let [neither even?
+        both (subject/rejects-missing-and-nil even?)
+        reject-missing (subject/rejects-missing even?)
+        reject-nil (subject/rejects-nil even?)]
+    (subject/special-case-handling neither) => {}
+    (subject/special-case-handling both) => {:reject-missing? true :reject-nil? true}
+    (subject/special-case-handling reject-missing) => {:reject-missing? true :reject-nil? false}
+    (subject/special-case-handling reject-nil) => {:reject-missing? false :reject-nil? true}))

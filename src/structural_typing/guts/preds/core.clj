@@ -7,14 +7,18 @@
             [such.metadata :as meta]
             [defprecated.core :as depr]))
 
-(defn- rejects-missing-and-nil [pred]
-  (meta/assoc pred ::special-case-handling :reject-missing-and-nil))
+(defn rejects-missing-and-nil [pred]
+  (meta/assoc pred ::special-case-handling {:reject-missing? true, :reject-nil? true}))
+(defn rejects-missing [pred]
+  (meta/assoc pred ::special-case-handling {:reject-missing? true, :reject-nil? false}))
+(defn rejects-nil [pred]
+  (meta/assoc pred ::special-case-handling {:reject-missing? false, :reject-nil? true}))
 
 (defn special-case-handling [pred]
-  (meta/get pred ::special-case-handling :none))
+  (meta/get pred ::special-case-handling {}))
 
-(defn rejects-missing-and-nil? [pred]
-  (= (special-case-handling pred) :reject-missing-and-nil))
+(defn rejects-missing-and-nil? [x]
+  (= (special-case-handling x) {:reject-missing? true, :reject-nil true}))
 
 (def required-path
   "False iff a key/path does not exist or has value `nil`. 
