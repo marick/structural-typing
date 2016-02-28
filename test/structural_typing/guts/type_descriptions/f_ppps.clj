@@ -137,12 +137,13 @@
     (fact "such elements are not added when there are no required keys in the predicates"
       (subject/add-implied-required-paths {[:a ALL] #{even?}}) => {[:a ALL] #{even?}})
     
-    (fact "addition of required keys adds on to previous elements (merge-with)"
+    (future-fact "addition of required keys adds on to previous elements (merge-with)"
       (subject/->type-description [(subject/->PPP [:a] [even?])
                                    (subject/->PPP [:a ALL :b]  [required-path])])
       => {[:a] [required-path even?]
           [:a ALL :b] [required-path]})))
 
+(future-fact "delete replace-with-some")
 (fact "replacing leading ALLs"
   (subject/replace-with-SOME []) => []
   (subject/replace-with-SOME [ALL]) => [ALL]
@@ -153,6 +154,7 @@
   (subject/replace-with-SOME [ALL ALL ALL]) => [SOME SOME ALL])
 
 
+(future-fact "delete handle-multidimensional-arrays")
 (fact "handling multidimensional arrays in the path part of mapsets"
   (subject/handle-multidimensional-arrays {[:k] #{even?}}) => {[:k] #{even?}}
   (subject/handle-multidimensional-arrays {}) => {}
@@ -160,6 +162,7 @@
                                            [ALL ALL] #{odd?}}) => {[:k] #{even?}
                                                                    [SOME ALL] #{odd?}})
 
+(future-fact "delete mapset->map-with-ordered-preds")
 
 (fact "non-function values within a canonicalized map are coerced to `exactly` functions"
   (let [input {[:a :b] #{5}}

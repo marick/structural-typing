@@ -31,7 +31,7 @@
   (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2)))
 
 
-(fact "when the ALL is a required-path, it will not accept a nil value"
+(future-fact "when the ALL is a required-path, it will not accept a nil value"
   (type! :Top {[ALL] [required-path odd?]})
   (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
   (built-like :Top []) => []

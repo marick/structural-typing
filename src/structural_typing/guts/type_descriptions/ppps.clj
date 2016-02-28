@@ -160,7 +160,5 @@
 (defn ->type-description [ppps]
   (-> ppps
       ppps->mapset
-      add-implied-required-paths
-      handle-multidimensional-arrays
       coerce-plain-values-into-predicates
       mapset->map-with-ordered-preds))

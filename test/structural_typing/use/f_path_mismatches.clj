@@ -49,17 +49,17 @@
   (fact "non-collections: impossible"
     (future-fact "show the path in its original form, not with the SOME")
     (check-for-explanations :X 1)
-    => (just (err:notpath [SOME ALL] 1))
+    =future=> (just (err:notpath [SOME ALL] 1))
     ; =>   (just (err:bad-all-target [SOME ALL] 1 1))
-    (check-for-explanations :X [1]) => (just (err:bad-all-target [SOME ALL] [1] 1))))
+    (check-for-explanations :X [1]) =future=> (just (err:bad-all-target [SOME ALL] [1] 1))))
 
 (fact "Two ALLs in a row implies that the first should be a SOME"
   (future-fact "better error messages")
   (check-for-explanations {[ALL ALL] required-path} [     ])
-  => (just (err:some-wrong-count '[SOME ALL] []))
+  =future=> (just (err:some-wrong-count '[SOME ALL] []))
   ; => (just (err:required [0 ALL]))
   (check-for-explanations {[:x ALL ALL] required-path} {:x [     ]})
-  => (just (err:some-wrong-count '[:x SOME ALL] []))
+  =future=> (just (err:some-wrong-count '[:x SOME ALL] []))
   (check-for-explanations {[ALL :x ALL ALL] [even? required-path]}
                           [{:x [[2]]}
                            {:x [[2 1] [3]]}
@@ -79,7 +79,7 @@
   (type! :X {[:x ALL] [required-path even?]})
   (fact "as before, non-collections: impossible"
     (check-for-explanations :X {:x 1}) =>   (just (err:bad-all-target [:x ALL] {:x 1} 1)))
-  (fact "A previously non-indexed element is checked for existence "
+  (future-fact "A previously non-indexed element is checked for existence "
     (check-for-explanations :X {}) =>         (just (err:required :x))
     (check-for-explanations :X {:x nil}) =>   (just (err:required :x)))
 

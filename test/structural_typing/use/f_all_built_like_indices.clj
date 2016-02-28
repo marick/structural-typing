@@ -22,7 +22,7 @@
                                 {:x [{:b 3}], :y 3}
                                 {:y "string"}
                                 {:y 1}])
-  => (just (err:required [1 :x 0 :a])
+  =future=> (just (err:required [1 :x 0 :a])
            (err:required [2 :x])
            (err:shouldbe [2 :y] "integer?" "\"string\"")
            (err:required [3 :x])))
