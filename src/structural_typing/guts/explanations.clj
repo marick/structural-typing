@@ -89,26 +89,6 @@
   (fn [& args] (vector (apply maker args))))
 
 
-;;; ---
-
-(defn err:only-wrong-count
-  "The error message produced by `ONLY` when a collection does not have only one element."
-  [original-path collection-with-bad-arity]
-  (cl-format nil "`~S` should be a path through a single-element collection; it passes through `~S`"
-             original-path collection-with-bad-arity))
-(def as-oopsies:only-wrong-count (mkfn:structural-singleton-oopsies err:only-wrong-count [:path :leaf-value]))
-
-;;; ---
-
-(defn err:some-wrong-count
-  "The error message produced by `SOME` when a collection does not have at least one element"
-  [original-path empty-collection]
-  (cl-format nil "`~S` should be a path to a non-empty collection; it ends in `~S`"
-             original-path empty-collection))
-(defn oopsie:some-wrong-count [original-path whole-value empty-collection]
-  (structural-oopsie-old original-path whole-value
-                     (err:some-wrong-count original-path empty-collection)))
-(def as-oopsies:some-wrong-count (pluralize-old oopsie:some-wrong-count))
 
 ;;; ---
 

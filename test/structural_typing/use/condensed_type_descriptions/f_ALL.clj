@@ -33,10 +33,7 @@
 
   (type! :Nesty {[:x ALL ALL :y] integer?})
   (check-for-explanations :Nesty {:x [ [{:y 1}] [{:y :notint}]]})
-  => [(err:shouldbe [:x 1 0 :y] "integer?" :notint)]
-
-  (check-for-explanations :Nesty {:x [1]})
-  =future=> (just #"\[:x SOME ALL :y\] is not a path"))
+  => [(err:shouldbe [:x 1 0 :y] "integer?" :notint)])
 
 (fact "ALL requires collections that are not maps"
   :current

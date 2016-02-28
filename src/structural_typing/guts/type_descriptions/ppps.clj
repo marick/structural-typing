@@ -113,20 +113,6 @@
             kvs
             new-paths)))
 
-(defn replace-with-SOME [selectors]
-  (mapv (fn [[first second]]
-          (if (and (= to-specter-path/ALL first)
-                   (= to-specter-path/ALL second))
-            to-specter-path/SOME
-            first))
-        (partition-all 2 1 selectors)))
-
-(defn handle-multidimensional-arrays [kvs]
-  (reduce-kv (fn [so-far path predset]
-               (assoc so-far (replace-with-SOME path) predset))
-             {}
-             kvs))
-
 (defn force-predicate [value]
   (let [converter (branch-on value
                              extended-fn?   identity

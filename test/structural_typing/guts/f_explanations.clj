@@ -12,13 +12,6 @@
     ((:explainer oopsie) oopsie) => "path: [:a :b], leaf value: 33"))
 
 
-(facts "err:only-wrong-count"
-  (subject/err:only-wrong-count '[ONLY] 5) => "`[ONLY]` should be a path through a single-element collection; it passes through `5`"
-  (subject/err:only-wrong-count '[ONLY] []) => "`[ONLY]` should be a path through a single-element collection; it passes through `[]`")
-
-(facts "err:some-wrong-count"
-  (subject/err:some-wrong-count [:a] []) => "`[:a]` should be a path to a non-empty collection; it ends in `[]`")
-
 (facts "err:bad-range-target"
   (subject/err:bad-range-target '[:a (RANGE 1 2)] {:a 5} 5)
   => "[:a (RANGE 1 2)] is not a path into `{:a 5}`; RANGE cannot make sense of non-collection `5`")

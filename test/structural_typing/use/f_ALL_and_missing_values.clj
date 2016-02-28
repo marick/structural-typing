@@ -52,9 +52,7 @@
     (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
     (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2))))
 
-(future-fact "same for ONLY")
 (future-fact "and RANGE")
-(future-fact "and SOME")
 
 
 (start-over!)

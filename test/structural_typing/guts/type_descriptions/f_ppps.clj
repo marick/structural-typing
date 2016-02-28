@@ -1,6 +1,6 @@
 (ns structural-typing.guts.type-descriptions.f-ppps
   (:require [structural-typing.guts.type-descriptions.ppps :as subject]
-            [structural-typing.guts.compile.to-specter-path :refer [ALL SOME]]
+            [structural-typing.guts.compile.to-specter-path :refer [ALL]]
             [structural-typing.guts.preds.pseudopreds :refer [required-path]]
             [structural-typing.guts.type-descriptions.flatten :as flatten])
   (:use midje.sweet))
@@ -143,24 +143,6 @@
       => {[:a] [required-path even?]
           [:a ALL :b] [required-path]})))
 
-(future-fact "delete replace-with-some")
-(fact "replacing leading ALLs"
-  (subject/replace-with-SOME []) => []
-  (subject/replace-with-SOME [ALL]) => [ALL]
-  (subject/replace-with-SOME [ALL ALL]) => [SOME ALL]
-  (subject/replace-with-SOME [:k ALL]) => [:k ALL]
-  (subject/replace-with-SOME [ALL :k]) => [ALL :k]
-  (subject/replace-with-SOME [ALL :k ALL]) => [ALL :k ALL]
-  (subject/replace-with-SOME [ALL ALL ALL]) => [SOME SOME ALL])
-
-
-(future-fact "delete handle-multidimensional-arrays")
-(fact "handling multidimensional arrays in the path part of mapsets"
-  (subject/handle-multidimensional-arrays {[:k] #{even?}}) => {[:k] #{even?}}
-  (subject/handle-multidimensional-arrays {}) => {}
-  (subject/handle-multidimensional-arrays {[:k] #{even?}
-                                           [ALL ALL] #{odd?}}) => {[:k] #{even?}
-                                                                   [SOME ALL] #{odd?}})
 
 (future-fact "delete mapset->map-with-ordered-preds")
 

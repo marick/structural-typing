@@ -44,22 +44,8 @@
       (sequential? result) => true
       (take 3 result) => (take 3 (repeat (list 2 1))))))
 
-(fact "ALL"
-  (type! :X {[ALL ALL] [required-path even?]})
-  (fact "non-collections: impossible"
-    (future-fact "show the path in its original form, not with the SOME")
-    (check-for-explanations :X 1)
-    =future=> (just (err:notpath [SOME ALL] 1))
-    ; =>   (just (err:bad-all-target [SOME ALL] 1 1))
-    (check-for-explanations :X [1]) =future=> (just (err:bad-all-target [SOME ALL] [1] 1))))
-
-(fact "Two ALLs in a row implies that the first should be a SOME"
+(fact "Two ALLs in a row - interaction with missing and nil"
   (future-fact "better error messages")
-  (check-for-explanations {[ALL ALL] required-path} [     ])
-  =future=> (just (err:some-wrong-count '[SOME ALL] []))
-  ; => (just (err:required [0 ALL]))
-  (check-for-explanations {[:x ALL ALL] required-path} {:x [     ]})
-  =future=> (just (err:some-wrong-count '[:x SOME ALL] []))
   (check-for-explanations {[ALL :x ALL ALL] [even? required-path]}
                           [{:x [[2]]}
                            {:x [[2 1] [3]]}
@@ -71,8 +57,6 @@
                            {:x [[{:notz 2}]]}
                            {:x [     ]}])
   =future=> (just "message"))
-
-(future-fact "ALL followed by a SOME or an ONLY or a RANGE")
 
 
 (fact "nested missing or nil values: truncated"
