@@ -176,31 +176,31 @@
                       (conj so-far x)
                       (into so-far (next-fn x))))
                   []
-                  mixture))
+                  mixture))]
 
-        (range-select* [{:keys [inclusive-start desired-count] :as selector-element} {:keys [leaf-value] :as exval} next-fn]
-          (cond (rejected-nil? leaf-value selector-element)
-                (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path selector-element})
 
-                (nil? leaf-value)
-                (pad-the-end [] exval selector-element)
+  (defn range-select* [{:keys [inclusive-start desired-count] :as selector-element} {:keys [leaf-value] :as exval} next-fn]
+    (cond (rejected-nil? leaf-value selector-element)
+          (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path selector-element})
 
-                (not (sequential? leaf-value))
-                (errcase explain/oopsies:shouldbe-sequential exval {:conj-path selector-element})
+          (nil? leaf-value)
+          (pad-the-end [] exval selector-element)
 
-                :else
-                (-> exval
-                    (extract-desired-range-as-exvals selector-element)
-                    (pad-the-end exval selector-element)
-                    (perhaps-rejecting-nil selector-element)
-                    (descend next-fn))))]
+          (not (sequential? leaf-value))
+          (errcase explain/oopsies:shouldbe-sequential exval {:conj-path selector-element})
 
-  (extend-type RangePathElement
-    sp/StructurePath
-    (select* [this exval next-fn]
-      (range-select* this exval next-fn))
+          :else
+          (-> exval
+              (extract-desired-range-as-exvals selector-element)
+              (pad-the-end exval selector-element)
+              (perhaps-rejecting-nil selector-element)
+              (descend next-fn)))))
 
-    (transform* [& _] (no-transform!))))
+(extend-type RangePathElement
+  sp/StructurePath
+  (select* [this exval next-fn]
+    (range-select* this exval next-fn))
+  (transform* [& _] (no-transform!)))
 
 
 (letfn [(range-boom! [fmt [inclusive-start exclusive-end]]
@@ -233,19 +233,18 @@
 
 (extend-type IntegerPathElement
   sp/StructurePath
-  (select* [this {:keys [leaf-value] :as exval} next-fn]
-    (cond (rejected-nil? leaf-value this)
-          (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path this})
-
-          (nil? leaf-value)
-          nil
-
-          (not (sequential? leaf-value))
-          (errcase explain/oopsies:shouldbe-sequential exval {:conj-path this})
-
-          :else
-          (next-fn (update-exval exval {:conj-path (:index this)
-                                        :descend-into (nth leaf-value (:index this))}))))
+  (select* [this exval next-fn]
+    (let [inclusive-start (:index this)
+          exclusive-end (inc inclusive-start)]
+      (range-select* (map->RangePathElement {:inclusive-start inclusive-start
+                                             :exclusive-end exclusive-end
+                                             :bounds [inclusive-start exclusive-end]
+                                             :desired-count 1
+                                             :printable (str inclusive-start)
+                                             :reject-missing? (:reject-missing? this)
+                                             :reject-nil? (:reject-nil? this)})
+                     exval
+                     next-fn)))
   (transform* [& _] (no-transform!)))
 
 (defmethod clojure.core/print-method IntegerPathElement [o, ^java.io.Writer w]
@@ -269,9 +268,7 @@
         (->StringPathElement signifier)
 
         (integer? signifier)
-        (->RangePathElement signifier (inc signifier)
-                            [signifier (inc signifier)]
-                            1 (str signifier))
+        (->IntegerPathElement signifier)
 
         (instance? AllPathElement signifier)
         signifier
