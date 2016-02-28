@@ -3,8 +3,7 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions :as type-descriptions]
             [structural-typing.guts.compile.compile :as compile]
-            [structural-typing.assist.defaults :as defaults]
-            [structural-typing.guts.preds.core :as pred]))
+            [structural-typing.assist.defaults :as defaults]))
 
 (def valid-type-signifier?
   "A valid type signifier is either a keyword or a string."

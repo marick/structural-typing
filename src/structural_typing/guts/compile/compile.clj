@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.compile.compile
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.compile.to-specter-path :as to-specter-path]
+            [structural-typing.guts.compile.compile-path :as path]
             [com.rpl.specter :as specter]
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.preds.wrap :as wrap]))
@@ -10,7 +11,6 @@
     (fn [value-holder]
       (->> (reduce #(into %1 (%2 value-holder)) [] lifted)
            (returns-many :oopsie)))))
-
 
 (defn compile-type [type-map]
   ;; Note that the path-checks are compiled once, returning a function to be run often.

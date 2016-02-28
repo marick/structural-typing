@@ -1,7 +1,7 @@
 (ns structural-typing.guts.type-descriptions.f-ppps
   (:require [structural-typing.guts.type-descriptions.ppps :as subject]
             [structural-typing.guts.compile.to-specter-path :refer [ALL SOME]]
-            [structural-typing.guts.preds.core :refer [required-path]]
+            [structural-typing.guts.preds.pseudopreds :refer [required-path]]
             [structural-typing.guts.type-descriptions.flatten :as flatten])
   (:use midje.sweet))
 
@@ -78,7 +78,8 @@
                                                (subject/->PPP [:x] [odd?])
                                                (subject/->PPP [:x] [odd?])])]
       (get result [:x]) => (just (exactly even?) (exactly odd?) :in-any-order)))
-  
+
+
   (fact "the predicate list is a vector with required-path first (if present)"
     (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
                                                (subject/->PPP [:x] [odd?])

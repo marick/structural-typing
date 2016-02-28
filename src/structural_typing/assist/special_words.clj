@@ -2,7 +2,7 @@
   "There are a number of symbols that have special meanings. They are aggregated here
    for convenience."
   (:use structural-typing.clojure.core)
-  (:require structural-typing.guts.preds.core
+  (:require structural-typing.guts.preds.pseudopreds
             structural-typing.guts.preds.annotating
             structural-typing.guts.compile.to-specter-path
             structural-typing.guts.type-descriptions
@@ -10,7 +10,7 @@
             structural-typing.guts.type-descriptions.flatten
             structural-typing.guts.type-descriptions.ppps))
 
-(import-vars [structural-typing.guts.preds.core
+(import-vars [structural-typing.guts.preds.pseudopreds
                required-path
                not-nil]
              [structural-typing.guts.preds.annotating

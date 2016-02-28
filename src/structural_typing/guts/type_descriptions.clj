@@ -3,7 +3,7 @@
   (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]
             [structural-typing.guts.type-descriptions.ppps :as ppp]
             [structural-typing.guts.compile.compile :as compile]
-            [structural-typing.guts.preds.core :refer [required-path]]))
+            [structural-typing.guts.preds.pseudopreds :refer [required-path]]))
 
 
 (defn ->finished-ppps [condensed-type-descriptions]

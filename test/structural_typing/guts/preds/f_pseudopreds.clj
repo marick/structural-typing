@@ -1,5 +1,5 @@
-(ns structural-typing.guts.preds.f-core
-  (:require [structural-typing.guts.preds.core :as subject]
+(ns structural-typing.guts.preds.f-pseudopreds
+  (:require [structural-typing.guts.preds.pseudopreds :as subject]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.preds.wrap :as wrap])
   (:require [such.readable :as readable])

@@ -1,4 +1,4 @@
-(ns ^:no-doc structural-typing.guts.preds.core
+(ns ^:no-doc structural-typing.guts.preds.pseudopreds
   "Preds that are used througout"
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.preds.wrap :as wrap]
@@ -18,7 +18,7 @@
   (meta/get pred ::special-case-handling {}))
 
 (defn rejects-missing-and-nil? [x]
-  (= (special-case-handling x) {:reject-missing? true, :reject-nil true}))
+  (= (special-case-handling x) {:reject-missing? true, :reject-nil? true}))
 
 (def required-path
   "False iff a key/path does not exist or has value `nil`. 

@@ -6,7 +6,7 @@
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.compile.to-specter-path :as to-specter-path]
-            [structural-typing.guts.preds.core :refer [required-path rejects-missing-and-nil?]]))
+            [structural-typing.guts.preds.pseudopreds :refer [required-path rejects-missing-and-nil?]]))
 
 (defrecord PPP [path preds])
 
@@ -102,7 +102,8 @@
   [kvs]
   (let [candidate-paths
         (->> kvs
-            (filter (fn [[_path_ predset]] (any? rejects-missing-and-nil? predset)))
+            (filter (fn [[_path_ predset]]
+                      (any? rejects-missing-and-nil? predset)))
             (map first))
         new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
         ;; This prevents sequences like [:x ALL ALL]
