@@ -2,7 +2,7 @@
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails. Also utility functions."
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.readable :as readable-path]))
+  (:require [structural-typing.assist.format :as format]))
 
 
 (def oopsie
@@ -32,10 +32,7 @@ nil)
 (defn friendly-path
   "Convert the oopsie's path into a string, with predicates and function components printed nicely."
   [oopsie]
-  (let [path (:path oopsie)]
-    (if (empty? path)
-      "Value"
-      (readable-path/friendly path))))
+  (format/friendly-path (:path oopsie)))
 
 (defn explanation
   "Convert an [[oopsie]] into a string explaining the error,

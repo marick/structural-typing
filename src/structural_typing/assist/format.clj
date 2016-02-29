@@ -2,7 +2,8 @@
   "I'm trying to figure out a good way to decompose describing bad values. This is a
    partial start. You should ignore it."
   (:use structural-typing.clojure.core)
-  (:require [such.readable :as readable]))
+  (:require [such.readable :as readable]
+            [structural-typing.guts.type-descriptions.readable :as readable-path]))
 
 (def anonymous-name "<custom-predicate>")
 (readable/set-function-elaborations! {:anonymous-name anonymous-name :surroundings ""})
@@ -31,3 +32,14 @@
 
 (defn leaf:record [r]
   (str "#" (record-class r) (pr-str (into {} r))))
+
+
+(defn friendly-path [path]
+  (cond (not (coll? path))
+        path
+
+        (empty? path)
+        "Value"
+
+        :else
+        (readable-path/friendly path)))
