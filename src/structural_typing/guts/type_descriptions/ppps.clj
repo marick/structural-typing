@@ -3,9 +3,9 @@
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
+            [ordered.set :as os]
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
-            [structural-typing.guts.compile.to-specter-path :as to-specter-path]
             [structural-typing.guts.preds.pseudopreds :refer [required-path rejects-missing-and-nil?]]))
 
 (defrecord PPP [path preds])
@@ -23,9 +23,6 @@
 
 (defmethod clojure.core/print-method Requires [o, ^java.io.Writer w]
   (.write w (readable/value-string (cons 'required (:args o)))))
-          
-
-  
 
 (defprotocol DescriptionExpander
   (condensed-description->ppps [this]))
@@ -80,38 +77,18 @@
 
 ;;; And the final result
 
-(defn- ppps->mapset [ppps]
+(defn- ordered [original addition]
+  (let [destination (if (nil? original)
+                      (os/ordered-set)
+                      original)
+        result (into destination addition)]
+    result))
+
+(defn ppps->map [ppps]
   (reduce (fn [so-far ppp]
-            ;; Note we use set-union instead of concatenating all then converting to set
-            ;; because `(into nil [1 2 3])` is not a vector, so this is more convenient
-            (update-in so-far [(:path ppp)] set-union (set (:preds ppp))))
+            (update so-far (:path ppp) ordered (:preds ppp)))
           {}
           ppps))
-
-(defn relevant-subvectors [path]
-  (->> path
-       (map-indexed vector)
-       (drop 1) ; This rules out {[ALL :x] [required]}
-       (filter #(to-specter-path/will-match-many? (second %)))
-       (map first)
-       (map #(subvec path 0 %))))
-
-(defn add-implied-required-paths
-  "A form like {[:a ALL :b] [required-path]} implies that the `:a` key must be present.
-   That doesn't happen automatically, so a `[:a] [required-path]` term is added."
-  [kvs]
-  (let [candidate-paths
-        (->> kvs
-            (filter (fn [[_path_ predset]]
-                      (any? rejects-missing-and-nil? predset)))
-            (map first))
-        new-paths-with-noise (mapcat relevant-subvectors candidate-paths)
-        ;; This prevents sequences like [:x ALL ALL]
-        new-paths (remove #(to-specter-path/will-match-many? (last %)) new-paths-with-noise)]
-    (reduce (fn [so-far path]
-              (merge-with into so-far (hash-map path #{required-path})))
-            kvs
-            new-paths)))
 
 (defn force-predicate [value]
   (let [converter (branch-on value
@@ -124,27 +101,9 @@
 
 (defn coerce-plain-values-into-predicates [kvs]
   (update-each-value kvs
-                     #(set (map force-predicate %))))
-
-(defn- mapset->map-with-ordered-preds
-  "By putting `required-path` first, we avoid spurious errors from later predicates
-   in cases like `(built-like {:k [even? required-path]} {})`. You don't care to see
-   an error that `nil` is not even and then an error that `:k` should
-   not be `nil`. You just want the latter."
-  [kvs]
-  ;; TODO: This should probably not insert `required-path`, but rather whatever
-  ;; function that `rejects-missing-and-nil` the user supplied. For example, she
-  ;; might have used `explain-with` to modify the behavior of `required-path`, thus
-  ;; creating her own version that applies the same test but produces a different
-  ;; message.
-  (update-each-value kvs
-                     #(if (any? rejects-missing-and-nil? %)
-                        (into [required-path]
-                              (set-difference % #{required-path}))
-                        (vec %))))
+                     #(mapv force-predicate %)))
 
 (defn ->type-description [ppps]
   (-> ppps
-      ppps->mapset
-      coerce-plain-values-into-predicates
-      mapset->map-with-ordered-preds))
+      ppps->map
+      coerce-plain-values-into-predicates))

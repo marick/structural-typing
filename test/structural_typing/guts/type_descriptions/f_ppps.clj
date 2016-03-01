@@ -1,6 +1,7 @@
 (ns structural-typing.guts.type-descriptions.f-ppps
+  (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions.ppps :as subject]
-            [structural-typing.guts.compile.to-specter-path :refer [ALL]]
+            [structural-typing.guts.compile.compile-path :refer [ALL]]
             [structural-typing.guts.preds.pseudopreds :refer [required-path]]
             [structural-typing.guts.type-descriptions.flatten :as flatten])
   (:use midje.sweet))
@@ -34,7 +35,6 @@
     => (just (subject/->PPP [:x :color] [required-path])
              (subject/->PPP [:x :loc] [required-path])
              (subject/->PPP [:y] [required-path]))))
-
 
 (facts "ppps from maps"
   (fact "a simple canonicalized map produces a ppp for each key"
@@ -79,72 +79,17 @@
                                                (subject/->PPP [:x] [odd?])])]
       (get result [:x]) => (just (exactly even?) (exactly odd?) :in-any-order)))
 
-
-  (fact "the predicate list is a vector with required-path first (if present)"
+  (fact "the predicate list is a sorted by order in which predicates were mentioned"
     (let [result (subject/->type-description [ (subject/->PPP [:x] [even?])
                                                (subject/->PPP [:x] [odd?])
                                                (subject/->PPP [:x] [required-path])
                                                (subject/->PPP [:x] [integer?])
                                                (subject/->PPP [:x] [pos?])])]
-      (first (get result [:x])) => (exactly required-path)))
+      (get result [:x]) => [even? odd? required-path integer? pos?]))
 
   (fact "it allows empty paths"
     (let [result (subject/->type-description [ (subject/->PPP [] [even?]) ])]
-      (get result []) => (just (exactly even?))))
-
-  (fact "about adding new required paths in presence of ANY and similar selectors"
-    (fact relevant-subvectors
-      (subject/relevant-subvectors []) => []
-      (subject/relevant-subvectors [:x]) => []
-      (subject/relevant-subvectors [:x :y]) => []
-      (subject/relevant-subvectors [ALL]) => []
-      (subject/relevant-subvectors [ALL :x]) => []
-      (subject/relevant-subvectors [:x ALL :y]) => [[:x]]
-      (subject/relevant-subvectors [:x :y ALL :z]) => [[:x :y]]
-      (subject/relevant-subvectors [:x ALL :y ALL]) => [[:x] [:x ALL :y]]
-      (subject/relevant-subvectors [:x ALL :y1 :y2 ALL :z]) => [[:x] [:x ALL :y1 :y2]])
-
-
-    (tabular 
-      (fact "elements that will cause Specter to match-many can add new 'required-path' clauses"
-        ;; Easier to test this behavior of ->type-description directly
-      (subject/add-implied-required-paths {?path #{required-path}}) => ?expected)
-      ?path                     ?expected
-      [:a :b]                   {[:a :b] #{required-path}}
-      [:a ALL]                  {[:a ALL] #{required-path}
-                                 [:a]     #{required-path}}
-      [:a ALL :b]               {[:a ALL :b] #{required-path}
-                                 [:a] #{required-path}}
-      [:a ALL :b ALL]           {[:a ALL :b ALL] #{required-path}
-                                 [:a] #{required-path}
-                                 [:a ALL :b] #{required-path}}
-      [:a ALL :b ALL :c]        {[:a ALL :b ALL :c] #{required-path}
-                                 [:a] #{required-path}
-                                 [:a ALL :b] #{required-path}}
-      [:a :b ALL :c :d]         {[:a :b ALL :c :d] #{required-path}
-                                 [:a :b] #{required-path}}
-
-      ;; subpaths ending in `will-match-many` don't make sense
-      [:a :b ALL ALL]    {[:a :b ALL ALL] #{required-path}
-                          [:a :b] #{required-path}}
-      [:a :b ALL ALL :c] {[:a :b ALL ALL :c] #{required-path}
-                          [:a :b] #{required-path}}
-      )
-
-    (fact "such elements are not added when there is no match-many element in path"
-      (subject/add-implied-required-paths {[:a :b] #{required-path}}) => {[:a :b] #{required-path}})
-
-    (fact "such elements are not added when there are no required keys in the predicates"
-      (subject/add-implied-required-paths {[:a ALL] #{even?}}) => {[:a ALL] #{even?}})
-    
-    (future-fact "addition of required keys adds on to previous elements (merge-with)"
-      (subject/->type-description [(subject/->PPP [:a] [even?])
-                                   (subject/->PPP [:a ALL :b]  [required-path])])
-      => {[:a] [required-path even?]
-          [:a ALL :b] [required-path]})))
-
-
-(future-fact "delete mapset->map-with-ordered-preds")
+      (get result []) => (just (exactly even?)))))
 
 (fact "non-function values within a canonicalized map are coerced to `exactly` functions"
   (let [input {[:a :b] #{5}}
