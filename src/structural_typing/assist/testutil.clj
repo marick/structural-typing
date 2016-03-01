@@ -89,7 +89,14 @@
 (import-vars [structural-typing.guts.explanations
                 err:notpath
                 err:bad-all-target
-                err:bad-range-target])
+                err:bad-range-target
+                err:shouldbe-maplike
+                err:shouldbe-collection
+                err:shouldbe-sequential
+                err:shouldbe-not-maplike
+                err:should-not-be-applied-to-nil
+                err:shouldbe-not-nil
+                err:shouldbe-present])
 
 ;; I don't immigrate the following out of a deep-seated fear that I'll
 ;; mess up the output by having the test generator and code generator

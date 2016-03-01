@@ -287,6 +287,6 @@
 
 (defn apply-path [compiled-path whole-value]
   (specter/compiled-select compiled-path
-                           (exval/map->ExVal {:leaf-value whole-value
-                                              :whole-value whole-value
-                                              :path []})))
+                                   (exval/map->ExVal {:leaf-value whole-value
+                                                      :whole-value whole-value
+                                                      :path []})))

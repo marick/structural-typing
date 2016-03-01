@@ -36,3 +36,20 @@
     (subject/special-case-handling both) => {:reject-missing? true :reject-nil? true}
     (subject/special-case-handling reject-missing) => {:reject-missing? true :reject-nil? false}
     (subject/special-case-handling reject-nil) => {:reject-missing? false :reject-nil? true}))
+
+
+
+(fact "find the maximum 'rejectionism' of a list of preds"
+  (subject/max-rejection []) => {:reject-nil? false :reject-missing? false}
+
+  (subject/max-rejection [subject/required-path]) => {:reject-nil? true :reject-missing? true}
+  (subject/max-rejection [subject/reject-nil]) => {:reject-nil? true :reject-missing? false}
+
+  (subject/max-rejection [subject/reject-nil even? subject/reject-missing])
+  => {:reject-nil? true :reject-missing? true})
+
+(fact "can remove pseudopreds from a list"
+  (subject/without-pseudopreds []) => []
+  (subject/without-pseudopreds [even?]) => [even?]
+
+  (subject/without-pseudopreds [subject/required-path even? subject/reject-nil subject/reject-missing]) => [even?])

@@ -59,7 +59,7 @@
 
     (fact "can be made to reject a nil-valued key"
       (err:compile-and-run [:a :b] {:a {:b nil}} {:reject-nil? true})
-      => (just (explain/err:shouldbe-not-nil [:a :b] 1)))
+      => (just (explain/err:shouldbe-not-nil [:a :b])))
 
     (fact "if both missing and nil are to be rejected, `missing` takes precedence"
       (err:compile-and-run [:a :b] {:a {}} {:reject-missing? true, :reject-nil? true})
@@ -357,3 +357,5 @@
               (pick 1) => (just (explain/err:shouldbe-not-nil [:a 1 :b]))
               (pick 2) => (just (explain/err:shouldbe-present [:a 2]))))))))
 
+
+(future-fact "the empty input is a special case")

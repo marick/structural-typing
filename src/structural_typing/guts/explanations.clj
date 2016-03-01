@@ -4,7 +4,8 @@
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
-            [structural-typing.assist.oopsie :as oopsie]))
+            [structural-typing.assist.oopsie :as oopsie]
+            [structural-typing.assist.format :as format]))
 
 (defn structural-oopsie [kvs]
   (merge (expred/->ExPred 'check-for-bad-structure
@@ -24,7 +25,9 @@
 
 (defn mkfn:shouldbe-type [description]
   (fn [path bad-nonterminal]
-    (cl-format nil "~S encountered `~S` when ~A was expected" path bad-nonterminal description)))
+    (format "%s encountered %s when %s was expected"
+            (format/friendly-path path)
+            (format/leaf bad-nonterminal) description)))
 
 (def err:shouldbe-maplike (mkfn:shouldbe-type "a map or record"))
 (def oopsies:shouldbe-maplike
@@ -50,16 +53,18 @@
                    (> 1 (count path)))
             "%s applies the last component to `nil`"
             "%s should not descend into `nil`")
-          path))
+          (format/friendly-path path)))
 
 (def oopsies:should-not-be-applied-to-nil
   (mkfn:structural-singleton-oopsies err:should-not-be-applied-to-nil [:path]))
 
-(def err:shouldbe-not-nil (partial format "%s has a `nil` value"))
+(defn err:shouldbe-not-nil [path]
+  (format "%s has a `nil` value" (format/friendly-path path)))
 (def oopsies:shouldbe-not-nil
   (mkfn:structural-singleton-oopsies err:shouldbe-not-nil [:path]))
 
-(def err:shouldbe-present (partial format "%s does not exist"))
+(defn err:shouldbe-present [path]
+  (format "%s does not exist" (format/friendly-path path)))
 (def oopsies:shouldbe-present
   (mkfn:structural-singleton-oopsies err:shouldbe-present [:path]))
 

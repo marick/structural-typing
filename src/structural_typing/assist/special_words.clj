@@ -12,6 +12,8 @@
 
 (import-vars [structural-typing.guts.preds.pseudopreds
                required-path
+               reject-missing
+               reject-nil
                not-nil]
              [structural-typing.guts.preds.annotating
                show-as

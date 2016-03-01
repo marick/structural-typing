@@ -47,4 +47,25 @@
                        #(format "%s is nil, and that makes Sir Tony Hoare sad"
                                 (oopsie/friendly-path %)))
       (wrap/lift-expred [:check-nil])
-      rejects-missing-and-nil))
+      rejects-nil))
+
+
+(def reject-missing
+  "TBD"
+  (rejects-missing []))
+
+(def reject-nil
+  "TBD"
+  (rejects-nil []))
+
+
+(defn max-rejection [preds]
+  (let [raw-data (map special-case-handling preds)]
+    {:reject-nil? (any? true? (map :reject-nil? raw-data))
+     :reject-missing? (any? true? (map :reject-missing? raw-data))}))
+
+(defn without-pseudopreds [preds]
+  (remove #(let [rejectionism (special-case-handling %)]
+             (or (:reject-nil? rejectionism)
+                 (:reject-missing? rejectionism)))
+          preds))
