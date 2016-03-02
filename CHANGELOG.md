@@ -2,18 +2,19 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [in progress]
+## [2.0 alpha 1 - in progress]
+- NOTE: Some things that worked in 1.0 aren't working in 2.0 yet.
 - BUGFIX: A record on the right-hand side is treated as an exact value, rather than a
   map to traverse to build up paths.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
-- ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`.
+- ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`
+  Except that:
        - Regular expressions are treated as in Midje.
-       - Comparison of record to map as in Midje.
+       - Comparison of record to map works as in Midje.
        - BigDecimal and BigFloat literals will match plain floats, longs, etc.
-- CHANGE: Better detection/reporting of structures that cannot match the path.
-- CHANGE: Some improvements to error handling
-- BREAKING: Removed `required-key` (not bumping major number because this was deprecated
-  well before 1.0
+- CHANGE: Way better detection/reporting of structures that cannot match the path.
+- CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`.
+- BREAKING: Removed `required-key` 
 
 ## [1.0.1]
 - CHANGE: Use newest version of `suchwow` and `specter`.

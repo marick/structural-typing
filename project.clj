@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "1.1.0-SNAPSHOT"
+(defproject marick/structural-typing "2.0-alpha1"
   :description "Define types by giving descriptions (perhaps incomplete) of how they're built.
                \"...by how they're built\" means applying arbitrary predicates (especially ones
                about existence) to parts of structures.
@@ -26,7 +26,7 @@
 
   :profiles {:dev {:dependencies [[midje "1.8.3" :exclusions [org.clojure/clojure]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
-                                  [com.taoensso/timbre "4.2.1" :exclusions [org.clojure/clojure]]
+                                  [com.taoensso/timbre "4.3.1" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
