@@ -6,6 +6,12 @@ License: [MIT](http://opensource.org/licenses/MIT)
 
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
+Note on [semantic versioning](http://semver.org): Changes to the text
+of the default error explanations will not trigger a major version
+bump. Changes in the number of messages won't either, provided the new
+set contains the same information. (Most likely case: more concise
+descriptions of truncated data structures.)
+
 # structural-typing
 
 Many Clojure apps look something like this:
