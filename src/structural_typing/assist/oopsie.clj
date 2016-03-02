@@ -44,9 +44,9 @@ nil)
 
 (defn explanations 
   "Convert a collection of [[oopsies]] into a lazy sequence of explanatory strings.
-   See [[explanation]]. The results are sorted."
+   See [[explanation]]. The results are sorted and duplicates are discarded"
   [oopsies]
-  (sort (map explanation oopsies)))
+  (sort (set (map explanation oopsies))))
 
 (defn mkfn:apply-to-each-explanation
   "Checking a single candidate may result in multiple errors ([[oopsies]]). 
