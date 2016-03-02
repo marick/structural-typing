@@ -16,16 +16,16 @@
           [:points ALL :y] [required-path integer?]})
 
   (check-for-explanations :Figure {:points [{:y 1} {:x 1 :y "2"}]})
-  => (just (err:required :color)
-           (err:required [:points 0 :x])
+  => (just (err:missing :color)
+           (err:missing [:points 0 :x])
            (err:shouldbe [:points 1 :y] "integer?" "\"2\""))
 
   (check-for-explanations :Figure {:points [{}{}]})
-  => (just (err:required :color)
-           (err:required [:points 0 :x])
-           (err:required [:points 0 :y])
-           (err:required [:points 1 :x])
-           (err:required [:points 1 :y])))
+  => (just (err:missing :color)
+           (err:missing [:points 0 :x])
+           (err:missing [:points 0 :y])
+           (err:missing [:points 1 :x])
+           (err:missing [:points 1 :y])))
 
 (start-over!)
 

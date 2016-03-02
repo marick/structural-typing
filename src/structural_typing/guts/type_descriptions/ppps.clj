@@ -86,7 +86,7 @@
 
 (defn ppps->map [ppps]
   (reduce (fn [so-far ppp]
-            (update so-far (:path ppp) ordered (:preds ppp)))
+            (update-in so-far [(:path ppp)] ordered (:preds ppp)))
           {}
           ppps))
 

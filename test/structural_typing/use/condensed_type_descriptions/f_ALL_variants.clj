@@ -31,9 +31,9 @@
     (type! :SECOND-AND-THIRD {[(RANGE 1 3)] [required-path pos?]})
     (built-like :SECOND-AND-THIRD [:ignored 1 2]) => [:ignored 1 2]
     (check-for-explanations :SECOND-AND-THIRD [:ignored 1])
-    => (just (err:required [2])))
+    => (just (err:missing [2])))
 
-  (fact "two ranges in a path"
+  (future-fact "two ranges in a path"
     (type! :X {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?})
     (check-for-explanations :X {:a [:wrong :wrong
                                     {:b [1  2  2  2  2 1]}

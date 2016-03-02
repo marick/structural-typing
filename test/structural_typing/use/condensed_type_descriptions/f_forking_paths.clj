@@ -7,17 +7,17 @@
 
 (start-over!)
 
-(fact "forking paths in `requires`"
+(future-fact "forking paths in `requires`"
   (type! :X (requires [:a (through-each :b1 :b2) (each-of [:c1 :d1] [:c2 :d2]) :e]))
   (let [ok {:a {:b1 {:c1 {:d1 {:e 2}}
                      :c2 {:d2 {:e 2}}}
                 :b2 {:c1 {:d1 {:e 2}}
                      :c2 {:d2 {:e 2}}}}}]
     (built-like :X ok) => ok)
-  (check-for-explanations :X {}) => [(err:required [:a :b1 :c1 :d1 :e])
-                                     (err:required [:a :b1 :c2 :d2 :e])
-                                     (err:required [:a :b2 :c1 :d1 :e])
-                                     (err:required [:a :b2 :c2 :d2 :e])])
+  (check-for-explanations :X {}) => [(err:missing [:a :b1 :c1 :d1 :e])
+                                     (err:missing [:a :b1 :c2 :d2 :e])
+                                     (err:missing [:a :b2 :c1 :d1 :e])
+                                     (err:missing [:a :b2 :c2 :d2 :e])])
 
 (fact "`each-of` is an alternate to `through-each`"
   (type! :X {[:refpoint (each-of :x :y)] integer?})
@@ -65,8 +65,8 @@
 
   (let [ok {:x 1, :y 1, :color 2, :a 3}]
     (built-like :X ok) => ok)
-  (check-for-explanations :X {:x 1 :y 1}) => [(err:required :a)
-                                              (err:required :color)])
+  (check-for-explanations :X {:x 1 :y 1}) => [(err:missing :a)
+                                              (err:missing :color)])
 
 (fact "the keys may be embedded in a path"
   (type! :Point (requires :x :y :color))
@@ -74,20 +74,20 @@
 
   (let [ok {:point {:x 1, :y 1, :color 2}}]
     (built-like :X ok) => ok)
-  (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
+  (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:missing [:point :color])])
 
 (fact "the keys may come from an explicit map"
   (type! :X (requires [:point (paths-of {:x 1, :y 2, :color "red"})]))
 
   (let [ok {:point {:x 1, :y 1, :color 2}}]
     (built-like :X ok) => ok)
-  (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:required [:point :color])])
+  (check-for-explanations :X {:point {:x 1 :y 1}}) => [(err:missing [:point :color])])
 
 (fact "A branch may follow an ALL"
   (type! :Figure {[:points ALL (each-of :x :y)] [required-path integer?]})
   (check-for-explanations :Figure {:points [{:x "1"}]})
   => (just (err:shouldbe [:points 0 :x] "integer?" "\"1\"")
-           (err:required [:points 0 :y])))
+           (err:missing [:points 0 :y])))
 
 
 (fact "forking paths may result in duplicates to merge"

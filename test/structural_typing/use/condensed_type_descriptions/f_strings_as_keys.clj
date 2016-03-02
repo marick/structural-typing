@@ -15,8 +15,8 @@
 
 (fact "strings are distinct from keys"
   (built-like :Point {"x" 1, "y" 2}) => {"x" 1, "y" 2}
-  (check-for-explanations :Point {:x 1, :y 2}) => (just (err:required ["x"])
-                                                        (err:required ["y"])))
+  (check-for-explanations :Point {:x 1, :y 2}) => (just (err:missing ["x"])
+                                                        (err:missing ["y"])))
 
 (fact "error messages are built appropriately"
   (built-like :Val {"val" 1}) => {"val" 1}

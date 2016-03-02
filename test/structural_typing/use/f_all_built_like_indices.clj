@@ -8,7 +8,7 @@
 
 (start-over!)
 
-(fact "the results have paths"
+(future-fact "the results have paths"
   (check-all-for-explanations string? [100 "foo" :bar]) => (just (err:shouldbe [0] "string?" 100)
                                                                  (err:shouldbe [2] "string?" :bar))
 
@@ -18,13 +18,14 @@
 
 
   (check-all-for-explanations [(requires [:x ALL :a]) {:y integer?}]
-                              [ {:x [{:a 3}]}
-                                {:x [{:b 3}], :y 3}
-                                {:y "string"}
-                                {:y 1}])
-  =future=> (just (err:required [1 :x 0 :a])
-           (err:required [2 :x])
-           (err:shouldbe [2 :y] "integer?" "\"string\"")
-           (err:required [3 :x])))
+                              [ {:x [{:a 3}]}         ; 0
+                                {:x [{:b 3}], :y 3}   ; 1
+                                {:x "string"}         ; 2
+                                {:y "string"}         ; 3
+                                {:y 1}])              ; 4
+  => (just (err:missing [1 :x 0 :a])
+           (err:not-collection [2 :x])
+           (err:missing [3 :x])
+           (err:missing [4 :x])))
 
 (start-over!)

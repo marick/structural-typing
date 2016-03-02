@@ -40,8 +40,8 @@
                                                     :whole-value {:a {:b 1}}
                                                     :leaf-value 1}))
   (fact "rejects a non-associative structure"
-    (err:compile-and-run [:a :b] {:a 1}) => (just (explain/err:shouldbe-maplike [:a :b] 1))
-    (err:compile-and-run [:a :b] 2) => (just (explain/err:shouldbe-maplike [:a] 2)))
+    (err:compile-and-run [:a :b] {:a 1}) => (just (explain/err:not-maplike [:a :b] 1))
+    (err:compile-and-run [:a :b] 2) => (just (explain/err:not-maplike [:a] 2)))
 
   (facts "about those troublesome special cases"
     (fact "normally tolerates being applied to `nil`"
@@ -51,19 +51,19 @@
 
     (fact "but it can reject nil"
       (err:compile-and-run [:a :b] nil {:reject-nil? true})
-      => (just (explain/err:should-not-be-applied-to-nil [:a])))
+      => (just (explain/err:selector-at-nil [:a])))
 
     (fact "it can reject a missing key"
       (err:compile-and-run [:a :b] {:a {}} {:reject-missing? true})
-      => (just (explain/err:shouldbe-present [:a :b])))
+      => (just (explain/err:missing [:a :b])))
 
     (fact "can be made to reject a nil-valued key"
       (err:compile-and-run [:a :b] {:a {:b nil}} {:reject-nil? true})
-      => (just (explain/err:shouldbe-not-nil [:a :b])))
+      => (just (explain/err:value-nil [:a :b])))
 
     (fact "if both missing and nil are to be rejected, `missing` takes precedence"
       (err:compile-and-run [:a :b] {:a {}} {:reject-missing? true, :reject-nil? true})
-      => (just (explain/err:shouldbe-present [:a :b])))))
+      => (just (explain/err:missing [:a :b])))))
 
 (fact "strings"
   (fact "prints as string"
@@ -81,7 +81,7 @@
 
   (fact "can be made to reject missing values"
     (err:compile-and-run ["a" "b"] {"a" {}} {:reject-missing? true})
-    => (just (explain/err:shouldbe-present ["a" "b"]))))
+    => (just (explain/err:missing ["a" "b"]))))
 
 (fact "ALL"
   (fact "prints as its name"
@@ -92,11 +92,11 @@
 
   (fact "rejects a non-collection"
     (err:compile-and-run [:a subject/ALL] {:a "1"})
-    => (just (explain/err:shouldbe-collection [:a subject/ALL] "1")))
+    => (just (explain/err:not-collection [:a subject/ALL] "1")))
 
   (fact "rejects a map"
     (err:compile-and-run [:a subject/ALL] {:a {:b 1}})
-    => (just (explain/err:shouldbe-not-maplike [:a subject/ALL] {:b 1})))
+    => (just (explain/err:maplike [:a subject/ALL] {:b 1})))
 
   (fact "descends elements"
     (compile-and-run [subject/ALL] [:first :second]) => (just {:path [0]
@@ -112,8 +112,8 @@
 
     (let [whole-value {:a [:key 1]}]
       (err:compile-and-run [:a subject/ALL :b] whole-value)
-      => (just (explain/err:shouldbe-maplike [:a 0 :b] :key)
-               (explain/err:shouldbe-maplike [:a 1 :b] 1))))
+      => (just (explain/err:not-maplike [:a 0 :b] :key)
+               (explain/err:not-maplike [:a 1 :b] 1))))
 
   (facts "about those troublesome special cases"
     (fact "normally tolerates being applied to `nil`"
@@ -121,7 +121,7 @@
 
     (fact "but it can reject nil"
       (err:compile-and-run [subject/ALL] nil {:reject-nil? true})
-      => (just (explain/err:should-not-be-applied-to-nil [subject/ALL])))
+      => (just (explain/err:selector-at-nil [subject/ALL])))
 
     (fact "reject-missing? has no meaning for subject/ALL"
       (compile-and-run [subject/ALL] [] {:reject-missing? true}) => [])
@@ -133,7 +133,7 @@
 
     (fact "but can be made to reject descending into a nil value"
       (err:compile-and-run [subject/ALL] [nil] {:reject-nil? true})
-      => (just (explain/err:shouldbe-not-nil [0])))
+      => (just (explain/err:value-nil [0])))
 
     (fact "note that one nil value does not prevent handling of valid values"
       (let [result (compile-and-run [subject/ALL] [nil 3] {:reject-nil? true})]
@@ -141,7 +141,7 @@
                                      :path [0]
                                      :whole-value [nil 3]
                                      :leaf-value nil})
-        ((:explainer (first result)) (first result)) => (just (explain/err:shouldbe-not-nil [0]))
+        ((:explainer (first result)) (first result)) => (just (explain/err:value-nil [0]))
         (second result) => (just {:path [1]
                                   :whole-value [nil 3]
                                   :leaf-value 3})))))
@@ -160,9 +160,9 @@
 
     (fact "rejects non-sequential collections"
       (err:compile-and-run [:a r1-3] {:a "1"})
-      => (just (explain/err:shouldbe-sequential [:a r1-3] "1"))
+      => (just (explain/err:not-sequential [:a r1-3] "1"))
       (err:compile-and-run [:a r1-3] {:a #{"1"}})
-      => (just (explain/err:shouldbe-sequential [:a r1-3] #{"1"})))
+      => (just (explain/err:not-sequential [:a r1-3] #{"1"})))
 
     (fact "descends elements"
       (let [whole-value [:skipped :one :two :skipped]]
@@ -175,8 +175,8 @@
 
       (let [whole-value {:a [:skipped :key 1 :skipped]}]
         (err:compile-and-run [:a r1-3 :b] whole-value)
-        => (just (explain/err:shouldbe-maplike [:a 1 :b] :key)
-                 (explain/err:shouldbe-maplike [:a 2 :b] 1))))
+        => (just (explain/err:not-maplike [:a 1 :b] :key)
+                 (explain/err:not-maplike [:a 2 :b] 1))))
 
     (fact "works with various types, not just arrays"
       (compile-and-run [(subject/RANGE 1 2) :b] '({:b :first} {:b :second}))
@@ -201,16 +201,16 @@
 
         (fact "but it can reject nil"
           (err:compile-and-run [r1-3] nil {:reject-nil? true})
-          => (just (explain/err:should-not-be-applied-to-nil [r1-3])))
+          => (just (explain/err:selector-at-nil [r1-3])))
 
         (fact "when reject-missing is given, you get a separate oopsie for each missing value"
           (err:compile-and-run [r1-3] nil {:reject-missing? true})
-          => (just (explain/err:shouldbe-present [1])
-                   (explain/err:shouldbe-present [2])))
+          => (just (explain/err:missing [1])
+                   (explain/err:missing [2])))
 
         (fact "when both are given, the `reject-nil` takes precedence"
           (err:compile-and-run [r1-3] nil {:reject-nil? true :reject-missing? true})
-          => (just (explain/err:should-not-be-applied-to-nil [r1-3]))))
+          => (just (explain/err:selector-at-nil [r1-3]))))
 
       (facts "about missing values - ones beyond the size of the sequence"
         (let [whole-value [:skipped :present]]
@@ -231,7 +231,7 @@
               (second result) => (contains {:explainer anything
                                             :path [2]})
               ((:explainer (second result)) (second result))
-              => (just (explain/err:shouldbe-present [2]))))))
+              => (just (explain/err:missing [2]))))))
 
       (facts "about nil values"
         (let [whole-value [:skipped :ok nil :skipped]]
@@ -251,23 +251,23 @@
               (second result) => (contains {:explainer anything
                                             :path [2]})
               ((:explainer (second result)) (second result))
-              => (just (explain/err:shouldbe-not-nil [2]))))
+              => (just (explain/err:value-nil [2]))))
 
           (fact "in a sort of odd twist, you can reject nils that got appended"
             (let [path [:a (subject/RANGE 0 3) :b]
                   whole-value {:a [nil {:b nil}]}
                   result (err:compile-and-run path whole-value {:reject-nil? true})]
-              result => (just (explain/err:shouldbe-not-nil [:a 0])
-                              (explain/err:shouldbe-not-nil [:a 1 :b])
-                              (explain/err:shouldbe-not-nil [:a 2]))))
+              result => (just (explain/err:value-nil [:a 0])
+                              (explain/err:value-nil [:a 1 :b])
+                              (explain/err:value-nil [:a 2]))))
 
           (fact "reject-missing takes precedence"
             (let [path [:a (subject/RANGE 0 3) :b]
                   whole-value {:a [nil {:b nil}]}
                   result (err:compile-and-run path whole-value {:reject-nil? true :reject-missing? true})]
-              result => (just (explain/err:shouldbe-not-nil [:a 0])
-                              (explain/err:shouldbe-not-nil [:a 1 :b])
-                              (explain/err:shouldbe-present [:a 2])))))))))
+              result => (just (explain/err:value-nil [:a 0])
+                              (explain/err:value-nil [:a 1 :b])
+                              (explain/err:missing [:a 2])))))))))
 
 
 (fact "integers"
@@ -276,9 +276,9 @@
 
   (fact "rejects non-sequential collections"
     (err:compile-and-run [:a 1] {:a "1"})
-    => (just (explain/err:shouldbe-sequential [:a 1] "1"))
+    => (just (explain/err:not-sequential [:a 1] "1"))
     (err:compile-and-run [:a 1] {:a #{"1"}})
-    => (just (explain/err:shouldbe-sequential [:a 1] #{"1"})))
+    => (just (explain/err:not-sequential [:a 1] #{"1"})))
 
     (fact "descends elements"
       (let [whole-value [:skipped :one :two :skipped]]
@@ -288,7 +288,7 @@
 
       (let [whole-value {:a [:skipped :key 1 :skipped]}]
         (err:compile-and-run [:a 1 :b] whole-value)
-        => (just (explain/err:shouldbe-maplike [:a 1 :b] :key))))
+        => (just (explain/err:not-maplike [:a 1 :b] :key))))
 
   (fact "works with various types, not just arrays"
       (compile-and-run [1 :b] '({:b :first} {:b :second}))
@@ -310,15 +310,15 @@
 
         (fact "but it can reject nil"
           (err:compile-and-run [1] nil {:reject-nil? true})
-          => (just (explain/err:should-not-be-applied-to-nil [1])))
+          => (just (explain/err:selector-at-nil [1])))
 
         (fact "when reject-missing is given, you get a different message"
           (err:compile-and-run [1] nil {:reject-missing? true})
-          => (just (explain/err:shouldbe-present [1])))
+          => (just (explain/err:missing [1])))
 
         (fact "when both are given, the `reject-nil` takes precedence"
           (err:compile-and-run [1] nil {:reject-nil? true :reject-missing? true})
-          => (just (explain/err:should-not-be-applied-to-nil [1]))))
+          => (just (explain/err:selector-at-nil [1]))))
 
       (facts "about missing values - ones beyond the size of the sequence"
         (let [whole-value [:skipped :present]]
@@ -333,7 +333,7 @@
               (first result) => (contains {:explainer anything
                                            :path [500]})
               ((:explainer (first result)) (first result))
-              => (just (explain/err:shouldbe-present [500]))))))
+              => (just (explain/err:missing [500]))))))
 
       (facts "about nil values"
         (let [whole-value [:skipped :ok nil :skipped]]
@@ -347,15 +347,15 @@
               (first result) => (contains {:explainer anything
                                            :path [2]})
               ((:explainer (first result)) (first result))
-              => (just (explain/err:shouldbe-not-nil [2]))))
+              => (just (explain/err:value-nil [2]))))
 
           (fact "reject-missing takes precedence"
             (let [whole-value {:a [nil {:b nil}]}
                   rejections {:reject-nil? true :reject-missing? true}
                   pick (fn [idx] (err:compile-and-run [:a idx :b] whole-value rejections))]
-              (pick 0) => (just (explain/err:shouldbe-not-nil [:a 0]))
-              (pick 1) => (just (explain/err:shouldbe-not-nil [:a 1 :b]))
-              (pick 2) => (just (explain/err:shouldbe-present [:a 2]))))))))
+              (pick 0) => (just (explain/err:value-nil [:a 0]))
+              (pick 1) => (just (explain/err:value-nil [:a 1 :b]))
+              (pick 2) => (just (explain/err:missing [:a 2]))))))))
 
 
 (future-fact "the empty input is a special case")

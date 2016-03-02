@@ -10,8 +10,7 @@
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.preds.wrap :as wrap]
-            [structural-typing.assist.oopsie :as oopsie]
-            [slingshot.slingshot :refer [throw+ try+]]))
+            [structural-typing.assist.oopsie :as oopsie]))
 
 ;; NAMESPACE NOTES
 
@@ -51,20 +50,20 @@
 (defn- associative-select* [this {:keys [leaf-value] :as exval} next-fn]
   (let [original-key (:key-given-in-path this)]
     (cond (rejected-nil? leaf-value this)
-          (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path original-key})
+          (errcase explain/oopsies:selector-at-nil exval {:conj-path original-key})
 
           (nil? leaf-value)
           (next-fn (update-exval exval {:conj-path original-key
                                         :descend-into nil}))
 
           (not (map? leaf-value))
-          (errcase explain/oopsies:shouldbe-maplike exval {:conj-path original-key})
+          (errcase explain/oopsies:not-maplike exval {:conj-path original-key})
 
           (rejected-missing? (contains? leaf-value original-key) this)
-          (errcase explain/oopsies:shouldbe-present exval {:conj-path original-key})
+          (errcase explain/oopsies:missing exval {:conj-path original-key})
 
           (rejected-nil? (get leaf-value original-key) this)
-          (errcase explain/oopsies:shouldbe-not-nil exval {:conj-path original-key})
+          (errcase explain/oopsies:value-nil exval {:conj-path original-key})
 
           :else
           (next-fn (update-exval exval {:conj-path original-key
@@ -101,22 +100,22 @@
   sp/StructurePath
   (select* [this {:keys [leaf-value] :as exval} next-fn]
     (cond (rejected-nil? leaf-value this)
-          (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path this})
+          (errcase explain/oopsies:selector-at-nil exval {:conj-path this})
 
           (nil? leaf-value)
           []
 
           (not (coll? leaf-value))
-          (errcase explain/oopsies:shouldbe-collection exval {:conj-path this})
+          (errcase explain/oopsies:not-collection exval {:conj-path this})
 
           (map? leaf-value)
-          (errcase explain/oopsies:shouldbe-not-maplike exval {:conj-path this})
+          (errcase explain/oopsies:maplike exval {:conj-path this})
 
           :else
           (->> leaf-value
                (map #(update-exval exval {:conj-path %1 :descend-into %2}) (range))
                (mapcat #(if (rejected-nil? (:leaf-value %) this)
-                          (errcase explain/oopsies:shouldbe-not-nil % {})
+                          (errcase explain/oopsies:value-nil % {})
                           (next-fn %))))))
   (transform* [& _] (no-transform!)))
 
@@ -154,19 +153,19 @@
         (padding:nil-exval [exval index]
           (update-exval exval {:conj-path index :descend-into nil}))
 
-        (padding:shouldbe-present-oopsie [exval index]
-          (first (errcase explain/oopsies:shouldbe-present exval {:conj-path index
-                                                                  :descend-into ::missing-value})))
+        (padding:missing-oopsie [exval index]
+          (first (errcase explain/oopsies:missing exval {:conj-path index
+                                                         :descend-into ::missing-value})))
 
         (pad-the-end [actual-values exval {:keys [:reject-missing?] :as selector-element}]
           (let [missing-indexes (indexes-of-out-of-range-elements (count actual-values)
                                                                   selector-element)
-                padder (if reject-missing? padding:shouldbe-present-oopsie padding:nil-exval)]
+                padder (if reject-missing? padding:missing-oopsie padding:nil-exval)]
             (into actual-values (map padder (repeat exval) missing-indexes))))
 
         (perhaps-rejecting-nil [mixture selector-element]
           (mapv #(if (rejected-nil? (:leaf-value %) selector-element)
-                   (first (errcase explain/oopsies:shouldbe-not-nil % {}))
+                   (first (errcase explain/oopsies:value-nil % {}))
                    %)
                 mixture))
 
@@ -181,13 +180,13 @@
 
   (defn range-select* [{:keys [inclusive-start desired-count] :as selector-element} {:keys [leaf-value] :as exval} next-fn]
     (cond (rejected-nil? leaf-value selector-element)
-          (errcase explain/oopsies:should-not-be-applied-to-nil exval {:conj-path selector-element})
+          (errcase explain/oopsies:selector-at-nil exval {:conj-path selector-element})
 
           (nil? leaf-value)
           (pad-the-end [] exval selector-element)
 
           (not (sequential? leaf-value))
-          (errcase explain/oopsies:shouldbe-sequential exval {:conj-path selector-element})
+          (errcase explain/oopsies:not-sequential exval {:conj-path selector-element})
 
           :else
           (-> exval
@@ -254,7 +253,7 @@
 
 
 
-;;;; Workers
+;;;; Main API
 
 
 ;; This could possibly be handled with protocol cleverness, but:
@@ -287,6 +286,6 @@
 
 (defn apply-path [compiled-path whole-value]
   (specter/compiled-select compiled-path
-                                   (exval/map->ExVal {:leaf-value whole-value
-                                                      :whole-value whole-value
-                                                      :path []})))
+                           (exval/map->ExVal {:leaf-value whole-value
+                                              :whole-value whole-value
+                                              :path []})))

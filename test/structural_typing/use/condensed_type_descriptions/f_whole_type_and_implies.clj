@@ -34,7 +34,7 @@
     (type! :X (pred/implies :a :b))
     
     (built-like :X {:a 2, :b 1}) => {:a 2, :b 1}
-    (check-for-explanations :X {:a 2}) => [(err:required :b)]
+    (check-for-explanations :X {:a 2}) => [(err:missing :b)]
     (built-like :X {:b 2}) => {:b 2})
 
   (fact "going both ways"
@@ -43,13 +43,13 @@
 
     (built-like :X {:a 2, :b 1}) => {:a 2, :b 1}
     (built-like :X {}) => {}
-    (check-for-explanations :X {:a 2}) => [(err:required :b)]
-    (check-for-explanations :X {:b 2}) => [(err:required :a)])
+    (check-for-explanations :X {:a 2}) => [(err:missing :b)]
+    (check-for-explanations :X {:b 2}) => [(err:missing :a)])
 
-  (fact "multiple paths can be built-like"
+  (future-fact "multiple paths can be built-like"
     (type! :X (pred/implies :a (requires :b [:c :d])))
     
-    (check-for-explanations :X {:a 2, :b 1}) => [(err:required [:c :d])]
+    (check-for-explanations :X {:a 2, :b 1}) => [(err:missing [:c :d])]
     (let [in {:a 2, :b 1 :c {:d 3}}]
       (built-like :X in) => in)
     (built-like :X {:b 2}) => {:b 2})
@@ -77,13 +77,13 @@
   
   (fact "a variant of the above that requires :b"
     (type! :X (pred/implies :a {:b [required-path even?]}))
-    (check-for-explanations :X {:a 1}) => [(err:required :b)]
+    (check-for-explanations :X {:a 1}) => [(err:missing :b)]
     (check-for-explanations :X {:a 1 :b 1}) => [(err:shouldbe :b "even?" 1)])
   
 
   (fact "a variant that supports multiple condensed descriptions"
     (type! :X (pred/implies :a (pred/all-of :b {:b even?})))
-    (check-for-explanations :X {:a 1}) => [(err:required :b)]
+    (check-for-explanations :X {:a 1}) => [(err:missing :b)]
     (check-for-explanations :X {:a 1 :b 1}) => [(err:shouldbe :b "even?" 1)])
 
 

@@ -17,12 +17,12 @@
     (type! :X (requires-mentioned-paths {:x integer?}))
     (built-like :X {:x 3}) => {:x 3}
     (check-for-explanations :X {:x :not-int}) => (just (err:shouldbe :x "integer?" :not-int))
-    (check-for-explanations :X {}) => (just (err:required :x)))
-  (fact "a path"
+    (check-for-explanations :X {}) => (just (err:missing :x)))
+  (future-fact "a path"
     (type! :X (requires-mentioned-paths {:x {:y integer?}}))
-    (check-for-explanations :X {:x 3}) => (just (err:notpath [:x :y] {:x 3}))
+    (check-for-explanations :X {:x 3}) => (just "x")
     (check-for-explanations :X {:x {:y :not-int}}) => (just (err:shouldbe [:x :y] "integer?" :not-int))
-    (check-for-explanations :X {}) => (just (err:required [:x :y]))))
+    (check-for-explanations :X {}) => (just (err:missing [:x :y]))))
     
 
 
@@ -31,7 +31,7 @@
   (type! :X (requires-mentioned-paths {[:points ALL] (includes :Point)}))
 
   (built-like :X {:points [{:x 1 :y 1}]}) => {:points [{:x 1 :y 1}]}
-  (check-for-explanations :X {:points [{:x 1}]}) => (just (err:required [:points 0 :y]))
+  (check-for-explanations :X {:points [{:x 1}]}) => (just (err:missing [:points 0 :y]))
   
   (fact "use with an `implies` that uses `includes`: the `includes` works"
     (type! :Point {:x integer? :y integer?})
@@ -49,7 +49,7 @@
       (type! :X (requires-mentioned-paths {:l3 integer?}
                                           (pred/implies :l4 (includes :Include))))
       (built-like :X {:l3 3}) => {:l3 3}
-      (check-for-explanations :X {}) => (just (err:required :l3))
+      (check-for-explanations :X {}) => (just (err:missing :l3))
 
       ;; The rest illustrate that deep nesting of included types is unaffected by `requires-mentioned-paths
       (built-like :X {:l3 3, :l4 true}) => {:l3 3, :l4 true}
@@ -66,7 +66,7 @@
   (type! :X (requires-mentioned-paths (includes :P)))
 
   (built-like :X {:x 1 :y {:z "foo"}}) => {:x 1 :y {:z "foo"}}
-  (check-for-explanations :X {:x 1 :y {}}) => (just (err:required [:y :z])))
+  (check-for-explanations :X {:x 1 :y {}}) => (just (err:missing [:y :z])))
   
 (fact "wrapping a part of group of condensed type descriptions"
   (type! :Point {:x integer? :y integer?})
@@ -76,10 +76,10 @@
          {:other integer?})
   (let [in {:x 1 :y 2 :color "red" :hue "dark"}]
     (built-like :X in) => in)
-  (check-for-explanations :X {}) => (just (err:required :color)
-                                          (err:required :hue)
-                                          (err:required :x)
-                                          (err:required :y))
+  (check-for-explanations :X {}) => (just (err:missing :color)
+                                          (err:missing :hue)
+                                          (err:missing :x)
+                                          (err:missing :y))
   (check-for-explanations :X {:x 1 :y 2 :color "red" :hue "dark" :other :non-int})
   => (just (err:shouldbe :other "integer?" :non-int)))
 
@@ -89,11 +89,11 @@
                                 (requires :z)))
   (built-like :X {:x 3 :y 4 :z 5}) => {:x 3 :y 4 :z 5}
   (check-for-explanations :X {:x :not-int}) => (just (err:shouldbe :x "integer?" :not-int)
-                                                     (err:required :y)
-                                                     (err:required :z))
-  (check-for-explanations :X {}) => (just (err:required :x)
-                                          (err:required :y)
-                                          (err:required :z)))
+                                                     (err:missing :y)
+                                                     (err:missing :z))
+  (check-for-explanations :X {}) => (just (err:missing :x)
+                                          (err:missing :y)
+                                          (err:missing :z)))
 
 (start-over!)
 

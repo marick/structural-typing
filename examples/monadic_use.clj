@@ -19,7 +19,7 @@
 (fact "errors produce a `Left` containing the error messages"
   (let [result (v1/built-like :Point {:x 1})]
     result => m/left?
-    (m/run-left (v1/built-like :Point {:x 1})) => [":y must exist and be non-nil"]))
+    (m/run-left (v1/built-like :Point {:x 1})) =future=> [":y must exist and be non-nil"]))
 
 (fact "`all-built-like` is used to reduce a collection of structures into a Left or Right"
   (fact "success wraps the original in a Right"
@@ -27,7 +27,7 @@
       result => m/right?
       (m/run-right result) => [{:x 1, :y 1}, {:x 2 :y 2}]))
 
-  (fact "failure wraps error messages in a Left. Note the indices"
+  (future-fact "failure wraps error messages in a Left. Note the indices"
     (let [result (v1/all-built-like :Point [{:x 1} {:y 2} {:x 1 :y 2}
                                             {:x 1 :y 2 :color "red"} {:x "1"}])]
       result => m/left?
@@ -38,7 +38,7 @@
 
 
 
-(fact "using an Either monad to separate out success from failure cases"
+(future-fact "using an Either monad to separate out success from failure cases"
   (let [input [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}]
         result (map #(v1/built-like :Point %) input)]
     (fact "filtering out the Right elements of the sequence works nicely"
@@ -53,7 +53,7 @@
 ;;;; Version 2 helps with the awkwardness in the previous test by
 ;;;; adding the structure itself to the error message.
 
-(fact "version 2 identifies the source candidate"
+(future-fact "version 2 identifies the source candidate"
   (let [result (map #(v2/built-like :Point %)
                     [{:x 1} {:y 2} {:x 1 :y 2} {:x 1 :y 2 :color "red"} {:x "1"}])]
     (m/rights result) => [{:x 1 :y 2} {:x 1 :y 2 :color "red"}]

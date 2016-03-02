@@ -21,7 +21,7 @@
     (fact
       (let [in {:x 2 :y {:z 1}}]
         (built-like ?version in) => in)
-      (check-for-explanations ?version {:x 2 :y {}}) => [(err:required [:y :z])])
+      (check-for-explanations ?version {:x 2 :y {}}) => [(err:missing [:y :z])])
     ?version
     :V1
     :V2))

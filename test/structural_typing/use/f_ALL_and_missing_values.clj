@@ -8,7 +8,7 @@
 
 (start-over!)
 
-(fact "when there are no required paths, ALL can correspond to no value, nil, or an empty array"
+(future-fact "when there are no required paths, ALL can correspond to no value, nil, or an empty array"
   (type! :Top {[ALL] odd?})
   (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
   (built-like :Top []) => []
@@ -17,7 +17,7 @@
   (built-like :Bottom {}) => {}
   (built-like :Bottom {:x nil}) => {:x nil}
   ;; If you want the above rejected, you do this:
-  (check-for-explanations {:x required-path, [:x ALL] odd?} {:x nil}) => (just (err:required :x))
+  (check-for-explanations {:x required-path, [:x ALL] odd?} {:x nil}) => (just (err:value-nil :x))
   (built-like :Bottom {:x []}) => {:x []}
 
   (type! :Middle {[:x ALL :y] odd?})
@@ -38,17 +38,17 @@
 
   (let [path [:x ALL]]
     (type! :Bottom {path [required-path odd?]})
-    (check-for-explanations :Bottom {}) => (just (err:required :x))
-    (check-for-explanations :Bottom {:x nil}) => (just (err:required :x))
+    (check-for-explanations :Bottom {}) => (just (err:missing :x))
+    (check-for-explanations :Bottom {:x nil}) => (just (err:value-nil :x))
     (built-like :Bottom {:x []}) => {:x []})
 
   (let [path [:x ALL :y]]
     (type! :Middle {path [required-path odd?]})
-    (check-for-explanations :Middle {}) => (just (err:required :x))
-    (check-for-explanations :Middle {:x nil}) => (just (err:required :x))
+    (check-for-explanations :Middle {}) => (just (err:missing :x))
+    (check-for-explanations :Middle {:x nil}) => (just (err:value-nil :x))
     (built-like :Middle {:x []}) => {:x []}
-    (check-for-explanations :Middle {:x [{}]}) => (just (err:required [:x 0 :y]))
-    (check-for-explanations :Middle {:x [{:y nil}]}) => (just (err:required [:x 0 :y]))
+    (check-for-explanations :Middle {:x [{}]}) => (just (err:missing [:x 0 :y]))
+    (check-for-explanations :Middle {:x [{:y nil}]}) => (just (err:value-nil [:x 0 :y]))
     (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
     (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2))))
 

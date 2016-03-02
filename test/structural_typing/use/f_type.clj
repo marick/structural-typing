@@ -34,7 +34,7 @@
   (fact "values of types are not allowed to be nil"
     (let [repo (-> type/empty-type-repo
                    (type/named :Unused {:b string?}))]
-      (check-for-explanations repo :Unused nil) => (just #"Value is nil"))
+      (check-for-explanations repo :Unused nil) =future=> (just #"Value is nil"))
     
     (fact "empty structures are not misclassified as nil"
       (let [repo (-> type/empty-type-repo
@@ -57,7 +57,7 @@
       (type/all-built-like repo :X nil) => nil?
       (type/all-built-like repo :X []) => []
       
-      (check-all-for-explanations repo :X [{:x 1} {:b 2}]) => (just (err:required [1 :x])))
+      (check-all-for-explanations repo :X [{:x 1} {:b 2}]) => (just (err:missing [1 :x])))
 
     (fact "<>all-built-like"
       (type/<>all-built-like [{:x 1}] repo :X) => (type/all-built-like repo :X [{:x 1}])
@@ -113,6 +113,6 @@
   (let [repo (type/named type/empty-type-repo :X)]
     (type/built-like repo :X {:a 2}) => {:a 2}
     
-    (fact "except that nil is still objected to"
+    (future-fact "except that nil is still objected to"
       (check-for-explanations repo :X nil) => (just #"Value is nil"))))
 

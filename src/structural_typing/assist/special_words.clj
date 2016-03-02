@@ -4,7 +4,7 @@
   (:use structural-typing.clojure.core)
   (:require structural-typing.guts.preds.pseudopreds
             structural-typing.guts.preds.annotating
-            structural-typing.guts.compile.to-specter-path
+            structural-typing.guts.compile.compile-path
             structural-typing.guts.type-descriptions
             structural-typing.guts.type-descriptions.type-expander
             structural-typing.guts.type-descriptions.flatten
@@ -18,7 +18,7 @@
              [structural-typing.guts.preds.annotating
                show-as
                explain-with]
-             [structural-typing.guts.compile.to-specter-path
+             [structural-typing.guts.compile.compile-path
                ALL
                RANGE]
              [structural-typing.guts.type-descriptions

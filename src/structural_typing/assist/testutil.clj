@@ -69,7 +69,7 @@
    error messages and a `nil` return value. If not, provoke an error. If so,
    return the explanations.
    
-        (check-for-explanations :Figure {:points 3}) => (just (err:required :color))
+        (check-for-explanations :Figure {:points 3}) => (just (err:missing :color))
 "
   [& args]
   (let [[retval output] (val-and-output (apply type/built-like args))]
@@ -87,24 +87,13 @@
 
 
 (import-vars [structural-typing.guts.explanations
-                err:notpath
-                err:bad-all-target
-                err:bad-range-target
-                err:shouldbe-maplike
-                err:shouldbe-collection
-                err:shouldbe-sequential
-                err:shouldbe-not-maplike
-                err:should-not-be-applied-to-nil
-                err:shouldbe-not-nil
-                err:shouldbe-present])
-
-;; I don't immigrate the following out of a deep-seated fear that I'll
-;; mess up the output by having the test generator and code generator
-;; produce the same incorrect strings.
-(defn err:required
-  "Produces the same error messsage produced when [[required-path]] fails."
-  [path]
-  (format "%s must exist and be non-nil" path))
+                err:not-maplike
+                err:not-collection
+                err:not-sequential
+                err:maplike
+                err:selector-at-nil
+                err:value-nil
+                err:missing])
 
 (defn err:shouldbe
   "Produces the same error messsage produced when a predicate not altered by [[explain-with]]

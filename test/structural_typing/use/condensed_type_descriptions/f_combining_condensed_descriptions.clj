@@ -17,7 +17,7 @@
 
   (tabular
     (fact 
-      (check-for-explanations ?version {}) => [(err:required :x)]
+      (check-for-explanations ?version {}) => [(err:missing :x)]
       (check-for-explanations ?version {:x 1}) => [(err:shouldbe :x "even?" 1)])
     ?version
     :V1
@@ -26,7 +26,7 @@
 (fact "combining `requires` and a map"
   (type! :Point (requires :x :y) {:x integer? :y integer?, :color string?})
 
-  (check-for-explanations :Point {:y 1}) => [(err:required :x)]
+  (check-for-explanations :Point {:y 1}) => [(err:missing :x)]
   (check-for-explanations :Point {:x "1" :y 1}) => [(err:shouldbe :x "integer?" "\"1\"")]
   (check-for-explanations :Point {:x 1 :y 1, :color 1}) => [(err:shouldbe :color "string?" 1)])
 
@@ -43,9 +43,9 @@
   (tabular
     (fact
       (check-for-explanations ?version {:x 3.0})
-      => [(err:required :color)
+      => [(err:missing :color)
           (err:shouldbe :x "integer?" 3.0)
-          (err:required :y)])
+          (err:missing :y)])
     ?version
     :Point1
     :Point2))
@@ -67,7 +67,7 @@
              [:a] [even?]})
   (description :Y) => (description :X))
 
-(fact "duplicates are ignored"
+(future-fact "duplicates are ignored"
   (type! :X {:a required-path :b even?} (requires :b :a) {:b even?})
   (type! :Y {[:a] [required-path]
              [:b] [required-path even?]})
@@ -95,11 +95,11 @@
           :end (includes :Point)})
   
   (tabular
-    (fact 
+    (future-fact
       (let [result (check-for-explanations ?version {:start {:x 1 :y "2"}})]
-        result => (contains (err:required :color)
-                            (err:required [:end :x])
-                            (err:required [:end :y])
+        result => (contains (err:missing :color)
+                            (err:missing [:end :x])
+                            (err:missing [:end :y])
                             (err:shouldbe [:start :y] "integer?" "\"2\"")
                             :in-any-order :gaps-ok)
         ))
@@ -120,7 +120,7 @@
   (fact
     (check-for-explanations :ColorfulPoint {:y 1 :color 1})
     => (just (err:shouldbe :color "string?" 1)
-             (err:required :x)))
+             (err:missing :x)))
   
   (type! :ColorfulPoint
          (includes :Point)
@@ -128,7 +128,7 @@
   (fact
     (check-for-explanations :ColorfulPoint {:y 1 :color 1})
     => (just (err:shouldbe :color "string?" 1)
-             (err:required :x)))
+             (err:missing :x)))
   
   (type! :Colorful {:color [required-path string?]})
   (type! :ColorfulPoint (includes :Point) (includes :Colorful))
@@ -136,12 +136,12 @@
   (fact
     (check-for-explanations :ColorfulPoint {:y 1 :color 1})
     => (just (err:shouldbe :color "string?" 1)
-             (err:required :x)))
+             (err:missing :x)))
   
   (fact "combining types at check time"
     (check-for-explanations [:Colorful :Point] {:y 1 :color 1})
     => (just (err:shouldbe :color "string?" 1)
-             (err:required :x))))
+             (err:missing :x))))
   
 
 

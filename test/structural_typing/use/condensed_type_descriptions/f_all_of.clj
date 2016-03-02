@@ -16,18 +16,18 @@
     (type! :X (requires :x) (requires :y))
     (type! :A (pred/all-of (requires :x) (requires :y)))
     
-    (check-for-explanations :X {}) => (just (err:required :x) (err:required :y))
-    (check-for-explanations :A {}) => (just (err:required :x) (err:required :y)))
+    (check-for-explanations :X {}) => (just (err:missing :x) (err:missing :y))
+    (check-for-explanations :A {}) => (just (err:missing :x) (err:missing :y)))
   
   (fact "all-of can obey `includes`"
     (type! :X (includes :Colorful) (includes :Point))
     (type! :A (pred/all-of (includes :Colorful) (includes :Point)))
-    (check-for-explanations :X {}) => (just (err:required :color)
-                                            (err:required :x)
-                                          (err:required :y))
+    (check-for-explanations :X {}) => (just (err:missing :color)
+                                            (err:missing :x)
+                                          (err:missing :y))
     (check-for-explanations :A {}) => (check-for-explanations :X {})))
 
-(fact "a more complicated example using `implies`"
+(future-fact "a more complicated example using `implies`"
   ;; Multiple levels of type-expansion happening here.
   ;; Note also that `all-of` can be completely outside of the body of `type!`
   (let [then-part (pred/all-of (includes :Colorful)
@@ -37,9 +37,9 @@
     (type! :A (pred/implies (includes :Point) then-part)))
 
   (built-like :A {}) => {}
-  (check-for-explanations :A {:x 1 :y 1}) => (just (err:required :color)
-                                                   (err:required :secondary)
-                                                   (err:required :z)
-                                                   (err:required [:secondary :color])))
+  (check-for-explanations :A {:x 1 :y 1}) => (just (err:missing :color)
+                                                   (err:missing :secondary)
+                                                   (err:missing :z)
+                                                   (err:missing [:secondary :color])))
 
 (start-over!)
