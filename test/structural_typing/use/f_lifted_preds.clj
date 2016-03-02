@@ -48,15 +48,15 @@
     => (just #":x should be `neg\?`; it is `1`"
              #":x should be `really big`"))
 
-  (future-fact "use with substructures"
+  (fact "use with substructures"
     (let [r (subject/implies #(even? (:a %)) (requires :c :b))]
       (run r {}) => empty?
       (run r {:a 1}) => empty?
       (oopsie/explanations (run r {:a 2}))
-      => (just "[:x :b] must exist and be non-nil"
-               "[:x :c] must exist and be non-nil")))
+      => (just (err:missing [:x :b])
+               (err:missing [:x :c]))))
 
-  (future-fact one-of
+  (fact one-of
     (let [bigger #(> (count (str %)) 3)
           smaller #(< (count (str %)) 6)
           r (subject/implies odd? (subject/all-of bigger smaller))]
@@ -67,18 +67,18 @@
       (run r 2) => empty?))
 
   (fact "examples used in the documentation"
-    (future-fact "possibly the most common case"
+    (fact "possibly the most common case"
       (let [r (subject/implies :a :b)]
         (run r {}) => empty?
         (run r {:b 1}) => empty?
         (run r {:a 1, :b 2}) => empty?
-        (oopsie/explanations (run r {:a 1})) => (just "[:x :b] must exist and be non-nil")))
+        (oopsie/explanations (run r {:a 1})) => (just "[:x :b] does not exist")))
 
-    (future-fact "expanding a condensed type description"
+    (fact "expanding a condensed type description"
       (let [r (subject/implies :a (requires :b :c :d))]
         (run r {:a 1, :b 2, :c 3, :d 4}) => empty?
         (oopsie/explanations (run r {:a 1, :b 2, :d 4}))
-        => (just "[:x :c] must exist and be non-nil")))
+        => (just (err:missing [:x :c]))))
 
     (fact "including preexisting type definitions"
       (let [r (subject/implies (comp even? :a) {:b [required-path (includes :Point)]})
