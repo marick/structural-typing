@@ -15,7 +15,7 @@
 
 ;; Example 2: print a stack trace following the last error.
 
-(def pprint-to-string #(with-out-str pprint %))
+(def pprint-to-string #(with-out-str (pprint %)))
 
 (defn error-explainer [oopsies]
   (timbre/info "While checking this:")

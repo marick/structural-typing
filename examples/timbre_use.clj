@@ -4,14 +4,17 @@
             [timbre-define-2 :as v2])
   (:use midje.sweet))
 
-(future-fact "log each explanation as an error"
+(fact "log each explanation as an error"
   (let [result (with-out-str (v1/built-like :Point {:x "1"}))]
-    result => #"ERROR \[timbre-define-1\]"
-    result => #":x should be `integer"
-    result => #":y must exist and be non-nil"))
+    ; (println result)
+    result => #"ERROR \[timbre-define-1:\d+\] - :x should be `integer\?`; it is `\"1\"`"
+    result => #"ERROR \[timbre-define-1:\d+\] - :y does not exist"))
 
-(future-fact "more verbose error handling"
+(fact "more verbose error handling"
   (let [result (with-out-str (v2/built-like :Point {:x "1"}))]
-    result => #"INFO \[timbre-define-2\] - :x should be `integer"
-    result => #"INFO \[timbre-define-2\] - :y must exist"
-    result => #"ERROR \[timbre-define-2\] - Boundary type check"))
+    ; (println result)
+    result => #"INFO.* - While checking this:"
+    result => #"INFO.* - \{:x \"1\"\}"
+    result => #"INFO \[timbre-define-2:\d+\] - :x should be `integer"
+    result => #"INFO \[timbre-define-2:\d+\] - :y does not exist"
+    result => #"ERROR \[timbre-define-2:\d+\] - Boundary type check failed"))

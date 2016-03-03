@@ -27,7 +27,7 @@
                                           (err:missing :y))
     (check-for-explanations :A {}) => (check-for-explanations :X {})))
 
-(future-fact "a more complicated example using `implies`"
+(fact "a more complicated example using `implies`"
   ;; Multiple levels of type-expansion happening here.
   ;; Note also that `all-of` can be completely outside of the body of `type!`
   (let [then-part (pred/all-of (includes :Colorful)
@@ -39,7 +39,6 @@
   (built-like :A {}) => {}
   (check-for-explanations :A {:x 1 :y 1}) => (just (err:missing :color)
                                                    (err:missing :secondary)
-                                                   (err:missing :z)
-                                                   (err:missing [:secondary :color])))
+                                                   (err:missing :z)))
 
 (start-over!)

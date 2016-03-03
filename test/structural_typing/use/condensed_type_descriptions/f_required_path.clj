@@ -28,11 +28,11 @@
 
 (fact "use of ALL"
 
-  (future-fact "final ALL forces a preceding key to be required"
+  (fact "final ALL forces a preceding key to be required"
     (type! :Terminal {[:a ALL] [required-path even?]})
     (check-for-explanations :Terminal {}) => [(err:missing :a)])
 
-  (future-fact "A middle ALL requires the preceding and following key"
+  (fact "A middle ALL requires the preceding and following key"
     (type! :Middle {[:a ALL :b] [even? required-path]}) ; doesn't matter where `required-path` is.
     (check-for-explanations :Middle {}) => [(err:missing :a)]
     (check-for-explanations :Middle {:a [{:c 1}]}) => [(err:missing [:a 0 :b])]
@@ -40,7 +40,7 @@
     (fact "However, it *does* allow an empty collection"
       (built-like :Middle {:a []}) => {:a []}))
 
-  (future-fact "there may be more than one ALL in the path"
+  (fact "there may be more than one ALL in the path"
     (type! :Double {[:a ALL :b ALL] [required-path even?]})
     (check-for-explanations :Double {}) => [(err:missing :a)]
 
@@ -52,7 +52,7 @@
     (check-for-explanations :Double {:a [{:b [1]}]}) => [(err:shouldbe [:a 0 :b 0] "even?" 1)]
     (built-like :Double {:a [{:b [2 4]}]}) => {:a [{:b [2 4]}]})
 
-  (future-fact "ALL may be present in a shorthand `requires`"
+  (fact "ALL may be present in a shorthand `requires`"
     (type! :X (requires [:a ALL :b]))
     (check-for-explanations :Middle {}) => [(err:missing :a)]
     (check-for-explanations :Middle {:a [{:c 1}]}) => [(err:missing [:a 0 :b])]

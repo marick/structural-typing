@@ -46,10 +46,10 @@
     (check-for-explanations :X {:a 2}) => [(err:missing :b)]
     (check-for-explanations :X {:b 2}) => [(err:missing :a)])
 
-  (future-fact "multiple paths can be built-like"
+  (fact "multiple paths can be built-like"
     (type! :X (pred/implies :a (requires :b [:c :d])))
     
-    (check-for-explanations :X {:a 2, :b 1}) => [(err:missing [:c :d])]
+    (check-for-explanations :X {:a 2, :b 1}) => [(err:missing :c)]
     (let [in {:a 2, :b 1 :c {:d 3}}]
       (built-like :X in) => in)
     (built-like :X {:b 2}) => {:b 2})

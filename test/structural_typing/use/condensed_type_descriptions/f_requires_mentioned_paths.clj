@@ -18,11 +18,11 @@
     (built-like :X {:x 3}) => {:x 3}
     (check-for-explanations :X {:x :not-int}) => (just (err:shouldbe :x "integer?" :not-int))
     (check-for-explanations :X {}) => (just (err:missing :x)))
-  (future-fact "a path"
+  (fact "a path"
     (type! :X (requires-mentioned-paths {:x {:y integer?}}))
-    (check-for-explanations :X {:x 3}) => (just "x")
+    (check-for-explanations :X {:x 3}) => (just (err:not-maplike [:x :y] 3))
     (check-for-explanations :X {:x {:y :not-int}}) => (just (err:shouldbe [:x :y] "integer?" :not-int))
-    (check-for-explanations :X {}) => (just (err:missing [:x :y]))))
+    (check-for-explanations :X {}) => (just (err:missing :x))))
     
 
 

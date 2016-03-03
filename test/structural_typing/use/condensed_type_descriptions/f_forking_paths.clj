@@ -7,17 +7,22 @@
 
 (start-over!)
 
-(future-fact "forking paths in `requires`"
+(fact "forking paths in `requires`"
   (type! :X (requires [:a (through-each :b1 :b2) (each-of [:c1 :d1] [:c2 :d2]) :e]))
   (let [ok {:a {:b1 {:c1 {:d1 {:e 2}}
                      :c2 {:d2 {:e 2}}}
                 :b2 {:c1 {:d1 {:e 2}}
-                     :c2 {:d2 {:e 2}}}}}]
-    (built-like :X ok) => ok)
-  (check-for-explanations :X {}) => [(err:missing [:a :b1 :c1 :d1 :e])
-                                     (err:missing [:a :b1 :c2 :d2 :e])
-                                     (err:missing [:a :b2 :c1 :d1 :e])
-                                     (err:missing [:a :b2 :c2 :d2 :e])])
+                     :c2 {:d2 {:e 2}}}}}
+        missing-e {:a {:b1 {:c1 {:d1 {:NOTe 2}}
+                     :c2 {:d2 {:NOTe 2}}}
+                :b2 {:c1 {:d1 {:NOTe 2}}
+                     :c2 {:d2 {:NOTe 2}}}}}]
+    (built-like :X ok) => ok
+    (check-for-explanations :X {}) => [(err:missing :a)]
+    (check-for-explanations :X missing-e) => (just (err:missing [:a :b1 :c1 :d1 :e])
+                                                   (err:missing [:a :b1 :c2 :d2 :e])
+                                                   (err:missing [:a :b2 :c1 :d1 :e])
+                                                   (err:missing [:a :b2 :c2 :d2 :e]))))
 
 (fact "`each-of` is an alternate to `through-each`"
   (type! :X {[:refpoint (each-of :x :y)] integer?})

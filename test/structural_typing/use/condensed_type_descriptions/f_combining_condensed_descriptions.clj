@@ -67,12 +67,10 @@
              [:a] [even?]})
   (description :Y) => (description :X))
 
-(future-fact "duplicates are ignored"
+(fact "duplicates are ignored"
   (type! :X {:a required-path :b even?} (requires :b :a) {:b even?})
-  (type! :Y {[:a] [required-path]
-             [:b] [required-path even?]})
-  (description :Y) => (description :X))
-
+  (get (description :X) [:a]) => '[required-path]
+  (get (description :X) [:b]) => (just '[required-path even?] :in-any-order))
 
 (fact "a realistic example"
   
@@ -95,14 +93,11 @@
           :end (includes :Point)})
   
   (tabular
-    (future-fact
+    (fact
       (let [result (check-for-explanations ?version {:start {:x 1 :y "2"}})]
         result => (contains (err:missing :color)
-                            (err:missing [:end :x])
-                            (err:missing [:end :y])
-                            (err:shouldbe [:start :y] "integer?" "\"2\"")
-                            :in-any-order :gaps-ok)
-        ))
+                            (err:missing :end)
+                            (err:shouldbe [:start :y] "integer?" "\"2\""))))
     ?version
     :Line1
     :Line2))

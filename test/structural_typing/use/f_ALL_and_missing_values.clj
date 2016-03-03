@@ -8,9 +8,9 @@
 
 (start-over!)
 
-(future-fact "when there are no required paths, ALL can correspond to no value, nil, or an empty array"
+(fact "when there are no required paths, ALL can correspond to no value, nil, or an empty array"
   (type! :Top {[ALL] odd?})
-  (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
+  (built-like :Top nil) => nil
   (built-like :Top []) => []
 
   (type! :Bottom {[:x ALL] odd?})
@@ -31,9 +31,9 @@
   (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2)))
 
 
-(future-fact "when the ALL is a required-path, it will not accept a nil value"
+(fact "when the ALL is a required-path, it will not accept a nil value"
   (type! :Top {[ALL] [required-path odd?]})
-  (check-for-explanations :Top nil) => (just #"Value is nil") ;; top-level nil is specially rejected
+  (check-for-explanations :Top nil) => (just (err:selector-at-nil [ALL]))
   (built-like :Top []) => []
 
   (let [path [:x ALL]]

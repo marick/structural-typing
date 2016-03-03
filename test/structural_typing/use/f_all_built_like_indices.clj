@@ -8,7 +8,7 @@
 
 (start-over!)
 
-(future-fact "the results have paths"
+(fact "the results have paths"
   (check-all-for-explanations string? [100 "foo" :bar]) => (just (err:shouldbe [0] "string?" 100)
                                                                  (err:shouldbe [2] "string?" :bar))
 
@@ -24,8 +24,9 @@
                                 {:y "string"}         ; 3
                                 {:y 1}])              ; 4
   => (just (err:missing [1 :x 0 :a])
-           (err:not-collection [2 :x])
+           (err:not-collection [2 :x ALL] "string")
            (err:missing [3 :x])
+           (err:shouldbe [3 :y] "integer?" "\"string\"")
            (err:missing [4 :x])))
 
 (start-over!)

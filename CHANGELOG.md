@@ -14,7 +14,8 @@ See [here](http://keepachangelog.com/) for the change log format.
        - BigDecimal and BigFloat literals will match plain floats, longs, etc.
 - CHANGE: Way better detection/reporting of structures that cannot match the path.
 - CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`.
-- BREAKING: Removed `required-key` 
+- BREAKING: Removed `required-key`
+- BREAKING: Will no longer specially reject a top-level nil.o
 
 ## [1.0.1]
 - CHANGE: Use newest version of `suchwow` and `specter`.

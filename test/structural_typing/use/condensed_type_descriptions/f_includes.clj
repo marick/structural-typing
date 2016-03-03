@@ -49,30 +49,39 @@
                 [:the-sidecar :y] required-path})
 
 
-(future-fact "for reference: the basic types work"
+(fact "for reference: the basic types work"
   (check-for-explanations :Point {}) => (just (err:missing :x) (err:missing :y))
   
-  (check-for-explanations :Includer {}) => (just (err:missing [:the-sidecar :x])
-                                                 (err:missing [:the-sidecar :y]))
+  (check-for-explanations :Includer {}) => (just (err:missing :the-sidecar))
   (check-for-explanations :Includer {:the-sidecar 3})
-  => (just "a" "b")
-  (check-for-explanations :Includer {:the-sidecar {}}) => (just (err:missing [:the-sidecar :x])
-                                                                (err:missing [:the-sidecar :y]))
+  => (just (err:not-maplike [:the-sidecar :x] 3)
+           (err:not-maplike [:the-sidecar :y] 3))
+  (check-for-explanations :Includer {:the-sidecar {}}) ; note future-fact below
+  => (just (err:missing [:the-sidecar :x])
+           (err:missing [:the-sidecar :y]))
   (check-for-explanations :Includer {:the-sidecar {:x 1}})
   => (just (err:missing [:the-sidecar :y]))
   
-  (check-for-explanations :Direct {}) => (just (err:missing [:the-sidecar :x])
-                                               (err:missing [:the-sidecar :y]))
-  (check-for-explanations :Direct {}) => (just (err:missing [:the-sidecar :x])
-                                               (err:missing [:the-sidecar :y]))
+  (check-for-explanations :Direct {}) => (just (err:missing :the-sidecar))
+  (check-for-explanations :Direct {}) => (just (err:missing :the-sidecar))
   (check-for-explanations :Direct {:the-sidecar 3})
-  => (just "a" "b")
-  (check-for-explanations :Direct {:the-sidecar {}}) => (just (err:missing [:the-sidecar :x])
-                                                              (err:missing [:the-sidecar :y]))
-  (check-for-explanations :Direct {:the-sidecar {:x 1}}) => (just (err:missing [:the-sidecar :y])))
+  => (just (err:not-maplike [:the-sidecar :x] 3)
+           (err:not-maplike [:the-sidecar :y] 3))
+
+  (check-for-explanations :Direct {:the-sidecar {}}) ; note future-fact below
+  => (just (err:missing [:the-sidecar :x])
+           (err:missing [:the-sidecar :y]))
+  (check-for-explanations :Direct {:the-sidecar {:x 1}})
+  => (just (err:missing [:the-sidecar :y]))
+
+  (future-fact "it would be nice to do a bit more winnowing of the redundant entries"
+    (check-for-explanations :Includer {:the-sidecar {}}) => (just (err:missing :the-sidecar))
+
+    (check-for-explanations :Direct {:the-sidecar {}}) => (just (err:missing :the-sidecar))))
 
 
-(future-fact "for reference: implies without `includes` works"
+
+(fact "for reference: implies without `includes` works"
   (type! :I-Direct (pred/implies (comp true? :sidecar?) {[:the-sidecar :x] required-path
                                                          [:the-sidecar :y] required-path}))
   (built-like :I-Direct {}) => {}
@@ -81,44 +90,43 @@
   =>                    {:sidecar? true :the-sidecar {:x 1 :y 2}}
   
   (check-for-explanations :I-Direct {:sidecar? true})
-  => (just (err:missing [:the-sidecar :x]) (err:missing [:the-sidecar :y]))
+  => (just (err:missing :the-sidecar))
   (check-for-explanations :I-Direct {:sidecar? true :the-sidecar 3})
-  => (just "a" "b")
+  => (just (err:not-maplike [:the-sidecar :x] 3)
+           (err:not-maplike [:the-sidecar :y] 3))
   (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {}})
   => (just (err:missing [:the-sidecar :x]) (err:missing [:the-sidecar :y]))
   (check-for-explanations :I-Direct {:sidecar? true :the-sidecar {:x 1}})
   => (just (err:missing [:the-sidecar :y])))
 
-(future-fact "You can use `includes` in the antecedent part of an `implies`"
+(fact "You can use `includes` in the antecedent part of an `implies`"
   (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
   (built-like :I-Includer {}) => {}
   (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
   (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                      {:sidecar? true :the-sidecar {:x 1 :y 2}}
 
-  (check-for-explanations :I-Includer {:sidecar? true})
-  => (just (err:missing [:the-sidecar :x])
-           (err:missing [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:missing [:the-sidecar]))
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3})
-  => (just "a" "b")
+  => (just (err:not-maplike [:the-sidecar :x] 3)
+           (err:not-maplike [:the-sidecar :y] 3))
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}})
   => (just (err:missing [:the-sidecar :x])
            (err:missing [:the-sidecar :y]))
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {:x 1}})
   => (just (err:missing [:the-sidecar :y])))
 
-(future-fact "You can use `includes` in the antecedent part of an `implies`"
+(fact "You can use `includes` in the antecedent part of an `implies`"
   (type! :I-Includer (pred/implies (comp true? :sidecar?) {:the-sidecar (includes :Point)}))
   (built-like :I-Includer {}) => {}
   (built-like :I-Includer {:sidecar? false}) => {:sidecar? false}
   (built-like :I-Includer {:sidecar? true :the-sidecar {:x 1 :y 2}})
   =>                   {:sidecar? true :the-sidecar {:x 1 :y 2}}
 
-  (check-for-explanations :I-Includer {:sidecar? true})
-  => (just (err:missing [:the-sidecar :x])
-           (err:missing [:the-sidecar :y]))
+  (check-for-explanations :I-Includer {:sidecar? true}) => (just (err:missing :the-sidecar))
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar 3})
-  => (just "a" "b")
+  => (just (err:not-maplike [:the-sidecar :x] 3)
+           (err:not-maplike [:the-sidecar :y] 3))
   (check-for-explanations :I-Includer {:sidecar? true :the-sidecar {}})
   => (just (err:missing [:the-sidecar :x])
            (err:missing [:the-sidecar :y]))

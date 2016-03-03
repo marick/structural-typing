@@ -113,6 +113,5 @@
   (let [repo (type/named type/empty-type-repo :X)]
     (type/built-like repo :X {:a 2}) => {:a 2}
     
-    (future-fact "except that nil is still objected to"
-      (check-for-explanations repo :X nil) => (just #"Value is nil"))))
-
+    (fact "even nil"
+      (type/built-like repo :X nil) => nil)))
