@@ -92,6 +92,29 @@
 (defmethod clojure.core/print-method StringPathElement [o, ^java.io.Writer w]
   (.write w (pr-str (:key-given-in-path o))))
 
+;; predicates
+(defrecord PredicatePathElement [predicate])
+
+(defn select-pred* [this {:keys [leaf-value] :as exval} next-fn]
+  (try
+    (if ((:predicate this) leaf-value)
+      (next-fn exval)
+      [])
+    (catch Throwable t
+      [])))
+
+
+
+(extend-type PredicatePathElement
+  sp/StructurePath
+  (select* [& args]
+    (apply select-pred* args))
+  (transform* [& _] (no-transform!)))
+
+(defmethod clojure.core/print-method PredicatePathElement [o, ^java.io.Writer w]
+  (.write w (readable/value-string (:predicate o))))
+
+
 ;; ALL
 
 (defrecord AllPathElement [])
@@ -274,6 +297,10 @@
 
         (instance? RangePathElement signifier)
         signifier
+
+        (or (instance? clojure.lang.Fn signifier)
+            (instance? clojure.lang.MultiFn signifier))
+        (->PredicatePathElement signifier)
 
         :else
         (boom! "`%s` is not something that can appear in a Structural-Typing path" signifier)))

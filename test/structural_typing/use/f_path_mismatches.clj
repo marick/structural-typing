@@ -111,7 +111,7 @@
       (fact "nested"
         (check-for-explanations :X [ [] ]) => (just (err:missing [1]))
         (check-for-explanations :X [ [:ignored] [] [:ignored] ]) => (just (err:missing [1 1])
-                                                                          (err:missing [1 2])))))
+                                                                          (err:missing [1 2]))))))
 
   (fact "note that nils are allowed when there is no required path"
     (let [path [(RANGE 1 2) (RANGE 1 3)]]
@@ -130,9 +130,14 @@
     (let [bad #{1 2 3 4 5}]
       (check-for-explanations :X bad) => (just (err:not-sequential [(RANGE 1 2)] bad)))))
 
-(future-fact "a path predicate that blows up counts as an impossible path"
-  (type! :X {[:a pos?] even?})
-  (check-for-explanations :X {:a "string"}) => (just :notpath)))
+
+(fact "predicates do not create path mismatches"
+  (built-like {[:a pos?] even?} {:a 2}) => {:a 2}
+  ;; This means negative values of `:a` must be even. Since there are none...
+  (built-like {[:a neg?] even?} {:a 1}) => {:a 1}
+
+  ;; Similarly, the following expression is about strings, which there ain't any of
+  (built-like {[:a pos?] even?} {:a "string"}) => {:a "string"})
 
 
 (fact "Some random leftover tests"

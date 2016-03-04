@@ -23,7 +23,6 @@
   => (just (err:shouldbe [1] "integer?" :a)
            (err:shouldbe [3] "integer?" :b)))
 
-
 (fact "ALL following ALL"
   (type! :D2 {[ALL ALL] integer?})
   (check-for-explanations :D2 [  [0 :elt-0-1] [:elt-1-0] [] [0 0 :elt-3-2]])
@@ -36,11 +35,9 @@
   => [(err:shouldbe [:x 1 0 :y] "integer?" :notint)])
 
 (fact "ALL requires collections that are not maps"
-  :current
   (built-like {[ALL] pos?} #{}) => #{}
   (built-like {[ALL] pos?} []) => []
   (built-like {[ALL] pos?} (map inc [1 2])) => [2 3]
-  (prn (built-like {[ALL] pos?} 1))
   (check-for-explanations {[ALL] pos?} 1) => (just (err:not-collection [ALL] 1))
   (check-for-explanations {[ALL] pos?} {:a 1, :b 2})
   => (just (err:maplike [ALL] {:a 1, :b 2})))

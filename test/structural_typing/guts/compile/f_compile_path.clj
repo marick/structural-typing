@@ -83,6 +83,46 @@
     (err:compile-and-run ["a" "b"] {"a" {}} {:reject-missing? true})
     => (just (explain/err:missing ["a" "b"]))))
 
+
+(defmulti multipred? :value)
+(defmethod multipred? :pass [kvs] true)
+(defmethod multipred? :fail [kvs] false)
+
+
+(fact "predicates"
+  (fact "prints as a friendly string"
+    (pr-str (subject/path-element even?)) => "even?")
+
+  (fact "passing predicates continue the descent"
+    (compile-and-run [:a even?] {:a 2}) => (just {:path [:a]
+                                                        :whole-value {:a 2}
+                                                        :leaf-value 2})
+    (compile-and-run [:a map? :b] {:a {:b 2}}) => (just {:path [:a :b]
+                                                        :whole-value {:a {:b 2}}
+                                                         :leaf-value 2}))
+  (fact "as you'd expect, checks are for truthiness"
+    (compile-and-run [:a inc] {:a 2}) => (just {:path [:a]
+                                                :whole-value {:a 2}
+                                                :leaf-value 2}))
+  (fact "failing predicates"
+    (compile-and-run [:a even?] {:a 1}) => empty?)
+
+  (fact "nil is passed on: adjoining elements are responsible for nil and missing checks"
+    (compile-and-run [:a nil?] {:a nil}) => (just {:path [:a]
+                                                    :whole-value {:a nil}
+                                                    :leaf-value nil}))
+  (fact "exceptions count as falsey"
+    (compile-and-run [:a even?] {:a nil}) => empty?)
+
+  (fact "multimethods are supported"
+    (let [passing {:a {:value :pass :b 1}}
+          failing {:a {:value :fail :b 1}}]
+      (compile-and-run [:a multipred? :b] passing) => (just {:path [:a :b]
+                                                             :whole-value passing
+                                                             :leaf-value 1})
+      (compile-and-run [:a multipred? :b] failing) => empty?)))
+
+
 (fact "ALL"
   (fact "prints as its name"
     (pr-str (subject/->AllPathElement)) => "ALL")
