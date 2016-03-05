@@ -14,19 +14,6 @@
 
 
 
-(facts "not-nil forces a value to be non-nil"
-  (subject/not-nil (exval 5)) => []
-  (readable/fn-string subject/not-nil) => "not-nil"
-  
-  (let [result (subject/not-nil (exval nil [:x]))]
-    result => (just (oopsie-for nil :predicate-string "not-nil"))
-    (oopsie/explanations result) => (just ":x is nil, and that makes Sir Tony Hoare sad"))
-
-  (let [result (subject/not-nil (exval nil []))]
-    result => (just (oopsie-for nil :predicate-string "not-nil"))
-    (oopsie/explanations result) => (just "Value is nil, and that makes Sir Tony Hoare sad")))
-
-
 (fact "predicates can be classified as special-case handlers"
   (let [neither even?
         both (subject/rejects-missing-and-nil even?)

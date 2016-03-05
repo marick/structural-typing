@@ -25,7 +25,7 @@
    
    Note: At some point in the future, this library might make a distinction
    between a `nil` value and a missing key. If so, this predicate will change
-   to accept `nil` values. See [[not-nil]].
+   to accept `nil` values. See also [[reject-nil]] and [[reject-missing]].
 "
   (-> (expred/->ExPred (comp not nil?)
                        "required-path"
@@ -71,7 +71,9 @@
       (wrap/lift-expred [:check-nil])
       rejects-nil))
 
-(defn not-nil [& args]
+(depr/defn not-nil
+  "Deprecated in favor of `required-path`, `reject-nil`, or `reject-missing`."
+  [& args]
   {:deprecated {:in "2.0.0"
                 :use-instead reject-nil}}
   (apply not-nil-fn args))
