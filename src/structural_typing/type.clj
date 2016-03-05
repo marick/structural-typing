@@ -30,7 +30,7 @@
 ;; they're compiled. However, that would mean that the `T1` in:
 ;;     (type! :T2 {:a (includes :T1)})
 ;; ... would not be optional, which would make it different from all other pred-like values.
-(def ^:private whole-type-checker (compile/compile-type {[] [not-nil]}))
+(def ^:private whole-type-checker (compile/compile-type {[] [reject-nil]}))
 
 (defn- produce-type [type-repo one-or-more]
   (let [[signifiers condensed-descriptions]
