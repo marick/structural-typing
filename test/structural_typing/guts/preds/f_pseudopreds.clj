@@ -1,18 +1,29 @@
 (ns structural-typing.guts.preds.f-pseudopreds
   (:require [structural-typing.guts.preds.pseudopreds :as subject]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.guts.preds.wrap :as wrap])
+            [structural-typing.guts.preds.wrap :as wrap]
+            [structural-typing.guts.explanations :as explain])
   (:require [such.readable :as readable])
   (:use midje.sweet structural-typing.assist.testutil))
 
-(facts "required-path starts out lifted"
+(facts "reject-nil"
+  (subject/reject-nil (exval 5)) => []
+  (readable/fn-string subject/reject-nil) => "reject-nil"
+  (let [result (subject/reject-nil (exval nil [:x]))]
+    result => (just (oopsie-for nil :predicate-string "reject-nil"))
+    (oopsie/explanations result) => (just (explain/err:selector-at-nil :x))))
+
+(facts "required-path, when called directly, rejects nil"
   (subject/required-path (exval 5)) => []
   (readable/fn-string subject/required-path) => "required-path"
   (let [result (subject/required-path (exval nil [:x]))]
     result => (just (oopsie-for nil :predicate-string "required-path"))
-    (oopsie/explanations result) => (just ":x must exist and be non-nil")))
+    (oopsie/explanations result) => (just (explain/err:selector-at-nil :x))))
 
-
+(facts "reject-missing, when called directly, is always true (since the value is not 'missing'"
+  (readable/fn-string subject/reject-missing) => "reject-missing"
+  (subject/reject-missing (exval 5)) => []
+  (subject/reject-missing (exval nil [:x])) => [])
 
 (fact "predicates can be classified as special-case handlers"
   (let [neither even?
