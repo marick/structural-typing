@@ -33,13 +33,13 @@
     (check-for-explanations :SECOND-AND-THIRD [:ignored 1])
     => (just (err:missing [2])))
 
-  (future-fact "two ranges in a path"
+  (fact "two ranges in a path"
     (type! :X {[:a (RANGE 1 4) :b (RANGE 1 5) pos?] even?})
     (check-for-explanations :X {:a [:wrong :wrong
                                     {:b [1  2  2  2  2 1]}
                                     {:b [1 -1 -1 -1 -1 1]}
                                     :wrong]})
-    => (just #"\[:a \(RANGE 1 4\) :b \(RANGE 1 5\) pos\?\] is not a path"))
+    => (just (err:not-maplike [:a 1 :b] :wrong)))
 
 
   (fact "a range can be taken of an infinite sequence"

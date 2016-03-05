@@ -52,7 +52,26 @@
     (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
     (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2))))
 
-(future-fact "and RANGE")
+(fact "when RANGE is a required-path, it will not accept a nil value"
+  (type! :Top {[(RANGE 0 1)] [required-path odd?]})
+  (check-for-explanations :Top nil) => (just (err:selector-at-nil [(RANGE 0 1)]))
+  (check-for-explanations :Top []) => (just (err:missing [0]))
+
+  (let [path [:x (RANGE 0 1)]]
+    (type! :Bottom {path [required-path odd?]})
+    (check-for-explanations :Bottom {}) => (just (err:missing :x))
+    (check-for-explanations :Bottom {:x nil}) => (just (err:value-nil :x))
+    (check-for-explanations :Bottom {:x []}) => (just (err:missing [:x 0])))
+
+  (let [path [:x (RANGE 0 1) :y]]
+    (type! :Middle {path [required-path odd?]})
+    (check-for-explanations :Middle {}) => (just (err:missing :x))
+    (check-for-explanations :Middle {:x nil}) => (just (err:value-nil :x))
+    (check-for-explanations :Middle {:x []}) => (just (err:missing [:x 0]))
+    (check-for-explanations :Middle {:x [{}]}) => (just (err:missing [:x 0 :y]))
+    (check-for-explanations :Middle {:x [{:y nil}]}) => (just (err:value-nil [:x 0 :y]))
+    (built-like :Middle {:x [{:y 1}]}) => {:x [{:y 1}]}
+    (check-for-explanations :Middle {:x [{:y 2}]}) => (just (err:shouldbe [:x 0 :y] "odd?" 2))))
 
 
 (start-over!)
