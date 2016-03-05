@@ -136,18 +136,7 @@
   ([candidates type-shorthand]
      (<>all-built-like candidates @global-type/repo type-shorthand)))
   
-(depr/defn checked
-  "Use [[built-like]] instead."
-  {:deprecated {:in "0.13.0"
-                :use-instead built-like}}
-  ([type-repo type-shorthand candidate]
-     (built-like type-repo type-shorthand candidate))
-
-  ([type-shorthand candidate]
-     (checked @global-type/repo type-shorthand candidate)))
-
-
-(defn named 
+(defn named
   "Define `type-signifier` inside the `type-repo` in terms of the
   `condensed-type-descriptions`.
   
