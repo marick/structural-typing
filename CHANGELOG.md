@@ -8,7 +8,7 @@ See [here](http://keepachangelog.com/) for the change log format.
 - BREAKING: Is much better at discovering and describing truncated structures that
   don't match the type declaration. This could lead to new or different error messages.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
-- ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`
+- ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`      
   Except that:
        - Regular expressions are treated as in Midje.
        - Comparison of a record to a map works as in Midje.
