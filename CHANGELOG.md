@@ -9,9 +9,11 @@ See [here](http://keepachangelog.com/) for the change log format.
   don't match the type declaration. This could lead to new or different error messages.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`. Except that:
+
           - Regular expressions are treated as in Midje.
           - Comparison of a record to a map works as in Midje.
           - BigDecimal and BigFloat literals will match plain floats, longs, etc.
+          
 - CHANGE: Way better detection/reporting of structures that cannot match the path.
 - CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`
   (which still exists)
