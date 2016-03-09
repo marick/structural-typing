@@ -41,12 +41,12 @@
 (def oopsies:not-collection
   (mkfn:structural-singleton-oopsies err:not-collection [:path :leaf-value]))
 
-(def err:not-sequential (mkfn:shouldbe-type "a sequential"))
+(def err:not-sequential (mkfn:shouldbe-type "a sequential collection"))
 (def oopsies:not-sequential
   (mkfn:structural-singleton-oopsies err:not-sequential [:path :leaf-value]))
 
 (defn err:maplike [path bad-nonterminal]
-  (cl-format nil "~S encountered map or record `~S`; `ALL` doesn't allow that."
+  (cl-format nil "~S encountered map or record `~S`; ALL doesn't allow that"
              path bad-nonterminal))
 (def oopsies:maplike
   (mkfn:structural-singleton-oopsies err:maplike [:path :leaf-value]))
@@ -54,8 +54,8 @@
 
 (defn err:selector-at-nil [path]
   (format (if (and (coll? path)
-                   (> 1 (count path)))
-            "%s applies the last component to `nil`"
+                   (> (count path) 1))
+            "%s finds a `nil` at the position of the last component"
             "%s should not descend into `nil`")
           (format/friendly-path path)))
 (def oopsies:selector-at-nil
