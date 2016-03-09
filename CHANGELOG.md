@@ -5,6 +5,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 ## [2.0 beta 1 - in progress]
 - BREAKING: Removed deprecated functions `required-key` and `checked`
 - BREAKING: Will no longer reject a top-level nil unless you tell it to.
+- BREAKING: Is much better at discovering and describing truncated structures that
+  don't match the type declaration. This could lead to new or different error messages.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`
   Except that:
