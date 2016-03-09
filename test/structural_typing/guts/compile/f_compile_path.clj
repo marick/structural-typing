@@ -398,4 +398,26 @@
               (pick 2) => (just (explain/err:missing [:a 2]))))))))
 
 
-(future-fact "the empty input is a special case")
+(fact "the empty input is a special case"
+  (fact "It can produce a whole value"
+    (let [whole-value "whole value"
+          expected (just {:path []
+                          :whole-value whole-value
+                          :leaf-value whole-value})]
+      (compile-and-run [] whole-value {}) => expected
+      (compile-and-run [] whole-value {:reject-nil true}) => expected
+      (compile-and-run [] whole-value {:reject-missing true}) => expected))
+
+
+  (fact "`nil` is by default ignored"
+    (compile-and-run [] nil {}) => (just {:path []
+                                          :whole-value nil
+                                          :leaf-value nil}))
+
+  (fact "`nil` will reject when `:reject-nil?` is true"
+    (err:compile-and-run [] nil {:reject-nil? true}) => (just (err:whole-value-nil)))
+
+  (fact "`nil` will be silent when `:reject-MISSING?` is true"
+    (compile-and-run [] nil {:reject-missing? true}) => (just {:path []
+                                                               :whole-value nil
+                                                               :leaf-value nil})))

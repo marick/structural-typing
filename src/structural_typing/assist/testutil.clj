@@ -92,6 +92,7 @@
                 err:not-sequential
                 err:maplike
                 err:selector-at-nil
+                err:whole-value-nil
                 err:value-nil
                 err:missing])
 

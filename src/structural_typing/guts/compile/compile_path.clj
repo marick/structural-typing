@@ -17,6 +17,9 @@
 ;; Specter requires `extend-type/extend-protocol` instead of defining
 ;; the protocol functions in the deftype. It's an implementation
 ;; detail.
+;;
+;; All PathElement types must be records so that nil- and missing-handling
+;; info can be added.
 
 
 ;;;; Support
@@ -114,6 +117,26 @@
 (defmethod clojure.core/print-method PredicatePathElement [o, ^java.io.Writer w]
   (.write w (readable/value-string (:predicate o))))
 
+
+;; whole-value-nil-selector
+;; When the path is for a whole value (`[]`), Specter just
+;; returns, so there's no opportunity for any nil-handling to
+;; happen. This value is inserted into empty paths to catch
+;; that special case.
+
+(defrecord NilRejectingPathElement [])
+(def NO_NIL (->NilRejectingPathElement))
+
+(extend-type NilRejectingPathElement
+  sp/StructurePath
+  (select* [this {:keys [leaf-value] :as exval} next-fn]
+    (if (nil? leaf-value)
+      (errcase explain/oopsies:whole-value-nil exval {})
+      (next-fn exval)))
+  (transform* [& _] (no-transform!)))
+
+(defmethod clojure.core/print-method NilRejectingPathElement [o, ^java.io.Writer w]
+  (.write w (readable/value-string "reject-nil")))
 
 ;; ALL
 
@@ -298,6 +321,9 @@
         (instance? RangePathElement signifier)
         signifier
 
+        (instance? NilRejectingPathElement signifier)
+        signifier
+
         (or (instance? clojure.lang.Fn signifier)
             (instance? clojure.lang.MultiFn signifier))
         (->PredicatePathElement signifier)
@@ -306,10 +332,14 @@
         (boom! "`%s` is not something that can appear in a Structural-Typing path" signifier)))
 
 (defn compile-path [path nil-and-missing-handling]
-  (->> path
-       (map path-element)
-       (map #(merge % nil-and-missing-handling))
-       specter/comp-paths))
+  ;; (eprn path (empty? path) nil-and-missing-handling)
+  (if (and (empty? path)
+           (:reject-nil? nil-and-missing-handling))
+    (compile-path [NO_NIL] nil-and-missing-handling)
+    (->> path
+         (map path-element)
+         (map #(merge % nil-and-missing-handling))
+         specter/comp-paths)))
 
 (defn apply-path [compiled-path whole-value]
   (specter/compiled-select compiled-path

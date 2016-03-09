@@ -17,10 +17,14 @@
          kvs))
 
 (defn mkfn:structural-singleton-oopsies [boa-explainer explainer-keys]
-  (fn [kvs]
-    (let [explainer (fn [oopsie]
-                      (apply boa-explainer ((apply juxt explainer-keys) oopsie)))]
-      (vector (structural-oopsie (assoc kvs :explainer explainer))))))
+  (letfn [(safe-juxt [args]
+            (if (empty? args)
+              (constantly [])
+              (apply juxt args)))]
+    (fn [kvs]
+      (let [explainer (fn [oopsie]
+                        (apply boa-explainer ((safe-juxt explainer-keys) oopsie)))]
+        (vector (structural-oopsie (assoc kvs :explainer explainer)))))))
 
 
 (defn mkfn:shouldbe-type [description]
@@ -54,9 +58,13 @@
             "%s applies the last component to `nil`"
             "%s should not descend into `nil`")
           (format/friendly-path path)))
-
 (def oopsies:selector-at-nil
   (mkfn:structural-singleton-oopsies err:selector-at-nil [:path]))
+
+(defn err:whole-value-nil []
+  "The whole value should not be `nil`")
+(def oopsies:whole-value-nil
+  (mkfn:structural-singleton-oopsies err:whole-value-nil []))
 
 (defn err:value-nil [path]
   (format "%s has a `nil` value" (format/friendly-path path)))

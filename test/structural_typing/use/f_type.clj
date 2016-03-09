@@ -31,10 +31,10 @@
                                                  :in-any-order))))
                                                  
 
-  (fact "values of types are not allowed to be nil"
+  (fact "types can disallow nil"
     (let [repo (-> type/empty-type-repo
-                   (type/named :Unused {:b string?}))]
-      (check-for-explanations repo :Unused nil) =future=> (just #"Value is nil"))
+                   (type/named :Unused {:b [reject-nil string?]}))]
+      (check-for-explanations repo :Unused nil) => [":b should not descend into `nil`"])
     
     (fact "empty structures are not misclassified as nil"
       (let [repo (-> type/empty-type-repo

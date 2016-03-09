@@ -7,12 +7,17 @@
         structural-typing.assist.testutil))
 
 
-(future-fact "whole value is nil: four cases"
-  (check-for-explanations {[] string?} nil) => "should be a string"
-  (check-for-explanations {[] [string? required-path]} nil) => "message about nil"
-  (check-for-explanations {[] [string? reject-nil]} nil) => "message about nil"
-  (check-for-explanations {[] [string? reject-missing]} nil) => "should be a stringh"
-)
+(fact "whole value is nil: four cases"
+  (built-like {[] string?} nil) => nil
+  (check-for-explanations {[] [string? required-path]} nil) => (just (err:whole-value-nil))
+  (check-for-explanations {[] [string? reject-nil]} nil) => (just (err:whole-value-nil))
+  (built-like {[] [string? reject-missing]} nil) => nil
+
+  (fact "just for fun, note these variants"
+    (built-like string? nil) => nil
+    (check-for-explanations [string? required-path] nil) => (just (err:whole-value-nil))
+    (check-for-explanations [string? reject-nil] nil) => (just (err:whole-value-nil))
+    (built-like [string? reject-missing] nil) => nil))
 
 (fact "keywords"
   (type! :X {[:a :b] [required-path even?]})
@@ -143,7 +148,7 @@
 (fact "Some random leftover tests"
   (type! :Points {[ALL :x] integer?
                   [ALL :y] integer?})
-  (check-for-explanations :Points 3) =future=> (just (err:not-collection [ALL] 3))
+  (check-for-explanations :Points 3) => (just (err:not-collection [ALL] 3))
 
   ;; NOTE: This is an example of how error messages might be usefully condensed.
   (check-for-explanations :Points [1 2 3]) => (just (err:not-maplike [0 :x] 1)

@@ -6,7 +6,7 @@
             [ordered.set :as os]
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
-            [structural-typing.guts.preds.pseudopreds :refer [required-path rejects-missing-and-nil?]]))
+            [structural-typing.guts.preds.pseudopreds :refer [required-path]]))
 
 (defrecord PPP [path preds])
 

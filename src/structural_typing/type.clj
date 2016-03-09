@@ -25,13 +25,6 @@
 
 ;;;; 
 
-;; This is used to check if an argument to `built-like` is nil. If so, it's not further
-;; checked. Another approach would be to inject the following map into all types when
-;; they're compiled. However, that would mean that the `T1` in:
-;;     (type! :T2 {:a (includes :T1)})
-;; ... would not be optional, which would make it different from all other pred-like values.
-(def ^:private whole-type-checker (compile/compile-type {[] [reject-nil]}))
-
 (defn- produce-type [type-repo one-or-more]
   (let [[signifiers condensed-descriptions]
         (bifurcate repo/valid-type-signifier? (force-vector one-or-more))
@@ -44,11 +37,10 @@
 
 
 (defn- all-oopsies [compiled-type candidate]
-  (or (seq (whole-type-checker candidate))
-      (reduce (fn [so-far checker]
-                (into so-far (checker candidate)))
-              []
-              compiled-type)))
+  (reduce (fn [so-far checker]
+            (into so-far (checker candidate)))
+          []
+          compiled-type))
 
 (defn- respond-to-results [type-repo candidate oopsies]
   (if (empty? oopsies)
