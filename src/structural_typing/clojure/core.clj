@@ -23,7 +23,7 @@
              [such.wrongness
               boom!]
              [such.sequences
-               bifurcate]
+               bifurcate only]
              [such.control-flow
                branch-on]
              [such.immigration
