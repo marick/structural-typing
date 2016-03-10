@@ -18,10 +18,11 @@
              {:x integer? :y integer?})
       (replace-error-handler (oopsie/mkfn:apply-to-each-explanation #(timbre/error %)))))
 
-(def built-like (partial type/built-like type-repo))
-(def all-built-like (partial type/all-built-like type-repo))
-(def <>built-like #(type/<>built-like %1 type-repo %2))
-(def <>all-built-like #(type/<>all-built-like %1 type-repo %2))
-(def built-like? (partial type/built-like? type-repo))
+;; Define namespace-local versions of the standard functions that default to this type-repo.
+;; The standard functions are `built-like`, `all-built-like`, `<>built-like`,
+;; `<>all-built-like`, and `built-like?`.
 
+(type/ensure-standard-functions type-repo)
 
+;; For example, clients can use this:
+;;     (mytypes/built-like :Point x)

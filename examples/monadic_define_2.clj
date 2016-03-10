@@ -30,11 +30,27 @@
                    (replace-success-handler m/right)
                    (replace-error-handler (comp m/left explanations-with-whole-value))))
 
-(def built-like (partial type/built-like type-repo))
-(def all-built-like (partial type/all-built-like type-repo))
-(def <>built-like #(type/<>built-like %1 type-repo %2))
-(def <>all-built-like #(type/<>all-built-like %1 type-repo %2))
+;; Define namespace-local versions of the standard functions that don't require
+;; clients to mention the type-repo. Those standard functions are:
+;; `built-like`, `all-built-like`, `<>built-like`, `<>all-built-like`, and `built-like?`.
+
+(type/ensure-standard-functions type-repo)
+
+;; For example, clients can use this:
+;;     (mytypes/built-like :Point x)
+
+;; The above standard definitions are sometimes wrong. For example,
+;; the following definition for `built-like?` won't work with monads:
+;;
+;;     (def built-like? (partial type/built-like? type-repo))
+;;
+;; Given the Maybe monad, we have to interpret a `right` as meaning success,
+;; and a `left` as an error. So we have to override the standard definition:
 (def built-like? (comp m/right? built-like))
 
-
-
+;; The other definitions will. They are:
+;;
+;; (def built-like (partial type/built-like type-repo))
+;; (def all-built-like (partial type/all-built-like type-repo))
+;; (def <>built-like #(type/<>built-like %1 type-repo %2))
+;; (def <>all-built-like #(type/<>all-built-like %1 type-repo %2))

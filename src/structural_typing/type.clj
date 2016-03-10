@@ -6,6 +6,10 @@
             [structural-typing.guts.compile.compile :as compile]
             [structural-typing.global-type :as global-type]
             [such.readable :as readable]
+            [such.ns :as ns]
+            [such.symbols :as sym]
+            [such.metadata :as meta]
+            [such.immigration :as immigrate]
             [defprecated.core :as depr])
   (:require structural-typing.assist.special-words
             structural-typing.assist.defaults))
@@ -192,32 +196,33 @@
 
 
 
-;; (defn coercion 
-;;   "Register function `f` as one that can coerce a map or record into 
-;;    one that matches type `type-signifier`. The updated `type-repo` is returned.
-;;    See also [[coercion!]], which updates the global type repo."
-;;   [type-repo type-signifier f]
-;;   (built-like-internal own-types :type-repo type-repo)
-;;   (assoc-in type-repo [:coercions type-signifier] f))
+(defn ^:no-doc set-doc-strings [var-syms]
+  (doseq [sym var-syms]
+    (let [v (ns/+find-var sym)
+          doc (meta/get (ns/+find-var 'structural-typing.type sym) :doc)]
+    (alter-meta! v assoc :doc doc))))
 
-;; (defn coerced
-;;   "Coerce the map or record `candidate` into the type named `type-signifier` in the `type-repo`
-;;    and check the result with [[built-like]]. The coerced version of `candidate` is returned.
-   
-;;    If the type repo is omitted, the global type repo is used.
-;;    Coercions are defined with [[coercion]] or [[coercion!]].
-   
-;;         (some-> (coerce :user-v2 legacy-json)
-;;                 (update-in [:stats :logins] inc))
+(defmacro ensure-standard-functions
+  "Suppose you are creating a type repo inside a namespace, as is done in
+   the [logging example](https://github.com/marick/structural-typing/blob/master/examples/timbre_define_1.clj). You'd like that namespace to provide functions that use that type repo
+   without having to constantly refer to it:
 
-;;    If `type-signifier` hasn't been defined (via [[name]] or [[named!]]), the final
-;;    call to `built-like` is omitted.
-;; "
-;;   ([type-repo type-signifier candidate]
-;;      (built-like-internal own-types :type-repo type-repo)
-;;      (let [coercer (get-in type-repo [:coercions type-signifier] identity)]
-;;        (->> (coercer candidate)
-;;             (built-like-internal type-repo type-signifier))))
-;;   ([type-signifier candidate]
-;;      (coerced @stages/global-type-repo type-signifier candidate)))
+       (my.types/built-like? :Point xy)
+       ;; instead of:
+       (my.types/built-like? my.types/type-repo :Point xy)
 
+  This function takes a type repo and creates type-repo-specific functions for you.
+
+       (in-ns 'my.types)
+       (type/ensure-standard-functions type-repo)
+"
+  [type-repo-sym]
+  `(do
+     (def ~'built-like (partial type/built-like ~type-repo-sym))
+     (def ~'all-built-like (partial type/all-built-like ~type-repo-sym))
+     (def ~'<>built-like #(type/<>built-like %1 ~type-repo-sym %2))
+     (def ~'<>all-built-like #(type/<>all-built-like %1 ~type-repo-sym %2))
+     (def ~'built-like? (partial built-like? ~type-repo-sym))
+
+     (set-doc-strings '[built-like all-built-like <>built-like <>all-built-like
+                        built-like?])))

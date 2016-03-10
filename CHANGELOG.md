@@ -14,6 +14,7 @@ See [here](http://keepachangelog.com/) for the change log format.
           - Comparison of a record to a map works as in Midje.
           - BigDecimal and BigFloat literals will match plain floats, longs, etc.
           
+- ADD: `ensure-standard-functions` makes it easier to write namespaces containing type repos.
 - CHANGE: Way better detection/reporting of structures that cannot match the path.
 - CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`
   (which still exists)
