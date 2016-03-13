@@ -1,14 +1,13 @@
 Available via [clojars](https://clojars.org/marick/structural-typing) for Clojure 1.7+  
 For lein: [marick/structural-typing "1.0.1"]        
-Experimental: [marick/structural-typing "2.0-beta1"]       
+Experimental: [marick/structural-typing "2.0-beta2"]       
 License: [MIT](http://opensource.org/licenses/MIT)        
 [API docs](http://marick.github.io/structural-typing/)       
 [Wiki docs](https://github.com/marick/structural-typing/wiki)
 
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
-The documentation is currently being updated to describe the 2.0
-release. I apologize for any transient inconsistencies.
+*The documentation is currently being updated to describe the 2.0 release. I apologize for any transient inconsistencies.*
 
 **[Semantic versioning](http://semver.org)**: Changes to the text of
 the default error explanations will not trigger a major version

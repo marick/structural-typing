@@ -2,7 +2,7 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [2.0 beta 1 - in progress]
+## [2.0 - in progress]
 - BREAKING: Removed deprecated functions `required-key` and `checked`
 - BREAKING: Will no longer reject a top-level nil unless you tell it to.
 - BREAKING: Is much better at discovering and describing truncated structures that
