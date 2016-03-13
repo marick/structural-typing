@@ -195,12 +195,15 @@
      (description @global-type/repo type-signifier)))
 
 
-
 (defn ^:no-doc set-doc-strings [var-syms]
   (doseq [sym var-syms]
     (let [v (ns/+find-var sym)
           doc (meta/get (ns/+find-var 'structural-typing.type sym) :doc)]
     (alter-meta! v assoc :doc doc))))
+
+
+(def ^:private ^:no-doc standard-symbols '[built-like all-built-like <>built-like <>all-built-like
+                                           built-like?])
 
 (defmacro ensure-standard-functions
   "Suppose you are creating a type repo inside a namespace, as is done in
@@ -218,11 +221,12 @@
 "
   [type-repo-sym]
   `(do
-     (def ~'built-like (partial type/built-like ~type-repo-sym))
-     (def ~'all-built-like (partial type/all-built-like ~type-repo-sym))
-     (def ~'<>built-like #(type/<>built-like %1 ~type-repo-sym %2))
-     (def ~'<>all-built-like #(type/<>all-built-like %1 ~type-repo-sym %2))
+     (doseq [s# '~standard-symbols] (ns-unmap *ns* s#))
+
+     (def ~'built-like (partial structural-typing.type/built-like ~type-repo-sym))
+     (def ~'all-built-like (partial structural-typing.type/all-built-like ~type-repo-sym))
+     (def ~'<>built-like #(structural-typing.type/<>built-like %1 ~type-repo-sym %2))
+     (def ~'<>all-built-like #(structural-typing.type/<>all-built-like %1 ~type-repo-sym %2))
      (def ~'built-like? (partial built-like? ~type-repo-sym))
 
-     (set-doc-strings '[built-like all-built-like <>built-like <>all-built-like
-                        built-like?])))
+     (set-doc-strings '~standard-symbols)))

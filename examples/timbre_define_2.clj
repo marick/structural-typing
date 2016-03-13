@@ -1,15 +1,13 @@
 (ns timbre-define-2
   "Using an Either monad to separate mistyped from valid values"
-  (:require [structural-typing.type :as type]
-            [structural-typing.preds :as preds]
+  ;; Because this is all about tailoring structural-typing, the rare `:refer :all` is appropriate:
+  (:use structural-typing.type)
+
+  (:require [structural-typing.preds :as pred]
             [structural-typing.assist.oopsie :as oopsie]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]
-            [taoensso.timbre :as timbre])
-  ;; I know it's unfashionable, but in this case a separate `use` is clearer than :refer :all
-  (:use [structural-typing.type :exclude [built-like all-built-like
-                                          <>built-like <>all-built-like
-                                          built-like?]]))
+            [taoensso.timbre :as timbre]))
 
 (timbre/set-level! :info)
 
@@ -38,7 +36,7 @@
 ;; The standard functions are `built-like`, `all-built-like`, `<>built-like`,
 ;; `<>all-built-like`, and `built-like?`.
 
-(type/ensure-standard-functions type-repo)
+(ensure-standard-functions type-repo)
 
 ;; For example, clients can use this:
 ;;     (mytypes/built-like :Point x)
