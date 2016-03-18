@@ -90,20 +90,11 @@
           {}
           ppps))
 
-(defn force-predicate [value]
-  (let [converter (branch-on value
-                             extended-fn?   identity
-                             regex?         pdef/regex-match
-                             number?        pdef/number-match
-                             record?        pdef/record-match
-                             :else          pdef/exactly)]
-    (converter value)))
-
-(defn coerce-plain-values-into-predicates [kvs]
+(defn vectorize-checkers [kvs]
   (update-each-value kvs
-                     #(mapv force-predicate %)))
+                     #(mapv identity %)))
 
 (defn ->type-description [ppps]
   (-> ppps
       ppps->map
-      coerce-plain-values-into-predicates))
+      vectorize-checkers))

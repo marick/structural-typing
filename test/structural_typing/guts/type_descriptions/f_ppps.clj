@@ -90,26 +90,3 @@
   (fact "it allows empty paths"
     (let [result (subject/->type-description [ (subject/->PPP [] [even?]) ])]
       (get result []) => (just (exactly even?)))))
-
-(fact "non-function values within a canonicalized map are coerced to `exactly` functions"
-  (let [input {[:a :b] #{5}}
-        {expreds [:a :b]} (subject/coerce-plain-values-into-predicates input)]
-    ( (first expreds) 5) => true
-    ( (first expreds) 6) => false)
-
-  (fact "here are some of the things that get coerced to functions"
-    (let [input {[:strings] ["a"]
-                  [:keywords] [:k]
-                  [:vectors] [ [1 2] ]
-                  ;; Note that maps could, but there's no way to get them to the
-                  ;; function.
-                  }
-          result (subject/coerce-plain-values-into-predicates input)]
-      ( (-> result (get [:strings]) first) "a") => true
-      ( (-> result (get [:strings]) first) "NOT A") => false
-
-      ( (-> result (get [:keywords]) first) :k) => true
-      ( (-> result (get [:keywords]) first) :not-k) => false
-
-      ( (-> result (get [:vectors]) first) [1 2]) => true
-      ( (-> result (get [:keywords]) first) [1 3]) => false)))

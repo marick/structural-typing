@@ -27,15 +27,4 @@
         (err:shouldbe [1 :middles 0 :bottoms 0 :val] "even?" 5)
         (err:shouldbe [1 :middles 1 :bottoms 0 :val] "even?" 7)]))
 
-(defrecord FunctionHolder [f])
-
-(fact "records on the right-hand-side are treated as values, not like maps"
-  (let [even-holder (FunctionHolder. even?)]
-    (built-like {[:k] even-holder} {:k even-holder}) => {:k even-holder})
-  ;; Which is different from maps
-  (let [even-holder {:f even?}]
-    ;; What's expected is something like `{:k {:f 2}}`
-    (check-for-explanations {[:k] even-holder} {:k even-holder})
-    => (just "[:k :f] should be `even?`; it is the function `even?`")))
-
 (start-over!)
