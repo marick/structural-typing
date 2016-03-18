@@ -185,7 +185,7 @@ described in the wiki and API documentation - to do that.
 ### Sometimes I want to be specific about expected values
 
 In testing, you'll often want to say not that a
-value is a string, but that it's a *specific* string. That can be (inadequately) done
+value is a string, but that it's a *specific* string. That can be done
 like this:
 
 ```clojure
@@ -196,29 +196,7 @@ user=> (built-like {[:a :b] (pred/exactly 3)}
 => nil
 ```
 
-That's a bit tedious, though, so you can just specify non-function values and they'll
-be automatically compared for equality:
-
-```clojure
-user=> (built-like {[:a :b] 3}
-                   {:a {:b 4}})
-[:a :b] should be exactly `3`; it is `4`
-=> nil
-```
-
-Actually, "compared for equality" is not quite true. Some value types are treated
-specially. For example, it's rarely useful to compare regular
-expressions with equality: they're always unequal. Instead, they're
-used to check strings as with `re-find`:
-
-```clojure
-user=> (built-like {[ALL] #"^a+"}
-                   ["" "a" "b" "baaa" "aba"])
-[0] should match #"^a+"; it is ""
-[2] should match #"^a+"; it is "b"
-[3] should match #"^a+"; it is "baaa"
-=> nil
-```
+There are a variety of useful 
 
 
 #### A bit of path shorthand and a tad of terminology
@@ -226,8 +204,8 @@ user=> (built-like {[ALL] #"^a+"}
 In its
 [canonical](https://github.com/marick/structural-typing/wiki/Glossary#canonical-type-description)
 form, a type description is a map from paths to a vector of
-[checkers](https://github.com/marick/structural-typing/wiki/Glossary#checkers)
-(where checkers can be predicates or specific non-function values like integers). Here is a canonical description:
+"[check-preds](https://github.com/marick/structural-typing/wiki/Glossary#check-preds)".
+Here is a canonical description:
 
 ```clojure
 {[:a] [even?]
@@ -235,7 +213,7 @@ form, a type description is a map from paths to a vector of
  [:c] [5]}
 ```
 
-However, you may have already noticed that you don't need the vector when you have a single checker:
+However, you may have already noticed that you don't need the vector when you have a single check-pred:
 
 ```clojure
 {[:a] even?
@@ -261,7 +239,7 @@ user=> (built-like {[] [string?]} "foo")
 
 The `[]` represents a path that stops short of descending
 into the given value (`"foo"` in this case). Instead, the
-checkers are applied to `"foo"` itself (the ["whole value"](https://github.com/marick/structural-typing/wiki/Glossary#whole-value)).
+check-preds are applied to `"foo"` itself (the ["whole value"](https://github.com/marick/structural-typing/wiki/Glossary#whole-value)).
 
 That looks a bit ugly, but you've already seen the abbreviated form:
 
