@@ -31,6 +31,24 @@
   [expected]
   (pdef/exactly expected))
 
+(defn matches [regex]
+  "Produce a predicate that returns true when any part of a
+   string matches `regex`. (That is, `re-find` is used instead
+   of `re-matches`.)"
+  (pdef/compose-predicate
+   (format "(matches %s)" (pr-str regex))
+   (fn [actual] (boolean (re-find regex actual)))
+   (fn [oopsie]
+     (let [actual (:leaf-value oopsie)
+           readable-actual (readable/value-string actual)]
+
+       (format "%s should match %s; it is %s"
+               (oopsie/friendly-path oopsie)
+               (pr-str regex)
+               (if (string? actual)
+                 readable-actual
+                 (str "`" readable-actual "`")))))))
+
 
 (defn- key-differences [expected-keycoll actual-value]
   (let [actual-set (set (keys actual-value))

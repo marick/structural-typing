@@ -18,6 +18,18 @@
     (explain-lifted simple (exval 8 [:x])) => [":x should be a member of `[1 2 3]`; it is `8`"]
     (explain-lifted with-fn (exval pos? [:x])) => [":x should be a member of `[even? odd?]`; it is `pos?`"]))
 
+(fact matches
+  (let [simple (subject/matches #"a+")]
+    (simple "a") => true
+    (simple "aaa") => true
+    (simple "ba") => true
+    (simple "") => false
+    (simple 5) => (throws)  ; but that's OK because it's lifted.
+
+    (both-names simple) => "(matches #\"a+\")"
+    (explain-lifted simple (exval 8 [:x])) => [":x should match #\"a+\"; it is `8`"]
+    (explain-lifted simple (exval "8" [:x])) => [":x should match #\"a+\"; it is \"8\""]))
+
 (fact exactly
   (let [simple (subject/exactly 3)
         with-fn (subject/exactly even?)]
