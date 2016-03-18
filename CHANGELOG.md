@@ -8,18 +8,11 @@ See [here](http://keepachangelog.com/) for the change log format.
 - BREAKING: Is much better at discovering and describing truncated structures that
   don't match the type declaration. This could lead to new or different error messages.
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
-- ADD: By default, a non-function `x` used in predicate position behaves as `(exactly x)`. Except that:
-
-          - Regular expressions are treated as in Midje.
-          - Comparison of a record to a map works as in Midje.
-          - BigDecimal and BigFloat literals will match plain floats, longs, etc.
-          
 - ADD: `ensure-standard-functions` makes it easier to write namespaces containing type repos.
 - CHANGE: Way better detection/reporting of structures that cannot match the path.
 - CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`
   (which still exists)
-- BUGFIX: A record on the right-hand side is treated as an exact value, rather than a
-  map to traverse to build up paths.
+- NOTE: an earlier version of 2.0 allowed literals. That was a bad idea.
 
 ## [1.0.1]
 - CHANGE: Use newest version of `suchwow` and `specter`.
