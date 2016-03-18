@@ -196,7 +196,7 @@ user=> (built-like {[:a :b] (pred/exactly 3)}
 => nil
 ```
 
-There are a variety of useful functions in the `structural-typing.preds` namespace.
+You may not want exact comparison. There are a variety of useful related functions in the `structural-typing.preds` namespace.
 For example, you can constrain the possible inputs to an API using a regular expression over version numbers:
 
 ```clojure
