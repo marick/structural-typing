@@ -196,7 +196,16 @@ user=> (built-like {[:a :b] (pred/exactly 3)}
 => nil
 ```
 
-There are a variety of useful 
+There are a variety of useful functions in the `structural-typing.preds` namespace.
+For example, you can constrain the possible inputs to an API using a regular expression over version numbers:
+
+```clojure
+user=> (def version-check (pred/matches #"rule-version: 1"))
+user=> (built-like version-check {:metadata {:version "rule-version: 2.3"}
+                                  :real-data 5})
+[:metadata :version] should match #"rule-version: 1"; it is "rule-version: 2.3"
+=> nil
+```
 
 
 #### A bit of path shorthand and a tad of terminology
