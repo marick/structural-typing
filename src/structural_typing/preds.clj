@@ -23,13 +23,37 @@
    (pdef/should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
 (defn exactly
-  "Produce a predicate that's true iff the value it's applied to
-   is `expected`.
-     
-         (type! :V5 {:version (exactly 5)})
+  "A predicate that succeeds exactly when its argument is `=` to expected.
+   Here's an example of defining a versioned type
+
+        (type! :V5 {:version (exactly 5)
+                    :request ...
+                    :response ...
+                    ...}
+
+   You can also use `exactly` as a way to check for the presence of a function,
+   rather than applying that function as a checker:
+
+        (built-like? even? even?) ;=> false
+        (built-like? (exactly even?) even?) ;=> true
 "
   [expected]
-  (pdef/exactly expected))
+  (pdef/compose-predicate
+   (format "(exactly %s)" (readable/value-string expected))
+   (partial = expected)
+   (pdef/should-be "%s should be exactly `%s`; it is `%s`" expected)))
+
+(defn exactly==
+  "This predicate is like [[exactly]] except it uses `==` instead of `=`. That is,
+  it checks equality irrespective of type. That is, whereas
+  `((exactly 1M) 1)` is `false`, `((exactly== 1M) 1)` is `true`."
+
+  [expected]
+  (pdef/compose-predicate
+   (format "(exactly== %s)" (readable/value-string expected))
+   (partial == expected)
+   (pdef/should-be "%s should be `==` to `%s`; it is `%s`" expected)))
+
 
 (defn matches [regex]
   "Produce a predicate that returns true when any part of a
@@ -213,13 +237,3 @@
   (or (= (type n) (type 1N))
       (= (type n) (type 1M))))
 
-(defn exactly==
-  "This predicate is like [[exactly]] except it uses `==` instead of `=`. That is,
-  it checks equality irrespective of type. That is, whereas
-  `((exactly 1M) 1)` is `false`, `((exactly== 1M) 1)` is `true`."
-
-  [expected]
-  (pdef/compose-predicate
-   (format "(exactly== %s)" (readable/value-string expected))
-   (partial == expected)
-   (pdef/should-be "%s should be `==` to `%s`; it is `%s`" expected)))
