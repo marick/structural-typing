@@ -207,3 +207,19 @@
   (type-expander/mkfn [type-map]
     (let [lift #(lifting/lift-type (vector %) type-map)]
       (implies:mkfn:from-adjusted (partition 2 (map lift args))))))
+
+
+(defn- bigdecimallike? [n]
+  (or (= (type n) (type 1N))
+      (= (type n) (type 1M))))
+
+(defn exactly==
+  "This predicate is like [[exactly]] except it uses `==` instead of `=`. That is,
+  it checks equality irrespective of type. That is, whereas
+  `((exactly 1M) 1)` is `false`, `((exactly== 1M) 1)` is `true`."
+
+  [expected]
+  (pdef/compose-predicate
+   (format "(exactly== %s)" (readable/value-string expected))
+   (partial == expected)
+   (pdef/should-be "%s should be `==` to `%s`; it is `%s`" expected)))

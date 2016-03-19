@@ -19,16 +19,16 @@
     (explain-lifted with-fn (exval pos? [:x])) => [":x should be a member of `[even? odd?]`; it is `pos?`"]))
 
 (fact matches
-  (let [simple (subject/matches #"a+")]
-    (simple "a") => true
-    (simple "aaa") => true
-    (simple "ba") => true
-    (simple "") => false
-    (simple 5) => (throws)  ; but that's OK because it's lifted.
+  (let [p (subject/matches #"a+")]
+    (p "a") => true
+    (p "aaa") => true
+    (p "ba") => true
+    (p "") => false
+    (p 5) => (throws)  ; but that's OK because it's lifted.
 
-    (both-names simple) => "(matches #\"a+\")"
-    (explain-lifted simple (exval 8 [:x])) => [":x should match #\"a+\"; it is `8`"]
-    (explain-lifted simple (exval "8" [:x])) => [":x should match #\"a+\"; it is \"8\""]))
+    (both-names p) => "(matches #\"a+\")"
+    (explain-lifted p (exval 8 [:x])) => [":x should match #\"a+\"; it is `8`"]
+    (explain-lifted p (exval "8" [:x])) => [":x should match #\"a+\"; it is \"8\""]))
 
 (fact exactly
   (let [simple (subject/exactly 3)
@@ -107,3 +107,50 @@
       (p (map->TwoKeys {:a 1, :b 1, :c 1})) => false)))
 
 
+(fact "If you expect a bigdecimal-ish number, == is accepted."
+  (fact "exact equality has problems with BigDecimal"
+    (let [p (subject/exactly 1M)]
+      (p 1) => false   ; !
+      (p 1N) => false  ; !
+      (p 1M) => true))
+
+
+  (fact "... that exactly== doesn't"
+    (let [p (subject/exactly== 1M)]
+      (p 1) => true
+      (p 1N) => true
+      (p 1M) => true))
+
+  (fact "exact equality has problems with BigInt"
+    (let [p (subject/exactly== 1N)]
+      (= 1N 1) => true
+      (= 1N 1N) => true
+      (= 1N 1M) => false))   ; !
+
+  (fact "... that exactly== doesn't"
+    (let [p (subject/exactly== 1N)]
+      (p 1) => true
+      (p 1N) => true
+      (p 1M) => true))
+
+  (fact "inequalities still work"
+    (let [p (subject/exactly== 1M)]
+      (p 2) => false
+      (p 2N) => false
+      (p 2M) => false))
+
+  (fact "name"
+    (let [p (subject/exactly== 1M)]
+      (both-names p) => "(exactly== 1M)"))
+
+  (fact "the error message differs from normal exact comparisons"
+    (check-for-explanations {:a (subject/exactly== 1M)} {:a 3})
+    => (just ":a should be `==` to `1M`; it is `3`")
+    (check-for-explanations {:a (subject/exactly== 1)} {:a 3M})
+    => (just ":a should be `==` to `1`; it is `3M`")
+    (check-for-explanations {:a (subject/exactly== 1M)} {:a 3N})
+    => (just ":a should be `==` to `1M`; it is `3N`"))
+
+  (fact "even though `==` blows up with non-numbers, we're fine"
+    (check-for-explanations {:a (subject/exactly== 1)} {:a :fred})
+    => (just ":a should be `==` to `1`; it is `:fred`")))
