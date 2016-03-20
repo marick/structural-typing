@@ -12,7 +12,7 @@ bump. Changes in the number of messages won't either, provided the new
 set contains the same information. (In less-common cases, the library
 says almost the same thing twice.)
 
-**Updating to 2.0**: See the [change log](https://github.com/marick/structural-typing/blob/master/CHANGELOG.md). It is extremely unlikely that you'll have to change clients, unless you used functions that were explicitly deprecated.
+**Updating to 2.0**: See the [change log](https://github.com/marick/structural-typing/blob/master/CHANGELOG.md). It is extremely unlikely that you'll have to change client code, unless you used functions that were explicitly deprecated.
 
 # structural-typing
 
