@@ -2,7 +2,7 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [2.0 - in progress]
+## [2.0.0]
 - CHANGE: Way better detection/reporting of structures that cannot match the path
   (truncated and misshapen structures).
 - CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`

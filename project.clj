@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "2.0-beta2"
+(defproject marick/structural-typing "2.0.0"
   :description "Define types by giving descriptions (perhaps incomplete) of how they're built.
                \"...by how they're built\" means applying arbitrary predicates (especially ones
                about existence) to parts of structures.
