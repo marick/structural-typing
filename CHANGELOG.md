@@ -3,15 +3,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [2.0 - in progress]
+- CHANGE: Way better detection/reporting of structures that cannot match the path
+  (truncated and misshapen structures).
+- CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`
+  (which still exists)
+- ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
+- ADD: `ensure-standard-functions` makes it easier to write namespaces containing type repos.
 - BREAKING: Removed deprecated functions `required-key` and `checked`
 - BREAKING: Will no longer reject a top-level nil unless you tell it to.
 - BREAKING: Is much better at discovering and describing truncated structures that
   don't match the type declaration. This could lead to new or different error messages.
-- ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
-- ADD: `ensure-standard-functions` makes it easier to write namespaces containing type repos.
-- CHANGE: Way better detection/reporting of structures that cannot match the path.
-- CHANGE: `reject-nil` and `reject-missing` give better control than `required-path`
-  (which still exists)
+- BREAKING: helper function `compose-predicate` is now `compose-checker`
 - NOTE: an earlier version of 2.0 allowed literals. That was a bad idea.
 
 ## [1.0.1]
