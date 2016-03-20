@@ -6,19 +6,13 @@ License: [MIT](http://opensource.org/licenses/MIT)
 
 [![Build Status](https://travis-ci.org/marick/structural-typing.png?branch=master)](https://travis-ci.org/marick/structural-typing)
 
-*The documentation is currently being updated to describe the 2.0 release. I apologize for any transient inconsistencies.*
-
 **[Semantic versioning](http://semver.org)**: Changes to the text of
 the default error explanations will not trigger a major version
 bump. Changes in the number of messages won't either, provided the new
 set contains the same information. (In less-common cases, the library
 says almost the same thing twice.)
 
-**Updating to 2.0**: The 1.0 API is a subset of the 2.0 API,
-except that `built-like` may have better error output, or may reject
-incorrect structures that it previously accepted.  Except for
-deprecated functions that have been removed, you should not need to
-change clients of the 1.0 code to adopt 2.0.
+**Updating to 2.0**: See the [change log](https://github.com/marick/structural-typing/blob/master/CHANGELOG.md). It is extremely unlikely that you'll have to change clients, unless you used functions that were explicitly deprecated.
 
 # structural-typing
 
