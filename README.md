@@ -103,7 +103,7 @@ The whole value should not be `nil`
 
 ### Structures and paths
 
-As shown above, `built-like` can be applied to basic types,
+As shown above, `built-like` can be used with basic types like strings,
 but that's unusual. The type more usually describes a collection. For example, here's a claim
 that all values in a collection are even:
 
@@ -123,10 +123,11 @@ user=> (built-like {[ALL] [even? reject-nil]} [1 2 3 nil])
 => nil
 ```
 
-Items (like `[ALL]`) in the left-hand side (key) positions of the map are [paths](https://github.com/marick/structural-typing/wiki/Glossary#path) into the
-structure. For example, suppose each element of the collection is a
-map whose `:a` value should be even and whose `:b` value should be
-odd. There are two different paths into the structure, with two different constraints on the values found at the end of the path.
+Items (like `[ALL]`) in the left-hand (key) positions of the map are
+[paths](https://github.com/marick/structural-typing/wiki/Glossary#path)
+into the structure. For example, suppose each element of a collection
+is a map. In that map, `:a` should have an even value, and `:b` should
+have an odd value. The type description would have two paths:
 
 ```clojure
 user=> (def my-type {[ALL :a] even?
@@ -166,7 +167,8 @@ user=> (built-like my-type [{:a nil}])
 => nil
 ```
 
-Notice that `nil` is accepted in this case. If you want to reject both, use `required-path`:
+Notice that `built-like` accepted the explicit `nil`. If you want to
+reject both `nil` and missing values, use `required-path`:
 
 ```clojure
 user=> (def my-type {[ALL :a] [even? required-path]
@@ -179,8 +181,7 @@ user=> (built-like my-type [{:a nil}])
 
 Note: You'll often want all or most paths to be required, and it would
 be tedious and error-prone to type `required-path` on every right-hand
-side in the map. Therefore there are a couple of shorthand ways -
-described in the wiki and API documentation - to do that.
+side in the type description. The wiki and API documentation describe ways to avoid that. 
 
 ### Sometimes I want to be specific about expected values
 
@@ -196,14 +197,16 @@ user=> (built-like {[:a :b] (pred/exactly 3)}
 => nil
 ```
 
-You may not want exact comparison. There are a variety of useful related functions in the `structural-typing.preds` namespace.
-For example, you can constrain the possible inputs to an API using a regular expression over version numbers:
+You may not want exact comparison. There are a variety of useful
+related functions in the `structural-typing.preds` namespace.  For
+example, you can constrain the possible inputs to an API by insisting
+that the version number match a regular expression:
 
 ```clojure
-user=> (def version-check (pred/matches #"rule-version: 1"))
-user=> (built-like version-check {:metadata {:version "rule-version: 2.3"}
+user=> (def version-check {[:metadata :version] (pred/matches #"1.?")})
+user=> (built-like version-check {:metadata {:version "2.3"}
                                   :real-data 5})
-[:metadata :version] should match #"rule-version: 1"; it is "rule-version: 2.3"
+[:metadata :version] should match #"1.?"; it is "2.3"
 => nil
 ```
 
@@ -213,7 +216,7 @@ user=> (built-like version-check {:metadata {:version "rule-version: 2.3"}
 In its
 [canonical](https://github.com/marick/structural-typing/wiki/Glossary#canonical-type-description)
 form, a type description is a map from paths to a vector of
-"[check-preds](https://github.com/marick/structural-typing/wiki/Glossary#check-preds)".
+"[checkers](https://github.com/marick/structural-typing/wiki/Glossary#checker)".
 Here is a canonical description:
 
 ```clojure
@@ -222,7 +225,7 @@ Here is a canonical description:
  [:c] [5]}
 ```
 
-However, you may have already noticed that you don't need the vector when you have a single check-pred:
+However, you may have already noticed that you don't need the vector when you have a single checker:
 
 ```clojure
 {[:a] even?
@@ -239,7 +242,7 @@ The same is true when the path has only one element:
 ```
 
 The above are two (possibly dubious) examples of my emphasis on
-pleasing shorthand. Another example is shown by the following:
+pleasing shorthand. Another example is motivated by the following:
 
 ```clojure
 user=> (built-like {[] [string?]} "foo")
@@ -248,7 +251,7 @@ user=> (built-like {[] [string?]} "foo")
 
 The `[]` represents a path that stops short of descending
 into the given value (`"foo"` in this case). Instead, the
-check-preds are applied to `"foo"` itself (the ["whole value"](https://github.com/marick/structural-typing/wiki/Glossary#whole-value)).
+checkers are applied to `"foo"` itself (the ["whole value"](https://github.com/marick/structural-typing/wiki/Glossary#whole-value)).
 
 That looks a bit ugly, but you've already seen the abbreviated form:
 
@@ -309,7 +312,8 @@ Because of the way structures are transformed as they flow through the
 pipeline, you often do not want to say "Structure X *must* contain
 substructure Y". Instead, you want to say "*If* substructure Y has
 been added, it should look like *this*". That's the reason why
-`built-like` silently accepts missing or `nil` values. It's only at the
+`built-like` accepts missing or `nil` values unless otherwise instructed.
+It's only at the
 end of the pipeline that you want to append a further qualification
 "... and all of these substructures are required."
 
@@ -320,10 +324,13 @@ has a `:color` key. (See
 [Elm's records](http://elm-lang.org/docs/records#record-types) for
 more examples.)
 
-That shows an approach to structures. But what about building up new types from previous work?
+That's it for paths, their traversals, and how oddly-shaped structures
+are handled. But another peculiarity of this library is that
+fundamental types are described with predicates (like `string?`)
+instead of names (like [Schema's](https://github.com/Prismatic/schema)
+`s/Str`). Why?
 
-[Nominal typing](https://en.wikipedia.org/wiki/Nominal_type_system) builds up types from a set of basic types (like
-`String` or `Integer`) and then from structures composed of those basic types. That
+The use of names (so-called [nominal typing](https://en.wikipedia.org/wiki/Nominal_type_system))
 restricts the language you can use to describe data. You can speak of a `:color` that
 is a string, but not a string that specifically encodes an RGB-format
 color value (as might be tested by an `rgb-string?` predicate). That's
