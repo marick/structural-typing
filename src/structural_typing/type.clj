@@ -158,15 +158,6 @@
   ([type-shorthand candidate]
      (built-like? @global-type/repo type-shorthand candidate)))
 
-(depr/defn described-by? 
-  "Use [[built-like?]] instead."
-  {:deprecated {:in "0.13.0"
-                :use-instead built-like?}}
-  ([type-repo type-shorthand candidate]
-     (built-like? type-repo type-shorthand candidate))
-  ([type-shorthand candidate]
-     (described-by? @global-type/repo type-shorthand candidate)))
-
 (defn origin
   "Returns the original condensed type description associated with the `type-signifier`. 
    Uses the global type repo if none is given.
