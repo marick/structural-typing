@@ -14,7 +14,6 @@ See [here](http://keepachangelog.com/) for the change log format.
 - BREAKING: Will no longer reject a top-level nil unless you tell it to.
 - BREAKING: Is much better at discovering and describing truncated structures that
   don't match the type declaration. This could lead to new or different error messages.
-- BREAKING: helper function `compose-predicate` is now `compose-checker`
 - NOTE: an earlier version of 2.0 allowed literals. That was a bad idea.
 
 ## [1.0.1]
