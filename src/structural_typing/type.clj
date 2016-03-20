@@ -209,6 +209,8 @@
 
        (in-ns 'my.types)
        (type/ensure-standard-functions type-repo)
+
+  See [the examples directory](https://github.com/marick/structural-typing/blob/master/examples/definition.clj) more details.
 "
   [type-repo-sym]
   `(do

@@ -1,5 +1,6 @@
 (ns structural-typing.preds
-  "Predefined predicates that are not imported into `structural-typing.type`."
+  "A few predefined predicates, but also functions that take expected values
+  and generate predicates."
   (:use [structural-typing.clojure.core :exclude [not-empty?]])
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
@@ -14,7 +15,10 @@
    member of `coll`. The explainer associated with `member` prints
    `coll`.
      
-         (type! :small-primes {:n (member [2 3 5 7])})
+         user=> (type! :small-primes {:n (member [2 3 5 7])})
+         user=> (built-like :small-primes {:n 2000})
+         :n should be a member of `[2 3 5 7]`; it is `2000`
+         => nil
 "
   [coll]
   (pdef/compose-predicate
@@ -23,8 +27,8 @@
    (pdef/should-be "%s should be a member of `%s`; it is `%s`" coll)))
 
 (defn exactly
-  "A predicate that succeeds exactly when its argument is `=` to expected.
-   Here's an example of defining a versioned type
+  "A predicate that succeeds exactly when its argument is `=` to `expected`.
+   Here's an example of defining a versioned type:
 
         (type! :V5 {:version (exactly 5)
                     :request ...
@@ -34,8 +38,8 @@
    You can also use `exactly` as a way to check for the presence of a function,
    rather than applying that function as a checker:
 
-        (built-like? even? even?) ;=> false
-        (built-like? (exactly even?) even?) ;=> true
+        (built-like? even? even?) ; false: the function `even?` is not an even number
+        (built-like? (exactly even?) even?) ; true
 "
   [expected]
   (pdef/compose-predicate
@@ -55,10 +59,15 @@
    (pdef/should-be "%s should be `==` to `%s`; it is `%s`" expected)))
 
 
-(defn matches [regex]
+(defn matches
   "Produce a predicate that returns true when any part of a
    string matches `regex`. (That is, `re-find` is used instead
-   of `re-matches`.)"
+   of `re-matches`.)
+
+       user=> (built-like (pred/matches #\"ab+\") \"Look at this: abbb. Cool huh?\")
+       \"Look at this: abbb. Cool huh?\"
+"
+  [regex]
   (pdef/compose-predicate
    (format "(matches %s)" (pr-str regex))
    (fn [actual] (boolean (re-find regex actual)))
@@ -76,7 +85,13 @@
 
 
 (def not-empty?
-  "Provides a more pleasant error explanation than `(complement empty?)` or `seq`."
+  "Provides a more pleasant error explanation than `(complement empty?)`
+   or `seq`.
+
+        user=> (built-like pred/not-empty? [])
+        Value should be a non-empty collection; it is `[]`
+        => nil
+"
   (pdef/compose-predicate
    "not-empty?"
    (complement empty?)
@@ -111,8 +126,7 @@
    
    Note: this predicate works only with keys, not paths.
 
-   Note also: all that matters is the presence of keys, not their values. Unlike other
-   parts of this library, `nil` values are not treated as missing."
+   Note also: all that matters is the presence of keys, not their values."
   [& coll]
   (letfn []
     (->> (fn [actual]
@@ -146,8 +160,7 @@
    
    Note: this predicate works only with keys, not paths.
 
-   Note also: all that matters is the presence of keys, not their values. Unlike other
-   parts of this library, `nil` values are not treated as missing."
+   Note also: all that matters is the presence of keys, not their values."
   [& coll]
   (letfn []
     (->> (fn [actual]
@@ -165,16 +178,20 @@
                                  (:leaf-value oopsie))))))))
 
 (defn kvs
-  "Normally, compound clojure values are equal if their contents are equal. For example:
+  "A variant of [[exactly]] that ignores the difference between records and maps.
+
+   In Clojure, compound values are usually equal if their contents are equal. For example:
 
        (= (vector 1 2) (list 1 2)) ;=> true
 
-   That is not true when comparing records to maps. Therefore, given this:
+   That is not true when comparing records to maps. Therefore, the following will *always*
+   be false if `structure` is a record.
 
-       (built-like {[ALL] (exactly {:a 1, :b 2})} structure)
+       (built-like (pred/exactly {:a 1, :b 2}) structure)
 
-   ... you might be surprised if the structure contains records. If so, use `kvs`
-   instead of `exactly`.
+   However, the following will be true, given `(defrecord R [a b])`:
+
+       (built-like (pred/kvs {:a 1, :b 2}) (R. 1 2))
 
    Note: `kvs` is false when given anything other than a map or record."
   [maplike]
@@ -220,8 +237,7 @@
 
    Each `if-part` is evaluated in turn. When the `if-part` matches
    the whole value, then the `then-part` is applied to check for
-   type errors. Otherwise,the `then-part` is ignored (meaning that
-   the whole expression reports no type errors).
+   type errors. Otherwise,the `then-part` is ignored.
    
         ;; If `:a` is present, `:b` must also be present:
         (type! :X (pred/implies :a :b))  

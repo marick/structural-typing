@@ -165,7 +165,10 @@
                           (next-fn %))))))
   (transform* [& _] (no-transform!)))
 
-(def ALL (->AllPathElement))
+(def ALL
+  "When included in a path, expects a collection and applies the rest of the path to
+   each element."
+  (->AllPathElement))
 
 (defmethod clojure.core/print-method AllPathElement [o, ^java.io.Writer w] (.write w "ALL"))
 (readable/instead-of ALL 'ALL)

@@ -1,5 +1,5 @@
 (ns structural-typing.assist.predicate-defining
-  "Help for defining custom predicates"
+  "Helpers for defining custom predicates. See `structural-typing.preds` for examples of use."
   (:use structural-typing.clojure.core)
   (:require [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.format :as format]
@@ -30,7 +30,7 @@
   in the explanation surrounded by quotes.
 
   The resulting predicate still returns the same values as the second argument (the
-  \"underlying\" predicate, but it has extra metadata."
+  \"underlying\" predicate), but it has extra metadata."
   [name pred fmt-fn]
   (->> pred
        (annotating/show-as name)

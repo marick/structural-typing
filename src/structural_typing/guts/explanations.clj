@@ -1,4 +1,4 @@
-(ns structural-typing.guts.explanations
+(ns ^:no-doc structural-typing.guts.explanations
   "All the non-custom error messages, together with functions
    and oopsies that contain them."
   (:use structural-typing.clojure.core)

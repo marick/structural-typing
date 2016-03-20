@@ -1,4 +1,4 @@
-(ns structural-typing.assist.format
+(ns ^:no-doc structural-typing.assist.format
   "I'm trying to figure out a good way to decompose describing bad values. This is a
    partial start. You should ignore it."
   (:use structural-typing.clojure.core)

@@ -1,4 +1,4 @@
-(ns structural-typing.preds.collection)
+(ns ^:no-doc structural-typing.preds.collection)
 
 
 (comment

@@ -1,5 +1,8 @@
 (ns structural-typing.assist.lifting
-  "*Lifting* is a core concept. A predicate begins as something that takes a value and
+  "*Lifting* is a core concept, though one only writers of fairly unusual
+   custom predicates need worry about.
+
+   A predicate begins as something that takes a value and
    returns a truthy/falsey value. It is lifted into something that takes an [[exval]]
    (extended value) and returns a (possibly empty) sequence of [[oopsies]]. Condensed
    type descriptions are similarly converted into single functions that return oopsies.
