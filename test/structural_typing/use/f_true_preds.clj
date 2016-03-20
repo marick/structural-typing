@@ -154,3 +154,11 @@
   (fact "even though `==` blows up with non-numbers, we're fine"
     (check-for-explanations {:a (subject/exactly== 1)} {:a :fred})
     => (just ":a should be `==` to `1`; it is `:fred`")))
+
+
+(fact "not-empty?"
+  (both-names subject/not-empty?) => "not-empty?"
+  (subject/not-empty? nil) => false
+  (subject/not-empty? []) => false
+  (subject/not-empty? [1]) => true
+  (check-for-explanations subject/not-empty? 3) => ["Value should be a non-empty collection; it is `3`"])

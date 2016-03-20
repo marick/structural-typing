@@ -1,6 +1,6 @@
 (ns structural-typing.preds
   "Predefined predicates that are not imported into `structural-typing.type`."
-  (:use structural-typing.clojure.core)
+  (:use [structural-typing.clojure.core :exclude [not-empty?]])
   (:require [structural-typing.assist.lifting :as lifting]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.predicate-defining :as pdef]
@@ -73,6 +73,17 @@
                  readable-actual
                  (str "`" readable-actual "`")))))))
 
+
+
+(def not-empty?
+  "Provides a more pleasant error explanation than `(complement empty?)` or `seq`."
+  (pdef/compose-predicate
+   "not-empty?"
+   (complement empty?)
+   (fn [oopsie]
+     (format "%s should be a non-empty collection; it is `%s`"
+             (oopsie/friendly-path oopsie)
+             (readable/value-string (:leaf-value oopsie))))))
 
 (defn- key-differences [expected-keycoll actual-value]
   (let [actual-set (set (keys actual-value))
@@ -231,9 +242,4 @@
   (type-expander/mkfn [type-map]
     (let [lift #(lifting/lift-type (vector %) type-map)]
       (implies:mkfn:from-adjusted (partition 2 (map lift args))))))
-
-
-(defn- bigdecimallike? [n]
-  (or (= (type n) (type 1N))
-      (= (type n) (type 1M))))
 
