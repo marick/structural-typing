@@ -181,7 +181,7 @@ user=> (built-like my-type [{:a nil}])
 
 Note: You'll often want all or most paths to be required, and it would
 be tedious and error-prone to type `required-path` on every right-hand
-side in the type description. The wiki and API documentation describe ways to avoid that. 
+side in the type description. See [quickly requiring certain paths](https://github.com/marick/structural-typing#quickly-requiring-certain-paths) below, the wiki, and the API documentation.
 
 ### Sometimes I want to be specific about expected values
 
@@ -361,7 +361,7 @@ descriptions, one that isn't layered on top of a namespace. That's called a
 [type-repo](https://github.com/marick/structural-typing/wiki/Glossary#type-repo).
 
 A particular program can have many type repos, each using the
-[recommended setup](https://github.com/marick/structural-typing/wiki/Recommended-setup) for ease of use. For repl samples like those on this page, it's more convenient to use the *global type repo*. It lets you give (keyword) names to the sort of descriptions you've already seen:
+[recommended setup](https://github.com/marick/structural-typing/wiki/Recommended-setup) for ease of use. For repl samples like those on this page, it's more convenient to use the *global type repo*. It lets you give keyword or string names to the sort of descriptions you've already seen:
 
 ```clojure
 user=> (use 'structural-typing.global-type)
@@ -417,7 +417,9 @@ user=> (built-like :ColorfulPoint {:x 1, :color 1})
 ```
 
 (The use of `includes` is intended to remind you that a
-`:ColorfulPoint` is not limited to the fields named by the types. If an incoming `:ColorfulPoint` includes a `:shape` key that your code is uninterested in, that's perfectly fine: you'll just pass it along to your clients.)
+`:ColorfulPoint` is not limited to the fields named by the types. If
+an incoming `:ColorfulPoint` includes a `:shape` key that your code is
+uninterested in, that's perfectly fine: it'll just be passed along.)
 
 Another way to combine existing types is to build up aggregate types. Let's suppose that
 a `:Line` contains two points. That can be done like this:
