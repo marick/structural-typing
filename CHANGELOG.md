@@ -9,7 +9,8 @@ See [here](http://keepachangelog.com/) for the change log format.
   (which still exists)
 - ADD: Strings can now be used in paths. Like keywords, they denote map keywords to follow.
 - ADD: `ensure-standard-functions` makes it easier to write namespaces containing type repos.
-- BREAKING: Removed deprecated functions `required-key` and `checked`
+- ADD: New predicates in `structural-typing.preds`.
+- BREAKING: Removed deprecated functions `required-key`, `checked`, and `described-by?`
 - BREAKING: Will no longer reject a top-level nil unless you tell it to.
 - BREAKING: Is much better at discovering and describing truncated structures that
   don't match the type declaration. This could lead to new or different error messages.
