@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "2.0.0"
+(defproject marick/structural-typing "2.0.1"
   :description "Define types by giving descriptions (perhaps incomplete) of how they're built.
                \"...by how they're built\" means applying arbitrary predicates (especially ones
                about existence) to parts of structures.
@@ -17,7 +17,7 @@
                  [marick/suchwow "5.1.0"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
-                 [ordered "1.3.2" :exclusions [org.clojure/clojure]]
+                 [org.flatland/ordered "1.5.3"]
                  [org.clojure/math.combinatorics "0.1.1"]
                  [com.rpl/specter "0.9.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
