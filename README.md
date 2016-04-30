@@ -215,7 +215,7 @@ Here is a canonical description:
 ```clojure
 {[:a] [even?]
  [:b] [odd?]
- [:c] [5]}
+ [:c] [(pred/exactly 5)]}
 ```
 
 However, you may have already noticed that you don't need the vector when you have a single checker:
@@ -223,7 +223,7 @@ However, you may have already noticed that you don't need the vector when you ha
 ```clojure
 {[:a] even?
  [:b] odd?
- [:c] 5}
+ [:c] (pred/exactly 5)}
 ```
 
 The same is true when the path has only one element:
@@ -231,7 +231,7 @@ The same is true when the path has only one element:
 ```clojure
 {:a even?
  :b odd?
- :c 5}
+ :c (pred/exactly 5)}
 ```
 
 The above are two (possibly dubious) examples of my emphasis on
