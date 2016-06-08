@@ -19,7 +19,7 @@
                  [defprecated "0.1.3"]
                  [org.flatland/ordered "1.5.3"]
                  [org.clojure/math.combinatorics "0.1.1"]
-                 [com.rpl/specter "0.9.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
+                 [com.rpl/specter "0.11.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}

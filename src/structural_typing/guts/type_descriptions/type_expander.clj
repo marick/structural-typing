@@ -3,6 +3,7 @@
    type substitution in a (lexically bound) condensed type description(s)."
   (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
+            [com.rpl.specter.macros :refer [transform]]
             [such.metadata :as meta]))
 
 ;;;;                             The (includes :Point) mechanism
@@ -20,7 +21,7 @@
        as-type-expander))
 
 (defn expand-throughout [type-map forms]
-  (specter/transform (specter/walker type-expander?)
+  (transform (specter/walker type-expander?)
                      #(% type-map)
                      forms))
 
