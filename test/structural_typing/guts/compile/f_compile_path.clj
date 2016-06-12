@@ -3,8 +3,7 @@
   (:require [structural-typing.guts.compile.compile-path :as subject]
             [structural-typing.guts.preds.wrap :as wrap]
             [structural-typing.guts.exval :as exval]
-            [structural-typing.guts.explanations :as explain]
-            [com.rpl.specter :as specter])
+            [structural-typing.guts.explanations :as explain])
   (:use midje.sweet
         structural-typing.assist.testutil
         structural-typing.assist.special-words))

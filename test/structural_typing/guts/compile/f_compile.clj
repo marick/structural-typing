@@ -1,5 +1,4 @@
 (ns structural-typing.guts.compile.f-compile
-  (:require [com.rpl.specter :as specter])
   (:require [structural-typing.guts.compile.compile :as subject]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.guts.compile.compile-path :as path]

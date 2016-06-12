@@ -1,7 +1,6 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]
-            [com.rpl.specter :as specter]))
+  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]))
 
 (declare map->flatmap map->pairs)
 

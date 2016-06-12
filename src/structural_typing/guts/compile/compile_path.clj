@@ -76,7 +76,7 @@
 (defrecord KeywordPathElement [key-given-in-path])
 
 (extend-type KeywordPathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [& args] (apply associative-select* args))
   (transform* [& _] (no-transform!)))
 
@@ -88,7 +88,7 @@
 (defrecord StringPathElement [key-given-in-path])
 
 (extend-type StringPathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [& args] (apply associative-select* args))
   (transform* [& _] (no-transform!)))
 
@@ -109,7 +109,7 @@
 
 
 (extend-type PredicatePathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [& args]
     (apply select-pred* args))
   (transform* [& _] (no-transform!)))
@@ -128,7 +128,7 @@
 (def NO_NIL (->NilRejectingPathElement))
 
 (extend-type NilRejectingPathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [this {:keys [leaf-value] :as exval} next-fn]
     (if (nil? leaf-value)
       (errcase explain/oopsies:whole-value-nil exval {})
@@ -143,7 +143,7 @@
 (defrecord AllPathElement [])
 
 (extend-type AllPathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [this {:keys [leaf-value] :as exval} next-fn]
     (cond (rejected-nil? leaf-value this)
           (errcase explain/oopsies:selector-at-nil exval {:conj-path this})
@@ -245,7 +245,7 @@
               (descend next-fn)))))
 
 (extend-type RangePathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [this exval next-fn]
     (range-select* this exval next-fn))
   (transform* [& _] (no-transform!)))
@@ -280,7 +280,7 @@
 (defrecord IntegerPathElement [index])
 
 (extend-type IntegerPathElement
-  sp/StructurePath
+  sp/Navigator
   (select* [this exval next-fn]
     (let [inclusive-start (:index this)
           exclusive-end (inc inclusive-start)]

@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [2.0.2]
+- CHANGE: Bump dependencies on suchwow, specter, etc.
+
 ## [2.0.1]
 - CHANGE: Bump dependency (`ordered`)
 
