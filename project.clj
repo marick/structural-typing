@@ -31,6 +31,7 @@
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
              :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
+             :1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha5"]]}
              }
 
   :test-paths ["test" "examples"]
@@ -43,8 +44,8 @@
           :output-dir "/var/tmp/structural-typing-doc"
           :defaults {:doc/format :markdown}}
 
-  :aliases {"compatibility" ["with-profile" "+1.7:+1.8" "midje" ":config" ".compatibility-test-config"]
-            "travis" ["with-profile" "+1.7:+1.8" "midje"]}
+  :aliases {"compatibility" ["with-profile" "+1.7:+1.8:+1.9" "midje" ":config" ".compatibility-test-config"]
+            "travis" ["with-profile" "+1.7:+1.8:+1.9" "midje"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
