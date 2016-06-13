@@ -3,7 +3,7 @@
   ppps have paths that can be used to generate other ppps."
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
-            [ordered.set :as os]
+            [flatland.ordered.set :as os]
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
             [structural-typing.guts.preds.pseudopreds :refer [required-path]]))
