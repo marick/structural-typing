@@ -14,7 +14,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "5.1.2"]
+                 [marick/suchwow "5.1.3"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
                  [org.flatland/ordered "1.5.3"]
@@ -24,7 +24,7 @@
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}
 
-  :profiles {:dev {:dependencies [[midje "1.8.3" :exclusions [org.clojure/clojure]]
+  :profiles {:dev {:dependencies [[midje "1.9.0-alpha2" :exclusions [org.clojure/clojure marick/suchwow]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
                                   [com.taoensso/timbre "4.4.0" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
