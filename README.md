@@ -501,5 +501,6 @@ gave me a function I couldn't write correctly myself. [Defprecated](https://gith
 ## Contributors
 
 * Alessandro Andrioni
+* Bahadir Cambel
 * Brian Marick
 * Devin Walters
