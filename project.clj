@@ -14,7 +14,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "5.2.0"]
+                 [marick/suchwow "5.2.3"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
                  [org.flatland/ordered "1.5.3"]
