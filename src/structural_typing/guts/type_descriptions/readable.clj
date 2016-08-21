@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.readable
   (:use structural-typing.clojure.core)
-  (:require [such.readable :as readable]))
+  (:require [such.readable :as readable])
+  (:refer-clojure :exclude [any?]))
 
 
 (defn- stringify [components]

@@ -6,7 +6,8 @@
             [structural-typing.guts.explanations :as explain]
             [structural-typing.assist.oopsie :as oopsie]
             [such.metadata :as meta]
-            [defprecated.core :as depr]))
+            [defprecated.core :as depr])
+  (:refer-clojure :exclude [any?]))
 
 (defn rejects-missing-and-nil [pred]
   (meta/assoc pred ::special-case-handling {:reject-missing? true, :reject-nil? true}))

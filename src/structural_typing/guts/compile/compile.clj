@@ -4,7 +4,8 @@
             [structural-typing.guts.self-check :as self :refer [returns-many]]
             [structural-typing.guts.preds.pseudopreds :as pseudo]
             [structural-typing.guts.exval :as exval]
-            [structural-typing.guts.preds.wrap :as wrap]))
+            [structural-typing.guts.preds.wrap :as wrap])
+  (:refer-clojure :exclude [any?]))
 
 (defn compile-predicates [preds]
   (let [lifted (map wrap/lift preds)]

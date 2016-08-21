@@ -4,7 +4,8 @@
             [such.metadata :as meta]
             [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.defaults :as defaults]
-            [structural-typing.guts.expred :as expred]))
+            [structural-typing.guts.expred :as expred])
+  (:refer-clojure :exclude [any?]))
 
 ;; TODO: make readable have the "ensure-meta" behavior
 

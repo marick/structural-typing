@@ -7,7 +7,8 @@
             [structural-typing.type :as type]
             [such.readable :as readable]
             such.immigration
-            structural-typing.guts.explanations))
+            structural-typing.guts.explanations)
+  (:refer-clojure :exclude [any?]))
 
 (defn exval
   "Generate an \"extended value\". Omitted values are replaced

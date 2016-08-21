@@ -10,7 +10,8 @@
             [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
             [structural-typing.guts.preds.wrap :as wrap]
-            [structural-typing.assist.oopsie :as oopsie]))
+            [structural-typing.assist.oopsie :as oopsie])
+  (:refer-clojure :exclude [any?]))
 
 ;; NAMESPACE NOTES
 

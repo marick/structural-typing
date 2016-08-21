@@ -4,7 +4,8 @@
   (:require [structural-typing.assist.oopsie :as oopsie]
             [structural-typing.assist.format :as format]
             [structural-typing.guts.preds.annotating :as annotating]
-            [such.readable :as readable]))
+            [such.readable :as readable])
+  (:refer-clojure :exclude [any?]))
 
 (defn should-be
   "The typical explanation string is built from a path, expected value,

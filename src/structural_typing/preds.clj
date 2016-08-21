@@ -8,7 +8,8 @@
             [structural-typing.guts.type-descriptions.type-expander :as type-expander]
             [structural-typing.guts.type-descriptions :as type-descriptions]
             [such.readable :as readable])
-  (:use structural-typing.assist.special-words))
+  (:use structural-typing.assist.special-words)
+  (:refer-clojure :exclude [any?]))
 
 (defn member
   "Produce a predicate that's false when applied to a value not a

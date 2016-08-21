@@ -5,7 +5,8 @@
   (:require [structural-typing.guts.exval :as exval]
             [structural-typing.guts.expred :as expred]
             [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.assist.format :as format]))
+            [structural-typing.assist.format :as format])
+  (:refer-clojure :exclude [any?]))
 
 (defn structural-oopsie [kvs]
   (merge (expred/->ExPred 'check-for-bad-structure

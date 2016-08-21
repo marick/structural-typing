@@ -8,7 +8,8 @@
             structural-typing.guts.type-descriptions
             structural-typing.guts.type-descriptions.type-expander
             structural-typing.guts.type-descriptions.flatten
-            structural-typing.guts.type-descriptions.ppps))
+            structural-typing.guts.type-descriptions.ppps)
+  (:refer-clojure :exclude [any?]))
 
 (import-vars [structural-typing.guts.preds.pseudopreds
                required-path

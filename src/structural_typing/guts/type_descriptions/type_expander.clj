@@ -4,7 +4,8 @@
   (:use structural-typing.clojure.core)
   (:require [com.rpl.specter :as specter]
             [com.rpl.specter.macros :as specterm]
-            [such.metadata :as meta]))
+            [such.metadata :as meta])
+  (:refer-clojure :exclude [any?]))
 
 ;;;;                             The (includes :Point) mechanism
 

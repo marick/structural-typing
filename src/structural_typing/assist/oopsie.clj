@@ -2,7 +2,8 @@
   "The declaration of the core data structure: the oopsie. It is produced when a
    predicate is applied to a value and fails. Also utility functions."
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.assist.format :as format]))
+  (:require [structural-typing.assist.format :as format])
+  (:refer-clojure :exclude [any?]))
 
 
 (def oopsie

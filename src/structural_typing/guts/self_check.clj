@@ -1,7 +1,8 @@
 (ns ^:no-doc structural-typing.guts.self-check
     (:use structural-typing.clojure.core)
     (:require [structural-typing.guts.expred :as expred]
-              [structural-typing.guts.exval :as exval]))
+              [structural-typing.guts.exval :as exval])
+    (:refer-clojure :exclude [any?]))
 
 (def types {:expred expred/required-keys
             :exval exval/required-keys

@@ -6,7 +6,8 @@
             [flatland.ordered.set :as os]
             [structural-typing.assist.predicate-defining :as pdef]
             [structural-typing.guts.type-descriptions.flatten :as flatten]
-            [structural-typing.guts.preds.pseudopreds :refer [required-path]]))
+            [structural-typing.guts.preds.pseudopreds :refer [required-path]])
+  (:refer-clojure :exclude [any?]))
 
 (defrecord PPP [path preds])
 

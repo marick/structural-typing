@@ -9,7 +9,8 @@
 "
   (:use structural-typing.clojure.core)
   (:require [structural-typing.guts.type-descriptions :as type-descriptions]
-            [structural-typing.guts.preds.wrap :as wrap]))
+            [structural-typing.guts.preds.wrap :as wrap])
+  (:refer-clojure :exclude [any?]))
 
 
 (import-vars [structural-typing.guts.preds.wrap mark-as-lifted])

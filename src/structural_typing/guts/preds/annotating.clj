@@ -1,7 +1,8 @@
 (ns ^:no-doc structural-typing.guts.preds.annotating
   "Good reporting depends on lifted predicates being annotated with useful information."
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.preds.wrap :as wrap]))
+  (:require [structural-typing.guts.preds.wrap :as wrap])
+  (:refer-clojure :exclude [any?]))
 
 (defn show-as 
   "Associate the given `name` string with the predicate for use when predicate failures

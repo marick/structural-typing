@@ -4,7 +4,8 @@
    Much of this is gathered into the catchall `structural-typing.types` namespace."
   (:use structural-typing.clojure.core)  ; yes: `use`. Glorious, skimmable, terse `use`.
   (:require [structural-typing.assist.oopsie :as oopsie]
-            [structural-typing.assist.format :as format]))
+            [structural-typing.assist.format :as format])
+  (:refer-clojure :exclude [any?]))
 
 (defn default-predicate-explainer
   "Converts an [[oopsie]] into a string of the form \"%s should be `%s`; it is `%s`\"."

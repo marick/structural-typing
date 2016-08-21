@@ -3,7 +3,8 @@
    partial start. You should ignore it."
   (:use structural-typing.clojure.core)
   (:require [such.readable :as readable]
-            [structural-typing.guts.type-descriptions.readable :as readable-path]))
+            [structural-typing.guts.type-descriptions.readable :as readable-path])
+  (:refer-clojure :exclude [any?]))
 
 (def anonymous-name "<custom-predicate>")
 (readable/set-function-elaborations! {:anonymous-name anonymous-name :surroundings ""})

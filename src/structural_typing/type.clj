@@ -12,7 +12,8 @@
             [such.immigration :as immigrate]
             [defprecated.core :as depr])
   (:require structural-typing.assist.special-words
-            structural-typing.assist.defaults))
+            structural-typing.assist.defaults)
+  (:refer-clojure :exclude [any?]))
 
 (import-all-vars structural-typing.assist.special-words)
 

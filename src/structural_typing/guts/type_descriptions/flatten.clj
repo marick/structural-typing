@@ -1,6 +1,7 @@
 (ns ^:no-doc structural-typing.guts.type-descriptions.flatten
   (:use structural-typing.clojure.core)
-  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander]))
+  (:require [structural-typing.guts.type-descriptions.type-expander :as type-expander])
+  (:refer-clojure :exclude [any?]))
 
 (declare map->flatmap map->pairs)
 

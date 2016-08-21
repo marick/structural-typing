@@ -13,7 +13,8 @@
             such.function-makers
             such.imperfection
             clojure.set
-            clojure.string))
+            clojure.string)
+  (:refer-clojure :exclude [any?]))
 
 (such.immigration/import-all-vars such.immigration)
 
