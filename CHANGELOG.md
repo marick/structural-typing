@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [2.0.5]
+- Finish upgrade to Clojure 1.9alpha11.
+
 ## [2.0.4]
 - Update to new suchwow as part of tedious process of upgrading universe to
   Clojure 1.9alpha11.

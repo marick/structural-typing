@@ -1,4 +1,4 @@
-(defproject marick/structural-typing "2.0.4"
+(defproject marick/structural-typing "2.0.5"
   :description "Define types by giving descriptions (perhaps incomplete) of how they're built.
                \"...by how they're built\" means applying arbitrary predicates (especially ones
                about existence) to parts of structures.
@@ -14,17 +14,17 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "5.2.3"]
+                 [marick/suchwow "5.2.4"]
                  [swiss-arrows "1.0.0"]
                  [defprecated "0.1.3"]
-                 [org.flatland/ordered "1.5.3"]
+                 [org.flatland/ordered "1.5.4"]
                  [org.clojure/math.combinatorics "0.1.3"]
                  [com.rpl/specter "0.11.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]]
 
   :repl-options {:init (do (require 'structural-typing.doc)
                            (such.doc/apis))}
 
-  :profiles {:dev {:dependencies [[midje "1.9.0-alpha2" :exclusions [org.clojure/clojure marick/suchwow]]
+  :profiles {:dev {:dependencies [[midje "1.9.0-alpha5" :exclusions [org.clojure/clojure marick/suchwow]]
                                   [org.blancas/morph "0.3.0" :exclusions [org.clojure/clojure]]
                                   [com.taoensso/timbre "4.7.3" :exclusions [org.clojure/clojure]]
                                   [org.clojure/math.numeric-tower "0.0.4"]]}
