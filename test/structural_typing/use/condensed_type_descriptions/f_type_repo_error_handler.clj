@@ -1,10 +1,12 @@
-(ns structural-typing.use.condensed-type-descriptions.f-type-repo-error-handler
+`(ns structural-typing.use.condensed-type-descriptions.f-type-repo-error-handler
   (:require [structural-typing.preds :as pred])
   (:use midje.sweet
         structural-typing.type
         structural-typing.global-type
         structural-typing.clojure.core
-        structural-typing.assist.testutil))
+        structural-typing.assist.testutil)
+  (:refer-clojure :except [any?]))
+
 
 (start-over!)
 

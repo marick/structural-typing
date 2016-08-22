@@ -4,7 +4,9 @@
         structural-typing.global-type
         structural-typing.clojure.core
         structural-typing.assist.testutil)
-  (:require [structural-typing.preds :as pred]))
+  (:require [structural-typing.preds :as pred])
+  (:refer-clojure :except [any?]))
+
 
 (start-over!)
 

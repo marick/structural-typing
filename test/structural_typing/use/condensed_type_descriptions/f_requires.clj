@@ -3,7 +3,9 @@
         structural-typing.type
         structural-typing.global-type
         structural-typing.clojure.core
-        structural-typing.assist.testutil))
+        structural-typing.assist.testutil)
+  (:refer-clojure :except [any?]))
+
 
 (start-over!)
 

@@ -6,7 +6,9 @@
             [structural-typing.guts.explanations :as explain])
   (:use midje.sweet
         structural-typing.assist.testutil
-        structural-typing.assist.special-words))
+        structural-typing.assist.special-words)
+  (:refer-clojure :except [any?]))
+
 
 
 ;;;; The StructurePath extensions we use

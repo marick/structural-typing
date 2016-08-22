@@ -4,7 +4,9 @@
             [structural-typing.guts.compile.compile-path :refer [ALL]]
             [structural-typing.guts.preds.pseudopreds :refer [required-path]]
             [structural-typing.guts.type-descriptions.flatten :as flatten])
-  (:use midje.sweet))
+  (:use midje.sweet)
+  (:refer-clojure :except [any?]))
+
 
 (fact "ppps from `required`"
   (fact "solitary keywords"

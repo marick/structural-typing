@@ -8,7 +8,9 @@
             [blancas.morph.monads :as m]
             [clojure.math.numeric-tower :as math])
   (:use midje.sweet
-        structural-typing.clojure.core))
+        structural-typing.clojure.core)
+  (:refer-clojure :except [any?]))
+
 
 ;; Note: in this version of Morph, two Rights with the same content do not count as equal.
 

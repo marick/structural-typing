@@ -3,7 +3,9 @@
   (:require [structural-typing.guts.explanations :as subject]
             [structural-typing.guts.exval :refer [->ExVal]]
             [structural-typing.guts.compile.compile-path :refer [ALL RANGE]]
-            [midje.sweet :refer :all]))
+            [midje.sweet :refer :all])
+  (:refer-clojure :except [any?]))
+
 
 (fact "you can make an oopsie with a by-order-of-arguments explainer"
   (let [make:oopsies (subject/mkfn:structural-singleton-oopsies
